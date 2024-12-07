@@ -109,6 +109,12 @@
   text-decoration: line-through;
 }
 
+.option.keyboard-selected {
+  border-color: var(--button-hover);
+  box-shadow: 0 0 0 2px var(--button-hover);
+  outline: none;
+}
+
 .visibility-toggle {
   display: flex;
   align-items: center;
