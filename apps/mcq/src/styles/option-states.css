@@ -1,0 +1,58 @@
+.option.correct {
+  background: #1b4b2c;
+  border-color: #2d8049;
+  color: #e6e6e6;
+}
+
+[data-theme="light"] .option.correct {
+  background: #e7f6e7;
+  border-color: #4caf50;
+  color: #213547;
+}
+
+.option.incorrect {
+  background: #4b1b1b;
+  border-color: #802d2d;
+  color: #e6e6e6;
+}
+
+[data-theme="light"] .option.incorrect {
+  background: #ffebee;
+  border-color: #f44336;
+  color: #213547;
+}
+
+.option.selected {
+  background: #2d2d4d;
+  border-color: #4d4d8d;
+  color: #e6e6e6;
+}
+
+[data-theme="light"] .option.selected {
+  background: #e8eaf6;
+  border-color: #3f51b5;
+  color: #213547;
+}
+
+.option.greyed {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.option.keyboard-selected {
+  border-color: var(--button-hover);
+  box-shadow: 0 0 0 2px var(--button-hover);
+  outline: none;
+}
+
+.option.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.option.disabled:hover {
+  background: var(--button-bg);
+  border-color: var(--button-border);
+  transform: none;
+}

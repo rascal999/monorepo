@@ -16,6 +16,12 @@ input[type="file"]:hover {
   background: var(--button-bg);
 }
 
+.upload-section h1 {
+  color: var(--text-color);
+  opacity: 0.9;
+  margin-bottom: 1rem;
+}
+
 .uploaded-files {
   margin-top: 2rem;
   padding: 1rem;

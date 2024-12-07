@@ -1,0 +1,118 @@
+.question-navigation {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+}
+
+.question-nav-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.question-nav-btn {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--component-bg);
+  color: var(--text-color);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.question-nav-btn:hover {
+  border-color: var(--button-hover);
+}
+
+.question-nav-btn.active {
+  background: var(--button-hover);
+  color: white;
+  border-color: var(--button-hover);
+}
+
+.question-nav-btn.correct {
+  background: #1b4b2c;
+  border-color: #2d8049;
+  color: #e6e6e6;
+}
+
+[data-theme="light"] .question-nav-btn.correct {
+  background: #e7f6e7;
+  border-color: #4caf50;
+  color: #213547;
+}
+
+.question-nav-btn.incorrect {
+  background: #4b1b1b;
+  border-color: #802d2d;
+  color: #e6e6e6;
+}
+
+[data-theme="light"] .question-nav-btn.incorrect {
+  background: #ffebee;
+  border-color: #f44336;
+  color: #213547;
+}
+
+.question-nav-btn.answered {
+  background: #2d2d4d;
+  border-color: #4d4d8d;
+  color: #e6e6e6;
+}
+
+[data-theme="light"] .question-nav-btn.answered {
+  background: #e8eaf6;
+  border-color: #3f51b5;
+  color: #213547;
+}
+
+.question-nav-btn.flagged {
+  box-shadow: 0 0 0 2px #ffd700;
+}
+
+.flag-btn {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.flag-btn:hover {
+  opacity: 1;
+  background: none;
+  border: none;
+}
+
+/* Page navigation buttons */
+.page-nav {
+  padding: 0.25rem 0.5rem;
+  background: var(--button-bg);
+  border: 1px solid transparent;
+  color: var(--button-text);
+}
+
+.page-nav:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-nav:not(:disabled):hover {
+  border-color: var(--button-hover);
+  background: var(--button-hover);
+}
