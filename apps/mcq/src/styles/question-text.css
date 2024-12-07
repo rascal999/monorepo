@@ -1,0 +1,24 @@
+.question-text {
+  font-size: 1.2rem;
+  margin-bottom: 0.25rem;
+  padding: 0.5rem;
+  background: var(--component-bg);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  color: var(--text-color);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.question-header span {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}

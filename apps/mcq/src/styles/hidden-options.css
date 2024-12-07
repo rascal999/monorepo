@@ -1,0 +1,30 @@
+.hidden-options {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  background: var(--component-bg);
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  color: var(--text-color);
+  text-align: center;
+  padding: 2rem;
+  animation: fadeIn 0.3s ease-in;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hidden-options:hover {
+  background: var(--button-bg);
+  border-color: var(--button-hover);
+}
+
+[data-theme="light"] .hidden-options:hover {
+  background: #f0f0f0;
+  border-color: #3f51b5;
+}
+
+.hidden-options p {
+  color: var(--text-color);
+  font-size: 1.1rem;
+}

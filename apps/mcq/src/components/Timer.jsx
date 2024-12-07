@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 
-export function Timer({ isRunning, onTick }) {
+export function Timer({ isRunning, onTick, showTimer = true }) {
   const [elapsedTime, setElapsedTime] = useState(0);
   const startTimeRef = useRef(null);
   const previousTimeRef = useRef(0);
@@ -37,6 +37,10 @@ export function Timer({ isRunning, onTick }) {
     const seconds = totalSeconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
+
+  if (!showTimer) {
+    return null;
+  }
 
   return (
     <div className="timer">

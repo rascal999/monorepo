@@ -1,9 +1,7 @@
-.container {
-  max-width: 1000px;
-  min-width: 500px;
-  width: 100%;
+.quiz-container {
+  width: 800px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2.5rem;
   background: #f9f9f9;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -12,11 +10,31 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1.25rem;
+  padding: 0.75rem 0;
 }
 
 h1 {
   text-align: center;
   color: #333;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.uploaded-section.section {
+  gap: 0;
+}
+
+@media screen and (max-width: 840px) {
+  .quiz-container {
+    width: 95%;
+    min-width: 320px;
+    padding: 1.5rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .quiz-container {
+    width: 100%;
+    border-radius: 0;
+  }
 }

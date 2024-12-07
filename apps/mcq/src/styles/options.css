@@ -1,0 +1,72 @@
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0.5rem 0 2rem 0;
+  width: 100%;
+}
+
+.option {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--option-bg);
+  color: var(--text-color);
+  text-align: left;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.option:hover {
+  background: var(--option-hover-bg);
+  border-color: var(--border-hover-color);
+}
+
+.option.correct {
+  background: var(--correct-bg);
+  border-color: var(--correct-border);
+  color: var(--correct-text);
+}
+
+.option.incorrect {
+  background: var(--incorrect-bg);
+  border-color: var(--incorrect-border);
+  color: var(--incorrect-text);
+}
+
+.option.selected {
+  background: var(--selected-bg);
+  border-color: var(--selected-border);
+  color: var(--selected-text);
+}
+
+.option.keyboard-selected {
+  outline: 3px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+.answer-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.visibility-toggle {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: var(--text-color);
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.visibility-toggle:hover {
+  opacity: 1;
+}
+
+.option.greyed {
+  opacity: 0.5;
+}

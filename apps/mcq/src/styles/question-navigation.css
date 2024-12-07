@@ -1,0 +1,168 @@
+/* Question Navigation Styles */
+.question-navigation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.25rem 0 0.5rem 0;
+  padding: 0.5rem;
+  background: var(--component-bg);
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+  overflow-x: auto;
+}
+
+/* Container for question buttons */
+.question-navigation > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.25rem;
+  flex-wrap: nowrap;
+  margin: 0;
+  padding: 0 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.question-nav-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+}
+
+.question-nav-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  background: var(--component-bg);
+  color: var(--text-color);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.page-nav {
+  padding: 0;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--component-bg);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-nav:last-child {
+  margin-right: 0;
+}
+
+.page-nav:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.question-nav-btn:hover {
+  background: var(--button-bg);
+  border-color: var(--button-hover);
+  color: var(--button-text);
+}
+
+/* Active state - must come before correct/incorrect to take precedence */
+.question-nav-btn.active {
+  background: #1976d2 !important;
+  border-color: #1976d2 !important;
+  color: white !important;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
+}
+
+[data-theme="dark"] .question-nav-btn.active {
+  background: #2196f3 !important;
+  border-color: #2196f3 !important;
+}
+
+/* Correct/Incorrect states - only visible when not active */
+.question-nav-btn.correct:not(.active) {
+  background: #2d8049;
+  border-color: #2d8049;
+  color: white;
+}
+
+[data-theme="light"] .question-nav-btn.correct:not(.active) {
+  background: #4caf50;
+  border-color: #4caf50;
+}
+
+.question-nav-btn.incorrect:not(.active) {
+  background: #d32f2f;
+  border-color: #d32f2f;
+  color: white;
+}
+
+[data-theme="light"] .question-nav-btn.incorrect:not(.active) {
+  background: #f44336;
+  border-color: #f44336;
+}
+
+/* Flag button styles */
+.flag-btn {
+  padding: 2px;
+  border: none;
+  background: transparent;
+  color: var(--text-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  z-index: 1;
+  transition: color 0.2s ease;
+}
+
+.flag-btn[aria-label="Unflag question"] {
+  color: #f44336;
+}
+
+[data-theme="dark"] .flag-btn[aria-label="Unflag question"] {
+  color: #ff5252;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .question-navigation {
+    gap: 0.25rem;
+    padding: 0.25rem;
+  }
+
+  .question-nav-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+  
+  .question-nav-wrapper {
+    width: 35px;
+    height: 35px;
+  }
+
+  .page-nav {
+    width: 28px;
+    height: 28px;
+  }
+}
