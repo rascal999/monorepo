@@ -14,6 +14,11 @@ export function QuestionDisplay({
 }) {
   const [hiddenAnswers, setHiddenAnswers] = useState(new Set());
 
+  // Reset hiddenAnswers when changing questions
+  useEffect(() => {
+    setHiddenAnswers(new Set());
+  }, [currentQuestionIndex]);
+
   // Auto-reveal choices if showAnswersStraightaway is true
   useEffect(() => {
     if (showAnswersStraightaway && !revealedQuestions.has(currentQuestionIndex)) {
