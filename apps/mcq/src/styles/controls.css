@@ -51,6 +51,12 @@
   transition: background-color 0.3s ease;
 }
 
+.question-nav-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .question-nav-btn {
   width: 40px;
   height: 40px;
@@ -71,6 +77,33 @@
   background: var(--button-bg);
   border-color: var(--button-hover);
   color: var(--button-text);
+}
+
+.flag-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--text-color);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.flag-btn svg {
+  transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+.flag-btn:hover {
+  color: #ff9800;
+}
+
+.flagged .flag-btn,
+.flag-btn[aria-label="Unflag question"] {
+  color: #ff9800;
 }
 
 /* Active state - must come before correct/incorrect to take precedence */

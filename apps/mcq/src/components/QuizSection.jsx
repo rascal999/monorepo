@@ -1,5 +1,5 @@
 import { Timer } from './Timer';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function QuizSection({
   title,
@@ -20,9 +20,74 @@ export function QuizSection({
 }) {
   const [hiddenAnswers, setHiddenAnswers] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(0);
+  const [selectedOptionIndex, setSelectedOptionIndex] = useState(-1);
   const currentQuestion = questions[currentQuestionIndex];
   const progressPercentage = ((currentQuestionIndex + 1) / questions.length) * 100;
   const questionsPerPage = 10;
+
+  // Handle keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!currentQuestion) return;
+
+      switch (e.key) {
+        case 'ArrowRight':
+          if (currentQuestionIndex < questions.length - 1) {
+            onNextQuestion();
+          }
+          break;
+        case 'ArrowLeft':
+          if (currentQuestionIndex > 0) {
+            onPreviousQuestion();
+          }
+          break;
+        case 'ArrowUp':
+          if (revealedQuestions.has(currentQuestionIndex)) {
+            e.preventDefault(); // Prevent page scroll when cycling through answers
+            setSelectedOptionIndex(prev => {
+              const newIndex = prev <= 0 ? currentQuestion.options.length - 1 : prev - 1;
+              return newIndex;
+            });
+          }
+          break;
+        case 'ArrowDown':
+          if (revealedQuestions.has(currentQuestionIndex)) {
+            e.preventDefault(); // Prevent page scroll when cycling through answers
+            setSelectedOptionIndex(prev => {
+              const newIndex = prev >= currentQuestion.options.length - 1 ? 0 : prev + 1;
+              return newIndex;
+            });
+          }
+          break;
+        case ' ':
+          if (!revealedQuestions.has(currentQuestionIndex)) {
+            e.preventDefault(); // Prevent spacebar from scrolling
+            onRevealAnswers();
+          }
+          break;
+        case 'Enter':
+          if (selectedOptionIndex !== -1 && revealedQuestions.has(currentQuestionIndex)) {
+            onOptionSelect(selectedOptionIndex);
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentQuestionIndex, questions.length, selectedOptionIndex, revealedQuestions, currentQuestion]);
+
+  // Reset selected option and hidden answers when question changes
+  useEffect(() => {
+    setSelectedOptionIndex(-1);
+    setHiddenAnswers(new Set()); // Reset hidden answers when question changes
+  }, [currentQuestionIndex]);
+
+  // Use effect to handle page synchronization with current question
+  useEffect(() => {
+    const newPage = Math.floor(currentQuestionIndex / questionsPerPage);
+    setCurrentPage(newPage);
+  }, [currentQuestionIndex, questionsPerPage]);
 
   const toggleAnswerVisibility = (index) => {
     const newHiddenAnswers = new Set(hiddenAnswers);
@@ -60,14 +125,12 @@ export function QuizSection({
     return Array.from({ length: end - start }, (_, i) => start + i);
   };
 
-  // Auto-adjust current page when navigating questions
-  if (currentQuestionIndex < currentPage * questionsPerPage || 
-      currentQuestionIndex >= (currentPage + 1) * questionsPerPage) {
-    const newPage = Math.floor(currentQuestionIndex / questionsPerPage);
-    if (newPage !== currentPage) {
+  // Handle page navigation without changing the current question
+  const handlePageChange = (newPage) => {
+    if (newPage >= 0 && newPage < totalPages) {
       setCurrentPage(newPage);
     }
-  }
+  };
 
   return (
     <div className="section">
@@ -93,7 +156,7 @@ export function QuizSection({
       <div className="question-navigation">
         <button 
           className="page-nav"
-          onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+          onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 0}
         >
           ←
@@ -124,7 +187,7 @@ export function QuizSection({
         </div>
         <button 
           className="page-nav"
-          onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+          onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages - 1}
         >
           →
@@ -153,6 +216,7 @@ export function QuizSection({
             const isSelected = userAnswers[currentQuestionIndex] === index;
             const isCorrect = currentQuestion.correctAnswer === index;
             const isHidden = hiddenAnswers.has(index);
+            const isKeyboardSelected = index === selectedOptionIndex;
             
             let className = 'option';
             if (isAnswered) {
@@ -164,6 +228,9 @@ export function QuizSection({
             }
             if (isHidden) {
               className += ' greyed';
+            }
+            if (isKeyboardSelected) {
+              className += ' keyboard-selected';
             }
 
             return (
@@ -192,7 +259,7 @@ export function QuizSection({
           })
         ) : (
           <div className="hidden-options clickable" onClick={onRevealAnswers}>
-            <p>Click here to see the possible answers</p>
+            <p>Click here or press Spacebar to see the possible answers</p>
           </div>
         )}
       </div>
