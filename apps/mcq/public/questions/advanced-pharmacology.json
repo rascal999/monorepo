@@ -1,0 +1,55 @@
+{
+    "title": "Advanced Pharmacology Quiz",
+    "questions": [
+        {
+            "question": "Which class of drugs inhibits the sodium-glucose cotransporter in the proximal tubule?",
+            "options": [
+                "Thiazide diuretics",
+                "SGLT2 inhibitors",
+                "Loop diuretics",
+                "ACE inhibitors"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which drug is most appropriate for treating bradycardia caused by high vagal tone?",
+            "options": [
+                "Propranolol",
+                "Atropine",
+                "Amlodipine",
+                "Furosemide"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the primary mechanism of action of pimobendan?",
+            "options": [
+                "Beta-adrenergic receptor agonism",
+                "Phosphodiesterase III inhibition and calcium sensitization",
+                "Calcium channel blockade",
+                "Sodium channel blockade"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which antibiotic class is contraindicated in young, growing animals due to cartilage damage?",
+            "options": [
+                "Aminoglycosides",
+                "Fluoroquinolones",
+                "Tetracyclines",
+                "Macrolides"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which of the following drugs reduces afterload in heart failure by directly dilating arterioles?",
+            "options": [
+                "Furosemide",
+                "Enalapril",
+                "Hydralazine",
+                "Spironolactone"
+            ],
+            "correctAnswer": 2
+        }
+    ]
+}

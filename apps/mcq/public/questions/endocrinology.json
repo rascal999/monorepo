@@ -1,0 +1,55 @@
+{
+    "title": "Endocrinology Quiz",
+    "questions": [
+        {
+            "question": "What is the primary effect of parathyroid hormone (PTH) on calcium metabolism?",
+            "options": [
+                "Decreases calcium reabsorption in the kidney",
+                "Stimulates bone resorption to release calcium",
+                "Inhibits calcium absorption from the gastrointestinal tract",
+                "Increases urinary calcium excretion"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What triggers the release of aldosterone from the adrenal cortex?",
+            "options": [
+                "Increased plasma sodium levels",
+                "High plasma calcium levels",
+                "Increased plasma potassium levels and angiotensin II",
+                "Low plasma glucose levels"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which hormone is responsible for inhibiting insulin secretion during stress?",
+            "options": [
+                "Cortisol",
+                "Growth hormone",
+                "Epinephrine",
+                "Thyroxine"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "How does antidiuretic hormone (ADH) increase water reabsorption in the kidney?",
+            "options": [
+                "Stimulating ENaC channels in the collecting duct",
+                "Increasing aquaporin-2 insertion in the apical membrane of principal cells",
+                "Increasing sodium reabsorption in the proximal tubule",
+                "Stimulating bicarbonate reabsorption in the distal tubule"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which of the following is the primary hormone responsible for long-term regulation of blood glucose levels?",
+            "options": [
+                "Insulin",
+                "Glucagon",
+                "Cortisol",
+                "Epinephrine"
+            ],
+            "correctAnswer": 2
+        }
+    ]
+}

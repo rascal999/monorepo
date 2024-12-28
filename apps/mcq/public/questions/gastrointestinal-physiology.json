@@ -1,0 +1,55 @@
+{
+    "title": "Gastrointestinal Physiology Quiz",
+    "questions": [
+        {
+            "question": "What is the primary role of secretin in the digestive system?",
+            "options": [
+                "Stimulate gastric acid secretion",
+                "Stimulate bicarbonate secretion from the pancreas",
+                "Stimulate bile secretion from the liver",
+                "Inhibit gastric motility"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which neurotransmitter primarily mediates the relaxation of gastrointestinal smooth muscle?",
+            "options": [
+                "Acetylcholine",
+                "Norepinephrine",
+                "Nitric oxide",
+                "Dopamine"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which hormone stimulates gastric acid secretion by parietal cells?",
+            "options": [
+                "Cholecystokinin",
+                "Gastrin",
+                "Secretin",
+                "Somatostatin"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the function of the sodium-glucose transporter (SGLT1) in the intestinal epithelium?",
+            "options": [
+                "Facilitates glucose diffusion into the bloodstream",
+                "Actively absorbs glucose and sodium into enterocytes",
+                "Secretes glucose into the intestinal lumen",
+                "Enhances the breakdown of disaccharides"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which ion is actively secreted into the intestinal lumen to facilitate water movement during diarrhea?",
+            "options": [
+                "Sodium",
+                "Potassium",
+                "Chloride",
+                "Calcium"
+            ],
+            "correctAnswer": 2
+        }
+    ]
+}

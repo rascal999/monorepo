@@ -1,0 +1,55 @@
+{
+    "title": "Acid-Base Regulation Quiz",
+    "questions": [
+        {
+            "question": "The kidney compensates for respiratory acidosis by increasing the reabsorption of which ion?",
+            "options": [
+                "Sodium",
+                "Potassium",
+                "Bicarbonate",
+                "Chloride"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which enzyme is critical for bicarbonate reabsorption in the proximal tubule?",
+            "options": [
+                "Na+/K+-ATPase",
+                "Carbonic anhydrase",
+                "Aldolase",
+                "Glutaminase"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "In chronic metabolic acidosis, which amino acid plays a key role in renal ammoniagenesis?",
+            "options": [
+                "Alanine",
+                "Glutamine",
+                "Glycine",
+                "Arginine"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which renal compensation occurs in metabolic alkalosis?",
+            "options": [
+                "Increased ammonium excretion",
+                "Decreased bicarbonate reabsorption",
+                "Increased chloride secretion",
+                "Decreased potassium reabsorption"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the primary site for acid excretion in the kidney?",
+            "options": [
+                "Proximal tubule",
+                "Thick ascending limb",
+                "Distal tubule and collecting duct",
+                "Glomerulus"
+            ],
+            "correctAnswer": 2
+        }
+    ]
+}

@@ -1,0 +1,55 @@
+{
+    "title": "Neurophysiology Quiz",
+    "questions": [
+        {
+            "question": "Which ion influx triggers neurotransmitter release at the synaptic cleft?",
+            "options": [
+                "Sodium",
+                "Potassium",
+                "Calcium",
+                "Chloride"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the role of acetylcholinesterase in synaptic transmission?",
+            "options": [
+                "Blocks calcium channels",
+                "Breaks down acetylcholine in the synaptic cleft",
+                "Enhances neurotransmitter release",
+                "Reuptakes acetylcholine into the presynaptic neuron"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which of the following is an excitatory neurotransmitter in the central nervous system?",
+            "options": [
+                "Glycine",
+                "Glutamate",
+                "Gamma-aminobutyric acid (GABA)",
+                "Dopamine"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "How does the parasympathetic nervous system primarily affect heart rate?",
+            "options": [
+                "Increases heart rate via beta-1 adrenergic receptors",
+                "Decreases heart rate via muscarinic cholinergic receptors",
+                "Increases blood pressure via alpha-1 adrenergic receptors",
+                "Increases coronary vasodilation via nitric oxide release"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which ion is primarily responsible for the repolarization phase of the action potential in neurons?",
+            "options": [
+                "Sodium",
+                "Potassium",
+                "Calcium",
+                "Chloride"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

@@ -1,0 +1,55 @@
+{
+    "title": "Pharmacology Quiz",
+    "questions": [
+        {
+            "question": "Which class of drugs is most effective in reducing proteinuria in glomerular disease?",
+            "options": [
+                "Diuretics",
+                "ACE inhibitors",
+                "Beta-blockers",
+                "Calcium channel blockers"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the mechanism of action of spironolactone?",
+            "options": [
+                "Sodium channel blocker",
+                "Aldosterone receptor antagonist",
+                "Angiotensin II receptor antagonist",
+                "Vasodilator"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which diuretic acts at the distal convoluted tubule?",
+            "options": [
+                "Furosemide",
+                "Hydrochlorothiazide",
+                "Spironolactone",
+                "Acetazolamide"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which of the following is a common side effect of loop diuretics?",
+            "options": [
+                "Hyperkalemia",
+                "Hypokalemia",
+                "Hypercalcemia",
+                "Hypoglycemia"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which antihypertensive drug class inhibits the conversion of angiotensin I to angiotensin II?",
+            "options": [
+                "Beta-blockers",
+                "ACE inhibitors",
+                "Calcium channel blockers",
+                "Angiotensin II receptor blockers"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

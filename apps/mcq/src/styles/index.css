@@ -4,4 +4,8 @@
 @import './controls.css';
 @import './summary.css';
 @import './animations.css';
-@import './forms.css';
+@import './file-input.css';
+@import './search-input.css';
+@import './upload-section.css';
+@import './file-list.css';
+@import './quiz-sections.css';

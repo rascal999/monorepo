@@ -1,0 +1,55 @@
+{
+    "title": "Renal Physiology Quiz",
+    "questions": [
+        {
+            "question": "Which of the following forces primarily drives glomerular filtration?",
+            "options": [
+                "Oncotic pressure in Bowman's space",
+                "Hydrostatic pressure in the glomerular capillaries",
+                "Oncotic pressure in the plasma",
+                "Hydrostatic pressure in Bowman's space"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the significance of the negatively charged glycoproteins in the glomerular basement membrane?",
+            "options": [
+                "To attract anions for filtration",
+                "To repel negatively charged plasma proteins",
+                "To facilitate selective size filtration",
+                "To increase hydrostatic pressure"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What happens to the glomerular filtration rate (GFR) when the afferent arteriole constricts?",
+            "options": [
+                "Increases",
+                "Decreases",
+                "Remains unchanged",
+                "Depends on efferent arteriole tone"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "In the proximal tubule, glucose reabsorption is mediated by which transporter?",
+            "options": [
+                "Na+/K+-ATPase pump",
+                "SGLT2 and SGLT1",
+                "NKCC2",
+                "ENaC"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What percentage of filtered sodium is reabsorbed in the proximal tubule?",
+            "options": [
+                "15%",
+                "25%",
+                "65%",
+                "85%"
+            ],
+            "correctAnswer": 2
+        }
+    ]
+}

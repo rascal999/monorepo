@@ -31,3 +31,9 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Quiz resources
+resources
+*.docx
+*.doc
+*.pdf
