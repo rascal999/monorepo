@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin: 0 0 0.5rem 0;  /* Changed from 0.25rem top/bottom to only bottom margin */
+  margin: 0 0 0.5rem 0;
   padding: 0.5rem;
   background: var(--component-bg);
   border-radius: 8px;
@@ -13,8 +13,14 @@
   height: 50px;
 }
 
-/* Container for question buttons */
-.question-navigation > div {
+.nav-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.questions-grid {
   display: flex;
   justify-content: flex-start;
   gap: 0.75rem;
@@ -147,38 +153,39 @@
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .question-navigation {
-    gap: 0.5rem;
+    gap: 0.25rem;
     padding: 0.5rem;
     margin: 0 0 0.5rem 0;
-    height: 60px; /* Increased height to accommodate larger buttons */
+    height: 52px;
   }
 
-  .question-navigation > div {
-    gap: 0.5rem;
-    padding: 0;
+  .nav-row {
+    gap: 0.25rem;
+  }
+
+  .questions-grid {
+    gap: 0.25rem;
+    justify-content: space-between;
+    max-width: calc(100% - 90px); /* Account for page nav buttons */
   }
 
   .question-nav-btn {
-    width: 40px; /* Increased from 32px */
-    height: 40px; /* Increased from 32px */
-    font-size: 1rem; /* Increased from 0.85rem */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1;
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
   }
   
   .question-nav-wrapper {
-    width: 42px; /* Increased to accommodate larger button */
-    height: 42px; /* Increased to accommodate larger button */
-    margin: 0 0.125rem;
+    width: 38px;
+    height: 38px;
+    margin: 0;
   }
 
   .page-nav {
-    width: 40px; /* Increased from 32px */
-    height: 40px; /* Increased from 32px */
-    font-size: 1.1rem; /* Slightly larger font for better visibility */
-    min-width: 40px;
-    margin: 0 0.125rem;
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+    min-width: 36px;
+    margin: 0;
   }
 }

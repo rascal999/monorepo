@@ -25,21 +25,14 @@ export class QuestionHandler {
       [optionsWithIndices[i], optionsWithIndices[j]] = [optionsWithIndices[j], optionsWithIndices[i]];
     }
 
-    // Add letter labels and find new correct answer index
-    const letters = ['a', 'b', 'c', 'd'];
-    const labeledOptions = optionsWithIndices.map((opt, index) => ({
-      text: `${letters[index]}. ${opt.text}`,
-      originalIndex: opt.originalIndex
-    }));
-
     // Find the new index of the correct answer
-    const newCorrectAnswerIndex = labeledOptions.findIndex(opt => 
+    const newCorrectAnswerIndex = optionsWithIndices.findIndex(opt => 
       opt.originalIndex === question.correctAnswer
     );
 
     return {
       question: question.question,
-      options: labeledOptions.map(opt => opt.text),
+      options: optionsWithIndices.map(opt => opt.text),
       correctAnswer: newCorrectAnswerIndex
     };
   }
