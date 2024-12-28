@@ -68,22 +68,13 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  margin-left: 1rem;
-  flex-shrink: 0;
-}
-
-.file-actions button {
-  padding: 0.25em 0.75em;
-  font-size: 0.9rem;
-  height: 26px;
-  line-height: 1;
-  border-radius: 4px;
-  min-width: 50px;
 }
 
 .file-actions .delete-btn {
-  min-width: 26px;
-  width: 26px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   padding: 0;
   font-size: 1.1rem;
   display: flex;

@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { QuestionHandler } from '../utils/QuestionHandler';
 
 export function useQuizState() {
   const [section, setSection] = useState('upload');
@@ -18,6 +19,7 @@ export function useQuizState() {
   const [showTimer, setShowTimer] = useState(true);
   const [showAnswersStraightaway, setShowAnswersStraightaway] = useState(false);
   const [hideAnswerFeedback, setHideAnswerFeedback] = useState(false);
+  const [randomizeQuestions, setRandomizeQuestions] = useState(true);
 
   const calculateScore = useCallback((answers) => {
     return answers.reduce((total, answer, index) => {
@@ -29,7 +31,11 @@ export function useQuizState() {
   const startQuiz = useCallback((quizData) => {
     try {
       setTitle(quizData.title);
-      setQuestions(quizData.questions);
+      const preparedQuestions = QuestionHandler.prepareQuestions(
+        quizData.questions, 
+        quizData.preferences?.randomizeQuestions ?? true
+      );
+      setQuestions(preparedQuestions);
       setCurrentQuestionIndex(0);
       setScore(0);
       setUserAnswers([]);
@@ -38,6 +44,7 @@ export function useQuizState() {
       setShowTimer(quizData.preferences?.showTimer ?? true);
       setShowAnswersStraightaway(quizData.preferences?.showAnswersStraightaway ?? false);
       setHideAnswerFeedback(quizData.preferences?.hideAnswerFeedback ?? false);
+      setRandomizeQuestions(quizData.preferences?.randomizeQuestions ?? true);
       setIsTimerRunning(quizData.preferences?.showTimer ?? true);
       setShowAnswers(false);
       setRevealedQuestions(new Set());
@@ -137,6 +144,7 @@ export function useQuizState() {
       setShowTimer(true);
       setShowAnswersStraightaway(false);
       setHideAnswerFeedback(false);
+      setRandomizeQuestions(true);
     } catch (error) {
       console.error('Error restarting quiz:', error);
     }
@@ -172,6 +180,7 @@ export function useQuizState() {
     showTimer,
     showAnswersStraightaway,
     hideAnswerFeedback,
+    randomizeQuestions,
 
     // Actions
     startQuiz,
@@ -184,6 +193,7 @@ export function useQuizState() {
     handleTimerTick,
     restartQuiz,
     toggleQuestionFlag,
-    setShowAnswers
+    setShowAnswers,
+    setRandomizeQuestions
   };
 }
