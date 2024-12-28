@@ -1,0 +1,205 @@
+{
+    "title": "Cardiovascular System - Cardiac Function Part 2",
+    "questions": [
+        {
+            "question": "What does the second heart sound (S2) represent?",
+            "options": [
+                "Closure of AV valves",
+                "Closure of semilunar valves",
+                "Opening of AV valves",
+                "Atrial contraction"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What percentage of ventricular filling occurs passively before atrial contraction?",
+            "options": [
+                "50%",
+                "70%",
+                "80-90%",
+                "100%"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What condition increases the pressure work of the left ventricle?",
+            "options": [
+                "Mitral regurgitation",
+                "Pulmonic stenosis",
+                "Aortic stenosis",
+                "Atrial fibrillation"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which heart sound is associated with atrial contraction in a non-compliant ventricle?",
+            "options": [
+                "S1",
+                "S2",
+                "S3",
+                "S4"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "What is the normal ejection fraction in healthy dogs?",
+            "options": [
+                "30-40%",
+                "50-65%",
+                "70-80%",
+                "90-100%"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What mechanism increases stroke volume in response to increased preload?",
+            "options": [
+                "Sympathetic stimulation",
+                "Frank-Starling mechanism",
+                "Reduced afterload",
+                "Vagal inhibition"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What does the first heart sound (S1) represent?",
+            "options": [
+                "Closure of AV valves",
+                "Closure of semilunar valves",
+                "Rapid ventricular filling",
+                "Atrial contraction"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which factor directly determines afterload?",
+            "options": [
+                "Preload pressure",
+                "Ventricular compliance",
+                "Systemic vascular resistance",
+                "End-diastolic volume"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which condition typically causes a systolic murmur?",
+            "options": [
+                "Aortic regurgitation",
+                "Mitral regurgitation",
+                "Patent ductus arteriosus",
+                "Pulmonic stenosis"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which heart defect results in both left and right ventricular hypertrophy?",
+            "options": [
+                "Pulmonic stenosis",
+                "Mitral regurgitation",
+                "Patent ductus arteriosus",
+                "Tricuspid regurgitation"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the typical heart rate of a resting dog?",
+            "options": [
+                "60 bpm",
+                "80 bpm",
+                "100 bpm",
+                "120 bpm"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the normal systolic pressure in the right ventricle?",
+            "options": [
+                "10 mmHg",
+                "20 mmHg",
+                "40 mmHg",
+                "80 mmHg"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which heart sound reflects rapid ventricular filling?",
+            "options": [
+                "S1",
+                "S2",
+                "S3",
+                "S4"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the effect of parasympathetic stimulation on the heart?",
+            "options": [
+                "Increased heart rate and contractility",
+                "Reduced heart rate and AV node conduction",
+                "Increased preload and afterload",
+                "Reduced stroke volume"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which condition is characterized by continuous murmur throughout the cardiac cycle?",
+            "options": [
+                "Mitral stenosis",
+                "Aortic stenosis",
+                "Patent ductus arteriosus",
+                "Atrial fibrillation"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What happens to diastolic filling time during high heart rates?",
+            "options": [
+                "Increases",
+                "Decreases",
+                "Remains constant",
+                "Stops entirely"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which heart sound is loudest in dogs with mitral regurgitation?",
+            "options": [
+                "S1",
+                "S2",
+                "S3",
+                "S4"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the normal systolic pressure in the left ventricle?",
+            "options": [
+                "60 mmHg",
+                "80 mmHg",
+                "120 mmHg",
+                "160 mmHg"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the primary compensatory mechanism for systemic hypertension?",
+            "options": [
+                "Ventricular dilation",
+                "Ventricular hypertrophy",
+                "Increased preload",
+                "Decreased afterload"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which adaptation can reduce contractile efficiency if prolonged?",
+            "options": [
+                "Hypertrophy",
+                "Dilation",
+                "Increased compliance",
+                "Increased preload"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

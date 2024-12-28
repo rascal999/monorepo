@@ -1,0 +1,55 @@
+{
+    "title": "Respiratory System - Anatomy and Physiology",
+    "questions": [
+        {
+            "question": "What is the primary function of the alveoli in the respiratory system?",
+            "options": [
+                "Warm and humidify inhaled air",
+                "Filter particulates from inspired air",
+                "Facilitate gas exchange between air and blood",
+                "Provide structural support to the lungs"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which structure prevents airway collapse in the trachea?",
+            "options": [
+                "Goblet cells",
+                "Smooth muscle",
+                "Cartilage rings",
+                "Ciliated epithelium"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which of the following best describes the role of surfactant in the lungs?",
+            "options": [
+                "Increases alveolar surface tension",
+                "Reduces elastic recoil of the lung",
+                "Promotes airway constriction",
+                "Prevents gas exchange in alveoli"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Where does the majority of airway resistance occur in the respiratory system?",
+            "options": [
+                "Alveoli",
+                "Trachea",
+                "Nasal cavity, pharynx, and larynx",
+                "Bronchioles"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which muscle is primarily responsible for quiet inspiration?",
+            "options": [
+                "External intercostal muscles",
+                "Internal intercostal muscles",
+                "Abdominal muscles",
+                "Diaphragm"
+            ],
+            "correctAnswer": 3
+        }
+    ]
+}

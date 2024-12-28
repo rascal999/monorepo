@@ -1,0 +1,55 @@
+{
+    "title": "Respiratory System - Ventilation and Mechanics",
+    "questions": [
+        {
+            "question": "Which of the following describes alveolar ventilation?",
+            "options": [
+                "Total volume of air breathed in one minute",
+                "Volume of fresh air reaching perfused alveoli per minute",
+                "Total lung capacity minus dead space",
+                "Volume of air remaining in the lungs after maximal expiration"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What happens to alveolar pressure during inspiration?",
+            "options": [
+                "Increases above atmospheric pressure",
+                "Decreases below atmospheric pressure",
+                "Remains equal to atmospheric pressure",
+                "Fluctuates unpredictably"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which term describes the volume of air remaining in the lungs after a normal exhalation?",
+            "options": [
+                "Tidal volume",
+                "Residual volume",
+                "Functional residual capacity",
+                "Inspiratory reserve volume"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which condition increases lung compliance?",
+            "options": [
+                "Pulmonary fibrosis",
+                "Emphysema",
+                "Acute respiratory distress syndrome",
+                "Atelectasis"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which of the following primarily determines airway resistance?",
+            "options": [
+                "Total cross-sectional area of airways",
+                "Volume of air in the lungs",
+                "Elastic properties of the chest wall",
+                "Activity of respiratory muscles"
+            ],
+            "correctAnswer": 0
+        }
+    ]
+}

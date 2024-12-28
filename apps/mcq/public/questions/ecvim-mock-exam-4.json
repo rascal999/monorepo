@@ -1,0 +1,205 @@
+{
+    "title": "ECVIM Mock Exam Questions - Part 4",
+    "questions": [
+        {
+            "question": "What hematologic change occurs with reverse PDA?",
+            "options": [
+                "Anemia",
+                "Polycythemia",
+                "Thrombocytopenia",
+                "Leukopenia"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the treatment of choice for von Willebrand disease (vWD)?",
+            "options": [
+                "Fresh frozen plasma",
+                "Cryoprecipitate",
+                "Whole blood",
+                "Desmopressin only"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the primary function of von Willebrand factor (vWF)?",
+            "options": [
+                "Coagulation factor activation",
+                "Platelet adhesion",
+                "Fibrin cross-linking",
+                "Anticoagulation inhibition"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What happens 24 hours after sudden blood loss of 500 mL in a 20 kg dog?",
+            "options": [
+                "Hypovolemic shock",
+                "Compensated oxygen delivery",
+                "Severe dehydration",
+                "Coagulopathy"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "How is osmolarity calculated?",
+            "options": [
+                "Na × K – glucose + urea",
+                "2(Na + K) + glucose + urea",
+                "Na + K × 2 + glucose + urea",
+                "(Na × K) + glucose + urea"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which substance is excreted in the greatest quantity by the kidneys?",
+            "options": [
+                "Glucose",
+                "Sodium",
+                "Urea",
+                "Creatinine"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is produced in the G1 phase of the cell cycle?",
+            "options": [
+                "DNA and RNA",
+                "RNA and protein",
+                "DNA only",
+                "RNA only"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Where are red blood cells (RBCs) destroyed in mycoplasma infections?",
+            "options": [
+                "Liver sinusoids",
+                "Spleen",
+                "Bone marrow",
+                "Peripheral circulation"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "What is the mechanism of action of paclitaxel?",
+            "options": [
+                "Inhibits tubule assembly",
+                "Inhibits tubule disassembly",
+                "Disrupts DNA replication",
+                "Blocks spindle fiber formation"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the main adverse effect of doxorubicin related to ABCD1?",
+            "options": [
+                "Hepatotoxicity",
+                "Cardiotoxicity",
+                "Neurotoxicity",
+                "Renal toxicity"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What percentage of surfactant is composed of lipids?",
+            "options": [
+                "70%",
+                "80%",
+                "90%",
+                "95%"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What enzyme deficiency causes an accumulation of pregnenolone and ACTH?",
+            "options": [
+                "3β-hydroxysteroid dehydrogenase",
+                "11β-hydroxylase",
+                "17α-hydroxylase",
+                "21-hydroxylase"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What causes hypercalcemia and hypophosphatemia in primary hyperparathyroidism?",
+            "options": [
+                "Increased PTH secretion",
+                "Increased vitamin D synthesis",
+                "Decreased renal excretion of phosphate",
+                "Increased intestinal absorption of calcium"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What cell types dominate vaginal cytology during diestrus?",
+            "options": [
+                "Parabasal and basal cells",
+                "Superficial and keratinized cells",
+                "Neutrophils and macrophages",
+                "Intermediate cells"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What does a highly sensitive diagnostic test detect?",
+            "options": [
+                "All animals with disease",
+                "All animals without disease",
+                "Most animals without false positives",
+                "Most animals with false negatives"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is true of X-linked recessive inheritance?",
+            "options": [
+                "Affected mothers have all affected sons",
+                "Only females are carriers",
+                "Both sexes are equally affected",
+                "Males can transmit the disease"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What hepatic antioxidant scavenges free radicals?",
+            "options": [
+                "Silybin",
+                "Glutathione",
+                "Ascorbic acid",
+                "Tocopherol"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What findings are consistent with protein-losing enteropathy (PLE)?",
+            "options": [
+                "Hypercholesterolemia and increased serum albumin",
+                "Hypocholesterolemia and hypoalbuminemia",
+                "Hypermagnesemia and reduced fecal alpha-1 PI",
+                "Hypomagnesemia and normal fecal alpha-1 PI"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the function of reverse transcriptase?",
+            "options": [
+                "Transcribes DNA to RNA",
+                "Converts RNA to DNA",
+                "Synthesizes mRNA",
+                "Degrades viral proteins"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the primary iron storage molecule in the body?",
+            "options": [
+                "Transferrin",
+                "Ferritin",
+                "Hemoglobin",
+                "Myoglobin"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

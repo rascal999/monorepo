@@ -1,0 +1,105 @@
+{
+    "title": "Respiratory System - Defense Mechanisms and Pathophysiology",
+    "questions": [
+        {
+            "question": "Which structure is primarily responsible for mucociliary clearance in the respiratory tract?",
+            "options": [
+                "Alveolar macrophages",
+                "Goblet cells",
+                "Ciliated epithelial cells",
+                "Club cells"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What happens to alveolar macrophage activity during hypoxia?",
+            "options": [
+                "Activity is enhanced",
+                "Activity is suppressed",
+                "Activity remains unchanged",
+                "Activity shifts to lymphatic clearance"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the primary function of bronchial smooth muscle contraction?",
+            "options": [
+                "Increase airway resistance during exercise",
+                "Facilitate airflow to peripheral airways",
+                "Protect the lungs by reducing particle entry",
+                "Regulate alveolar compliance"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the key mediator of pulmonary edema in left-sided heart failure?",
+            "options": [
+                "Decreased pulmonary capillary hydrostatic pressure",
+                "Increased pulmonary capillary hydrostatic pressure",
+                "Increased alveolar osmotic pressure",
+                "Decreased pulmonary lymphatic drainage"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What type of hypersensitivity reaction is most common in asthma?",
+            "options": [
+                "Type I (IgE-mediated)",
+                "Type II (cytotoxic)",
+                "Type III (immune complex-mediated)",
+                "Type IV (delayed hypersensitivity)"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the most common cause of hypoxemia in pulmonary diseases?",
+            "options": [
+                "Reduced cardiac output",
+                "Ventilation-perfusion mismatch",
+                "Decreased atmospheric oxygen",
+                "Increased oxygen demand"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "How does pulmonary fibrosis primarily impair gas exchange?",
+            "options": [
+                "Decreases alveolar surface area",
+                "Increases alveolar dead space",
+                "Thickens the alveolar-capillary membrane",
+                "Reduces respiratory muscle strength"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which condition is characterized by an increased residual volume and decreased expiratory flow rates?",
+            "options": [
+                "Pulmonary fibrosis",
+                "Asthma",
+                "Chronic obstructive pulmonary disease (COPD)",
+                "Pulmonary hypertension"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which of the following is a hallmark feature of acute respiratory distress syndrome (ARDS)?",
+            "options": [
+                "Increased pulmonary compliance",
+                "Decreased alveolar-capillary permeability",
+                "Non-cardiogenic pulmonary edema",
+                "Hypocapnia"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which of the following increases the risk of pulmonary thromboembolism?",
+            "options": [
+                "Hyperkalemia",
+                "Hypovolemia",
+                "Hypercoagulability",
+                "Alveolar overdistention"
+            ],
+            "correctAnswer": 2
+        }
+    ]
+}

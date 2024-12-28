@@ -1,0 +1,105 @@
+{
+    "title": "ECVIM Example MCQs - Part 2",
+    "questions": [
+        {
+            "question": "Which of the following statements regarding rodenticide toxicity in dogs is CORRECT?",
+            "options": [
+                "Activated partial thromboplastin time (APTT) becomes prolonged before prothrombin time (PT)",
+                "Anticoagulant rodenticides inhibit the recycling of Vitamin K from Vitamin K epoxide",
+                "Anticoagulant rodenticides result in reduced activity of clotting factors II, VII, IX and XI",
+                "Vitamin K1 should be administered intravenously"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which one of the following statements about vasopressin (ADH or AVP) is CORRECT?",
+            "options": [
+                "ADH and oxytocin are peptides of similar structures",
+                "ADH reduces the permeability of the collecting ducts to urea",
+                "Glucocorticoids stimulate release of ADH, leading to thirst, but inhibit the action of ADH, leading to polyuria",
+                "In the presence of ADH, the osmolarity of the tubular fluid within the distal and collecting tubules is lower compared to the osmolarity in the Bowman's space"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which one of the following statements regarding bilirubin measurement is CORRECT?",
+            "options": [
+                "Bilirubin measurement is unaffected by the presence of lipemia",
+                "High bilirubin can be present in septic patients",
+                "High bilirubin is a common finding in patients with a congenital porto-systemic liver shunt",
+                "In hemolytic anemia, unconjugated bilirubin is usually high and conjugated bilirubin is usually normal"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which one of the following statements about serologic testing for heartworm disease (Dirofilariasis) is WRONG?",
+            "options": [
+                "Antibody testing is the test of choice for diagnosing heartworm disease in cats",
+                "Antigen testing is more sensitive than microfilarial concentration tests in dogs",
+                "Circulating antigen is generally undetectable until 6 to 7 months following infection in dogs",
+                "In dogs, a positive antigen test 12 weeks after treatment with adulticide is indicative of treatment failure"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which systemic abnormality can cause atrial fibrillation?",
+            "options": [
+                "Digoxin toxicity",
+                "Hypokalaemia",
+                "Hypothyroidism",
+                "Severe anaemia"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which one of the following statements regarding gene therapy is the MOST ACCURATE?",
+            "options": [
+                "Inappropriate inflammatory responses to gene therapy are very uncommon",
+                "Non-viral vectors are used in most gene therapy trials",
+                "Systemic delivery of viral vectors is impeded by clearance by the immune system",
+                "Treatment of infectious disorders is a main target for gene therapy"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which of the following statements about aminoglycoside antibiotics is CORRECT?",
+            "options": [
+                "Aminoglycosides accumulate in proximal renal tubular cells",
+                "Aminoglycosides accumulate in the mesangial cells of the renal glomerulus",
+                "Aminoglycosides have good activity against anaerobic bacteria",
+                "Aminoglycosides interfere with the synthesis of the bacterial cell wall"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the CORRECT definition for Multiple Organ Dysfunction Syndrome (MODS)?",
+            "options": [
+                "A clinical syndrome caused by systemic inflammation of infectious or non-infectious origin",
+                "Altered function of two or more organs secondary to the Systemic Inflammatory Response Syndrome such that homeostasis cannot be maintained without intervention",
+                "The systemic inflammatory response to bacteremia associated with organ dysfunction and manifestations of hypoperfusion or hypotension",
+                "The systemic inflammatory response to infection with hypotension, despite adequate fluid resuscitation along with the manifestations of hypoperfusion"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which one of the following statements regarding leptospirosis is CORRECT?",
+            "options": [
+                "Because they have a natural resistance to infection, cats do not develop leptospiremia or leptospiruria",
+                "Microscopic agglutination test (MAT) titers are usually positive within the first 3 days following infection",
+                "Soon after beginning doxycycline therapy most dogs stop shedding leptospires in the urine",
+                "Vaccinated dogs with low MAT titers against the vaccine serovars remain susceptible to the other serovars"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "What causes a left‐shift of the oxygen‐hemoglobin dissociation curve?",
+            "options": [
+                "Decrease in blood hydrogen ion concentrations (i.e. increased blood pH, alkalemia)",
+                "Exercise",
+                "Increase in the concentration of 2,3‐DPG",
+                "Rise of pCO2"
+            ],
+            "correctAnswer": 0
+        }
+    ]
+}

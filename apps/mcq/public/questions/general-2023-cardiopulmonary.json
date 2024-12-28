@@ -1,0 +1,85 @@
+{
+    "title": "General 2023 - Cardiopulmonary",
+    "questions": [
+        {
+            "question": "What is the best test to diagnose airway collapse?",
+            "options": [
+                "CT",
+                "MRI",
+                "Fluoroscopy",
+                "X-rays"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "In an old Staffordshire Terrier with a murmur, crackles, and exercise intolerance, what is the most likely diagnosis?",
+            "options": [
+                "Heart failure",
+                "Idiopathic pulmonary fibrosis",
+                "Angiostrongyliasis",
+                "Chronic bronchitis"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the best diagnostic test for pulmonary thromboembolism?",
+            "options": [
+                "D-dimers",
+                "A-a gradient",
+                "CT angiography",
+                "TEG"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which marker is a surrogate of ventricular stretching?",
+            "options": [
+                "ANP",
+                "BNP",
+                "Cardiac troponin I",
+                "Cardiac troponin C"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which phase of the cardiac action potential involves closing of which channels?",
+            "options": [
+                "Potassium fast channels",
+                "Potassium slow channels",
+                "Calcium channels",
+                "Sodium channels"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is lacking in pulmonary hypertension?",
+            "options": [
+                "Thromboxane",
+                "Angiotensin",
+                "Prostacyclin",
+                "Serotonin"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What causes a left-shift of the oxygen-hemoglobin dissociation curve?",
+            "options": [
+                "Decrease in blood hydrogen ion concentrations (i.e. increased blood pH, alkalemia)",
+                "Exercise",
+                "Increase in the concentration of 2,3-DPG",
+                "Rise of pCO2"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which condition is NOT a potential cause of pulmonary hypertension in dogs?",
+            "options": [
+                "Generalised alveolar hypoxia",
+                "Left-sided congestive heart failure",
+                "Living at high altitude",
+                "Treatment with alpha-adrenergic agonists"
+            ],
+            "correctAnswer": 3
+        }
+    ]
+}

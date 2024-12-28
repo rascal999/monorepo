@@ -1,0 +1,85 @@
+{
+    "title": "General 2023 - Neurology",
+    "questions": [
+        {
+            "question": "The oculomotor nerve innervates which of these muscles?",
+            "options": [
+                "Retractor bulbi",
+                "Lateral rectus",
+                "Pupillary constrictor",
+                "Dorsal oblique"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "In a dog with circling to the right and deficits on the left side, what is the most likely lesion location?",
+            "options": [
+                "Right forebrain",
+                "Left forebrain",
+                "Right brainstem",
+                "Left brainstem"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "In a case with right-sided facial paralysis, absent menace on the right, absent palpebral, and hemiparesis on the right, what is the most likely lesion location?",
+            "options": [
+                "Right forebrain",
+                "Right brainstem",
+                "Left forebrain",
+                "Left brainstem"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which clinical sign is most consistent with cerebellar disease?",
+            "options": [
+                "Reduced mentation",
+                "Reduced proprioception",
+                "Absent menace",
+                "Paralysis"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "In a dog with pupil dilation, normal menace, PLR consensual present but not direct, where is the lesion?",
+            "options": [
+                "Left optic nerve",
+                "Left retina",
+                "Left optic radiation",
+                "Left oculomotor"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "What is the expected finding with a C6-T2 lesion?",
+            "options": [
+                "Reduced patellar reflex",
+                "Reduced tibial reflex",
+                "Reduced muscle in pelvic limbs",
+                "Reduced withdrawal in forelimbs"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Depolarization in neurons is primarily due to the influx of which ion?",
+            "options": [
+                "Calcium",
+                "Sodium",
+                "Potassium",
+                "Chloride"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the precursor of noradrenaline?",
+            "options": [
+                "Tryptophan",
+                "Serotonin",
+                "Dopamine",
+                "Acetylcholine"
+            ],
+            "correctAnswer": 2
+        }
+    ]
+}

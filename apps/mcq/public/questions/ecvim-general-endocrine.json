@@ -1,0 +1,55 @@
+{
+    "title": "ECVIM General Quiz - Endocrine",
+    "questions": [
+        {
+            "question": "Parathyroid hormone (PTH) acts to increase calcium by which of the following mechanisms?",
+            "options": [
+                "Enhancing bone reabsorption by osteoclasts",
+                "Decreasing the actions of 1-α hydroxylase",
+                "Decreasing calcium transport in the distal convoluted tubules",
+                "Decreasing filtration of calcium at the glomerulus"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Most thyroid hormones are protein bound when in the circulation. Which proteins are responsible for the greatest amount of thyroid hormone binding?",
+            "options": [
+                "Transthyretin",
+                "Thyroid-binding globulin",
+                "Albumin",
+                "Lipoprotein"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which thyroid hormone is the major secretory product of the thyroid gland, and which thyroid hormone is most physiologically active in target tissues?",
+            "options": [
+                "Thyroxine (T4); Triiodothyronine (T3)",
+                "Reverse T3 (rT3); Thyroxine (T4)",
+                "Triiodothyronine (T3); Thyroxine (T4)",
+                "Triiodothyronine (T3); Reverse T3 (rT3)"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "The short polypeptide chain that is cleaved from insulin prior to its secretion and may be used as a marker of residual beta-cell function in patients with diabetes is called:",
+            "options": [
+                "A-peptide",
+                "B-peptide",
+                "C-peptide",
+                "D-peptide"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which of the following hormones is secreted from the zona glomerulosa of the adrenal gland?",
+            "options": [
+                "Aldosterone",
+                "Cortisol",
+                "Epinephrine",
+                "Progesterone"
+            ],
+            "correctAnswer": 0
+        }
+    ]
+}

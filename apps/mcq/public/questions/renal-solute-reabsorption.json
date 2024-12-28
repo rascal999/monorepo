@@ -1,0 +1,205 @@
+{
+    "title": "Renal Physiology - Solute Reabsorption",
+    "questions": [
+        {
+            "question": "Which renal structure reabsorbs the majority of filtered solutes?",
+            "options": [
+                "Proximal tubule",
+                "Loop of Henle",
+                "Distal tubule",
+                "Collecting duct"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What drives most solute reabsorption in the proximal tubule?",
+            "options": [
+                "Passive diffusion",
+                "Osmotic pressure",
+                "Na⁺/K⁺-ATPase activity",
+                "Aquaporin channels"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which hormone stimulates sodium reabsorption in the distal tubule and collecting duct?",
+            "options": [
+                "Antidiuretic hormone",
+                "Aldosterone",
+                "Parathyroid hormone",
+                "Calcitonin"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which solute is absorbed by secondary active transport with sodium in the proximal tubule?",
+            "options": [
+                "Chloride",
+                "Calcium",
+                "Glucose",
+                "Urea"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the primary mechanism of bicarbonate reabsorption in the proximal tubule?",
+            "options": [
+                "Na⁺/Cl⁻ cotransporter",
+                "Na⁺/H⁺ exchanger and carbonic anhydrase activity",
+                "Active transport via proton pumps",
+                "Passive diffusion"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which transport protein is inhibited by loop diuretics?",
+            "options": [
+                "Na⁺/Cl⁻ cotransporter",
+                "NKCC2 (Na⁺/K⁺/2Cl⁻ cotransporter)",
+                "ENaC (epithelial sodium channel)",
+                "Na⁺/H⁺ exchanger"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Where does most calcium reabsorption occur in the nephron?",
+            "options": [
+                "Proximal tubule",
+                "Thick ascending limb",
+                "Distal convoluted tubule",
+                "Collecting duct"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which hormone decreases phosphate reabsorption in the proximal tubule?",
+            "options": [
+                "Aldosterone",
+                "Parathyroid hormone",
+                "Vitamin D3",
+                "Calcitonin"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which molecule is reabsorbed via receptor-mediated endocytosis in the proximal tubule?",
+            "options": [
+                "Glucose",
+                "Low-molecular-weight proteins",
+                "Sodium",
+                "Creatinine"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the primary effect of thiazide diuretics in the nephron?",
+            "options": [
+                "Inhibition of Na⁺/Cl⁻ cotransport in the distal tubule",
+                "Stimulation of potassium secretion in the collecting duct",
+                "Reduction of calcium reabsorption in the proximal tubule",
+                "Blockade of water reabsorption in the loop of Henle"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which renal structure reabsorbs the majority of filtered solutes?",
+            "options": [
+                "Collecting duct",
+                "Proximal tubule",
+                "Distal convoluted tubule",
+                "Loop of Henle"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which transporter is primarily responsible for sodium reabsorption in the proximal tubule?",
+            "options": [
+                "Sodium-glucose cotransporter (SGLT)",
+                "Na+/K+ ATPase pump",
+                "Na+/H+ exchanger (NHE3)",
+                "Sodium-calcium exchanger (NCX)"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What percentage of filtered glucose is reabsorbed under normal conditions?",
+            "options": [
+                "25%",
+                "50%",
+                "75%",
+                "100%"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Which hormone regulates phosphate reabsorption in the proximal tubule?",
+            "options": [
+                "Aldosterone",
+                "Parathyroid hormone",
+                "Vasopressin",
+                "Atrial natriuretic peptide"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What drives water reabsorption in the proximal tubule?",
+            "options": [
+                "Osmotic gradients created by solute reabsorption",
+                "Active transport of water channels",
+                "Filtration pressure in Bowman's capsule",
+                "Hydrostatic pressure from glomerular capillaries"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which segment of the nephron generates a lumen-positive potential to drive cation reabsorption?",
+            "options": [
+                "Proximal tubule",
+                "Thick ascending limb of Henle's loop",
+                "Distal convoluted tubule",
+                "Collecting duct"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What role does the Na+/K+/2Cl− cotransporter (NKCC2) play?",
+            "options": [
+                "Glucose reabsorption in the proximal tubule",
+                "Sodium and chloride reabsorption in the thick ascending limb",
+                "Potassium secretion in the collecting duct",
+                "Phosphate reabsorption in the distal tubule"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which ion is reabsorbed paracellularly in the proximal tubule due to solvent drag?",
+            "options": [
+                "Potassium",
+                "Sodium",
+                "Chloride",
+                "Calcium"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "How does furosemide (a loop diuretic) inhibit solute reabsorption?",
+            "options": [
+                "Blocks Na+/K+/2Cl− cotransporter in the thick ascending limb",
+                "Inhibits Na+/K+ ATPase in the proximal tubule",
+                "Prevents sodium reabsorption in the collecting duct",
+                "Reduces water permeability in the distal tubule"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the primary mechanism of bicarbonate reabsorption in the proximal tubule?",
+            "options": [
+                "Na+/HCO3− cotransporter on the basolateral membrane",
+                "Carbonic anhydrase-mediated conversion to CO2 and H2O",
+                "Proton secretion via H+/ATPase pumps",
+                "All of the above"
+            ],
+            "correctAnswer": 3
+        }
+    ]
+}

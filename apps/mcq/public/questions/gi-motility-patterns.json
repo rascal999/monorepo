@@ -1,0 +1,55 @@
+{
+    "title": "GI Motility Patterns",
+    "questions": [
+        {
+            "question": "Which of the following motility patterns occurs during fasting and is regulated by motilin?",
+            "options": [
+                "Segmentation",
+                "Migrating motor complex (MMC)",
+                "Mass movement",
+                "Peristalsis"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the primary function of segmentation in the small intestine?",
+            "options": [
+                "Propel contents forward",
+                "Mix ingesta with digestive enzymes",
+                "Absorb nutrients",
+                "Empty the stomach"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which structure prevents gastric reflux into the esophagus?",
+            "options": [
+                "Pyloric sphincter",
+                "Ileocecal valve",
+                "Lower esophageal sphincter",
+                "Myenteric plexus"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which species relies heavily on colonic segmentation for water absorption?",
+            "options": [
+                "Ruminants",
+                "Dogs",
+                "Horses",
+                "Birds"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What stimulates the rectosphincteric reflex?",
+            "options": [
+                "Duodenal distension",
+                "Rectal distension",
+                "Gastric emptying",
+                "Bowel ischemia"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

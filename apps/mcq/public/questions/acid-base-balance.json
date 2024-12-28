@@ -1,0 +1,105 @@
+{
+    "title": "Acid-Base Balance",
+    "questions": [
+        {
+            "question": "Which is the primary buffer in extracellular fluid?",
+            "options": [
+                "Phosphate buffer system",
+                "Protein buffer system",
+                "Bicarbonate buffer system",
+                "Ammonium buffer system"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What percentage of filtered bicarbonate is reabsorbed in the proximal tubule?",
+            "options": [
+                "~10%",
+                "~25%",
+                "~50%",
+                "~80-90%"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Which enzyme catalyzes the formation of bicarbonate in renal tubular cells?",
+            "options": [
+                "Amylase",
+                "Carbonic anhydrase",
+                "Lipase",
+                "Peptidase"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which renal cell type secretes H⁺ during acidosis?",
+            "options": [
+                "Type A intercalated cells",
+                "Type B intercalated cells",
+                "Principal cells",
+                "Macula densa cells"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the major source of ammonium excreted by the kidneys?",
+            "options": [
+                "Carbon dioxide",
+                "Glutamine metabolism",
+                "Fatty acid oxidation",
+                "Lactate metabolism"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which factor primarily drives the chloride-bicarbonate exchanger on the basolateral membrane?",
+            "options": [
+                "High intracellular bicarbonate concentration",
+                "Sodium-potassium pump activity",
+                "Elevated extracellular potassium levels",
+                "Increased tubular flow rate"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the normal arterial blood pH?",
+            "options": [
+                "6.8",
+                "7.0",
+                "7.4",
+                "7.6"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which condition is characterized by increased HCO₃⁻ reabsorption and compensatory hypoventilation?",
+            "options": [
+                "Respiratory acidosis",
+                "Metabolic acidosis",
+                "Metabolic alkalosis",
+                "Respiratory alkalosis"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which hormone enhances bicarbonate secretion in the pancreatic ducts?",
+            "options": [
+                "Gastrin",
+                "Secretin",
+                "CCK",
+                "Somatostatin"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which of the following is the primary urinary buffer for H⁺ excretion?",
+            "options": [
+                "Ammonium",
+                "Phosphate",
+                "Sulfate",
+                "Creatinine"
+            ],
+            "correctAnswer": 0
+        }
+    ]
+}

@@ -1,0 +1,85 @@
+{
+    "title": "General 2023 - Endocrine and Metabolic",
+    "questions": [
+        {
+            "question": "In a dehydrated cat with diabetes and acidemia, hypokalemia, what is the appropriate treatment?",
+            "options": [
+                "Insulin only",
+                "KCl and saline",
+                "Normosol and insulin",
+                "Insulin, KCl, and fluid therapy"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "What is a common biochemical finding in a hyperthyroid cat?",
+            "options": [
+                "High blood glucose",
+                "Anemia",
+                "High AST",
+                "Leukocytosis"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "In a dog with hypercalcemia and normal PTH, what is the most likely differential diagnosis?",
+            "options": [
+                "Primary hyperparathyroidism",
+                "Vitamin D toxicosis",
+                "Idiopathic hypercalcemia",
+                "Malignancy"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Low dose dexamethasone test results are most consistent with which condition?",
+            "options": [
+                "Pituitary-dependent hyperadrenocorticism",
+                "Cannot differentiate types of hyperadrenocorticism",
+                "Adrenal tumor",
+                "Normal adrenal function"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which factor is most significant for prognosis in dogs with pituitary macroadenomas?",
+            "options": [
+                "Hypertension",
+                "Polyuria/polydipsia",
+                "Neurological signs",
+                "High endogenous ACTH"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "In a dog with elevated TSH and T4, which condition is most likely?",
+            "options": [
+                "Thyroid carcinoma",
+                "Phenobarbital treatment",
+                "Treatment with steroids",
+                "Lymphocytic thyroiditis"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What causes insulin resistance in cats?",
+            "options": [
+                "Hypersomatotropism",
+                "Hyperthyroidism",
+                "Cushing's syndrome",
+                "All of the above"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "What are ketones primarily derived from in diabetic ketoacidosis?",
+            "options": [
+                "Oxaloacetic acid",
+                "Succinate",
+                "Fatty acids",
+                "Glucose"
+            ],
+            "correctAnswer": 2
+        }
+    ]
+}

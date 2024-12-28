@@ -1,0 +1,55 @@
+{
+    "title": "Respiratory System - Pharmacology",
+    "questions": [
+        {
+            "question": "What is the primary mechanism of action of beta-2 adrenergic agonists in the respiratory system?",
+            "options": [
+                "Increase bronchial smooth muscle contraction",
+                "Stimulate mucociliary clearance",
+                "Relax bronchial smooth muscle",
+                "Reduce pulmonary capillary hydrostatic pressure"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which class of drugs is most effective for long-term control of asthma and airway inflammation?",
+            "options": [
+                "Beta-2 agonists",
+                "Anticholinergics",
+                "Corticosteroids",
+                "Mast cell stabilizers"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the role of theophylline in respiratory pharmacology?",
+            "options": [
+                "Inhibits histamine release from mast cells",
+                "Stimulates beta-1 adrenergic receptors",
+                "Increases cyclic AMP to relax smooth muscle",
+                "Blocks leukotriene receptors"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which drug is used to decrease pulmonary hypertension by inhibiting endothelin-1 receptors?",
+            "options": [
+                "Sildenafil",
+                "Bosentan",
+                "Albuterol",
+                "Fluticasone"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the primary effect of anticholinergic drugs on the respiratory system?",
+            "options": [
+                "Decrease mucous production",
+                "Induce bronchodilation by blocking muscarinic receptors",
+                "Increase surfactant secretion",
+                "Stimulate alveolar macrophages"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

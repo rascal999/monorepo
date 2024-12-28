@@ -1,0 +1,205 @@
+{
+    "title": "Cardiovascular System - ECG Interpretation",
+    "questions": [
+        {
+            "question": "What does the PR interval represent in an ECG?",
+            "options": [
+                "Atrial contraction duration",
+                "Time from atrial depolarization to ventricular depolarization",
+                "Ventricular contraction duration",
+                "Time for one complete heartbeat"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the primary cause of the T wave on an ECG?",
+            "options": [
+                "Ventricular depolarization",
+                "Atrial repolarization",
+                "Ventricular repolarization",
+                "Delayed atrial contraction"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which ECG interval is used to calculate heart rate?",
+            "options": [
+                "PR interval",
+                "QT interval",
+                "RR interval",
+                "PP interval"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the approximate normal duration of the QRS complex in a large dog?",
+            "options": [
+                "0.2 s",
+                "0.1 s",
+                "0.05 s",
+                "0.25 s"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What abnormality is indicated by ST segment elevation?",
+            "options": [
+                "Ventricular fibrillation",
+                "Myocardial ischemia or infarction",
+                "Atrial fibrillation",
+                "Ventricular hypertrophy"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which limb lead measures voltage between the left forelimb and the right forelimb?",
+            "options": [
+                "Lead I",
+                "Lead II",
+                "Lead III",
+                "aVR"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the main feature of ventricular tachycardia on an ECG?",
+            "options": [
+                "Irregularly spaced QRS complexes with a slow ventricular rate",
+                "Rapid QRS complexes without preceding P waves",
+                "Normal QRS complexes with prolonged PR intervals",
+                "Low-amplitude QRS complexes"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is a common cause of low-amplitude QRS complexes on an ECG?",
+            "options": [
+                "Left ventricular hypertrophy",
+                "Pericardial effusion",
+                "AV node block",
+                "Ventricular tachycardia"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is Einthoven's triangle?",
+            "options": [
+                "A representation of ventricular conduction pathways",
+                "The relationship between standard limb leads in ECG",
+                "A method for measuring heart rate",
+                "A diagnostic tool for ischemia"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "In atrial fibrillation, what is the characteristic ECG finding?",
+            "options": [
+                "P waves followed by irregularly spaced QRS complexes",
+                "No distinct P waves and irregular RR intervals",
+                "Regularly spaced QRS complexes with prolonged PR intervals",
+                "T wave inversion"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the typical atrial rate in sinus tachycardia?",
+            "options": [
+                "<60 bpm",
+                "60–100 bpm",
+                ">100 bpm",
+                ">150 bpm"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What feature distinguishes first-degree AV block?",
+            "options": [
+                "Absence of P waves",
+                "Prolonged PR interval with regular QRS complexes",
+                "Sporadic QRS complexes without preceding P waves",
+                "Complete dissociation of P waves and QRS complexes"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What does a prolonged QT interval suggest?",
+            "options": [
+                "Hyperkalemia",
+                "Ventricular hypertrophy",
+                "Prolonged ventricular depolarization and repolarization",
+                "Atrial tachycardia"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which condition may produce a negative QRS complex in lead I?",
+            "options": [
+                "Left ventricular hypertrophy",
+                "Right ventricular hypertrophy",
+                "Pericardial effusion",
+                "Sinus tachycardia"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the standard calibration for voltage in an ECG?",
+            "options": [
+                "5 mm = 1 mV",
+                "10 mm = 1 mV",
+                "15 mm = 1 mV",
+                "20 mm = 1 mV"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which lead is most commonly used for ECG interpretation in small animals?",
+            "options": [
+                "Lead I",
+                "Lead II",
+                "Lead III",
+                "aVF"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What arrhythmia involves atrial depolarization at rates exceeding 300 bpm?",
+            "options": [
+                "Ventricular tachycardia",
+                "Atrial flutter",
+                "Atrial fibrillation",
+                "Sinus tachycardia"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What characterizes third-degree AV block?",
+            "options": [
+                "Prolonged PR interval with regular QRS complexes",
+                "Sporadic QRS complexes with missing P waves",
+                "Complete dissociation between P waves and QRS complexes",
+                "Irregularly spaced QRS complexes"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What condition is diagnosed with frequent premature QRS complexes without preceding P waves?",
+            "options": [
+                "Premature atrial contractions",
+                "Ventricular tachycardia",
+                "Premature ventricular contractions",
+                "AV node block"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the significance of the QT interval?",
+            "options": [
+                "Time for atrial depolarization and contraction",
+                "Time for ventricular depolarization and repolarization",
+                "Time between atrial and ventricular depolarization",
+                "Time for ventricular contraction"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

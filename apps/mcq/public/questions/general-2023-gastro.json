@@ -1,0 +1,105 @@
+{
+    "title": "General 2023 - Gastroenterology and Hepatology",
+    "questions": [
+        {
+            "question": "Post prandial bile acids are most useful for distinguishing which condition?",
+            "options": [
+                "Pre-hepatic from post-hepatic disease",
+                "Intra from extra hepatic shunt",
+                "Extra cholestasis from intra hepatic cholestasis",
+                "None of these"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "In a cat with high ALP, normal GGT, and hyperbilirubinemia, what is the most likely differential?",
+            "options": [
+                "Hepatic lipidosis",
+                "Cholangiohepatitis",
+                "Pancreatitis",
+                "IBD"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the best diagnostic test for EPI?",
+            "options": [
+                "High TLI",
+                "High PLI",
+                "Low cobalamin",
+                "Low folate"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which test is most reliable for diagnosing pancreatitis?",
+            "options": [
+                "PLI",
+                "TLI",
+                "Ultrasound",
+                "CT"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What stimulates secretin release?",
+            "options": [
+                "Acetylcholine",
+                "Noradrenaline",
+                "GABA",
+                "Serotonin"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What effect does gastrin have?",
+            "options": [
+                "Inhibits acid secretion",
+                "Reduces mucosal growth",
+                "Stimulates gastric mucosal growth",
+                "Decreases pepsin secretion"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Where are bile acids primarily reabsorbed?",
+            "options": [
+                "Jejunum",
+                "Duodenum",
+                "Ileum",
+                "Colon"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is required for intrinsic factor absorption?",
+            "options": [
+                "B12",
+                "B9",
+                "B3",
+                "Folic acid"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which statement about folate and cobalamin absorption is correct?",
+            "options": [
+                "Folate is absorbed in the distal small intestine by diffusion",
+                "Cobalamin is absorbed in the distal small intestine by diffusion",
+                "Cobalamin requires R-protein binding for absorption",
+                "Cobalamin is absorbed by receptor-mediated process in distal small intestine"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Which statement regarding gallbladder mucocele (GM) is correct?",
+            "options": [
+                "GM is always a surgical emergency",
+                "GM is commonly linked to hypothyroidism and hyperadrenocorticism",
+                "Hyperlipidemia is associated with the pathogenesis of GM",
+                "Long-term complications after cholecystectomy are common"
+            ],
+            "correctAnswer": 2
+        }
+    ]
+}

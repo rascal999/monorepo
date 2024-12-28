@@ -1,0 +1,105 @@
+{
+    "title": "ECVIM Example MCQs",
+    "questions": [
+        {
+            "question": "What is the difference between intracellular and extracellular electrolyte and protein fluid content in a healthy dog?",
+            "options": [
+                "Intracellular fluid is higher in potassium, phosphate and protein and lower in sodium and magnesium",
+                "Intracellular fluid is higher in potassium, magnesium, chloride and protein and lower in sodium",
+                "Intracellular fluid is higher in potassium, magnesium, bicarbonates and protein and lower in sodium and chloride",
+                "Intracellular fluid is higher in potassium, magnesium and protein and lower in sodium, bicarbonates and chloride"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "The Cushing's response (Cushing's reflex) and pupillary abnormalities can be recognized in dogs with severe brainstem compression. In addition to hypertension, which clinical findings are TYPICAL of severe brainstem compression involving the midbrain?",
+            "options": [
+                "Bradycardia and miosis",
+                "Bradycardia and non-responsive mydriasis",
+                "Tachycardia and miosis",
+                "Tachycardia and non-responsive mydriasis"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "An 8 year old female neutered Labrador Retriever is clinically well but has persistently increased alanine aminotransferase (ALT) activity, which is approximately five times the upper limit of the reference range. There is no biochemical or clinical evidence of hepatic failure. Liver biopsy shows mononuclear inflammation, hepatocellular apoptosis, regenerative nodules and mild hepatic fibrosis. Rubeanic acid stain shows numerous grey-black granules within approximately 50% of the hepatocytes within the centrilobar areas (zone 3). Which treatment regimen is MOST APPROPRIATE?",
+            "options": [
+                "Prednisolone, azathioprine, s-adenosylmethionine and ursodeoxycholic acid",
+                "Prednisolone, ciclosporin, s-adenosylmethionine and ursodeoxycholic acid",
+                "Prednisolone, penicillamine, s-adenosylmethionine and ursodeoxycholic acid",
+                "S-adenosylmethionine and ursodeoxycholic acid"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which cardiovascular biomarker can be referred to as a 'leakage marker' because it is released from dead or dying cells?",
+            "options": [
+                "Adrenomedullin",
+                "C-Reactive protein",
+                "Inducible Nitric Oxide (iNO)",
+                "Troponin I"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Which cardiac tissues have pacemaker properties?",
+            "options": [
+                "The sinoatrial node and atrioventricular node",
+                "The sinoatrial node, atrioventricular node and His-Purkinje system",
+                "The sinoatrial node, atrioventricular tissue and ventricular myocardium",
+                "The sinoatrial node"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Optimizing tissue perfusion and oxygen delivery is important in shocked patients. To optimize perfusion, which central venous pressure, mean arterial pressure and urine output are target therapeutic end points for a dog in shock?",
+            "options": [
+                "Central venous pressure 0-5cm H2O, mean arterial pressure 60-80mmHg, urine output 1ml/kg/hr",
+                "Central venous pressure 0-5cm H2O, mean arterial pressure 100-150mmHg, urine output 1ml/kg/hr",
+                "Central venous pressure 5-10cm H2O, mean arterial pressure 70-120mmHg, urine output 1ml/kg/hr",
+                "Central venous pressure 5-10cm H2O, mean arterial pressure 100-150mmHg, urine output 2ml/kg/hr"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which is the MOST LIKELY location of a neurological lesion based on the following neurological findings? Circling to the right, head tilt to the right, no menace on the left, bilaterally direct and consensual pupillary light response present, proprioceptive deficits on the left front and rear legs, no response to visual placing on table on left front and rear legs.",
+            "options": [
+                "Left focal cerebellar",
+                "Right brain stem",
+                "Right forebrain",
+                "Right peripheral vestibular"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What should be considered regarding the use of antimicrobials for the treatment of canine chronic prostatitis?",
+            "options": [
+                "Antimicrobials should be used for 2 weeks maximum",
+                "Antimicrobials should have a low pKa",
+                "Antimicrobials should have high protein binding",
+                "Antimicrobials should have low lipid solubility"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which one of the following statements regarding gallbladder mucocele (GM) is CORRECT?",
+            "options": [
+                "GM is always a surgical emergency",
+                "GM is commonly linked to hypothyroidism and hyperadrenocorticism",
+                "Hyperlipidemia is associated with the pathogenesis of GM",
+                "Long-term complications after cholecystectomy are common"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "An 8 year old male neutered cat is presented to you because the owner is concerned about the cat's recent weight loss. The cat is a fighter and a hunter. On clinical examination you notice some white flecks in the front of the right eye and an irregular right pupil margin. Additionally the cat has moderate stomatitis on oral examination. The cat's body condition score is 3/9. Which pathogen is MOST LIKELY responsible for this cat's clinical signs?",
+            "options": [
+                "Feline coronavirus (feline infectious peritonitis)",
+                "Feline immunodeficiency virus",
+                "Feline leukaemia virus",
+                "Toxoplasma gondii"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

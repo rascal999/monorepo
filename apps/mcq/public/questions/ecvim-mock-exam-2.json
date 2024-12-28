@@ -1,0 +1,205 @@
+{
+    "title": "ECVIM Mock Exam Questions - Part 2",
+    "questions": [
+        {
+            "question": "Protein C inhibits which clotting factors?",
+            "options": [
+                "II and VII",
+                "V and VIII",
+                "IX and X",
+                "VII and X"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What type of innervation dominates bladder storage?",
+            "options": [
+                "Parasympathetic via pelvic nerve",
+                "Sympathetic via hypogastric nerve",
+                "Somatic via pudendal nerve",
+                "Sensory via vagus nerve"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What enhances antithrombin III (AT III) activity 1000-fold?",
+            "options": [
+                "Warfarin",
+                "Heparin",
+                "Aspirin",
+                "Vitamin K"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "In a pedigree chart, an affected individual in every generation suggests which inheritance pattern?",
+            "options": [
+                "X-linked recessive",
+                "Autosomal dominant",
+                "Autosomal recessive",
+                "Mitochondrial"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Given a prevalence and sensitivity/specificity, what is positive predictive value (PPV) likely to depend on?",
+            "options": [
+                "Prevalence alone",
+                "Sensitivity alone",
+                "Both prevalence and specificity",
+                "Specificity alone"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What formula calculates net filtration pressure in glomeruli?",
+            "options": [
+                "Hydrostatic pressure - oncotic pressure",
+                "Capillary pressure + plasma oncotic pressure",
+                "Hydrostatic pressure – (oncotic + capsular pressure)",
+                "Mean arterial pressure / resistance"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which cells primarily produce IFN-γ?",
+            "options": [
+                "Th1 cells",
+                "Th2 cells",
+                "Macrophages",
+                "NK cells"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which cytokine is produced by macrophages and serves as a main mediator of inflammation?",
+            "options": [
+                "IL-6",
+                "IL-1",
+                "TNF-α",
+                "IL-12"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which cranial nerve plays a primary role in swallowing?",
+            "options": [
+                "Vagus (CN X)",
+                "Glossopharyngeal (CN IX)",
+                "Hypoglossal (CN XII)",
+                "Trigeminal (CN V)"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the main nutrient utilized by colonocytes?",
+            "options": [
+                "Glucose",
+                "Butyrate",
+                "Lactate",
+                "Acetate"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which hormone is primarily responsible for benign prostatic hyperplasia (BPH)?",
+            "options": [
+                "Testosterone",
+                "Dihydrotestosterone (DHT)",
+                "Estrogen",
+                "Progesterone"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which electrolyte imbalance can cause a false positive for proteinuria in an alkaline urine sample?",
+            "options": [
+                "Hypernatremia",
+                "Hypokalemia",
+                "Alkalosis",
+                "Hyperchloremia"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What vascular change reduces GFR without impairing tubular flow?",
+            "options": [
+                "Dilation of efferent arterioles",
+                "Constriction of afferent arterioles",
+                "Dilation of afferent arterioles",
+                "Increased glomerular capillary pressure"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What are the main determinants of aldosterone secretion?",
+            "options": [
+                "ACTH and hypokalemia",
+                "Angiotensin II (ATII) and hyperkalemia",
+                "Renin and sodium depletion",
+                "Hyponatremia and epinephrine"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What triggers renin secretion from the juxtaglomerular apparatus?",
+            "options": [
+                "Reduced glomerular filtration rate",
+                "Reduced distal tubular flow",
+                "Increased sympathetic stimulation",
+                "Hypokalemia"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which cells control reabsorption of sodium in the distal tubules and collecting ducts?",
+            "options": [
+                "Principal cells",
+                "Intercalated cells",
+                "Macula densa cells",
+                "Juxtaglomerular cells"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Where does potassium reabsorption and secretion predominantly occur?",
+            "options": [
+                "Proximal tubule",
+                "Distal convoluted tubule",
+                "Loop of Henle",
+                "Collecting duct"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What regulates phosphate reabsorption in the kidney?",
+            "options": [
+                "Parathyroid hormone (PTH)",
+                "Aldosterone",
+                "ADH",
+                "Insulin"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which congenital heart defect decreases diastolic pressure?",
+            "options": [
+                "Ventricular septal defect (VSD)",
+                "Patent ductus arteriosus (PDA)",
+                "Tetralogy of Fallot",
+                "Atrial septal defect (ASD)"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which heart defect is associated with a right-sided murmur in Persian cats?",
+            "options": [
+                "Mitral regurgitation",
+                "Pulmonic stenosis",
+                "Ventricular septal defect (VSD)",
+                "Tricuspid dysplasia"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

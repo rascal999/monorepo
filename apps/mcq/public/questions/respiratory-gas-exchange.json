@@ -1,0 +1,55 @@
+{
+    "title": "Respiratory System - Gas Exchange and Transport",
+    "questions": [
+        {
+            "question": "What drives the diffusion of oxygen from alveoli into pulmonary capillaries?",
+            "options": [
+                "Active transport mechanisms",
+                "Higher oxygen partial pressure in alveoli than in capillaries",
+                "Higher oxygen partial pressure in capillaries than in alveoli",
+                "Hemoglobin concentration"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "How does a rightward shift in the oxyhemoglobin dissociation curve affect oxygen unloading?",
+            "options": [
+                "Decreases oxygen unloading in tissues",
+                "Increases oxygen unloading in tissues",
+                "Reduces hemoglobin's affinity for carbon dioxide",
+                "Prevents oxygen binding in the lungs"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which molecule primarily buffers hydrogen ions in the blood?",
+            "options": [
+                "Hemoglobin",
+                "Bicarbonate",
+                "Oxygen",
+                "Albumin"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the predominant form of carbon dioxide transported in the blood?",
+            "options": [
+                "Dissolved in plasma",
+                "Bound to hemoglobin",
+                "As bicarbonate ions",
+                "Bound to plasma proteins"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What effect does hypoventilation have on arterial CO₂ levels?",
+            "options": [
+                "Decreases PCO₂",
+                "Increases PCO₂",
+                "No effect on PCO₂",
+                "Only affects oxygen levels"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

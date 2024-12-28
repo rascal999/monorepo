@@ -1,0 +1,85 @@
+{
+    "title": "General 2023 - Hematology and Immunology",
+    "questions": [
+        {
+            "question": "What is the mechanism of DIC in sepsis?",
+            "options": [
+                "Exposure of tissue factor",
+                "Inhibition of anti-thrombin",
+                "Plasmin activation",
+                "Thrombin inhibition"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which condition is most likely to cause pseudohyperkalemia?",
+            "options": [
+                "Leukopenia",
+                "Hyperglycemia",
+                "Thrombocytosis",
+                "Anemia"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which immunoglobulin is primarily found in secretions?",
+            "options": [
+                "IgA",
+                "IgE",
+                "IgG",
+                "IgM"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What type of hypersensitivity is involved in IMHA?",
+            "options": [
+                "Type I",
+                "Type II",
+                "Type III",
+                "Type IV"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which blood type is most likely to cause hemolytic transfusion reactions?",
+            "options": [
+                "DEA 1",
+                "DEA 3",
+                "DEA 5",
+                "DEA 7"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which cells express MHC II?",
+            "options": [
+                "CD4+ T cells",
+                "CD8+ T cells",
+                "Macrophages",
+                "B cells"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What type of anemia is associated with iron deficiency?",
+            "options": [
+                "Microcytic",
+                "Macrocytic",
+                "Normocytic",
+                "Normochromic"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which cytokines are secreted by NK cells?",
+            "options": [
+                "IFN alpha",
+                "IFN gamma",
+                "IL-2",
+                "IL-4"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}
