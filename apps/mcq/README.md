@@ -40,3 +40,74 @@ Quiz files should be JSON files with the following structure:
 ### Example
 
 See `public/questions/general-knowledge.json` for an example quiz file.
+
+## Deployment with TLS
+
+The application supports secure HTTPS deployment using LetsEncrypt certificates. Follow these steps to deploy with TLS:
+
+### Prerequisites
+
+- A domain name pointing to your server
+- Docker and Docker Compose installed on your server
+- Ports 80 and 443 available on your server
+
+### Deployment Steps
+
+1. Build and run the Docker container with required environment variables:
+
+```bash
+docker build -t mcq-app .
+docker run -d \
+  -p 80:80 \
+  -p 443:443 \
+  -e DOMAIN=your-domain.com \
+  -e EMAIL=your-email@example.com \
+  -v letsencrypt:/etc/letsencrypt \
+  --name mcq-app \
+  mcq-app
+```
+
+Replace:
+- `your-domain.com` with your actual domain name
+- `your-email@example.com` with your email address (used for LetsEncrypt notifications)
+
+### Environment Variables
+
+- `DOMAIN`: Your domain name (required)
+- `EMAIL`: Your email address for LetsEncrypt notifications (required)
+
+### Certificate Management
+
+The application automatically handles:
+- Initial certificate acquisition
+- Certificate renewal (checked every 12 hours)
+- HTTP to HTTPS redirection
+- Modern SSL configuration with security headers
+
+### Volume Management
+
+The container uses a Docker volume to persist LetsEncrypt certificates:
+- `letsencrypt:/etc/letsencrypt`: Stores SSL certificates and LetsEncrypt configuration
+
+### Security Features
+
+The TLS configuration includes:
+- Modern SSL protocols (TLSv1.2, TLSv1.3)
+- Strong cipher suites
+- OCSP Stapling
+- Security headers (X-Frame-Options, X-XSS-Protection, etc.)
+- Automatic HTTP to HTTPS redirection
+
+### Troubleshooting
+
+1. **Certificate Issues**:
+   - Check the container logs: `docker logs mcq-app`
+   - Ensure your domain points to the server's IP
+   - Verify ports 80 and 443 are accessible
+
+2. **Container Access**:
+   - Shell access: `docker exec -it mcq-app sh`
+   - View nginx logs: `docker exec mcq-app cat /var/log/nginx/error.log`
+
+3. **Manual Certificate Renewal**:
+   - Force renewal: `docker exec mcq-app certbot renew --force-renewal`
