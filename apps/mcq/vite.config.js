@@ -11,20 +11,36 @@ export default defineConfig({
       name: 'questions-directory',
       configureServer(server) {
         server.middlewares.use('/questions', (req, res, next) => {
+          const questionsDir = path.join(process.cwd(), 'public/questions');
+          
           if (req.url === '/') {
-            const questionsDir = path.join(process.cwd(), 'public/questions');
+            // Handle directory listing
             try {
               const files = fs.readdirSync(questionsDir)
                 .filter(file => file.endsWith('.json'));
-              res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify(files));
+              const fileLinks = files.map(file => `<a href="${file}">${file}</a>`).join('\n');
+              res.setHeader('Content-Type', 'text/html');
+              res.end(fileLinks);
             } catch (error) {
               console.error('Error reading questions directory:', error);
               res.statusCode = 500;
-              res.end(JSON.stringify({ error: 'Failed to read questions directory' }));
+              res.end('Failed to read questions directory');
             }
           } else {
-            next();
+            // Handle individual file requests
+            const filePath = path.join(questionsDir, req.url);
+            try {
+              if (fs.existsSync(filePath) && filePath.endsWith('.json')) {
+                const content = fs.readFileSync(filePath, 'utf-8');
+                res.setHeader('Content-Type', 'application/json');
+                res.end(content);
+              } else {
+                next();
+              }
+            } catch (error) {
+              console.error(`Error reading file ${filePath}:`, error);
+              next();
+            }
           }
         });
       }
