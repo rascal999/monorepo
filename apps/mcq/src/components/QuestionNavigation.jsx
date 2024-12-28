@@ -83,44 +83,46 @@ export function QuestionNavigation({
 
   return (
     <div className="question-navigation">
-      <button 
-        className="page-nav"
-        onClick={() => handlePageChange(currentPage - 1)}
-        disabled={currentPage === 0}
-      >
-        ←
-      </button>
-      <div>
-        {getCurrentPageQuestions().map((i) => (
-          <div key={i} className="question-nav-wrapper">
-            <button
-              className={getQuestionNavClass(i)}
-              onClick={() => onJumpToQuestion(i)}
-            >
-              {i + 1}
-            </button>
-            <button 
-              className="flag-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleFlag(i);
-              }}
-              aria-label={flaggedQuestions.has(i) ? "Unflag question" : "Flag question"}
-            >
-              <svg viewBox="0 0 24 24" width="12" height="12" fill={flaggedQuestions.has(i) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
-                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z M4 22v-7" />
-              </svg>
-            </button>
-          </div>
-        ))}
+      <div className="nav-row">
+        <button 
+          className="page-nav"
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 0}
+        >
+          ←
+        </button>
+        <div className="questions-grid">
+          {getCurrentPageQuestions().map((i) => (
+            <div key={i} className="question-nav-wrapper">
+              <button
+                className={getQuestionNavClass(i)}
+                onClick={() => onJumpToQuestion(i)}
+              >
+                {i + 1}
+              </button>
+              <button 
+                className="flag-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleFlag(i);
+                }}
+                aria-label={flaggedQuestions.has(i) ? "Unflag question" : "Flag question"}
+              >
+                <svg viewBox="0 0 24 24" width="12" height="12" fill={flaggedQuestions.has(i) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
+                  <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z M4 22v-7" />
+                </svg>
+              </button>
+            </div>
+          ))}
+        </div>
+        <button 
+          className="page-nav"
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages - 1}
+        >
+          →
+        </button>
       </div>
-      <button 
-        className="page-nav"
-        onClick={() => handlePageChange(currentPage + 1)}
-        disabled={currentPage === totalPages - 1}
-      >
-        →
-      </button>
     </div>
   );
 }

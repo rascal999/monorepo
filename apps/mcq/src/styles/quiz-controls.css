@@ -5,7 +5,7 @@
 .navigation-controls {
   display: flex;
   justify-content: center;
-  gap: 2rem;
+  gap: 1rem;
 }
 
 .nav-btn {
@@ -29,56 +29,74 @@
   cursor: not-allowed;
 }
 
-.finish-btn {
-  background: #2d8049;
+/* Finish button styles with increased specificity */
+.navigation-controls .finish-btn,
+.navigation-controls.vertical .finish-btn {
+  background: #4CAF50;
   color: white;
+  border: 1px solid #4CAF50;
 }
 
-.finish-btn:hover {
-  background: #1b4b2c;
+.navigation-controls .finish-btn:hover,
+.navigation-controls.vertical .finish-btn:hover {
+  background: #388E3C;
+  border-color: #388E3C;
 }
 
 /* When navigation controls are vertical */
 .navigation-controls.vertical {
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   width: 100%;
   max-width: 300px;
   margin: 0 auto;
+  gap: 0.5rem;
 }
 
 .nav-row {
   display: flex;
-  gap: 1rem;
+  gap: 0.5rem;
   justify-content: center;
   width: 100%;
 }
 
 /* Mobile optimizations */
 @media screen and (max-width: 480px) {
+  .quiz-controls {
+    margin-top: 0.25rem;
+    padding: 0 0.25rem;
+  }
+
   .navigation-controls {
-    gap: 1rem;
-    padding: 0 1rem;
+    gap: 0.25rem;
+    padding: 0;
+  }
+
+  .navigation-controls.vertical {
+    max-width: none;
+    padding: 0;
   }
 
   .nav-row {
-    gap: 0.75rem;
+    gap: 0.25rem;
   }
 
   .nav-row .nav-btn {
-    min-width: 120px;
+    min-width: 0;
     flex: 1;
+    margin: 0;
   }
 
   .finish-btn {
     width: 100%;
-    min-width: 240px;
+    min-width: 0;
+    margin: 0;
   }
 
   .nav-btn,
   .finish-btn {
     height: 48px;
-    padding: 0.8em 1.5em;
+    padding: 0.5em 1em;
     font-size: 1.1rem;
     touch-action: manipulation;
   }

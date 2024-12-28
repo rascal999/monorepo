@@ -121,6 +121,7 @@ export function QuizSection({
         showAnswersStraightaway={showAnswersStraightaway}
         hideAnswerFeedback={hideAnswerFeedback}
         section={section}
+        quizTitle={title}
       />
 
       <QuizControls

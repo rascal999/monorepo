@@ -1,24 +1,30 @@
 .question-text {
-  font-size: 1.2rem;
-  margin-bottom: 0.25rem;
-  padding: 0.5rem;
-  background: var(--component-bg);
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: var(--question-bg);
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  color: var(--text-color);
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .question-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
+  font-size: 1.2rem;
+  line-height: 1.5;
+  color: var(--text-primary);
 }
 
-.question-header span {
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  max-width: 100%;
+.question-header.searchable {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.question-header.searchable:hover {
+  color: var(--primary-color);
+}
+
+.external-link-icon {
+  vertical-align: middle;
+  margin-left: 4px;
+  color: var(--primary-color);
+  position: relative;
+  top: -1px;
 }
