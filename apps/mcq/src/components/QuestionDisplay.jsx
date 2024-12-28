@@ -87,6 +87,10 @@ export function QuestionDisplay({
         className += ' disabled';
       }
 
+      // Add letter prefix only if it doesn't already exist
+      const letter = String.fromCharCode(97 + index); // 97 is ASCII for 'a'
+      const displayText = option.startsWith(letter + '.') ? option : `${letter}. ${option}`;
+
       return (
         <div key={index} className="answer-container">
           <button
@@ -95,7 +99,7 @@ export function QuestionDisplay({
             disabled={isQuestionAnswered}
             aria-disabled={isQuestionAnswered}
           >
-            {option}
+            {displayText}
           </button>
           <button 
             className="visibility-toggle"
