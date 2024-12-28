@@ -41,6 +41,13 @@ body {
   font-weight: 400;
 }
 
+#root,
+.app {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  transition: background-color 0.3s ease;
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -70,7 +77,7 @@ button:focus-visible {
 
 .theme-toggle {
   position: fixed;
-  top: 1rem;
+  bottom: 1rem;
   right: 1rem;
   padding: 0.5rem;
   border-radius: 50%;
