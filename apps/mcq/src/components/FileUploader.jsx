@@ -31,11 +31,13 @@ export function FileUploader({ uploadedFiles, onFilesUpdate, onQuestionsLoaded }
         onFilesUpdate(updatedFiles);
       }
 
-      const preparedQuestions = QuestionHandler.prepareQuestions(loadedData.questions);
+      const preferences = LocalStorageManager.getQuizPreferences();
+      const preparedQuestions = QuestionHandler.prepareQuestions(loadedData.questions, preferences.randomizeQuestions);
       onQuestionsLoaded({
         title: loadedData.title,
         questions: preparedQuestions,
-        fileId: newFile.id
+        fileId: newFile.id,
+        preferences
       });
     } catch (error) {
       console.error('Error loading questions:', error);
@@ -47,8 +49,7 @@ export function FileUploader({ uploadedFiles, onFilesUpdate, onQuestionsLoaded }
 
   return (
     <div className="upload-section">
-      <h1>MCQ Quiz App</h1>
-      <p>Upload your JSON question file to begin</p>
+      <p>Upload your JSON question file (<a href="/questions/science-quiz.json" target="_blank" rel="noopener noreferrer">view sample</a>)</p>
       <input
         type="file"
         accept=".json"

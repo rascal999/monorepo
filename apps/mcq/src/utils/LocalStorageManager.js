@@ -98,7 +98,8 @@ export class LocalStorageManager {
       const defaultPrefs = {
         showTimer: true,
         showAnswersStraightaway: false,
-        hideAnswerFeedback: false
+        hideAnswerFeedback: false,
+        randomizeQuestions: true
       };
       const prefs = JSON.parse(localStorage.getItem('quizPreferences')) || defaultPrefs;
       
@@ -115,7 +116,8 @@ export class LocalStorageManager {
       return {
         showTimer: true,
         showAnswersStraightaway: false,
-        hideAnswerFeedback: false
+        hideAnswerFeedback: false,
+        randomizeQuestions: true
       };
     }
   }

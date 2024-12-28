@@ -1,6 +1,6 @@
-import { UploadSection } from './UploadSection';
 import { QuizSection } from './QuizSection';
 import { ResultsSection } from './ResultsSection';
+import { FileList } from './FileList';
 
 export function AppLayout({
   section,
@@ -10,8 +10,10 @@ export function AppLayout({
 }) {
   return (
     <div className="quiz-container" style={{ backgroundColor: 'var(--container-bg)' }}>
+      <h1 className="app-title">Aidan's Quiz App</h1>
+      
       {section === 'upload' && (
-        <UploadSection {...uploadProps} />
+        <FileList {...uploadProps} section={section} />
       )}
 
       {section === 'quiz' && (

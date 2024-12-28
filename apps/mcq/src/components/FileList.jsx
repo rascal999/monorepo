@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { QuestionHandler } from '../utils/QuestionHandler';
 import { LocalStorageManager } from '../utils/LocalStorageManager';
+import { UploadSection } from './UploadSection';
 
-export function FileList({ files, onFilesUpdate, onQuestionsLoaded }) {
+export function FileList({ files, onFilesUpdate, onQuestionsLoaded, uploadedFiles, section }) {
   const [preferences, setPreferences] = useState(LocalStorageManager.getQuizPreferences());
   const [allFiles, setAllFiles] = useState([]);
   const [directoryFiles, setDirectoryFiles] = useState([]);
@@ -66,7 +67,7 @@ export function FileList({ files, onFilesUpdate, onQuestionsLoaded }) {
   const handleLoad = (file) => {
     try {
       const loadedData = JSON.parse(file.content);
-      const preparedQuestions = QuestionHandler.prepareQuestions(loadedData.questions);
+      const preparedQuestions = QuestionHandler.prepareQuestions(loadedData.questions, preferences.randomizeQuestions);
       onQuestionsLoaded({
         title: loadedData.title,
         questions: preparedQuestions,
@@ -158,6 +159,11 @@ export function FileList({ files, onFilesUpdate, onQuestionsLoaded }) {
   const uploadedQuizzes = allFiles.filter(file => !directoryFiles.some(df => df.id === file.id));
   const availableQuizzes = allFiles.filter(file => directoryFiles.some(df => df.id === file.id));
 
+  // Only render quiz sections if we're in the upload section
+  if (section !== 'upload') {
+    return null;
+  }
+
   return (
     <div className="quiz-sections">
       {uploadedQuizzes.length > 0 && (
@@ -177,6 +183,15 @@ export function FileList({ files, onFilesUpdate, onQuestionsLoaded }) {
           </div>
         </div>
       )}
+
+      <div className="quiz-section">
+        <h2 className="section-title">Upload Your Quiz</h2>
+        <UploadSection 
+          uploadedFiles={uploadedFiles || files}
+          onFilesUpdate={onFilesUpdate}
+          onQuestionsLoaded={onQuestionsLoaded}
+        />
+      </div>
 
       <div className="quiz-section">
         <h2 className="section-title">Options</h2>
@@ -205,6 +220,14 @@ export function FileList({ files, onFilesUpdate, onQuestionsLoaded }) {
                 onChange={(e) => handlePreferencesChange({ hideAnswerFeedback: e.target.checked })}
               />
               Hide answer feedback until quiz finished
+            </label>
+            <label className="option-label">
+              <input
+                type="checkbox"
+                checked={preferences.randomizeQuestions}
+                onChange={(e) => handlePreferencesChange({ randomizeQuestions: e.target.checked })}
+              />
+              Randomize question order
             </label>
           </div>
         </div>
