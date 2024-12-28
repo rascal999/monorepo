@@ -4,6 +4,7 @@
 setup_nginx_conf() {
     local template=$1
     local output=$2
+    echo "Setting up nginx configuration from $template..."
     envsubst '${DOMAIN}' < "$template" > "$output"
 }
 
@@ -42,10 +43,9 @@ get_certificate() {
     chmod -R 755 /var/www/certbot
 
     # Setup and start nginx with HTTP-only config
-    echo "Setting up HTTP-only nginx configuration..."
+    echo "Starting nginx with HTTP-only configuration..."
     setup_nginx_conf /etc/nginx/nginx.http.conf /etc/nginx/conf.d/default.conf
     
-    echo "Starting nginx for domain validation..."
     nginx
     
     # Wait for nginx to be ready
@@ -65,14 +65,16 @@ get_certificate() {
         --keep-until-expiring \
         --debug-challenges
 
-    if [ $? -ne 0 ]; then
+    local cert_exit_code=$?
+    
+    # Stop nginx after certificate request
+    nginx -s stop
+    sleep 2
+
+    if [ $cert_exit_code -ne 0 ]; then
         echo "Failed to obtain SSL certificate"
         exit 1
     fi
-
-    # Stop nginx after obtaining certificate
-    nginx -s stop
-    sleep 2
 }
 
 # Function to renew certificates
