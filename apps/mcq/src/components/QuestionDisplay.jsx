@@ -10,9 +10,22 @@ export function QuestionDisplay({
   selectedOptionIndex,
   showAnswersStraightaway,
   hideAnswerFeedback,
-  section
+  section,
+  quizTitle
 }) {
   const [hiddenAnswers, setHiddenAnswers] = useState(new Set());
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.matchMedia('(max-width: 768px)').matches);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Reset hiddenAnswers when changing questions
   useEffect(() => {
@@ -34,6 +47,11 @@ export function QuestionDisplay({
       newHiddenAnswers.add(index);
     }
     setHiddenAnswers(newHiddenAnswers);
+  };
+
+  const handleQuestionClick = () => {
+    const searchQuery = encodeURIComponent(`${quizTitle ? `${quizTitle}: ` : ''}${question.question}`);
+    window.open(`https://www.google.com/search?q=${searchQuery}`, '_blank');
   };
 
   const renderChoices = () => {
@@ -97,11 +115,23 @@ export function QuestionDisplay({
     });
   };
 
+  // Key the outer div with currentQuestionIndex to force re-render on question change
   return (
-    <>
+    <div key={currentQuestionIndex}>
       <div className="question-text">
-        <div className="question-header">
-          <span>{`${currentQuestionIndex + 1}. ${question.question}`}</span>
+        <div 
+          className="question-header searchable"
+          onClick={handleQuestionClick}
+          title="Click to search on Google"
+        >
+          <span>
+            {`${currentQuestionIndex + 1}. ${question.question}`}
+            <svg className="external-link-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </span>
         </div>
       </div>
       
@@ -110,10 +140,10 @@ export function QuestionDisplay({
           renderChoices()
         ) : (
           <div className="hidden-options clickable" onClick={onRevealAnswers}>
-            <p>Click here or press Spacebar to see the possible choices</p>
+            <p>{isMobile ? 'Tap here to see choices' : 'Click here or press Spacebar to see the possible choices'}</p>
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }

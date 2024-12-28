@@ -2,27 +2,29 @@
 .question-navigation {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin: 0.25rem 0 0.5rem 0;
+  gap: 0.75rem;
+  margin: 0.25rem 0;
   padding: 0.5rem;
   background: var(--component-bg);
   border-radius: 8px;
   transition: background-color 0.3s ease;
   overflow-x: auto;
   overflow-y: hidden;
-  max-height: 60px;
+  height: 50px;
 }
 
 /* Container for question buttons */
 .question-navigation > div {
   display: flex;
-  justify-content: space-between;
-  gap: 0.25rem;
+  justify-content: flex-start;
+  gap: 0.75rem;
   flex-wrap: nowrap;
   margin: 0;
-  padding: 0 0.25rem;
+  padding: 0;
   flex: 1;
   min-width: 0;
+  align-items: center;
+  height: 100%;
 }
 
 .question-nav-wrapper {
@@ -30,13 +32,14 @@
   align-items: center;
   position: relative;
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
+  margin: 0 0.125rem;
 }
 
 .question-nav-btn {
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   border: 2px solid var(--border-color);
   background: var(--component-bg);
@@ -49,8 +52,8 @@
   align-items: center;
   justify-content: center;
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 1px;
+  left: 1px;
 }
 
 .page-nav {
@@ -67,16 +70,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 0.25rem;
-}
-
-.page-nav:last-child {
-  margin-right: 0.5rem;
-}
-
-.page-nav:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  margin: 0 0.125rem;
 }
 
 .question-nav-btn:hover {
@@ -149,38 +143,34 @@
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .question-navigation {
-    gap: 0.25rem;
-    padding: 0.25rem;
-    max-height: 60px;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+    height: 50px;
   }
 
   .question-navigation > div {
-    padding-right: 0.5rem;
+    gap: 0.75rem;
+    padding: 0;
   }
 
   .question-nav-btn {
-    width: 38px;
-    height: 38px;
+    width: 32px;
+    height: 32px;
     font-size: 0.85rem;
   }
   
   .question-nav-wrapper {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
+    margin: 0 0.125rem;
   }
 
   .page-nav {
-    width: 28px;
-    height: 28px;
-    font-size: 0.8rem;
-    min-width: 28px;
-  }
-
-  .page-nav:first-child {
-    margin-left: 0.25rem;
-  }
-
-  .page-nav:last-child {
-    margin-right: 0.25rem;
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+    min-width: 32px;
+    margin: 0 0.125rem;
   }
 }
