@@ -43,7 +43,7 @@ h1 {
 
 @media screen and (max-width: 480px) {
   .app {
-    padding: 0.5rem;
+    padding: 0;
   }
   
   .quiz-container {
@@ -52,5 +52,9 @@ h1 {
     padding: 1rem;
     border-radius: 0;
     box-shadow: none;
+  }
+
+  .section {
+    padding: 0.25rem 0;
   }
 }

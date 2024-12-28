@@ -1,7 +1,6 @@
 .quiz-header {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
   margin-bottom: 0.25rem;
   padding: 0.75rem;
   background: var(--component-bg);
@@ -12,12 +11,12 @@
 }
 
 .quiz-title {
-  margin: 0 0 1rem 0;
+  margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--text-color);
   text-align: center;
-  padding: 0 0.5rem 0.5rem 0.5rem;
+  padding: 0 0.5rem 0.05rem 0.5rem;
   border-bottom: 2px solid var(--border-color);
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -31,6 +30,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: -0.1rem;
 }
 
 .progress {
@@ -44,6 +44,7 @@
   background: var(--border-color);
   border-radius: 4px;
   overflow: hidden;
+  margin-top: 0.25rem;
 }
 
 .progress-bar {
