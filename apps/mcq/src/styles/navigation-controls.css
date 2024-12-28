@@ -105,6 +105,14 @@
   background: var(--button-bg);
   border: 1px solid transparent;
   color: var(--button-text);
+  min-width: 80px;
+  height: 36px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0.25rem;
 }
 
 .page-nav:disabled {
@@ -115,4 +123,33 @@
 .page-nav:not(:disabled):hover {
   border-color: var(--button-hover);
   background: var(--button-hover);
+}
+
+/* When navigation buttons are stacked vertically */
+.question-navigation.vertical .page-nav {
+  min-width: 200px;
+  margin: 0.25rem 0;
+}
+
+/* Mobile optimizations */
+@media screen and (max-width: 480px) {
+  .page-nav {
+    min-width: 100px;
+    height: 44px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    margin: 0.5rem;
+    touch-action: manipulation;
+  }
+
+  .question-navigation {
+    gap: 1rem;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+  }
+
+  /* Make buttons wider on mobile when stacked */
+  .question-navigation.vertical .page-nav {
+    min-width: 240px;
+  }
 }
