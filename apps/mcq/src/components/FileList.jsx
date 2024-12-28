@@ -1,9 +1,60 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { QuestionHandler } from '../utils/QuestionHandler';
 import { LocalStorageManager } from '../utils/LocalStorageManager';
 
 export function FileList({ files, onFilesUpdate, onQuestionsLoaded }) {
   const [preferences, setPreferences] = useState(LocalStorageManager.getQuizPreferences());
+  const [allFiles, setAllFiles] = useState([]);
+  const [directoryFiles, setDirectoryFiles] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadAllFiles = async () => {
+      try {
+        setIsLoading(true);
+        // Load questions from directory
+        const directoryFilesPromises = await LocalStorageManager.loadQuestionsFromDirectory();
+        const resolvedFiles = await Promise.all(directoryFilesPromises);
+        
+        if (!isMounted) return;
+        
+        setDirectoryFiles(resolvedFiles);
+        
+        // Get uploaded files
+        const uploadedFiles = LocalStorageManager.getUploadedFiles();
+        
+        // Merge with uploaded files, preferring uploaded versions if they exist
+        const uploadedFilesMap = new Map(uploadedFiles.map(f => [f.id, f]));
+        const mergedFiles = resolvedFiles.map(f => uploadedFilesMap.get(f.id) || f);
+        
+        // Add any uploaded files that don't correspond to directory files
+        uploadedFiles.forEach(f => {
+          if (!mergedFiles.find(mf => mf.id === f.id)) {
+            mergedFiles.push(f);
+          }
+        });
+
+        if (!isMounted) return;
+
+        setAllFiles(mergedFiles);
+        onFilesUpdate(mergedFiles);
+      } catch (error) {
+        console.error('Error loading files:', error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadAllFiles();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []); // Remove files and onFilesUpdate from dependencies
 
   const handleDelete = (id) => {
     const updatedFiles = files.filter(file => file.id !== id);
@@ -54,52 +105,78 @@ export function FileList({ files, onFilesUpdate, onQuestionsLoaded }) {
     };
   };
 
-  if (files.length === 0) {
+  const renderQuizItem = (file, isDirectoryFile) => {
+    const stats = getQuizStats(file);
+    const questions = JSON.parse(file.content).questions;
+    
+    return (
+      <div key={file.id} className="file-item">
+        <div className="file-info">
+          <div className="file-main">
+            <span className="file-title">{file.title}</span>
+            <span className="file-meta">
+              {questions.length}q • {formatTimestamp(file.timestamp)}
+            </span>
+          </div>
+          {stats && (
+            <div className="file-stats">
+              <span title="Best Score">🎯 {stats.bestScore}</span>
+              <span title="Attempts">🔄 {stats.attempts}</span>
+            </div>
+          )}
+        </div>
+        <div className="file-actions">
+          <button 
+            onClick={() => handleLoad(file)}
+            className="load-btn"
+            title="Start Quiz"
+          >
+            Start
+          </button>
+          {!isDirectoryFile && (
+            <button 
+              onClick={() => handleDelete(file.id)}
+              className="delete-btn"
+              title="Delete Quiz"
+            >
+              ×
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  if (isLoading) {
+    return <div className="loading">Loading quizzes...</div>;
+  }
+
+  if (allFiles.length === 0) {
     return null;
   }
 
+  const uploadedQuizzes = allFiles.filter(file => !directoryFiles.some(df => df.id === file.id));
+  const availableQuizzes = allFiles.filter(file => directoryFiles.some(df => df.id === file.id));
+
   return (
-    <div className="uploaded-section">
-      <div className="files-list">
-        {files.map(file => {
-          const stats = getQuizStats(file);
-          const questions = JSON.parse(file.content).questions;
-          return (
-            <div key={file.id} className="file-item">
-              <div className="file-info">
-                <div className="file-main">
-                  <span className="file-title">{file.title}</span>
-                  <span className="file-meta">
-                    {questions.length}q • {formatTimestamp(file.timestamp)}
-                  </span>
-                </div>
-                {stats && (
-                  <div className="file-stats">
-                    <span title="Best Score">🎯 {stats.bestScore}</span>
-                    <span title="Attempts">🔄 {stats.attempts}</span>
-                  </div>
-                )}
-              </div>
-              <div className="file-actions">
-                <button 
-                  onClick={() => handleLoad(file)}
-                  className="load-btn"
-                  title="Start Quiz"
-                >
-                  Start
-                </button>
-                <button 
-                  onClick={() => handleDelete(file.id)}
-                  className="delete-btn"
-                  title="Delete Quiz"
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+    <div className="quiz-sections">
+      {uploadedQuizzes.length > 0 && (
+        <div className="quiz-section">
+          <h2 className="section-title">My Uploaded Quizzes</h2>
+          <div className="files-list">
+            {uploadedQuizzes.map(file => renderQuizItem(file, false))}
+          </div>
+        </div>
+      )}
+
+      {availableQuizzes.length > 0 && (
+        <div className="quiz-section">
+          <h2 className="section-title">Available Quizzes</h2>
+          <div className="files-list">
+            {availableQuizzes.map(file => renderQuizItem(file, true))}
+          </div>
+        </div>
+      )}
 
       <div className="quiz-options">
         <div className="option-controls">

@@ -1,7 +1,48 @@
 export class LocalStorageManager {
+  static async loadQuestionsFromDirectory() {
+    try {
+      // Get list of files from directory
+      const response = await fetch('/questions/');
+      const files = await response.text();
+      
+      // Parse the directory listing HTML to get file names
+      const fileNames = files.match(/href="([^"]+\.json)"/g)
+        ?.map(href => href.match(/href="([^"]+)"/)[1])
+        ?.filter(name => name.endsWith('.json')) || [];
+      
+      // Load each file's content
+      const loadedFiles = await Promise.all(
+        fileNames.map(async filename => {
+          try {
+            const fileResponse = await fetch(`/questions/${filename}`);
+            const content = await fileResponse.json();
+            const id = filename.replace('.json', '');
+            return {
+              id,
+              title: content.title || filename,
+              content: JSON.stringify(content),
+              timestamp: new Date().getTime(),
+              stats: this.initializeStats(content.questions)
+            };
+          } catch (error) {
+            console.error(`Error loading file ${filename}:`, error);
+            return null;
+          }
+        })
+      );
+
+      // Filter out any failed loads
+      return loadedFiles.filter(file => file !== null);
+    } catch (error) {
+      console.error('Error loading questions from directory:', error);
+      return [];
+    }
+  }
+
   static getUploadedFiles() {
     try {
-      return JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
+      const savedFiles = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
+      return savedFiles;
     } catch (error) {
       console.error('Error loading saved files:', error);
       return [];
