@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin: 0.25rem 0;
+  margin: 0 0 0.5rem 0;  /* Changed from 0.25rem top/bottom to only bottom margin */
   padding: 0.5rem;
   background: var(--component-bg);
   border-radius: 8px;
@@ -143,34 +143,34 @@
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .question-navigation {
-    gap: 0.75rem;
+    gap: 0.5rem;
     padding: 0.5rem;
-    margin: 0.25rem 0;
-    height: 50px;
+    margin: 0 0 0.5rem 0;
+    height: 60px; /* Increased height to accommodate larger buttons */
   }
 
   .question-navigation > div {
-    gap: 0.75rem;
+    gap: 0.5rem;
     padding: 0;
   }
 
   .question-nav-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 0.85rem;
+    width: 40px; /* Increased from 32px */
+    height: 40px; /* Increased from 32px */
+    font-size: 1rem; /* Increased from 0.85rem */
   }
   
   .question-nav-wrapper {
-    width: 34px;
-    height: 34px;
+    width: 42px; /* Increased to accommodate larger button */
+    height: 42px; /* Increased to accommodate larger button */
     margin: 0 0.125rem;
   }
 
   .page-nav {
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
-    min-width: 32px;
+    width: 40px; /* Increased from 32px */
+    height: 40px; /* Increased from 32px */
+    font-size: 1.1rem; /* Slightly larger font for better visibility */
+    min-width: 40px;
     margin: 0 0.125rem;
   }
 }
