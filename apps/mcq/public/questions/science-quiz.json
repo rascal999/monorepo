@@ -1,0 +1,20 @@
+{
+    "title": "Basic Science Quiz",
+    "questions": [
+        {
+            "question": "What is the chemical symbol for gold?",
+            "options": ["Au", "Ag", "Fe", "Cu"],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the largest planet in our solar system?",
+            "options": ["Mars", "Venus", "Jupiter", "Saturn"],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the process by which plants make their own food?",
+            "options": ["Photosynthesis", "Respiration", "Digestion", "Fermentation"],
+            "correctAnswer": 0
+        }
+    ]
+}

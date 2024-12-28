@@ -35,6 +35,26 @@ input[type="file"]:hover {
   color: var(--text-color);
 }
 
+.quiz-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.quiz-section {
+  background: var(--component-bg);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.section-title {
+  color: var(--text-color);
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
 .files-list {
   display: flex;
   flex-direction: column;
@@ -102,4 +122,11 @@ input[type="file"]:hover {
 
 .delete-btn:hover {
   background: var(--error-hover, #bd2130);
+}
+
+.quiz-options {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  background: var(--component-bg);
+  border-radius: 8px;
 }

@@ -1,112 +1,42 @@
-# MCQ Quiz Application
+# MCQ Quiz App
 
-A modern, interactive Multiple Choice Question (MCQ) quiz application built with React and Vite.
+A multiple choice quiz application that supports both uploaded quizzes and quizzes from a directory.
 
-## Features
+## Adding New Quizzes
 
-- Dynamic question navigation with pagination
-- Question flagging for later review
-- Timer tracking for each question
-- Answer hiding/revealing functionality
-- Dark/Light theme support
-- Progress tracking
-- Results summary with detailed statistics
-- Question-by-question review
-- Support for uploading custom quiz files
+There are two ways to add quizzes to the application:
 
-## Getting Started
+1. **Upload Quiz Files**: Use the upload button in the app to add quiz files. These can be modified or deleted through the app interface.
 
-### Prerequisites
-
-- Node.js (v14 or higher)
-- npm (v6 or higher)
-
-### Installation
-
-1. Clone the repository
-2. Install dependencies:
-```bash
-npm install
-```
-
-### Development
-
-Run the development server:
-```bash
-npm run dev
-```
-
-### Building for Production
-
-Build the application:
-```bash
-npm run build
-```
-
-### Docker
-
-You can run the application using Docker:
-
-1. Build the Docker image:
-```bash
-docker build -t mcq-quiz-app .
-```
-
-2. Run the container:
-```bash
-docker run -p 8080:80 mcq-quiz-app
-```
-
-The application will be available at `http://localhost:8080`
-
-## Usage
-
-### Taking a Quiz
-
-1. Upload a quiz file in the supported JSON format
-2. Navigate through questions using:
-   - Next/Previous buttons
-   - Question number buttons
-   - Pagination controls
-3. Flag questions for later review using the flag icon
-4. Toggle answer visibility as needed
-5. Submit answers and view detailed results
-
-### Question Flagging
-
-- Click the flag icon below any question number to mark it for review
-- Click again to unflag
-- Flagged questions are visually marked for easy identification
-- Use flags to track questions you want to revisit later
+2. **Questions Directory**: Place JSON quiz files in the `public/questions` directory. These will be automatically loaded when the app starts. Files in this directory:
+   - Are automatically available to all users
+   - Cannot be deleted through the app interface
+   - Will be loaded alongside any user-uploaded quizzes
+   - Follow the same format as uploaded quizzes
 
 ### Quiz File Format
 
+Quiz files should be JSON files with the following structure:
+
 ```json
 {
-  "title": "Quiz Title",
-  "questions": [
-    {
-      "question": "Question text",
-      "options": [
-        "Option 1",
-        "Option 2",
-        "Option 3",
-        "Option 4"
-      ],
-      "correctAnswer": 0
-    }
-  ]
+    "title": "Quiz Title",
+    "questions": [
+        {
+            "question": "Question text?",
+            "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+            "correctAnswer": 1
+        }
+    ]
 }
 ```
 
-## Contributing
+- `title`: The name of the quiz
+- `questions`: Array of question objects
+  - `question`: The question text
+  - `options`: Array of possible answers
+  - `correctAnswer`: Index of the correct answer (0-based)
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+### Example
 
-## License
-
-This project is licensed under the MIT License.
+See `public/questions/general-knowledge.json` for an example quiz file.
