@@ -54,6 +54,10 @@
   position: absolute;
   top: 1px;
   left: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
 }
 
 .page-nav {
@@ -158,6 +162,10 @@
     width: 40px; /* Increased from 32px */
     height: 40px; /* Increased from 32px */
     font-size: 1rem; /* Increased from 0.85rem */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1;
   }
   
   .question-nav-wrapper {
