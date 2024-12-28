@@ -1,5 +1,5 @@
 .question-text {
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;  /* Reduced from 1rem to 0.5rem */
   padding: 1rem;
   background-color: var(--question-bg);
   border-radius: 8px;
