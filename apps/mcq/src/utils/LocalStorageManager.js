@@ -3,10 +3,10 @@ export class LocalStorageManager {
     try {
       // Get list of files from directory
       const response = await fetch('/questions/');
-      const files = await response.text();
+      const html = await response.text();
       
       // Parse the directory listing HTML to get file names
-      const fileNames = files.match(/href="([^"]+\.json)"/g)
+      const fileNames = html.match(/href="([^"]+)"/g)
         ?.map(href => href.match(/href="([^"]+)"/)[1])
         ?.filter(name => name.endsWith('.json')) || [];
       

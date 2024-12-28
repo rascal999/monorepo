@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export function QuestionNavigation({
   currentQuestionIndex,
@@ -11,21 +11,37 @@ export function QuestionNavigation({
   hideAnswerFeedback,
   section
 }) {
-  const questionsPerPage = 10;
-  const totalPages = Math.ceil(totalQuestions / questionsPerPage);
+  const [questionsPerPage, setQuestionsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(0);
   
-  // Initialize page based on current question index
-  const [currentPage, setCurrentPage] = useState(
-    Math.floor(currentQuestionIndex / questionsPerPage)
-  );
+  // Update questions per page based on screen size
+  const updateQuestionsPerPage = useCallback(() => {
+    const isMobile = window.innerWidth <= 600;
+    const newQuestionsPerPage = isMobile ? 5 : 10;
+    if (newQuestionsPerPage !== questionsPerPage) {
+      // Recalculate current page to maintain approximate scroll position
+      const currentFirstQuestion = currentPage * questionsPerPage;
+      const newPage = Math.floor(currentFirstQuestion / newQuestionsPerPage);
+      setQuestionsPerPage(newQuestionsPerPage);
+      setCurrentPage(newPage);
+    }
+  }, [questionsPerPage, currentPage]);
 
-  // Update page when current question changes (including keyboard navigation)
+  useEffect(() => {
+    updateQuestionsPerPage();
+    window.addEventListener('resize', updateQuestionsPerPage);
+    return () => window.removeEventListener('resize', updateQuestionsPerPage);
+  }, [updateQuestionsPerPage]);
+
+  const totalPages = Math.ceil(totalQuestions / questionsPerPage);
+
+  // Update page when current question changes
   useEffect(() => {
     const targetPage = Math.floor(currentQuestionIndex / questionsPerPage);
     if (targetPage !== currentPage) {
       setCurrentPage(targetPage);
     }
-  }, [currentQuestionIndex, questionsPerPage, currentPage]);
+  }, [currentQuestionIndex, questionsPerPage]);
 
   const getQuestionNavClass = (index) => {
     let className = 'question-nav-btn';
@@ -60,6 +76,8 @@ export function QuestionNavigation({
   const handlePageChange = (newPage) => {
     if (newPage >= 0 && newPage < totalPages) {
       setCurrentPage(newPage);
+      // Jump to first question of the new page
+      onJumpToQuestion(newPage * questionsPerPage);
     }
   };
 

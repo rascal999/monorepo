@@ -164,15 +164,41 @@ input[type="file"]:hover {
   flex: 1;
   white-space: normal;
   word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
   text-align: center;
   line-height: 1.2;
+  padding: 0.8rem 1rem;
+  height: auto;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* Mobile styles */
+@media (max-width: 767px) {
+  .file-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .load-btn {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: calc(100% - 60px); /* Account for delete button width + gap */
+    max-width: calc(100% - 60px);
+    white-space: pre-wrap;
+  }
+}
+
+/* Desktop styles */
 @media (min-width: 768px) {
   .load-btn {
     flex: 0 0 auto;
-    min-width: 80px;
-    white-space: nowrap;
+    min-width: 120px;
+    max-width: none;
   }
 }
 

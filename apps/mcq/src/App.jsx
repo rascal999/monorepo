@@ -51,14 +51,7 @@ function App() {
   };
 
   return (
-    <div className="app" style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'flex-start',
-      minHeight: '100vh',
-      padding: '2rem',
-      width: '100%'
-    }}>
+    <div className="app">
       <ThemeProvider>
         <AppLayout
           section={quizState.section}

@@ -1,3 +1,12 @@
+.app {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 2rem;
+  width: 100%;
+}
+
 .quiz-container {
   width: 800px;
   margin: 0 auto;
@@ -33,8 +42,15 @@ h1 {
 }
 
 @media screen and (max-width: 480px) {
+  .app {
+    padding: 0.5rem;
+  }
+  
   .quiz-container {
     width: 100%;
+    margin: 0;
+    padding: 1rem;
     border-radius: 0;
+    box-shadow: none;
   }
 }
