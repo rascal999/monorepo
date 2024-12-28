@@ -23,7 +23,8 @@ export function QuizSection({
   showTimer,
   showAnswersStraightaway,
   hideAnswerFeedback,
-  section
+  section,
+  onRestart
 }) {
   const [selectedOptionIndex, setSelectedOptionIndex] = useState(-1);
   const currentQuestion = questions[currentQuestionIndex];
@@ -96,6 +97,7 @@ export function QuizSection({
         isTimerRunning={isTimerRunning}
         onTimerTick={onTimerTick}
         showTimer={showTimer}
+        restartQuiz={onRestart}
       />
 
       <QuestionNavigation

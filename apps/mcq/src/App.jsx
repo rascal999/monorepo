@@ -35,7 +35,8 @@ function App() {
     showTimer: quizState.showTimer,
     showAnswersStraightaway: quizState.showAnswersStraightaway,
     hideAnswerFeedback: quizState.hideAnswerFeedback,
-    section: quizState.section
+    section: quizState.section,
+    onRestart: quizState.restartQuiz
   };
 
   const resultsProps = {

@@ -8,9 +8,18 @@ export function AppLayout({
   uploadProps,
   resultsProps
 }) {
+  // Get restartQuiz from either quizProps or resultsProps
+  const handleTitleClick = () => {
+    if (section === 'quiz' && quizProps.onRestart) {
+      quizProps.onRestart();
+    } else if (section === 'results' && resultsProps.onRestart) {
+      resultsProps.onRestart();
+    }
+  };
+
   return (
     <div className="quiz-container" style={{ backgroundColor: 'var(--container-bg)' }}>
-      <h1 className="app-title">Aidan's Quiz App</h1>
+      <h1 className="app-title" onClick={handleTitleClick} style={{ cursor: 'pointer' }}>Aidan's Quiz App</h1>
       
       {section === 'upload' && (
         <FileList {...uploadProps} section={section} />
