@@ -77,19 +77,21 @@ export function ResultsSection({
         <div className="answers-summary">
           <h3>Questions Summary:</h3>
           {questions.map((q, index) => {
-            const isCorrect = userAnswers[index] === q.correctAnswer;
+            const userAnswer = userAnswers[index];
+            const isAnswered = userAnswer !== undefined && userAnswer !== null;
+            const isCorrect = isAnswered && userAnswer === q.correctAnswer;
             return (
               <div
                 key={index}
-                className={`question-summary ${isCorrect ? 'correct' : 'incorrect'}`}
+                className={`question-summary ${isAnswered ? (isCorrect ? 'correct' : 'incorrect') : 'incorrect'}`}
               >
                 <div className="question-header">
                   <p className="question-text">
                     <strong>Q{index + 1}:</strong> {q.question}
                   </p>
                   <div className="question-stats">
-                    <span className={`status-badge ${isCorrect ? 'correct' : 'incorrect'}`}>
-                      {isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                    <span className={`status-badge ${isAnswered ? (isCorrect ? 'correct' : 'incorrect') : 'incorrect'}`}>
+                      {isAnswered ? (isCorrect ? '✓ Correct' : '✗ Incorrect') : '- Not Answered'}
                     </span>
                     <span className="time-badge">
                       {formatTime(questionTimes[index])}
@@ -99,7 +101,7 @@ export function ResultsSection({
                 
                 <div className="options-summary">
                   {q.options.map((option, optIndex) => {
-                    const isUserAnswer = optIndex === userAnswers[index];
+                    const isUserAnswer = optIndex === userAnswer;
                     const isCorrectAnswer = optIndex === q.correctAnswer;
                     let optionClass = 'option-summary';
                     if (isUserAnswer) optionClass += ' user-answer';

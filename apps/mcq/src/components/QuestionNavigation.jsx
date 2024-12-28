@@ -11,11 +11,15 @@ export function QuestionNavigation({
   hideAnswerFeedback,
   section
 }) {
-  const [currentPage, setCurrentPage] = useState(0);
   const questionsPerPage = 10;
   const totalPages = Math.ceil(totalQuestions / questionsPerPage);
+  
+  // Initialize page based on current question index
+  const [currentPage, setCurrentPage] = useState(
+    Math.floor(currentQuestionIndex / questionsPerPage)
+  );
 
-  // Update page when current question changes
+  // Update page when current question changes (including keyboard navigation)
   useEffect(() => {
     const targetPage = Math.floor(currentQuestionIndex / questionsPerPage);
     if (targetPage !== currentPage) {
