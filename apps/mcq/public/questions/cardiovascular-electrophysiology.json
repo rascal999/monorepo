@@ -1,0 +1,205 @@
+{
+    "title": "Cardiovascular System - Electrophysiology",
+    "questions": [
+        {
+            "question": "What ensures coordinated contraction of cardiac muscle cells?",
+            "options": [
+                "Nicotinic acetylcholine receptors",
+                "Gap junctions in intercalated disks",
+                "Voltage-gated fast Ca²⁺ channels",
+                "Skeletal muscle-like electrical insulation"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the duration of a cardiac action potential in ventricular cells?",
+            "options": [
+                "1–2 ms",
+                "10–20 ms",
+                "100–250 ms",
+                "300–500 ms"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which ion channel is primarily responsible for the plateau phase of a cardiac action potential?",
+            "options": [
+                "Fast Na⁺ channels",
+                "L-type Ca²⁺ channels",
+                "K⁺ leak channels",
+                "Funny Na⁺ channels"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which phase of the cardiac action potential corresponds to Ca²⁺ influx?",
+            "options": [
+                "Phase 0",
+                "Phase 1",
+                "Phase 2",
+                "Phase 4"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the role of the AV node in cardiac conduction?",
+            "options": [
+                "Initiates each heartbeat",
+                "Ensures rapid ventricular contraction",
+                "Creates a delay to allow ventricular filling",
+                "Blocks reentry of atrial action potentials"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What triggers depolarization in pacemaker cells?",
+            "options": [
+                "Increased K⁺ efflux",
+                "Opening of funny Na⁺ channels",
+                "Rapid opening of fast Na⁺ channels",
+                "Closure of voltage-gated Ca²⁺ channels"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Why can cardiac muscle not undergo tetanic contractions?",
+            "options": [
+                "High K⁺ permeability during repolarization",
+                "Prolonged refractory period due to slow Ca²⁺ influx",
+                "Rapid Na⁺ channel inactivation",
+                "Short refractory period"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which cardiac cells act as auxiliary pacemakers in AV node block?",
+            "options": [
+                "SA node pacemaker cells",
+                "AV node pacemaker cells",
+                "Purkinje fibers",
+                "Atrial myocytes"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What happens during Phase 3 of the cardiac action potential?",
+            "options": [
+                "Na⁺ influx",
+                "K⁺ efflux",
+                "Ca²⁺ influx",
+                "Funny Na⁺ channel opening"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What effect does norepinephrine have on heart rate?",
+            "options": [
+                "Decreases pacemaker depolarization rate",
+                "Prolongs AV node conduction delay",
+                "Increases pacemaker depolarization rate",
+                "Slows repolarization of ventricular myocytes"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which structure transmits action potentials rapidly through the ventricles?",
+            "options": [
+                "SA node",
+                "AV node",
+                "Bundle of His",
+                "Purkinje fibers"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Which ion primarily drives pacemaker depolarization in SA node cells?",
+            "options": [
+                "Na⁺",
+                "K⁺",
+                "Ca²⁺",
+                "Cl⁻"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What condition causes a slow heart rate due to SA node failure?",
+            "options": [
+                "Atrial tachycardia",
+                "Sick sinus syndrome",
+                "AV node block",
+                "Ventricular fibrillation"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "How does sympathetic stimulation affect action potential duration?",
+            "options": [
+                "Prolongs action potential",
+                "Shortens action potential",
+                "Prevents repolarization",
+                "Decreases Na⁺ permeability"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which phase of the action potential is absent in pacemaker cells?",
+            "options": [
+                "Phase 0",
+                "Phase 1",
+                "Phase 2",
+                "Phase 4"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What causes the refractory period in cardiac myocytes?",
+            "options": [
+                "Slow closure of Na⁺ channels",
+                "Inactivation of Na⁺ channels",
+                "Rapid Ca²⁺ efflux",
+                "Persistent K⁺ influx"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the intrinsic rate of the SA node in a large dog?",
+            "options": [
+                "55 bpm",
+                "90 bpm",
+                "140 bpm",
+                "250 bpm"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which ion initiates contraction in cardiac myocytes?",
+            "options": [
+                "Na⁺",
+                "K⁺",
+                "Ca²⁺",
+                "Cl⁻"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the primary cause of ventricular tachycardia?",
+            "options": [
+                "SA node dysfunction",
+                "Ectopic pacemaker activity",
+                "AV node block",
+                "Excessive parasympathetic tone"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What protects ventricles from excessive atrial rates?",
+            "options": [
+                "AV node delay",
+                "SA node overdrive suppression",
+                "Purkinje fiber conduction",
+                "Sympathetic stimulation"
+            ],
+            "correctAnswer": 0
+        }
+    ]
+}

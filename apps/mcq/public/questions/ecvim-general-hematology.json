@@ -1,0 +1,25 @@
+{
+    "title": "ECVIM General Quiz - Hematology",
+    "questions": [
+        {
+            "question": "In a dog with marked agglutination, the RBC conc. is 2.0x1012/L, PCV 20% (assume normal mid range as 40%), and there are 5% reticulocytes. Which of the following values is correct and should be used to assess regeneration?",
+            "options": [
+                "Corrected reticulocyte percentage of 2.5%",
+                "Corrected reticulocyte percentage of 10%",
+                "Absolute reticulocyte concentration of 10,000/µL",
+                "Absolute reticulocyte concentration of 100,000/µL"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Which of the following false increases could be expected on chemistry with marked thrombocytosis?",
+            "options": [
+                "Hyperphosphatemia",
+                "Hyponatremia",
+                "Hyperkalaemia",
+                "Increased CK"
+            ],
+            "correctAnswer": 3
+        }
+    ]
+}

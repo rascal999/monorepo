@@ -1,0 +1,105 @@
+{
+    "title": "ECVIM General Quiz - Gastrointestinal",
+    "questions": [
+        {
+            "question": "The hormone secretin stimulates production of which of the following:",
+            "options": [
+                "Glucagon",
+                "Gastric acid",
+                "Pepsinogen",
+                "Pancreatic bicarbonate"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Misoprostol is a synthetic analogue of which of the following prostaglandins?",
+            "options": [
+                "Prostaglandin E1",
+                "Prostaglandin E2",
+                "Prostaglandin D1",
+                "Prostaglandin F2"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "The migrating motor complex within the gastrointestinal tract is triggered by which one of the following:",
+            "options": [
+                "Nitric oxide",
+                "Motilin",
+                "Cholecystokinin",
+                "Secretin"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Trypsinogen is converted into its active form trypsin by which one of the following enzymes:",
+            "options": [
+                "Chymotrypsin",
+                "Pancreatic lipase",
+                "Enterokinase",
+                "Pancreatic amylase"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "The hormone gastrin stimulates secretion of which of the following:",
+            "options": [
+                "Glucagon",
+                "Cholecystokinin",
+                "Serotonin",
+                "Bombesin"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the main function of the interstitial cells of Cajal within the gastrointestinal tract?",
+            "options": [
+                "Active propagation of fast wave activity",
+                "Production and secretion of serotonin",
+                "Generation of electrical slow wave activity",
+                "Production of gamma-delta T-lymphocytes"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "The hormone cholecystokinin stimulates secretion of which of the following:",
+            "options": [
+                "Gastric acid",
+                "Pancreatic enzyme",
+                "Pancreatic bicarbonate",
+                "Insulin"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Bile acid synthesis is an important pathway for catabolism of which one of the following compounds:",
+            "options": [
+                "Bilirubin",
+                "Cholesterol",
+                "Glycerol",
+                "Chylomicron"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which one of the following hormones inhibits secretion of other enteroendocrine peptides?",
+            "options": [
+                "Somatostatin",
+                "Substance P",
+                "Bombesin",
+                "5-hydroxytryptamine"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which one of the following is oxidized by the intestinal mucosa and serves as the preferential energy substrate of colonocytes:",
+            "options": [
+                "Lactate",
+                "Acetate",
+                "Propionate",
+                "Butyrate"
+            ],
+            "correctAnswer": 3
+        }
+    ]
+}

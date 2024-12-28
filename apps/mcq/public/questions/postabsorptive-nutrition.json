@@ -1,0 +1,105 @@
+{
+    "title": "Postabsorptive Nutrient Utilization",
+    "questions": [
+        {
+            "question": "What is the primary source of blood glucose during the early postabsorptive phase?",
+            "options": [
+                "Gluconeogenesis",
+                "Glycogenolysis",
+                "Lipolysis",
+                "Ketogenesis"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which enzyme is central to ketone body production in the liver?",
+            "options": [
+                "Glucose-6-phosphatase",
+                "HMG-CoA synthase",
+                "Pyruvate kinase",
+                "Acetyl-CoA carboxylase"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the main precursor for glucose production in ruminants?",
+            "options": [
+                "Propionate",
+                "Acetate",
+                "Butyrate",
+                "Glycerol"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which hormone is primarily responsible for initiating glycogenolysis?",
+            "options": [
+                "Insulin",
+                "Glucagon",
+                "Cortisol",
+                "Epinephrine"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which tissue relies almost exclusively on glucose as its energy source?",
+            "options": [
+                "Liver",
+                "Adipose tissue",
+                "Brain (early fasting)",
+                "Skeletal muscle"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the primary energy source for muscle during prolonged fasting?",
+            "options": [
+                "Glucose",
+                "Ketone bodies",
+                "Fatty acids",
+                "Amino acids"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the main function of hormone-sensitive lipase (HSL)?",
+            "options": [
+                "Promote glycogen synthesis",
+                "Mobilize triglycerides from adipose tissue",
+                "Facilitate glucose transport into cells",
+                "Activate gluconeogenesis in the liver"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "How does the body conserve protein during prolonged starvation?",
+            "options": [
+                "By increasing gluconeogenesis",
+                "By increasing amino acid catabolism",
+                "By relying on ketone bodies and fatty acids for energy",
+                "By storing amino acids in muscle"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which metabolic adaptation occurs in ruminants to meet glucose demands?",
+            "options": [
+                "Increased glycogen storage",
+                "Continuous gluconeogenesis from propionate",
+                "Enhanced lipogenesis from butyrate",
+                "Increased ketogenesis"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which condition is associated with excessive ketone body production in ruminants?",
+            "options": [
+                "Hyperglycemia",
+                "Lactational ketosis",
+                "Hepatic lipidosis",
+                "Enterotoxemia"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

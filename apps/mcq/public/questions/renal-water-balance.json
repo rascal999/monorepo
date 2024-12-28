@@ -1,0 +1,105 @@
+{
+    "title": "Renal Physiology - Water Balance",
+    "questions": [
+        {
+            "question": "Which hormone plays a central role in regulating water reabsorption in the collecting duct?",
+            "options": [
+                "Aldosterone",
+                "Antidiuretic hormone (ADH)",
+                "Atrial natriuretic peptide (ANP)",
+                "Renin"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the primary driver of water movement across renal tubules?",
+            "options": [
+                "Active transport",
+                "Hydrostatic pressure gradient",
+                "Osmotic gradient",
+                "Na+/K+-ATPase pump"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Where is the majority of filtered water reabsorbed in the nephron?",
+            "options": [
+                "Proximal tubule",
+                "Loop of Henle",
+                "Distal tubule",
+                "Collecting duct"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which part of the nephron is impermeable to water under normal conditions?",
+            "options": [
+                "Proximal tubule",
+                "Thin descending limb of Henle",
+                "Thick ascending limb of Henle",
+                "Cortical collecting duct"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "How does ADH increase water permeability in the collecting duct?",
+            "options": [
+                "By increasing sodium reabsorption",
+                "By inserting aquaporin channels into the apical membrane",
+                "By activating NKCC2 cotransporters",
+                "By decreasing tubular fluid osmolality"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the osmolality of tubular fluid leaving the thick ascending limb of Henle?",
+            "options": [
+                "Hypertonic",
+                "Isotonic",
+                "Hypotonic",
+                "Variable"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which hormone opposes the action of ADH, promoting water excretion?",
+            "options": [
+                "Renin",
+                "Aldosterone",
+                "Atrial natriuretic peptide (ANP)",
+                "Cortisol"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What creates the osmotic gradient in the renal medulla that enables water reabsorption?",
+            "options": [
+                "Active NaCl transport in the proximal tubule",
+                "Countercurrent multiplication in the loop of Henle",
+                "Passive water reabsorption in the collecting duct",
+                "Protein reabsorption in the distal tubule"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the main function of the vasa recta in the kidney?",
+            "options": [
+                "Actively secrete ions",
+                "Maintain the osmotic gradient in the medulla",
+                "Produce ADH",
+                "Transport urea into the interstitial fluid"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "In a state of dehydration, what happens to the osmolality of urine?",
+            "options": [
+                "Decreases significantly",
+                "Remains isotonic to plasma",
+                "Increases due to water reabsorption",
+                "Becomes hypotonic"
+            ],
+            "correctAnswer": 2
+        }
+    ]
+}

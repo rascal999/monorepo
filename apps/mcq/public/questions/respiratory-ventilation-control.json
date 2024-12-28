@@ -1,0 +1,55 @@
+{
+    "title": "Respiratory System - Control of Ventilation",
+    "questions": [
+        {
+            "question": "Where is the respiratory central pattern generator located?",
+            "options": [
+                "Cerebral cortex",
+                "Brainstem (pons and medulla)",
+                "Hypothalamus",
+                "Spinal cord"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which of the following stimulates peripheral chemoreceptors to increase ventilation?",
+            "options": [
+                "Increased arterial oxygen levels",
+                "Decreased arterial oxygen levels",
+                "Increased arterial bicarbonate levels",
+                "Decreased arterial carbon dioxide levels"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What role do pulmonary stretch receptors play in respiration?",
+            "options": [
+                "Monitor arterial oxygen levels",
+                "Prevent over-inflation of the lungs",
+                "Stimulate ventilation during hypercapnia",
+                "Detect foreign particles in the airway"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "How does high altitude affect ventilation?",
+            "options": [
+                "Decreases ventilation due to higher oxygen availability",
+                "Increases ventilation to compensate for hypoxemia",
+                "Has no effect on ventilation rates",
+                "Reduces respiratory muscle activity"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which of the following is the most potent driver of increased ventilation?",
+            "options": [
+                "Hypoxemia",
+                "Hypercapnia",
+                "Increased blood pH",
+                "Decreased bicarbonate levels"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

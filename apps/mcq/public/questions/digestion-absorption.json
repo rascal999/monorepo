@@ -1,0 +1,105 @@
+{
+    "title": "Digestion and Absorption—Nonfermentative Processes",
+    "questions": [
+        {
+            "question": "What structural adaptation in the small intestine enhances nutrient absorption?",
+            "options": [
+                "Gastric rugae",
+                "Plicae circulares, villi, and microvilli",
+                "Large goblet cells",
+                "Haustra"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which enzyme is responsible for breaking down starch into oligosaccharides in the luminal phase of digestion?",
+            "options": [
+                "Lactase",
+                "Maltase",
+                "Amylase",
+                "Lipase"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the primary transporter for glucose absorption in the small intestine?",
+            "options": [
+                "GLUT5",
+                "SGLT1",
+                "Na+/K+ ATPase",
+                "GLUT2"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which molecule serves as the precursor for glucose during gluconeogenesis?",
+            "options": [
+                "Glycerol",
+                "Lactate",
+                "Amino acids",
+                "All of the above"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "What is the role of bile salts in lipid digestion?",
+            "options": [
+                "Hydrolyze triglycerides into fatty acids",
+                "Neutralize stomach acid in the small intestine",
+                "Emulsify fats to increase surface area for lipase action",
+                "Transport lipids into enterocytes"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the primary driving force for water absorption in the small intestine?",
+            "options": [
+                "Hydrostatic pressure",
+                "Osmotic gradients created by solute absorption",
+                "Active transport of sodium",
+                "Aquaporin channels"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which transporter facilitates fructose absorption in the small intestine?",
+            "options": [
+                "SGLT1",
+                "GLUT2",
+                "GLUT5",
+                "Na+/H+ exchanger"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What are the primary products of protein digestion in the luminal phase?",
+            "options": [
+                "Monosaccharides",
+                "Free amino acids and small peptides",
+                "Free fatty acids",
+                "Glycogen and maltose"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Where does the majority of nutrient absorption occur in the GI tract?",
+            "options": [
+                "Stomach",
+                "Duodenum and jejunum",
+                "Ileum",
+                "Colon"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which physiological mechanism is most disrupted in secretory diarrhea?",
+            "options": [
+                "Intestinal motility",
+                "Crypt cell chloride secretion",
+                "Brush border enzyme activity",
+                "Tight junction integrity"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

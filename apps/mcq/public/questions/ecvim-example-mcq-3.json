@@ -1,0 +1,105 @@
+{
+    "title": "ECVIM Example MCQs - Part 3",
+    "questions": [
+        {
+            "question": "Which enzyme is responsible for MOST of the metabolism of azathioprine?",
+            "options": [
+                "2,4 hydroxymethyltransferase",
+                "Cysteine methyltransferase",
+                "Thiopurine deaminase",
+                "Thiopurine methyltransferase"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "A 10kg dog presents with acute onset of 10 episodes of vomiting in the 24 hours prior to presentation. The vomitus is clear or frothy fluid in large volumes. On physical examination, the patient is estimated to be 10% dehydrated. Given blood values (pH 7.54, pCO2 56.2, HCO3 48.7, TCO2 > 50, BE 26, Hb 16.7, Na 134, K 2.8, Cl 88, Glu 7.1), which of the following fluid therapy options is the best?",
+            "options": [
+                "Lactated Ringer's with 36 mmol KCl added to 1 liter fluids administered at 275ml/hr",
+                "Lactated Ringer's with 36 mmol KCl added to 1 liter fluids administered at 137ml/hr",
+                "0.9% NaCl with 20 mmol KCl added to 1 liter fluids administered at 275ml/hr",
+                "0.9% NaCl with 40 mmol KCl added to 1 liter fluids administered at 137 ml/hr"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "You are reading a paper regarding the use of basal cortisol concentrations to diagnose hypoadrenocorticism. The authors have found that a basal cortisol concentration of <50 mmol/l has a positive predictive value of 2.3% for the diagnosis of hypoadrenocorticism. What conclusion do you draw?",
+            "options": [
+                "For every 1000 dogs in your clinic that have a basal cortisol of <50mmol/l, 23 will have hypoadrenocorticism",
+                "For every 1000 dogs that you suspect of having hypoadrenocorticism, 23 of those with a basal cortisol of <50mmol/l will have the disease",
+                "The negative predictive value of basal cortisol in the diagnosis of hypoadrenocorticism is 97.7%",
+                "For the statistic to be useful to you, it is necessary to compare the prevalence of hypoadrenocorticism in the study population with that at your clinic"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "A 15 kg dog is presented to you with a history of anorexia for 4 days; you do not yet know the cause of the anorexia and have no other clinical signs. The dog has a body condition score of 1.5/5. You decide to feed the dog via a naso‐oesophageal tube and calculate a range for the patient's daily caloric requirement. Which is the MOST CORRECT range?",
+            "options": [
+                "520 - 540 kcal",
+                "570 - 590 kcal",
+                "730 - 750 kcal",
+                "1000 - 1070 kcal"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which statement about folate and cobalamin absorption is CORRECT?",
+            "options": [
+                "Folate is absorbed in the distal small intestine by diffusion across the intestinal epithelium",
+                "Cobalamin is absorbed in the distal small intestine by diffusion across the intestinal epithelium",
+                "Cobalamin can only be absorbed when bound to R‐protein (cobalamin‐R‐protein complexes)",
+                "Cobalamin is absorbed in the distal small intestine by a receptor‐mediated process"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Long‐term administration of which one of the following drugs is the LEAST LIKELY to interfere with thyroid function test results in dogs?",
+            "options": [
+                "Potassium bromide",
+                "Clomipramine",
+                "Potentiated sulfonamides",
+                "Phenobarbital"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which of the following statements concerning cytokines is CORRECT?",
+            "options": [
+                "IL‐2 has a strong stimulatory effect in the clonal proliferation of macrophages",
+                "IL‐12, made by activated macrophages or dendritic cells, induces Th1 cell development",
+                "TGF‐β promotes the proliferation and differentiation of T cells and macrophages",
+                "IFN‐γ is produced by activated mast cells and acts as an activator of eosinophils"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "In which organ does hypoxemia induce vasoconstriction?",
+            "options": [
+                "Brain",
+                "Heart",
+                "Kidney",
+                "Lung"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Which statement regarding liver enzymes in dogs is CORRECT?",
+            "options": [
+                "ALP and ALT are cytosolic enzymes",
+                "GGT has a higher specificity than ALP for the detection of biliary disease",
+                "GGT is unaffected by corticosteroid therapy",
+                "Serum ALT does not increase with severe muscle necrosis"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Which sentence regarding analytical artefact is CORRECT?",
+            "options": [
+                "Alkalaemia may result in falsely decreased plasma ammonia",
+                "Hyperlipidaemia is a cause of falsely decreased plasma sodium",
+                "Hypokalaemia may be associated with severe thrombocytopenia",
+                "Potassium bromide therapy is cause of falsely decreased plasma chloride"
+            ],
+            "correctAnswer": 3
+        }
+    ]
+}

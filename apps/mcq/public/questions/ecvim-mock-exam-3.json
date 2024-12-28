@@ -1,0 +1,205 @@
+{
+    "title": "ECVIM Mock Exam Questions - Part 3",
+    "questions": [
+        {
+            "question": "What is a common effect of xylazine on respiratory function?",
+            "options": [
+                "Increased respiratory rate",
+                "Respiratory depression",
+                "Bronchodilation",
+                "Pulmonary edema"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What are the main clinical findings in xylitol toxicity?",
+            "options": [
+                "Hypoglycemia and hepatic injury",
+                "Hyperkalemia and renal failure",
+                "Hyponatremia and coagulopathy",
+                "Metabolic alkalosis and pancreatitis"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the primary function of miRNA?",
+            "options": [
+                "DNA replication",
+                "Regulation of gene expression",
+                "Protein degradation",
+                "Lipid metabolism"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which chemotherapeutic agent should be substituted with chlorambucil if cyclophosphamide is not suitable?",
+            "options": [
+                "Doxorubicin",
+                "Vincristine",
+                "Prednisone",
+                "Chlorambucil"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Which hormone stimulates lipolysis, increasing free fatty acids?",
+            "options": [
+                "Growth hormone (GH)",
+                "Insulin",
+                "Cortisol",
+                "Thyroxine"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which enzyme regulates peripheral lipolysis?",
+            "options": [
+                "Hormone-sensitive lipase (HSL)",
+                "Lipoprotein lipase (LPL)",
+                "Phospholipase A2",
+                "Acetyl-CoA carboxylase"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which amino acid deficiency can result in hyperammonemia?",
+            "options": [
+                "Lysine",
+                "Arginine",
+                "Taurine",
+                "Glycine"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the role of nitric oxide (NO) in vascular physiology?",
+            "options": [
+                "Vasoconstriction",
+                "Vasodilation",
+                "Platelet aggregation",
+                "Leukocyte adhesion"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which substance directly causes vasodilation in the lungs?",
+            "options": [
+                "Hypoxia",
+                "Nitric oxide (NO)",
+                "Serotonin",
+                "Endothelin"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is a defining characteristic of non-enveloped viruses?",
+            "options": [
+                "High environmental stability",
+                "Rapid mutation rates",
+                "Susceptibility to detergents",
+                "Low infectivity"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the primary diagnostic test for virulent feline calicivirus?",
+            "options": [
+                "Fecal ELISA",
+                "PCR testing",
+                "Antibody titer measurement",
+                "Viral culture"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What test has the highest negative predictive value (NPV) for detecting feline Dirofilaria infection?",
+            "options": [
+                "Knott's test",
+                "Antigen ELISA",
+                "Blood smear",
+                "PCR"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the most accurate diagnostic test for canine parvovirus in unvaccinated puppies?",
+            "options": [
+                "Fecal ELISA",
+                "Blood PCR",
+                "Serology",
+                "Radiography"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "How is HCl secretion in gastric parietal cells stimulated?",
+            "options": [
+                "Direct stimulation by vagus nerve",
+                "Indirect stimulation via gastrin release",
+                "Inhibition by somatostatin",
+                "Enhancement by secretin"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What adverse signs may be caused by bethanechol administration?",
+            "options": [
+                "Seizures",
+                "SLUDGE signs (salivation, lacrimation, urination, diarrhea, gastrointestinal distress, emesis)",
+                "Hypoglycemia and bradycardia",
+                "Hyperactivity and tachycardia"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which statement is TRUE about canine myasthenia gravis?",
+            "options": [
+                "All dogs with the condition are seronegative for antibodies",
+                "Overstimulation of acetylcholine (ACh) receptors leads to a myasthenic crisis",
+                "Symptoms include seizures and dysphagia",
+                "It is characterized by weak and ataxic movements"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "What electrolyte imbalance can be seen with potassium bromide administration?",
+            "options": [
+                "Pseudohyperchloremia",
+                "Pseudohyperkalemia",
+                "Pseudohypernatremia",
+                "Pseudohyperphosphatemia"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What distinguishes myoglobinuria from hematuria or hemoglobinuria?",
+            "options": [
+                "Serum remains red",
+                "Serum is clear",
+                "Urine becomes red with sediment",
+                "Urine remains clear and colorless"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which condition is a common cause of hypoxia in dogs?",
+            "options": [
+                "Pneumothorax",
+                "Pulmonary thromboembolism (PTE)",
+                "Aortic stenosis",
+                "Pericardial effusion"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What does a third heart sound (S3) typically indicate?",
+            "options": [
+                "Increased atrial pressure",
+                "Increased diastolic pressure",
+                "Decreased systolic pressure",
+                "Reduced ejection fraction"
+            ],
+            "correctAnswer": 3
+        }
+    ]
+}

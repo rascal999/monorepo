@@ -1,0 +1,65 @@
+{
+    "title": "ECVIM Example MCQs - Part 4",
+    "questions": [
+        {
+            "question": "Which of the following proteins is NOT involved in an apoptotic pathway?",
+            "options": [
+                "c-kit receptor",
+                "Caspase 8",
+                "Fas receptor",
+                "p53 protein"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which one of the following is NOT a potential cause of pulmonary hypertension in dogs?",
+            "options": [
+                "Generalised alveolar hypoxia",
+                "Left-sided congestive heart failure",
+                "Living at high altitude",
+                "Treatment with alpha-adrenergic agonists"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Which statement regarding blood products is CORRECT?",
+            "options": [
+                "During whole blood storage, concentration of 2,3 diphosphoglycerate increases, decreasing hemoglobin's affinity for oxygen",
+                "Fresh Frozen Plasma (FFP) is an adequate source of albumin",
+                "Stored Frozen Plasma (SFP) and Fresh Frozen Plasma (FFP) both have adequate concentrations of Vitamin K dependent proteins",
+                "Stored Frozen Plasma (SFP) and Fresh Frozen Plasma (FFP) have equal amounts of factor V and factor VIII"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Synthetic colloids can be used for resuscitation fluid therapy. Which statement about the use of synthetic colloids is CORRECT?",
+            "options": [
+                "Acute kidney injury is a frequent complication of synthetic colloids",
+                "Synthetic colloids can affect platelet function",
+                "The lower the C2:C6 ratio, the longer the persistence of colloids in the blood",
+                "When colloids are used in place of crystalloids for treatment of hypotension, approximately half of the crystalloid dose should be given"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which statement regarding the interpretation of diagnostic tests is CORRECT?",
+            "options": [
+                "A highly specific test is ideal as a screening test",
+                "Accuracy is a measure of a test's reproducibility: an accurate test gives very similar results if repeated testing is performed on any given sample",
+                "The sensitivity of a test is the probability that a patient who tests positive actually has the disease",
+                "The specificity of a test is the probability that a patient will test negative when it does not have the disease"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Which statement concerning cardiovascular physiology and auscultation is CORRECT?",
+            "options": [
+                "A loud third heart sound may indicate elevated ventricular diastolic pressures",
+                "The fourth heart sound, if heard, occurs during early diastole",
+                "The second heart sound correlates with vibrations at the time of closure of the atrioventricular valves",
+                "The second heart sound occurs at the end of systole, following the P wave on the electrocardiogram"
+            ],
+            "correctAnswer": 0
+        }
+    ]
+}

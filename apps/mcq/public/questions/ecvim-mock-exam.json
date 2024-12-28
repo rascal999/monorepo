@@ -1,0 +1,205 @@
+{
+    "title": "ECVIM Mock Exam Questions",
+    "questions": [
+        {
+            "question": "What is the approximate total body water content in a 20 kg dog?",
+            "options": [
+                "8 L",
+                "10 L",
+                "12 L",
+                "14 L"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "In hypertrophic cardiomyopathy (HCM) in cats, which region of the heart is commonly involved in one-third of patients?",
+            "options": [
+                "Apical left ventricle",
+                "Basal interventricular septum",
+                "Right atrial wall",
+                "Pulmonary artery"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the mechanism of action of methimazole in treating hyperthyroidism?",
+            "options": [
+                "Inhibition of iodine uptake",
+                "Suppression of TPO (thyroid peroxidase) activity",
+                "Destruction of thyroid follicles",
+                "Inhibition of T3/T4 receptor binding"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Why is doxapram contraindicated during CPR?",
+            "options": [
+                "Increases oxygen consumption",
+                "Causes cerebral vasoconstriction",
+                "Decreases heart rate",
+                "Inhibits epinephrine release"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "A dog with right head tilt and left hemiparesis most likely has a lesion located in:",
+            "options": [
+                "Left brainstem",
+                "Right cerebellum",
+                "Right brainstem",
+                "Left cerebellum"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "The hippocampus is associated with which clinical signs in cats?",
+            "options": [
+                "Aggression and vocalization",
+                "Seizures and behavioral changes",
+                "Nystagmus and circling",
+                "Ataxia and tremors"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which hormone stimulates growth hormone (GH) secretion?",
+            "options": [
+                "Ghrelin",
+                "Leptin",
+                "Insulin",
+                "Cortisol"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which metabolic pathway is not responsible for the production of ketones?",
+            "options": [
+                "Lipolysis",
+                "Glycolysis",
+                "Fatty acid oxidation",
+                "Acetyl-CoA metabolism"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which toll-like receptor (TLR) is implicated in inflammatory bowel disease in German Shepherd dogs?",
+            "options": [
+                "TLR2",
+                "TLR4",
+                "TLR5",
+                "TLR9"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Transtentorial herniation commonly affects which cranial nerve?",
+            "options": [
+                "Cranial nerve II",
+                "Cranial nerve III",
+                "Cranial nerve IV",
+                "Cranial nerve VI"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the mechanism of action of detemir?",
+            "options": [
+                "Binds to plasma albumin",
+                "Inhibits insulin receptors",
+                "Enhances glucose uptake directly",
+                "Suppresses glucagon release"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Anaplasma phagocytophilum is primarily transmitted by which vector?",
+            "options": [
+                "Rhipicephalus sanguineus",
+                "Dermacentor variabilis",
+                "Ixodes species",
+                "Amblyomma americanum"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which of the following does NOT cause peripheral cyanosis?",
+            "options": [
+                "Severe anemia",
+                "Right-to-left shunting",
+                "Low cardiac output",
+                "Peripheral vasoconstriction"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Why should cisplatin not be used in cats?",
+            "options": [
+                "Causes pulmonary edema",
+                "Induces renal failure",
+                "Increases gastrointestinal toxicity",
+                "Leads to neutropenia"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What metabolic deficiency is present in cats that affects thiopurine metabolism?",
+            "options": [
+                "Glucuronyltransferase",
+                "TPMT (thiopurine methyltransferase)",
+                "CYP450 enzymes",
+                "Xanthine oxidase"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the mechanism of action of leflunomide?",
+            "options": [
+                "Purine synthesis inhibition",
+                "Pyrimidine synthesis inhibition",
+                "DNA intercalation",
+                "Protein synthesis inhibition"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "During which phase of the cell cycle does vincristine exert its action?",
+            "options": [
+                "G1 phase",
+                "S phase",
+                "M phase",
+                "G2 phase"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the mechanism and metabolism of ciclosporin?",
+            "options": [
+                "Inhibits pyrimidine synthesis; metabolized by the kidneys",
+                "Suppresses IL-2; metabolized by the liver via CYP450",
+                "Enhances T-cell activity; excreted in bile",
+                "Induces apoptosis; metabolized in plasma"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "If a queen with blood type B is bred to a tom with blood type A, what is the expected blood type distribution of the offspring?",
+            "options": [
+                "50% A, 50% B",
+                "75% A, 25% B",
+                "25% A, 75% B",
+                "100% A"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What treatment targets hypercalcemia of malignancy (HHM)?",
+            "options": [
+                "Hydration and calcitonin",
+                "Bisphosphonates and hydration",
+                "Vitamin D supplementation and steroids",
+                "Parathyroidectomy and calcitriol"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

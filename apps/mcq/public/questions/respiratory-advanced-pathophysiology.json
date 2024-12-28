@@ -1,0 +1,45 @@
+{
+    "title": "Respiratory System - Advanced Pathophysiology",
+    "questions": [
+        {
+            "question": "Which factor primarily contributes to the development of hypoxic pulmonary vasoconstriction?",
+            "options": [
+                "High arterial oxygen levels",
+                "Low alveolar oxygen levels",
+                "Increased carbon dioxide in arterial blood",
+                "Decreased pulmonary capillary pressure"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the typical respiratory compensation in metabolic acidosis?",
+            "options": [
+                "Decreased tidal volume and increased PCO₂",
+                "Increased ventilation and decreased PCO₂",
+                "Increased ventilation and increased PCO₂",
+                "Decreased ventilation and decreased PCO₂"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the key feature of restrictive lung diseases?",
+            "options": [
+                "Increased lung compliance",
+                "Decreased lung compliance",
+                "Airway hyperresponsiveness",
+                "Increased expiratory flow rates"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which of the following is the primary cause of cyanosis?",
+            "options": [
+                "Hypercapnia",
+                "Hypoxemia leading to increased deoxygenated hemoglobin",
+                "Increased oxygen saturation of arterial blood",
+                "Reduced alveolar carbon dioxide diffusion"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

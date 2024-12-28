@@ -1,0 +1,205 @@
+{
+    "title": "Renal Physiology - Glomerular Filtration",
+    "questions": [
+        {
+            "question": "What is the primary force driving glomerular filtration?",
+            "options": [
+                "Plasma oncotic pressure",
+                "Hydrostatic pressure of glomerular capillaries",
+                "Hydrostatic pressure in Bowman's space",
+                "Oncotic pressure in Bowman's space"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which structure encases the glomerular capillary tuft?",
+            "options": [
+                "Loop of Henle",
+                "Bowman's capsule",
+                "Distal tubule",
+                "Collecting duct"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the role of podocytes in the glomerulus?",
+            "options": [
+                "Secrete renin",
+                "Filter proteins",
+                "Stabilize the filtration barrier with foot processes",
+                "Reabsorb glucose"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which parameter is not directly involved in determining the glomerular filtration rate (GFR)?",
+            "options": [
+                "Net filtration pressure",
+                "Filtration barrier permeability",
+                "Area available for filtration",
+                "Urine pH"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "The filtration barrier is impermeable to which of the following?",
+            "options": [
+                "Water",
+                "Small ions",
+                "Albumin",
+                "Glucose"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which molecule primarily regulates the constriction of the afferent arteriole during high blood pressure?",
+            "options": [
+                "Nitric oxide",
+                "Renin",
+                "Adenosine",
+                "Vasopressin"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What does tubuloglomerular feedback regulate?",
+            "options": [
+                "Protein filtration",
+                "Sodium reabsorption",
+                "Single-nephron GFR",
+                "Plasma oncotic pressure"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the normal consequence of decreased renal perfusion pressure?",
+            "options": [
+                "Increased renin release",
+                "Decreased aldosterone release",
+                "Increased oncotic pressure in Bowman's space",
+                "Reduced tubular reabsorption"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which equation represents the net ultrafiltration pressure (Puf)?",
+            "options": [
+                "Pgc + πgc - (Pbs + πbs)",
+                "Pgc - Pbs - πgc",
+                "πgc - Pgc + Pbs",
+                "Pgc - (Pbs + πgc)"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "Which condition leads to an increased GFR?",
+            "options": [
+                "Mesangial cell contraction",
+                "Increased plasma oncotic pressure",
+                "High dietary protein intake",
+                "Low renal perfusion pressure"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the primary determinant of glomerular filtration rate (GFR)?",
+            "options": [
+                "Tubular reabsorption rate",
+                "Renal arterial oxygenation",
+                "Net filtration pressure",
+                "Plasma oncotic pressure"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which structure in the glomerulus prevents filtration of proteins?",
+            "options": [
+                "Juxtaglomerular apparatus",
+                "Visceral epithelium (podocytes)",
+                "Loop of Henle",
+                "Afferent arteriole"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What does the glomerular filtration barrier consist of?",
+            "options": [
+                "Capillary endothelium, basement membrane, visceral epithelium",
+                "Basement membrane, mesangial cells, loop of Henle",
+                "Bowman's capsule, macula densa, efferent arteriole",
+                "Renal pelvis, collecting duct, tubular cells"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which molecule has the highest filtration rate at the glomerulus?",
+            "options": [
+                "Albumin",
+                "Sodium ions",
+                "Large anionic proteins",
+                "Hemoglobin"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "How is GFR measured clinically?",
+            "options": [
+                "Serum albumin concentration",
+                "Creatinine clearance",
+                "Urine specific gravity",
+                "Fractional excretion of sodium"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the function of the juxtaglomerular apparatus?",
+            "options": [
+                "Glucose reabsorption",
+                "Regulate glomerular filtration rate",
+                "Filtration of plasma proteins",
+                "Collect urine for excretion"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which hormone increases GFR by dilating the afferent arteriole?",
+            "options": [
+                "Aldosterone",
+                "Atrial natriuretic peptide (ANP)",
+                "Angiotensin II",
+                "Vasopressin"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What effect does angiotensin II have on the glomerulus?",
+            "options": [
+                "Increases hydrostatic pressure in the efferent arteriole",
+                "Enhances podocyte permeability",
+                "Reduces sodium reabsorption",
+                "Blocks filtration of small solutes"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which parameter decreases along the glomerular capillary bed?",
+            "options": [
+                "Capillary hydrostatic pressure",
+                "Plasma oncotic pressure",
+                "Filtration fraction",
+                "Bowman's space oncotic pressure"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the main function of the tubuloglomerular feedback mechanism?",
+            "options": [
+                "To regulate blood glucose levels",
+                "To adjust renal blood flow and GFR",
+                "To facilitate protein filtration",
+                "To maintain urine concentration"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

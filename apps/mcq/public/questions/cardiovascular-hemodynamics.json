@@ -1,0 +1,205 @@
+{
+    "title": "Cardiovascular System - Hemodynamics",
+    "questions": [
+        {
+            "question": "What is the driving force for blood flow in the systemic circulation?",
+            "options": [
+                "Mean circulatory filling pressure",
+                "Perfusion pressure",
+                "Arterial compliance",
+                "Capillary oncotic pressure"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the mean aortic pressure in a healthy dog?",
+            "options": [
+                "75 mmHg",
+                "95 mmHg",
+                "98 mmHg",
+                "110 mmHg"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What percentage of systemic resistance is accounted for by arterioles?",
+            "options": [
+                "10%",
+                "30%",
+                "50%",
+                "70%"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "What is the typical resistance of the pulmonary circulation relative to the systemic circulation?",
+            "options": [
+                "1/2",
+                "1/4",
+                "1/6",
+                "1/12"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "What happens to pulse pressure when aortic compliance decreases?",
+            "options": [
+                "It increases",
+                "It decreases",
+                "It remains unchanged",
+                "It depends on stroke volume"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which vessels are responsible for the greatest drop in blood pressure?",
+            "options": [
+                "Capillaries",
+                "Veins",
+                "Arterioles",
+                "Aorta"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "During exercise, skeletal muscle blood flow increases due to:",
+            "options": [
+                "Increased heart rate",
+                "Arteriolar vasodilation",
+                "Decreased cardiac output",
+                "Decreased TPR"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the typical pulse pressure in the pulmonary artery?",
+            "options": [
+                "5 mmHg",
+                "12 mmHg",
+                "20 mmHg",
+                "30 mmHg"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What mechanism compensates for a decrease in stroke volume?",
+            "options": [
+                "Increased heart rate",
+                "Increased TPR",
+                "Vasodilation",
+                "Decreased compliance"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What determines TPR?",
+            "options": [
+                "Cardiac output",
+                "Arteriolar resistance",
+                "Venous compliance",
+                "Pulse pressure"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What proportion of cardiac output is directed to the kidneys at rest?",
+            "options": [
+                "10%",
+                "15%",
+                "20%",
+                "25%"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which pressure is used to calculate TPR?",
+            "options": [
+                "Systolic pressure",
+                "Mean arterial pressure",
+                "Diastolic pressure",
+                "Pulse pressure"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What change occurs during exercise to facilitate increased cardiac output?",
+            "options": [
+                "Increased TPR",
+                "Arterial vasodilation",
+                "Skeletal muscle vasodilation",
+                "Reduced pulse pressure"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which vessels function as major blood reservoirs?",
+            "options": [
+                "Arteries",
+                "Veins",
+                "Capillaries",
+                "Arterioles"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What causes mean circulatory filling pressure to increase?",
+            "options": [
+                "Heart rate increase",
+                "Venous distension",
+                "Stroke volume decrease",
+                "Cardiac output reduction"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the mean pulmonary arterial pressure at rest in a dog?",
+            "options": [
+                "5 mmHg",
+                "13 mmHg",
+                "20 mmHg",
+                "25 mmHg"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What happens to TPR during exercise?",
+            "options": [
+                "It increases fourfold",
+                "It decreases fourfold",
+                "It remains unchanged",
+                "It doubles"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What percentage of cardiac output is directed to the brain at rest?",
+            "options": [
+                "5%",
+                "10%",
+                "15%",
+                "20%"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "How much more compliant are veins than arteries?",
+            "options": [
+                "10 times",
+                "15 times",
+                "20 times",
+                "25 times"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the primary determinant of organ blood flow?",
+            "options": [
+                "Stroke volume",
+                "Perfusion pressure",
+                "Arteriolar resistance",
+                "Venous compliance"
+            ],
+            "correctAnswer": 2
+        }
+    ]
+}

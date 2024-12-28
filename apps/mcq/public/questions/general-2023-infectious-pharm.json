@@ -1,0 +1,85 @@
+{
+    "title": "General 2023 - Infectious Diseases and Pharmacology",
+    "questions": [
+        {
+            "question": "What is the treatment of choice for Babesia gibsoni?",
+            "options": [
+                "Imidocarb",
+                "TMPS",
+                "Atovaquone + azithromycin",
+                "Doxycycline"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "When finding morulae in neutrophils, what is the most likely differential diagnosis?",
+            "options": [
+                "Anaplasma phagocytophilum",
+                "Ehrlichia canis",
+                "E. chaffeensis",
+                "Babesia canis"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which route is least likely to undergo first-pass hepatic metabolism?",
+            "options": [
+                "Intramuscular",
+                "Subcutaneous",
+                "Per rectum",
+                "Transdermal"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "What is the mechanism of action of vincristine?",
+            "options": [
+                "DNA intercalation",
+                "Microtubule disruption",
+                "Protein synthesis inhibition",
+                "Topoisomerase inhibition"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the mechanism of action of leflunomide?",
+            "options": [
+                "Purine synthesis inhibition",
+                "Pyrimidine synthesis inhibition",
+                "DNA intercalation",
+                "Protein synthesis inhibition"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the treatment of choice for Actinomyces infection?",
+            "options": [
+                "Penicillin",
+                "TMPS",
+                "Tetracyclines",
+                "Fluoroquinolones"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which statement about aminoglycoside antibiotics is correct?",
+            "options": [
+                "Aminoglycosides accumulate in proximal renal tubular cells",
+                "Aminoglycosides accumulate in mesangial cells",
+                "Aminoglycosides have good activity against anaerobic bacteria",
+                "Aminoglycosides interfere with cell wall synthesis"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which statement regarding leptospirosis is correct?",
+            "options": [
+                "Cats have natural resistance and don't develop leptospiremia",
+                "MAT titers are usually positive within first 3 days",
+                "Doxycycline therapy quickly stops urinary shedding",
+                "Vaccinated dogs with low MAT titers remain susceptible to other serovars"
+            ],
+            "correctAnswer": 3
+        }
+    ]
+}

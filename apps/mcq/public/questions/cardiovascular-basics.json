@@ -1,0 +1,205 @@
+{
+    "title": "Cardiovascular System - Basic Concepts",
+    "questions": [
+        {
+            "question": "What is the main function of the cardiovascular system?",
+            "options": [
+                "Immune regulation",
+                "Transport of substances",
+                "Hormone synthesis",
+                "Nervous system signaling"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What condition occurs when blood flow is insufficient to meet tissue metabolic needs?",
+            "options": [
+                "Infarction",
+                "Ischemia",
+                "Edema",
+                "Anemia"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which mechanism drives blood flow through the cardiovascular system?",
+            "options": [
+                "Active transport",
+                "Perfusion pressure differences",
+                "Gravity",
+                "Diffusion"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What term describes irreversible tissue damage due to prolonged ischemia?",
+            "options": [
+                "Edema",
+                "Infarction",
+                "Necrosis",
+                "Hypoxia"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What portion of cardiac output flows to the kidneys in a resting animal?",
+            "options": [
+                "10%",
+                "20%",
+                "30%",
+                "40%"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which vessels are primarily responsible for controlling blood flow to tissues?",
+            "options": [
+                "Arteries",
+                "Veins",
+                "Arterioles",
+                "Capillaries"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the perfusion pressure for systemic circulation in a healthy animal?",
+            "options": [
+                "13 mmHg",
+                "50 mmHg",
+                "95 mmHg",
+                "120 mmHg"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which component of blood is primarily responsible for oxygen transport?",
+            "options": [
+                "Platelets",
+                "Plasma",
+                "Hemoglobin",
+                "White blood cells"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which circulation has the highest resistance to blood flow?",
+            "options": [
+                "Systemic circulation",
+                "Pulmonary circulation",
+                "Hepatic portal system",
+                "Renal portal system"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "In polycythemia, what is the primary consequence of increased blood viscosity?",
+            "options": [
+                "Increased O2-carrying capacity",
+                "Decreased cardiac workload",
+                "Increased cardiac workload",
+                "Decreased Hct"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which of the following describes blood flow through the hepatic portal system?",
+            "options": [
+                "Two capillary beds in series",
+                "Blood bypasses the liver",
+                "Single capillary bed delivery",
+                "Arterial blood only"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What type of circulation delivers blood to the alveoli for gas exchange?",
+            "options": [
+                "Systemic circulation",
+                "Pulmonary circulation",
+                "Renal circulation",
+                "Coronary circulation"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What condition occurs when excess fluid accumulates in the lungs?",
+            "options": [
+                "Pulmonary edema",
+                "Ischemia",
+                "Hemorrhagic shock",
+                "Cyanosis"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "How much oxygen is typically bound to hemoglobin in arterial blood?",
+            "options": [
+                "98.5%",
+                "50%",
+                "20%",
+                "1.5%"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What happens to blood flow velocity as blood moves through capillaries?",
+            "options": [
+                "Increases",
+                "Decreases",
+                "Remains constant",
+                "Stops entirely"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which vessels act as blood reservoirs in the systemic circulation?",
+            "options": [
+                "Arteries",
+                "Capillaries",
+                "Arterioles",
+                "Veins"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "question": "What is the normal hematocrit range in dogs?",
+            "options": [
+                "20–30%",
+                "35–57%",
+                "60–70%",
+                "10–20%"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which condition causes a low hematocrit?",
+            "options": [
+                "Polycythemia",
+                "Anemia",
+                "Edema",
+                "Ischemia"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the primary function of arterioles?",
+            "options": [
+                "Oxygen exchange",
+                "Blood reservoir",
+                "Regulation of blood flow",
+                "Removal of waste products"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which blood vessels experience the lowest velocity of blood flow?",
+            "options": [
+                "Arteries",
+                "Veins",
+                "Capillaries",
+                "Arterioles"
+            ],
+            "correctAnswer": 2
+        }
+    ]
+}

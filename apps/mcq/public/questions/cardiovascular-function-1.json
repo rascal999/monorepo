@@ -1,0 +1,205 @@
+{
+    "title": "Cardiovascular System - Cardiac Function Part 1",
+    "questions": [
+        {
+            "question": "What does the first heart sound (S1) represent?",
+            "options": [
+                "Closure of the aortic and pulmonic valves",
+                "Closure of the mitral and tricuspid valves",
+                "Ventricular ejection of blood",
+                "Atrial contraction"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which mechanism primarily contributes to the increase in stroke volume with increased preload?",
+            "options": [
+                "Decreased end-systolic volume",
+                "Frank-Starling mechanism",
+                "Increased afterload",
+                "Sympathetic stimulation"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the normal ejection fraction range for a resting dog?",
+            "options": [
+                "30-45%",
+                "50-65%",
+                "70-85%",
+                "90-100%"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which condition is characterized by volume work of the left ventricle increasing beyond normal levels?",
+            "options": [
+                "Mitral regurgitation",
+                "Pulmonic stenosis",
+                "Tricuspid stenosis",
+                "Ventricular fibrillation"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the effect of increased sympathetic stimulation on ventricular function?",
+            "options": [
+                "Decreases contractility",
+                "Increases contractility and heart rate",
+                "Decreases preload",
+                "Increases end-diastolic volume"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What pressure typically represents normal left ventricular preload in a dog at rest?",
+            "options": [
+                "3 mmHg",
+                "5 mmHg",
+                "10 mmHg",
+                "15 mmHg"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which heart sound is associated with closure of the aortic and pulmonic valves?",
+            "options": [
+                "S1",
+                "S2",
+                "S3",
+                "S4"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What term describes the relationship between increased ventricular filling during diastole and increased stroke volume?",
+            "options": [
+                "Afterload mechanism",
+                "Frank-Starling mechanism",
+                "Bowditch effect",
+                "Heterometric regulation"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which condition typically leads to an increased pressure work for the left ventricle?",
+            "options": [
+                "Aortic stenosis",
+                "Mitral stenosis",
+                "Pulmonic regurgitation",
+                "Patent ductus arteriosus"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "In a normal dog, what percentage of ventricular filling occurs passively before atrial systole?",
+            "options": [
+                "50%",
+                "60%",
+                "80-90%",
+                "100%"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What condition produces a continuous murmur heard throughout the cardiac cycle?",
+            "options": [
+                "Mitral regurgitation",
+                "Aortic stenosis",
+                "Patent ductus arteriosus",
+                "Atrial fibrillation"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which heart defect typically results in both left and right ventricular hypertrophy?",
+            "options": [
+                "Pulmonic stenosis",
+                "Ventricular septal defect",
+                "Patent ductus arteriosus",
+                "Mitral stenosis"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the primary contributor to cardiac output during exercise?",
+            "options": [
+                "Increased heart rate alone",
+                "Increased stroke volume alone",
+                "Increased heart rate and stroke volume",
+                "Decreased afterload"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which term refers to the pressure against which the ventricle must pump to eject blood?",
+            "options": [
+                "Preload",
+                "Afterload",
+                "Contractility",
+                "Compliance"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which heart sound is often heard in large animals during rapid ventricular filling?",
+            "options": [
+                "S1",
+                "S2",
+                "S3",
+                "S4"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What type of murmur is caused by aortic incompetence?",
+            "options": [
+                "Systolic murmur",
+                "Diastolic murmur",
+                "Continuous murmur",
+                "Functional murmur"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the normal stroke volume for a resting dog?",
+            "options": [
+                "20 mL",
+                "30 mL",
+                "50 mL",
+                "60 mL"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the effect of non-compliant ventricles on ventricular filling?",
+            "options": [
+                "Increased filling at lower pressure",
+                "Decreased filling despite normal pressure",
+                "Normal filling regardless of preload",
+                "Increased stroke volume"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the primary cause of left ventricular hypertrophy in systemic hypertension?",
+            "options": [
+                "Increased volume work",
+                "Increased pressure work",
+                "Decreased heart rate",
+                "Decreased stroke volume"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which factor is critical for maintaining diastolic filling time at high heart rates?",
+            "options": [
+                "Increased afterload",
+                "Sympathetic shortening of systole",
+                "Decreased preload",
+                "Increased parasympathetic tone"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

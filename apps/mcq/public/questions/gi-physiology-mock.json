@@ -1,0 +1,185 @@
+{
+    "title": "GI Physiology Mock Exam",
+    "questions": [
+        {
+            "question": "Which plexus primarily regulates gastrointestinal motility?",
+            "options": [
+                "Submucosal plexus",
+                "Myenteric plexus",
+                "Celiac plexus",
+                "Lumbar plexus"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which neurotransmitter primarily stimulates gastrointestinal smooth muscle contraction?",
+            "options": [
+                "Norepinephrine",
+                "Dopamine",
+                "Acetylcholine",
+                "Nitric oxide"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the primary function of peristalsis in the gastrointestinal tract?",
+            "options": [
+                "Mixing of luminal contents",
+                "Propulsion of contents along the tract",
+                "Segmentation of chyme",
+                "Absorption of nutrients"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the role of the migrating motor complex (MMC) in the gastrointestinal system?",
+            "options": [
+                "Stimulating gastric acid secretion",
+                "Enhancing intestinal absorption",
+                "Clearing undigested material between meals",
+                "Reducing blood flow to the intestines"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which cells in the stomach secrete hydrochloric acid?",
+            "options": [
+                "Parietal cells",
+                "Chief cells",
+                "G cells",
+                "Enterochromaffin-like cells"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the primary stimulus for gastrin release?",
+            "options": [
+                "Increased pH in the stomach",
+                "Presence of food in the stomach",
+                "Increased sympathetic activity",
+                "Presence of fats in the duodenum"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the function of intrinsic factor secreted by gastric parietal cells?",
+            "options": [
+                "Protein digestion",
+                "Vitamin B12 absorption",
+                "Fat emulsification",
+                "Gastric motility regulation"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which hormone primarily stimulates bicarbonate secretion from the pancreas?",
+            "options": [
+                "Secretin",
+                "Cholecystokinin (CCK)",
+                "Gastrin",
+                "Somatostatin"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which of the following best describes the role of bile salts in lipid digestion?",
+            "options": [
+                "Hydrolysis of triglycerides",
+                "Activating pancreatic lipase",
+                "Emulsifying lipids",
+                "Transporting fatty acids"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the primary stimulus for pancreatic enzyme secretion?",
+            "options": [
+                "Secretin",
+                "Gastrin",
+                "CCK",
+                "Glucagon"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which section of the small intestine is the primary site for nutrient absorption?",
+            "options": [
+                "Duodenum",
+                "Jejunum",
+                "Ileum",
+                "Cecum"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the role of micelles in fat absorption?",
+            "options": [
+                "Transporting lipids into lymphatic vessels",
+                "Aiding lipase in hydrolyzing triglycerides",
+                "Facilitating transport of lipids to the enterocyte surface",
+                "Stimulating bile salt reabsorption"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the main function of the large intestine in non-ruminant species?",
+            "options": [
+                "Digestion of proteins",
+                "Absorption of electrolytes and water",
+                "Fermentation of proteins into volatile fatty acids",
+                "Emulsification of fats"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which short-chain fatty acid is the major product of fermentation in the colon?",
+            "options": [
+                "Acetate",
+                "Butyrate",
+                "Propionate",
+                "Lactate"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which hormone inhibits gastric emptying and stimulates gallbladder contraction?",
+            "options": [
+                "Secretin",
+                "Cholecystokinin (CCK)",
+                "Gastrin",
+                "Motilin"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What effect does sympathetic stimulation have on gastrointestinal function?",
+            "options": [
+                "Enhances motility",
+                "Stimulates acid secretion",
+                "Inhibits motility and secretions",
+                "Stimulates gallbladder contraction"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which of the following is a common consequence of exocrine pancreatic insufficiency (EPI)?",
+            "options": [
+                "Hyperlipidemia",
+                "Maldigestion of fats",
+                "Increased gastric acid production",
+                "Delayed gastric emptying"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the primary cause of diarrhea in small intestinal malabsorption?",
+            "options": [
+                "Increased secretion of mucus",
+                "Reduced absorption of nutrients and water",
+                "Bile acid overproduction",
+                "Excessive motility"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

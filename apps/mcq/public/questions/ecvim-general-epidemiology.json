@@ -1,0 +1,35 @@
+{
+    "title": "ECVIM General Quiz - Epidemiology and Biostatistics",
+    "questions": [
+        {
+            "question": "In the hierarchy of evidence based medicine which of the following is considered to provide the highest strength of evidence?",
+            "options": [
+                "Cohort study",
+                "Case-control study",
+                "Meta-analysis",
+                "Randomised, controlled, double-blind trial"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "You are testing a flock of 200 sheep using a test with a sensitivity of 90% and a specificity of 80%. The overall disease prevalence in the flock is 10%. What is the positive predictive value of the test?",
+            "options": [
+                "33%",
+                "50%",
+                "90%",
+                "99%"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Referring to the 2x2 table (Disease State: Present/Absent, Test result: Positive/Negative), which of the following equations correctly describes the specificity of a diagnostic test?",
+            "options": [
+                "a/(a+b)",
+                "c/(c+d)",
+                "d/(c+d)",
+                "d/(b+d)"
+            ],
+            "correctAnswer": 2
+        }
+    ]
+}

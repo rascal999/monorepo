@@ -1,0 +1,55 @@
+{
+    "title": "GI Physiology - Basic Concepts",
+    "questions": [
+        {
+            "question": "Which of the following is the primary excitatory neurotransmitter of the enteric nervous system?",
+            "options": [
+                "Nitric oxide",
+                "Vasoactive intestinal peptide",
+                "Acetylcholine",
+                "Serotonin"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Which cells are considered the pacemakers of the gastrointestinal tract?",
+            "options": [
+                "Parietal cells",
+                "Interstitial cells of Cajal",
+                "Goblet cells",
+                "Enteroendocrine cells"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which hormone stimulates gastric acid secretion and is released in response to peptides and amino acids in the stomach?",
+            "options": [
+                "Secretin",
+                "Cholecystokinin (CCK)",
+                "Gastrin",
+                "Motilin"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What is the function of serotonin (5-HT) in the gastrointestinal system?",
+            "options": [
+                "Inhibits muscle contractions",
+                "Activates excitatory gut reflexes",
+                "Stimulates acid secretion",
+                "Promotes bicarbonate secretion"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What role does somatostatin play in the gastrointestinal tract?",
+            "options": [
+                "Stimulates acid secretion",
+                "Inhibits secretion of multiple hormones",
+                "Activates migrating motor complexes",
+                "Enhances gut motility"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}
