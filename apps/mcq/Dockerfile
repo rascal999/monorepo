@@ -17,10 +17,13 @@ RUN npm run build
 # Production stage
 FROM nginx:alpine
 
-# Install certbot and its nginx plugin
-RUN apk add --no-cache certbot certbot-nginx
+# Install required packages
+RUN apk add --no-cache \
+    certbot \
+    certbot-nginx \
+    gettext
 
-# Create directory for certbot challenges
+# Create directory for certbot
 RUN mkdir -p /var/www/certbot
 
 # Copy built assets from builder stage
@@ -32,12 +35,12 @@ COPY --from=builder /app/public/questions /usr/share/nginx/html/questions
 # Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Create directory for certificates
-RUN mkdir -p /etc/letsencrypt
-
-# Copy certificate initialization and renewal scripts
+# Copy entrypoint script
 COPY docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
+
+# Create directory for certificates
+RUN mkdir -p /etc/letsencrypt
 
 # Expose ports
 EXPOSE 80
