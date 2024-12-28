@@ -1,0 +1,7 @@
+* Pagination applies on search
+** If you're on page 6, blank results..
+* Navigation panel not great in desktop mode
+* Run questions through ChatGPT to check answers okay
+* Make questions Google searchable at end of quiz
+* Check answer time is calculated on answer selection (not clicking next question)
+* Make questions downloadable (PDF / doc)
