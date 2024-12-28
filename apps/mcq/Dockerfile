@@ -21,10 +21,12 @@ FROM nginx:alpine
 RUN apk add --no-cache \
     certbot \
     certbot-nginx \
-    gettext
+    gettext \
+    curl
 
-# Create directory for certbot
-RUN mkdir -p /var/www/certbot
+# Create directories
+RUN mkdir -p /var/www/certbot \
+    && mkdir -p /etc/letsencrypt
 
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
@@ -32,15 +34,13 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy questions directory
 COPY --from=builder /app/public/questions /usr/share/nginx/html/questions
 
-# Copy nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx configurations
+COPY nginx.http.conf /etc/nginx/nginx.http.conf
+COPY nginx.ssl.conf /etc/nginx/nginx.ssl.conf
 
 # Copy entrypoint script
 COPY docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
-
-# Create directory for certificates
-RUN mkdir -p /etc/letsencrypt
 
 # Expose ports
 EXPOSE 80

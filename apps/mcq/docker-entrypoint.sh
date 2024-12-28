@@ -2,8 +2,9 @@
 
 # Function to replace environment variables in nginx config
 setup_nginx_conf() {
-    envsubst '${DOMAIN}' < /etc/nginx/conf.d/default.conf > /etc/nginx/conf.d/default.conf.tmp
-    mv /etc/nginx/conf.d/default.conf.tmp /etc/nginx/conf.d/default.conf
+    local template=$1
+    local output=$2
+    envsubst '${DOMAIN}' < "$template" > "$output"
 }
 
 # Function to wait for nginx to be ready
@@ -40,7 +41,10 @@ get_certificate() {
     mkdir -p /var/www/certbot
     chmod -R 755 /var/www/certbot
 
-    # Start nginx with basic config
+    # Setup and start nginx with HTTP-only config
+    echo "Setting up HTTP-only nginx configuration..."
+    setup_nginx_conf /etc/nginx/nginx.http.conf /etc/nginx/conf.d/default.conf
+    
     echo "Starting nginx for domain validation..."
     nginx
     
@@ -77,10 +81,6 @@ renew_certificates() {
     certbot renew --webroot --webroot-path /var/www/certbot --non-interactive
 }
 
-# Initial setup
-echo "Setting up nginx configuration..."
-setup_nginx_conf
-
 # Create webroot directory for certbot
 mkdir -p /var/www/certbot
 chmod -R 755 /var/www/certbot
@@ -88,12 +88,16 @@ chmod -R 755 /var/www/certbot
 # Get initial certificate
 get_certificate
 
+# Setup nginx with SSL configuration
+echo "Setting up SSL nginx configuration..."
+setup_nginx_conf /etc/nginx/nginx.ssl.conf /etc/nginx/conf.d/default.conf
+
 # Start periodic certificate renewal in background
 while :; do
     sleep 12h
     renew_certificates
 done &
 
-# Start nginx with full configuration
+# Start nginx with SSL configuration
 echo "Starting nginx with SSL configuration"
 exec nginx -g "daemon off;"
