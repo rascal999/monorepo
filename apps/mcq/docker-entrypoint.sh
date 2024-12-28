@@ -6,13 +6,13 @@ get_certificate() {
     if [ -z "$DOMAIN" ]; then
         echo "Error: DOMAIN environment variable not set"
         exit 1
-    }
+    fi
 
     # Check if email is provided via environment variable
     if [ -z "$EMAIL" ]; then
         echo "Error: EMAIL environment variable not set"
         exit 1
-    }
+    fi
 
     # Check if certificate already exists
     if [ ! -d "/etc/letsencrypt/live/$DOMAIN" ]; then
