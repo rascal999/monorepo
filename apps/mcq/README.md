@@ -43,6 +43,22 @@ Build the application:
 npm run build
 ```
 
+### Docker
+
+You can run the application using Docker:
+
+1. Build the Docker image:
+```bash
+docker build -t mcq-quiz-app .
+```
+
+2. Run the container:
+```bash
+docker run -p 8080:80 mcq-quiz-app
+```
+
+The application will be available at `http://localhost:8080`
+
 ## Usage
 
 ### Taking a Quiz
