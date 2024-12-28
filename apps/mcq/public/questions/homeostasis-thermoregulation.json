@@ -1,0 +1,55 @@
+{
+    "title": "Homeostasis and Thermoregulation Quiz",
+    "questions": [
+        {
+            "question": "Which mechanism predominantly contributes to heat dissipation in dogs?",
+            "options": [
+                "Sweating",
+                "Panting",
+                "Peripheral vasoconstriction",
+                "Increased metabolic rate"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "In response to hypothermia, the body primarily conserves heat by:",
+            "options": [
+                "Sweating",
+                "Shivering",
+                "Peripheral vasoconstriction",
+                "Increased evaporation"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What role does brown adipose tissue play in thermoregulation?",
+            "options": [
+                "Stores energy for future use",
+                "Generates heat via non-shivering thermogenesis",
+                "Insulates against heat loss",
+                "Prevents dehydration during heat stress"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which hypothalamic area is most responsible for regulating body temperature?",
+            "options": [
+                "Anterior hypothalamus",
+                "Posterior hypothalamus",
+                "Ventromedial hypothalamus",
+                "Lateral hypothalamus"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the effect of pyrogens on the hypothalamic set point?",
+            "options": [
+                "They lower the set point to induce hypothermia",
+                "They raise the set point to initiate fever",
+                "They inhibit the thermoregulatory center",
+                "They maintain the set point regardless of infection"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

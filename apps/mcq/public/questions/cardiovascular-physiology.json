@@ -1,0 +1,55 @@
+{
+    "title": "Cardiovascular Physiology Quiz",
+    "questions": [
+        {
+            "question": "What primarily determines stroke volume in a healthy animal?",
+            "options": [
+                "Heart rate",
+                "Preload, afterload, and contractility",
+                "Mean arterial pressure",
+                "Venous oxygen saturation"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "During diastole, ventricular filling is primarily driven by:",
+            "options": [
+                "Atrial contraction",
+                "Venous return and pressure gradients",
+                "Pulmonary artery pressure",
+                "Sympathetic nervous activity"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which ion primarily contributes to the plateau phase of the cardiac action potential?",
+            "options": [
+                "Sodium",
+                "Potassium",
+                "Calcium",
+                "Chloride"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "What effect does stimulation of beta-1 adrenergic receptors have on the heart?",
+            "options": [
+                "Decreased heart rate",
+                "Increased heart rate and contractility",
+                "Vasoconstriction",
+                "Decreased ventricular filling"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which factor primarily regulates coronary blood flow during exercise?",
+            "options": [
+                "Arterial pressure",
+                "Sympathetic stimulation",
+                "Local metabolic demand",
+                "Parasympathetic stimulation"
+            ],
+            "correctAnswer": 2
+        }
+    ]
+}

@@ -1,0 +1,55 @@
+{
+    "title": "Respiratory Physiology Quiz",
+    "questions": [
+        {
+            "question": "What primarily drives oxygen diffusion across the alveolar membrane?",
+            "options": [
+                "Hemoglobin concentration in blood",
+                "Partial pressure gradient of oxygen",
+                "Carbon dioxide concentration in alveoli",
+                "Alveolar surfactant levels"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which of the following factors decreases hemoglobin's affinity for oxygen?",
+            "options": [
+                "Decreased pH (Bohr effect)",
+                "Decreased temperature",
+                "Decreased 2,3-DPG concentration",
+                "Decreased PCO₂"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What is the primary function of pulmonary surfactant?",
+            "options": [
+                "Enhance gas exchange",
+                "Prevent alveolar collapse by reducing surface tension",
+                "Facilitate mucus clearance",
+                "Increase alveolar permeability"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which part of the brainstem controls the basic rhythm of respiration?",
+            "options": [
+                "Medulla oblongata",
+                "Pons",
+                "Midbrain",
+                "Cerebellum"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "What happens to arterial oxygen levels during hypoventilation?",
+            "options": [
+                "They increase due to reduced carbon dioxide levels",
+                "They decrease due to inadequate alveolar ventilation",
+                "They remain unchanged because of oxygen reserves",
+                "They increase due to compensatory mechanisms"
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}

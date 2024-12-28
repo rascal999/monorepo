@@ -1,0 +1,55 @@
+{
+    "title": "Hematology and Immunology Quiz",
+    "questions": [
+        {
+            "question": "What is the primary stimulus for erythropoietin release?",
+            "options": [
+                "Decreased plasma iron levels",
+                "Decreased oxygen delivery to the kidneys",
+                "Increased carbon dioxide levels in the blood",
+                "Decreased hemoglobin concentration"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the role of hepcidin in iron homeostasis?",
+            "options": [
+                "Increases iron absorption in the intestine",
+                "Blocks intestinal iron absorption and iron release from macrophages",
+                "Promotes iron storage in the liver",
+                "Stimulates erythropoiesis in the bone marrow"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which of the following is a key function of T-helper (CD4+) cells?",
+            "options": [
+                "Phagocytosis of pathogens",
+                "Secretion of cytokines to regulate immune responses",
+                "Direct lysis of infected cells",
+                "Antibody production"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which immunoglobulin is most abundant in the mucosal immune system?",
+            "options": [
+                "IgA",
+                "IgG",
+                "IgE",
+                "IgM"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "question": "Which complement pathway is activated by antigen-antibody complexes?",
+            "options": [
+                "Classical pathway",
+                "Lectin pathway",
+                "Alternative pathway",
+                "Terminal pathway"
+            ],
+            "correctAnswer": 0
+        }
+    ]
+}

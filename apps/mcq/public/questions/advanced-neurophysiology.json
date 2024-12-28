@@ -1,0 +1,55 @@
+{
+    "title": "Advanced Neurophysiology Quiz",
+    "questions": [
+        {
+            "question": "Which neurotransmitter is the primary inhibitory mediator in the central nervous system?",
+            "options": [
+                "Glutamate",
+                "Gamma-aminobutyric acid (GABA)",
+                "Dopamine",
+                "Acetylcholine"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the primary function of the blood-brain barrier?",
+            "options": [
+                "Enhance oxygen diffusion into brain tissue",
+                "Prevent the entry of pathogens and toxins into the brain",
+                "Facilitate rapid glucose delivery to neurons",
+                "Regulate cerebrospinal fluid pressure"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "Which type of glial cell is responsible for myelination in the central nervous system?",
+            "options": [
+                "Schwann cells",
+                "Astrocytes",
+                "Oligodendrocytes",
+                "Microglia"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "question": "Increased intracranial pressure leads to which of the following clinical signs?",
+            "options": [
+                "Decreased arterial blood pressure",
+                "Bradycardia and hypertension (Cushing's reflex)",
+                "Tachycardia and hypotension",
+                "Hypoglycemia and hyperthermia"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "question": "What is the primary ion involved in the depolarization of a neuron?",
+            "options": [
+                "Sodium",
+                "Potassium",
+                "Calcium",
+                "Chloride"
+            ],
+            "correctAnswer": 0
+        }
+    ]
+}

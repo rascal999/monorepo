@@ -1,0 +1,25 @@
+/* Page navigation buttons */
+.page-nav {
+  padding: 0.5rem 1rem;
+  background: var(--button-bg);
+  border: 1px solid transparent;
+  color: var(--button-text);
+  min-width: 100px;
+  height: 40px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0.5rem;
+}
+
+.page-nav:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-nav:not(:disabled):hover {
+  border-color: var(--button-hover);
+  background: var(--button-hover);
+}

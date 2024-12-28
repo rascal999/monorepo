@@ -1,0 +1,29 @@
+.upload-section h1 {
+  color: var(--text-color);
+  opacity: 0.9;
+  margin-bottom: 1rem;
+}
+
+.upload-section a {
+  color: var(--button-text);
+  text-decoration: underline;
+  transition: all 0.2s ease;
+}
+
+.upload-section a:hover {
+  color: var(--button-hover);
+  text-decoration: none;
+}
+
+.uploaded-files {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: var(--component-bg);
+  border-radius: 8px;
+}
+
+.uploaded-files h2 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: var(--text-color);
+}

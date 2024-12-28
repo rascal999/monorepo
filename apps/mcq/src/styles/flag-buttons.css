@@ -1,0 +1,20 @@
+.flag-btn {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.flag-btn:hover {
+  opacity: 1;
+  background: none;
+  border: none;
+}
