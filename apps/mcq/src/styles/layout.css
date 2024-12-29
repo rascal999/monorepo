@@ -11,6 +11,7 @@
   width: 800px;
   margin: 0 auto;
   padding: 2.5rem;
+  padding-bottom: calc(2.5rem + 80px); /* Added extra padding for quiz controls */
   background: #f9f9f9;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -48,6 +49,7 @@ h1.app-title:active {
     width: 95%;
     min-width: 320px;
     padding: 1.5rem;
+    padding-bottom: calc(1.5rem + 80px); /* Added extra padding for quiz controls */
   }
 }
 
@@ -60,6 +62,7 @@ h1.app-title:active {
     width: 100%;
     margin: 0;
     padding: 0.75rem;  /* Reduced from 1rem to 0.75rem */
+    padding-bottom: calc(0.75rem + 100px); /* Added extra padding for quiz controls on mobile */
     border-radius: 0;
     box-shadow: none;
     min-height: 100vh;

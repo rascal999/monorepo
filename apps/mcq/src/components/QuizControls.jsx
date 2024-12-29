@@ -28,7 +28,7 @@ export function QuizControls({
 
         <button 
           onClick={onFinishQuiz}
-          className="finish-btn nav-btn"
+          className="finish-btn"
         >
           Finish Quiz
         </button>

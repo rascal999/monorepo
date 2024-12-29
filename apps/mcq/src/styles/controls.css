@@ -1,4 +1,2 @@
-@import './navigation-controls.css';
-@import './question-navigation.css';
-@import './answer-controls.css';
+/* Import only the necessary control styles */
 @import './quiz-controls.css';
