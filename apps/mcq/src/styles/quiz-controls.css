@@ -1,109 +1,120 @@
+/* Quiz Controls Container */
 .quiz-controls {
-  margin-top: 0.5rem;
-}
-
-.navigation-controls {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  background: var(--component-bg);
+  box-shadow: 0 -2px 10px var(--shadow-color);
+  z-index: 100;
+  border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  height: 80px;
 }
 
-.nav-btn {
+/* Navigation Controls */
+.quiz-controls .navigation-controls {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 300px;
+  margin: 0;
+  padding: 0;
+}
+
+.quiz-controls .navigation-controls.vertical {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Navigation Row (Previous/Next buttons) */
+.quiz-controls .nav-row {
+  display: flex;
+  width: 100%;
+}
+
+/* Previous/Next Buttons */
+.quiz-controls .nav-btn {
+  flex: 1;
+  height: 40px;
   background: var(--button-bg);
   color: var(--button-text);
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  min-width: 120px;
-  height: 40px;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  cursor: pointer;
   font-size: 1rem;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.nav-btn:hover:not(:disabled) {
+.quiz-controls .nav-btn + .nav-btn {
+  border-left: 1px solid var(--border-color);
+}
+
+.quiz-controls .nav-btn:hover:not(:disabled) {
   background: var(--button-hover);
 }
 
-.nav-btn:disabled {
+.quiz-controls .nav-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Finish button styles with increased specificity */
-.navigation-controls .finish-btn,
-.navigation-controls.vertical .finish-btn {
+/* Finish Button */
+.quiz-controls .finish-btn {
+  width: 100%;
+  height: 40px;
   background: #4CAF50;
   color: white;
-  border: 1px solid #4CAF50;
-}
-
-.navigation-controls .finish-btn:hover,
-.navigation-controls.vertical .finish-btn:hover {
-  background: #388E3C;
-  border-color: #388E3C;
-}
-
-/* When navigation controls are vertical */
-.navigation-controls.vertical {
-  flex-direction: column;
-  align-items: stretch;
-  width: 100%;
-  max-width: 300px;
-  margin: 0 auto;
-  gap: 0.5rem;
-}
-
-.nav-row {
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  cursor: pointer;
+  font-size: 1rem;
+  border-top: 1px solid var(--border-color);
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
   justify-content: center;
-  width: 100%;
 }
 
-/* Mobile optimizations */
+.quiz-controls .finish-btn:hover {
+  background: #388E3C;
+}
+
+/* Tablet Breakpoint */
+@media screen and (max-width: 840px) {
+  .quiz-controls {
+    width: 95%;
+  }
+}
+
+/* Mobile Breakpoint */
 @media screen and (max-width: 480px) {
   .quiz-controls {
-    margin-top: 0.25rem;
-    padding: 0 0.25rem;
-  }
-
-  .navigation-controls {
-    gap: 0.25rem;
-    padding: 0;
-  }
-
-  .navigation-controls.vertical {
-    max-width: none;
-    padding: 0;
-  }
-
-  .nav-row {
-    gap: 0.25rem;
-  }
-
-  .nav-row .nav-btn {
-    min-width: 0;
-    flex: 1;
-    margin: 0;
-  }
-
-  .finish-btn {
     width: 100%;
-    min-width: 0;
-    margin: 0;
+    left: 0;
+    transform: none;
+    height: 96px;
   }
 
-  .nav-btn,
-  .finish-btn {
+  .quiz-controls .navigation-controls {
+    width: 100%;
+    max-width: none;
+  }
+
+  .quiz-controls .nav-btn,
+  .quiz-controls .finish-btn {
     height: 48px;
-    padding: 0.5em 1em;
-    font-size: 1.1rem;
-    touch-action: manipulation;
   }
 
   /* Add active state for touch feedback */
-  .nav-btn:active:not(:disabled),
-  .finish-btn:active {
+  .quiz-controls .nav-btn:active:not(:disabled),
+  .quiz-controls .finish-btn:active {
     transform: scale(0.98);
     opacity: 0.9;
   }
