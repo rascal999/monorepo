@@ -28,6 +28,35 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 3000
   },
+  build: {
+    // Enable minification optimizations
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,  // Remove console.logs in production
+        drop_debugger: true  // Remove debugger statements
+      }
+    },
+    // CSS optimization
+    cssCodeSplit: true,
+    cssMinify: true,
+    // Chunk optimization
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor': ['react', 'react-dom'],  // Separate vendor chunks
+        },
+        // Optimize chunk size
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
+      }
+    },
+    // Enable source maps for production debugging if needed
+    sourcemap: true,
+    // Reduce chunk size warnings threshold
+    chunkSizeWarningLimit: 1000
+  },
   plugins: [
     react(),
     {
