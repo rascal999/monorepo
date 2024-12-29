@@ -16,15 +16,19 @@ export function QuizListSection({ title, files, isDirectoryFiles, onLoad, onDele
         onPageChange={onPageChange}
       />
       <div className="files-list">
-        {paginatedFiles.map(file => (
-          <QuizItem
-            key={file.id}
-            file={file}
-            isDirectoryFile={isDirectoryFiles}
-            onLoad={onLoad}
-            onDelete={onDelete}
-          />
-        ))}
+        {paginatedFiles.length > 0 ? (
+          paginatedFiles.map(file => (
+            <QuizItem
+              key={file.id}
+              file={file}
+              isDirectoryFile={isDirectoryFiles}
+              onLoad={onLoad}
+              onDelete={onDelete}
+            />
+          ))
+        ) : (
+          <div className="no-results">No quizzes found matching "{searchTerm}"</div>
+        )}
       </div>
     </div>
   );
