@@ -6,6 +6,9 @@ export function QuizSearch({ searchTerm, onSearchChange, currentPage, totalPages
     color: isDarkMode ? '#e6e6e6' : '#213547'
   };
 
+  // Check if mobile view
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
   return (
     <div className="search-box">
       <input
@@ -28,7 +31,7 @@ export function QuizSearch({ searchTerm, onSearchChange, currentPage, totalPages
             Previous
           </button>
           <span className="page-info">
-            Page {currentPage} of {totalPages}
+            {isMobile ? `${currentPage} of ${totalPages}` : `Page ${currentPage} of ${totalPages}`}
           </span>
           <button 
             className="pagination-btn"

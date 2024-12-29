@@ -160,3 +160,15 @@
 .load-btn:hover {
   background: var(--button-hover);
 }
+
+/* No results message */
+.no-results {
+  text-align: center;
+  padding: 1.25rem;
+  color: var(--text-muted);
+  font-style: italic;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  margin: 0.5rem 0;
+}

@@ -10,7 +10,10 @@ export function FileList({ files, onFilesUpdate, onQuestionsLoaded, uploadedFile
   const [allFiles, setAllFiles] = useState([]);
   const [directoryFiles, setDirectoryFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Separate search states for each section
+  const [uploadedSearchTerm, setUploadedSearchTerm] = useState('');
+  const [availableSearchTerm, setAvailableSearchTerm] = useState('');
   const [uploadedCurrentPage, setUploadedCurrentPage] = useState(1);
   const [availableCurrentPage, setAvailableCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -88,7 +91,17 @@ export function FileList({ files, onFilesUpdate, onQuestionsLoaded, uploadedFile
     }
   };
 
-  const filterFiles = (files) => {
+  const handleUploadedSearchChange = (newSearchTerm) => {
+    setUploadedSearchTerm(newSearchTerm);
+    setUploadedCurrentPage(1);
+  };
+
+  const handleAvailableSearchChange = (newSearchTerm) => {
+    setAvailableSearchTerm(newSearchTerm);
+    setAvailableCurrentPage(1);
+  };
+
+  const filterFiles = (files, searchTerm) => {
     return files.filter(file => 
       file.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -107,35 +120,45 @@ export function FileList({ files, onFilesUpdate, onQuestionsLoaded, uploadedFile
     return null;
   }
 
-  const uploadedQuizzes = filterFiles(allFiles.filter(file => !directoryFiles.some(df => df.id === file.id)));
-  const availableQuizzes = filterFiles(allFiles.filter(file => directoryFiles.some(df => df.id === file.id)));
+  const uploadedQuizzes = filterFiles(
+    allFiles.filter(file => !directoryFiles.some(df => df.id === file.id)),
+    uploadedSearchTerm
+  );
+  const availableQuizzes = filterFiles(
+    allFiles.filter(file => directoryFiles.some(df => df.id === file.id)),
+    availableSearchTerm
+  );
+
+  // Get the base lists without filtering to check if sections should be shown
+  const hasUploadedQuizzes = allFiles.some(file => !directoryFiles.some(df => df.id === file.id));
+  const hasAvailableQuizzes = allFiles.some(file => directoryFiles.some(df => df.id === file.id));
 
   return (
     <div className="quiz-sections">
-      {uploadedQuizzes.length > 0 && (
+      {hasUploadedQuizzes && (
         <QuizListSection
           title="My Uploaded Quizzes"
           files={uploadedQuizzes}
           isDirectoryFiles={false}
           onLoad={handleLoad}
           onDelete={handleDelete}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
+          searchTerm={uploadedSearchTerm}
+          onSearchChange={handleUploadedSearchChange}
           currentPage={uploadedCurrentPage}
           onPageChange={setUploadedCurrentPage}
           itemsPerPage={itemsPerPage}
         />
       )}
 
-      {availableQuizzes.length > 0 && (
+      {hasAvailableQuizzes && (
         <QuizListSection
           title="Available Quizzes"
           files={availableQuizzes}
           isDirectoryFiles={true}
           onLoad={handleLoad}
           onDelete={handleDelete}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
+          searchTerm={availableSearchTerm}
+          onSearchChange={handleAvailableSearchChange}
           currentPage={availableCurrentPage}
           onPageChange={setAvailableCurrentPage}
           itemsPerPage={itemsPerPage}

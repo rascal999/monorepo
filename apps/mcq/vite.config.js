@@ -3,8 +3,31 @@ import react from '@vitejs/plugin-react'
 import fs from 'fs'
 import path from 'path'
 
+function getFilesRecursively(dir, baseDir = dir) {
+  let results = [];
+  const items = fs.readdirSync(dir);
+
+  for (const item of items) {
+    const fullPath = path.join(dir, item);
+    const relativePath = path.relative(baseDir, fullPath);
+    const stat = fs.statSync(fullPath);
+
+    if (stat.isDirectory()) {
+      results = results.concat(getFilesRecursively(fullPath, baseDir));
+    } else if (item.endsWith('.json')) {
+      results.push(relativePath);
+    }
+  }
+
+  return results;
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: {
+    host: '0.0.0.0',
+    port: 3000
+  },
   plugins: [
     react(),
     {
@@ -16,9 +39,10 @@ export default defineConfig({
           if (req.url === '/') {
             // Handle directory listing
             try {
-              const files = fs.readdirSync(questionsDir)
-                .filter(file => file.endsWith('.json'));
-              const fileLinks = files.map(file => `<a href="${file}">${file}</a>`).join('\n');
+              const files = getFilesRecursively(questionsDir);
+              const fileLinks = files
+                .map(file => `<a href="${file}">${file}</a>`)
+                .join('\n');
               res.setHeader('Content-Type', 'text/html');
               res.end(fileLinks);
             } catch (error) {
@@ -28,7 +52,10 @@ export default defineConfig({
             }
           } else {
             // Handle individual file requests
-            const filePath = path.join(questionsDir, req.url);
+            // Remove leading slash if present
+            const cleanUrl = req.url.startsWith('/') ? req.url.slice(1) : req.url;
+            const filePath = path.join(questionsDir, cleanUrl);
+            
             try {
               if (fs.existsSync(filePath) && filePath.endsWith('.json')) {
                 const content = fs.readFileSync(filePath, 'utf-8');

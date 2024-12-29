@@ -8,6 +8,11 @@ html {
   --border-color: #e0e0e0;
   --container-bg: #ffffff;
   --component-bg: #ffffff;
+  --input-bg: #ffffff;
+  --text-muted: #666666;
+  --accent-color: #646cff;
+  --accent-color-alpha: rgba(100, 108, 255, 0.25);
+  --shadow-color: rgba(0, 0, 0, 0.1);
 }
 
 html[data-theme="dark"] {
@@ -19,6 +24,11 @@ html[data-theme="dark"] {
   --border-color: #363646;
   --container-bg: #252535;
   --component-bg: #2a2a3c;
+  --input-bg: #252535;
+  --text-muted: #a0a0a0;
+  --accent-color: #8086ff;
+  --accent-color-alpha: rgba(128, 134, 255, 0.25);
+  --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
 * {
