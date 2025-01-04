@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --text: #1a1a1a;
+  --node-bg: #f3f4f6;
+  --panel-bg: #f8f9fa;
+  --border: #e5e7eb;
+}
+
+:root.dark {
+  --background: #1a1a1a;
+  --text: #ffffff;
+  --node-bg: #2d2d2d;
+  --panel-bg: #262626;
+  --border: #404040;
+}
+
+body {
+  @apply bg-[var(--background)] text-[var(--text)];
+}
+
+.panel {
+  @apply bg-[var(--panel-bg)] border-[var(--border)];
+}
+
+.node {
+  @apply bg-[var(--node-bg)] border-[var(--border)];
+}
+
+.react-flow__node {
+  @apply rounded-lg border shadow-sm;
+}
+
+.react-flow__handle {
+  @apply bg-blue-500;
+}
+
+.tab-panel {
+  @apply h-full overflow-auto;
+}
+
+.resizer {
+  @apply flex-none w-1 bg-[var(--border)] hover:bg-blue-500 hover:w-1 transition-all cursor-col-resize;
+}
