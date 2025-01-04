@@ -9,7 +9,7 @@ cd "$PROJECT_DIR"
 
 # Function to display usage instructions
 usage() {
-    echo "Usage: $0 [start|stop|restart|clean|logs|versions]"
+    echo "Usage: $0 [start|stop|restart|clean|logs|versions|update]"
     echo
     echo "Commands:"
     echo "  start    - Start the application stack (VERSION=x.y.z ENV=prod for specific version)"
@@ -18,6 +18,7 @@ usage() {
     echo "  clean    - Stop containers and clean up volumes/certificates"
     echo "  logs     - Show logs from all services"
     echo "  versions - List available versions"
+    echo "  update   - Pull latest changes and fetch tags"
     echo
     echo "Environment Variables:"
     echo "  VERSION  - Specify version to deploy (e.g., VERSION=1.0.0)"
@@ -106,6 +107,16 @@ list_versions() {
     git tag -l "mcq/v*" --sort=-v:refname | head -n 5
 }
 
+# Function to update repository
+update() {
+    echo "Updating repository..."
+    git pull
+    echo "Fetching tags..."
+    git fetch --tags
+    echo "Update complete. Latest tags:"
+    git tag -l "mcq/v*" --sort=-v:refname | head -n 5
+}
+
 # Main script logic
 case "$1" in
     start)
@@ -128,6 +139,9 @@ case "$1" in
         ;;
     versions)
         list_versions
+        ;;
+    update)
+        update
         ;;
     *)
         usage
