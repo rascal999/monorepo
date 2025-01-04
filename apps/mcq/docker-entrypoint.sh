@@ -16,12 +16,21 @@ start_server() {
     envsubst '${DOMAIN}' < /etc/nginx/nginx.http.conf > /etc/nginx/conf.d/default.conf
     
     # Start nginx in HTTP mode
-    nginx
+    nginx -g 'daemon off;' &
+    NGINX_PID=$!
     
     # Wait for nginx to start and verify it's responding
     echo "Waiting for nginx to be accessible..."
-    until curl -s -f http://localhost/ > /dev/null 2>&1; do
-        echo "Waiting for nginx to respond..."
+    for i in $(seq 1 12); do
+        if curl -s -f http://localhost/ > /dev/null 2>&1; then
+            echo "Nginx is responding correctly"
+            break
+        fi
+        if [ $i -eq 12 ]; then
+            echo "Nginx failed to respond after 60 seconds"
+            exit 1
+        fi
+        echo "Waiting for nginx to respond... (attempt $i/12)"
         sleep 5
     done
     echo "Nginx is responding correctly"
@@ -52,7 +61,7 @@ start_server() {
         if ! host "${DOMAIN}" > /dev/null 2>&1; then
             echo "Warning: Domain ${DOMAIN} cannot be resolved"
             echo "Continuing with HTTP only. Please check DNS configuration."
-            nginx -g 'daemon off;'
+            wait $NGINX_PID
             exit 0
         fi
         
@@ -95,10 +104,10 @@ start_server() {
             done &
             
             # Keep nginx running
-            nginx -g 'daemon off;'
+            wait $NGINX_PID
         else
             echo "Failed to obtain SSL certificate. Continuing with HTTP only..."
-            nginx -g 'daemon off;'
+            wait $NGINX_PID
         fi
     else
         echo "SSL not requested. Running with HTTP only..."
