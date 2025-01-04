@@ -20,6 +20,9 @@ services:
       - CERTBOT_STAGING=${CERTBOT_STAGING:-true}
     volumes:
       - ./ssl:/etc/letsencrypt:rw
+      - ./nginx.ssl.conf:/etc/nginx/nginx.ssl.conf:ro
+      - ./nginx.http.conf:/etc/nginx/nginx.http.conf:ro
+      - ./certbot:/var/www/certbot:rw
     depends_on:
       - api
     networks:

@@ -4,7 +4,7 @@
 rm -f /etc/nginx/conf.d/default.conf
 
 # Choose configuration based on SSL setting
-if [ "${USE_SSL}" = "true" ] && [ -f /etc/letsencrypt/live/alm.gg/fullchain.pem ]; then
+if [ "${USE_SSL}" = "true" ] && [ -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
     echo "Starting with HTTPS configuration..."
     envsubst '${DOMAIN}' < /etc/nginx/nginx.ssl.conf > /etc/nginx/conf.d/default.conf
     
