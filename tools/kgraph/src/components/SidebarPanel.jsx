@@ -70,7 +70,7 @@ function SidebarPanel({ graphs, activeGraph, onCreateGraph, onSelectGraph, onCle
               >
                 <div>{graph.title}</div>
                 <div className="text-xs text-gray-500 mt-1">
-                  {new Date(parseInt(graph.id)).toLocaleDateString()} • {graph.nodes.length} node{graph.nodes.length !== 1 ? 's' : ''}
+                  {new Date(parseInt(graph.id)).toLocaleDateString()} • {Array.isArray(graph.nodes) ? graph.nodes.length : 0} node{(!graph.nodes || graph.nodes.length !== 1) ? 's' : ''}
                 </div>
               </button>
             ))}
