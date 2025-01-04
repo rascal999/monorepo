@@ -22,6 +22,13 @@ services:
       - api
     networks:
       - mcq-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/.well-known/acme-challenge/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   # API server
   api:
@@ -39,6 +46,7 @@ services:
       - db
     networks:
       - mcq-network
+    restart: unless-stopped
 
   # PostgreSQL database
   db:
@@ -54,6 +62,7 @@ services:
       - "5432:5432"
     networks:
       - mcq-network
+    restart: unless-stopped
 
 volumes:
   postgres_data:
