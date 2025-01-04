@@ -23,7 +23,8 @@ RUN apk add --no-cache \
     certbot \
     certbot-nginx \
     gettext \
-    curl
+    curl \
+    bind-tools
 
 # Create directories
 RUN mkdir -p /var/www/certbot \
