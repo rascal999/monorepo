@@ -24,7 +24,7 @@ services:
       - mcq-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/.well-known/acme-challenge/"]
+      test: ["CMD", "curl", "-f", "http://localhost/"]
       interval: 10s
       timeout: 5s
       retries: 3
