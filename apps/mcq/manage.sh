@@ -28,6 +28,33 @@ start() {
     echo "Application started. Use '$0 logs' to view logs."
 }
 
+# Function to verify domain DNS
+verify_domain() {
+    local domain="$1"
+    local expected_ip="$2"
+    
+    echo "Verifying domain DNS configuration..."
+    echo "Expected IP: $expected_ip"
+    
+    # Get current IP for domain
+    local resolved_ip=$(dig +short "$domain" | head -n1)
+    
+    if [ -z "$resolved_ip" ]; then
+        echo "Error: Domain $domain does not resolve to any IP address"
+        return 1
+    fi
+    
+    echo "Resolved IP: $resolved_ip"
+    
+    if [ "$resolved_ip" != "$expected_ip" ]; then
+        echo "Error: Domain $domain resolves to $resolved_ip but should resolve to $expected_ip"
+        return 1
+    fi
+    
+    echo "Domain DNS configuration verified"
+    return 0
+}
+
 # Function to verify HTTP access
 verify_http() {
     local max_attempts=12
@@ -36,7 +63,16 @@ verify_http() {
     echo "Verifying HTTP access..."
     while [ $attempt -le $max_attempts ]; do
         if curl -s -f http://localhost/ > /dev/null 2>&1; then
-            echo "HTTP access verified"
+            echo "Local HTTP access verified"
+            
+            # Also verify external access
+            local external_ip=$(curl -s ifconfig.me)
+            if ! verify_domain "alm.gg" "$external_ip"; then
+                echo "Error: Domain DNS configuration is incorrect"
+                echo "Please update DNS A record for alm.gg to point to $external_ip"
+                return 1
+            fi
+            
             return 0
         fi
         echo "Waiting for HTTP access... (attempt $attempt/$max_attempts)"
