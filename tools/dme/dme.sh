@@ -23,6 +23,12 @@ usage() {
     echo "  alpine3.17  - Alpine 3.17"
     echo "  arch        - Latest Arch Linux"
     echo "  nixos       - Latest NixOS"
+    echo "  opensuse    - Latest openSUSE Leap"
+    echo "  tumbleweed  - openSUSE Tumbleweed"
+    echo "  kali        - Latest Kali Linux"
+    echo "  amazonlinux - Amazon Linux 2"
+    echo "  oracle      - Latest Oracle Linux"
+    echo "  void        - Latest Void Linux"
     echo
     exit 1
 }
@@ -86,6 +92,30 @@ case "$1" in
         ;;
     "nixos")
         image="nixos/nix:latest"
+        shell="/bin/bash"
+        ;;
+    "opensuse")
+        image="opensuse/leap:latest"
+        shell="/bin/bash"
+        ;;
+    "tumbleweed")
+        image="opensuse/tumbleweed:latest"
+        shell="/bin/bash"
+        ;;
+    "kali")
+        image="kalilinux/kali-rolling:latest"
+        shell="/bin/bash"
+        ;;
+    "amazonlinux")
+        image="amazonlinux:2"
+        shell="/bin/bash"
+        ;;
+    "oracle")
+        image="oraclelinux:9"
+        shell="/bin/bash"
+        ;;
+    "void")
+        image="ghcr.io/void-linux/void-linux:latest"
         shell="/bin/bash"
         ;;
     *)
