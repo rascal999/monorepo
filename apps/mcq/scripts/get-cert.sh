@@ -51,9 +51,12 @@ docker run --rm \
 
 # Copy certificates to local ssl directory with proper structure
 echo "Copying certificates to ssl directory..."
-mkdir -p "ssl/live/$domain"
+mkdir -p "ssl/live/$domain" "ssl/archive"
 cp -r "/etc/letsencrypt/live/$domain/." "ssl/live/$domain/"
-cp -r "/etc/letsencrypt/archive" "ssl/"
+cp -r "/etc/letsencrypt/archive/." "ssl/archive/"
+
+# Set permissions after copying
+echo "Setting certificate permissions..."
 chmod -R 644 "ssl/live/$domain"/*.pem
 chmod -R 644 "ssl/archive"/*.pem
 
