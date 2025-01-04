@@ -38,7 +38,13 @@ async function createOption(questionId, optionText, isCorrect) {
 
 async function migrateQuestions() {
   try {
-    const questionsDir = path.join(process.cwd(), '..', 'public/questions/veterinary');
+    // Try Docker path first, then fallback to local path
+    let questionsDir;
+    if (fs.existsSync('/app/public/questions/veterinary')) {
+      questionsDir = '/app/public/questions/veterinary';
+    } else {
+      questionsDir = path.join(process.cwd(), '..', 'public/questions/veterinary');
+    }
     const files = fs.readdirSync(questionsDir);
 
     for (const file of files) {
