@@ -5,6 +5,9 @@ WORKDIR /app
 # Set up build argument
 ARG NODE_ENV=production
 
+# Install netcat for database connection check
+RUN apk add --no-cache netcat-openbsd
+
 # Copy package files
 COPY package*.json ./
 
@@ -14,8 +17,11 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# Make entrypoint script executable
+RUN chmod +x docker-entrypoint.sh
+
 # Expose API port
 EXPOSE 3000
 
-# Start the server
-CMD ["npm", "start"]
+# Set entrypoint
+ENTRYPOINT ["./docker-entrypoint.sh"]
