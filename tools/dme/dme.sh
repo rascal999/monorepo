@@ -115,8 +115,8 @@ case "$1" in
         shell="/bin/bash"
         ;;
     "void")
-        image="ghcr.io/void-linux/void-linux:latest"
-        shell="/bin/bash"
+        image="voidlinux/voidlinux:latest"
+        shell="/bin/sh"
         ;;
     *)
         echo "Error: Unknown distribution '$1'"
