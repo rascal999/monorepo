@@ -94,10 +94,34 @@ usage() {
     exit 1
 }
 
+# Function to check SSL requirements
+check_ssl_requirements() {
+    local use_ssl=${USE_SSL:-false}
+    
+    # Source .env file if it exists and USE_SSL not set via environment
+    if [ -z "${USE_SSL+x}" ] && [ -f .env ]; then
+        # Extract USE_SSL value from .env file
+        use_ssl=$(grep "^USE_SSL=" .env | cut -d '=' -f2 | tr -d '"' | tr -d "'")
+    fi
+
+    # Check if SSL is enabled
+    if [ "$use_ssl" = "true" ]; then
+        # Check for SSL certificates
+        if [ ! -d "ssl" ] || [ ! -f "ssl/fullchain.pem" ] || [ ! -f "ssl/privkey.pem" ]; then
+            echo "Error: SSL is enabled (USE_SSL=true) but SSL certificates are missing."
+            echo "Please run scripts/get-cert.sh to generate SSL certificates before starting the application."
+            exit 1
+        fi
+    fi
+}
+
 # Function to start the application
 start() {
     local version=${VERSION:-latest}
     local env=${ENV:-prod}
+    
+    # Check SSL requirements before starting
+    check_ssl_requirements
     
     echo "Starting MCQ application stack..."
     echo "Version: $version"
