@@ -21,6 +21,8 @@ usage() {
     echo "  alpine      - Latest Alpine"
     echo "  alpine3.18  - Alpine 3.18"
     echo "  alpine3.17  - Alpine 3.17"
+    echo "  arch        - Latest Arch Linux"
+    echo "  nixos       - Latest NixOS"
     echo
     exit 1
 }
@@ -77,6 +79,14 @@ case "$1" in
     "alpine3.17")
         image="alpine:3.17"
         shell="/bin/sh"
+        ;;
+    "arch")
+        image="archlinux:latest"
+        shell="/bin/bash"
+        ;;
+    "nixos")
+        image="nixos/nix:latest"
+        shell="/bin/bash"
         ;;
     *)
         echo "Error: Unknown distribution '$1'"
