@@ -15,6 +15,7 @@ services:
       - DOMAIN=${DOMAIN:-localhost}
       - EMAIL=${EMAIL:-admin@example.com}
       - USE_SSL=${USE_SSL:-false}
+      - CERTBOT_STAGING=${CERTBOT_STAGING:-true}
     volumes:
       - ${PWD}/ssl:/etc/letsencrypt:rw
       - ${PWD}/certbot:/var/www/certbot:rw
