@@ -66,6 +66,8 @@ The application uses semantic versioning (MAJOR.MINOR.PATCH) with environment ta
 
 ### Version Management
 
+The MCQ application uses semantic versioning within the monorepo structure.
+
 #### Creating a New Version
 
 ```bash
@@ -76,14 +78,14 @@ cd apps/mcq
 # This will:
 # - Build the Docker images
 # - Tag images as mcq_frontend:v1.0.0 and mcq_api:v1.0.0
-# - Create git tag v1.0.0
+# - Create git tag mcq/v1.0.0
 
 # Create a staging release
 ./scripts/tag.sh 1.0.1 staging
 # This will:
 # - Build the Docker images
 # - Tag images as mcq_frontend:v1.0.1-staging and mcq_api:v1.0.1-staging
-# - Create git tag v1.0.1-staging
+# - Create git tag mcq/v1.0.1-staging
 ```
 
 If a version tag already exists, you'll be prompted to:
@@ -92,7 +94,13 @@ If a version tag already exists, you'll be prompted to:
 
 #### Version Format
 
-- Production: v1.0.0-prod
+Git Tags:
+- Production: mcq/v1.0.0
+- Staging: mcq/v1.0.0-staging
+- Development: mcq/v1.0.0-dev
+
+Docker Tags:
+- Production: v1.0.0
 - Staging: v1.0.0-staging
 - Development: v1.0.0-dev
 

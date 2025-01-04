@@ -97,7 +97,7 @@ list_versions() {
     docker images "mcq_api:v*" --format "table {{.Tag}}\t{{.CreatedAt}}"
     echo
     echo "Git tags:"
-    git tag -l "v*" --sort=-v:refname | head -n 5
+    git tag -l "mcq/v*" --sort=-v:refname | head -n 5
 }
 
 # Main script logic
