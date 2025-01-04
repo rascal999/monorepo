@@ -10,11 +10,29 @@ start_server() {
     
     # Wait for nginx to start and verify it's responding
     echo "Waiting for nginx to be accessible..."
-    until curl -s -f http://localhost/.well-known/acme-challenge/ > /dev/null 2>&1; do
+    until curl -s -f http://localhost/ > /dev/null 2>&1; do
         echo "Waiting for nginx to respond..."
         sleep 5
     done
     echo "Nginx is responding correctly"
+
+    # Create and verify certbot directories
+    echo "Setting up certbot directories..."
+    mkdir -p /var/www/certbot/.well-known/acme-challenge
+    chmod -R 755 /var/www/certbot
+    echo "test" > /var/www/certbot/.well-known/acme-challenge/test.txt
+    
+    # Verify ACME challenge directory is accessible
+    echo "Verifying ACME challenge path..."
+    if curl -s -f http://localhost/.well-known/acme-challenge/test.txt > /dev/null 2>&1; then
+        echo "ACME challenge path is accessible"
+        rm /var/www/certbot/.well-known/acme-challenge/test.txt
+    else
+        echo "Warning: ACME challenge path is not accessible"
+        echo "Continuing with HTTP only"
+        nginx -g 'daemon off;'
+        exit 0
+    fi
     
     if [ "${USE_SSL}" = "true" ]; then
         echo "Waiting 30s for DNS propagation..."
