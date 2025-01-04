@@ -53,12 +53,12 @@ export function useNodeCreation(activeGraph, updateGraph) {
     
     // Batch state updates to prevent race conditions
     try {
-      // Create new node
+      // Create new node with original term format
       const newNode = {
         id: newNodeId,
         type: 'default',
         position: newPosition,
-        data: { label: term }
+        data: { label: term.trim() }
       };
 
       // Create edge from source to new node
