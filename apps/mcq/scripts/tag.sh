@@ -36,6 +36,14 @@ VERSION=$1
 ENV=$2
 validate_version "$VERSION"
 
+# Check for uncommitted changes
+if [ -n "$(git status --porcelain)" ]; then
+    echo "Committing changes..."
+    git add .
+    git commit -m "Release ${VERSION}${ENV:+ for $ENV}"
+    git push origin HEAD
+fi
+
 # Create tag name with mcq prefix for monorepo
 if [ -n "$ENV" ]; then
     TAG="mcq/v${VERSION}-${ENV}"
@@ -58,6 +66,20 @@ echo "Tagging Docker images as ${DOCKER_TAG}..."
 docker tag mcq_frontend:latest "mcq_frontend:${DOCKER_TAG}"
 docker tag mcq_api:latest "mcq_api:${DOCKER_TAG}"
 
+# Load environment variables
+if [ -f .env ]; then
+    source .env
+fi
+
+# Check if we should push Docker images
+if [ "${PUSH_DOCKER_IMAGES,,}" = "true" ]; then
+    echo "Pushing Docker images..."
+    docker push "mcq_frontend:${DOCKER_TAG}"
+    docker push "mcq_api:${DOCKER_TAG}"
+else
+    echo "Skipping Docker image push (PUSH_DOCKER_IMAGES not set to true)"
+fi
+
 # Check if git tag exists
 if git rev-parse "$TAG" >/dev/null 2>&1; then
     echo "Warning: Git tag ${TAG} already exists"
@@ -72,6 +94,14 @@ if git rev-parse "$TAG" >/dev/null 2>&1; then
         # Force update tag to point to the new commit
         git tag -fa "${TAG}" $COMMIT
         git push --force origin "${TAG}"
+        
+        if [ "${PUSH_DOCKER_IMAGES,,}" = "true" ]; then
+            echo "Re-pushing Docker images..."
+            docker push "mcq_frontend:${DOCKER_TAG}"
+            docker push "mcq_api:${DOCKER_TAG}"
+        else
+            echo "Skipping Docker image push (PUSH_DOCKER_IMAGES not set to true)"
+        fi
     else
         echo "Skipping git tag creation"
     fi
@@ -84,6 +114,14 @@ else
     # Create tag pointing to the new commit
     git tag -a "${TAG}" $COMMIT -m "Release ${TAG}"
     git push origin "${TAG}"
+    
+    if [ "${PUSH_DOCKER_IMAGES,,}" = "true" ]; then
+        echo "Pushing Docker images..."
+        docker push "mcq_frontend:${DOCKER_TAG}"
+        docker push "mcq_api:${DOCKER_TAG}"
+    else
+        echo "Skipping Docker image push (PUSH_DOCKER_IMAGES not set to true)"
+    fi
 fi
 
 echo "Successfully tagged version ${TAG}"
