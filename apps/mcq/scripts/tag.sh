@@ -94,6 +94,7 @@ if git rev-parse "$TAG" >/dev/null 2>&1; then
         # Force update tag to point to the new commit
         git tag -fa "${TAG}" $COMMIT
         git push --force origin "${TAG}"
+        git push --tags
         
         if [ "${PUSH_DOCKER_IMAGES,,}" = "true" ]; then
             echo "Re-pushing Docker images..."
@@ -114,6 +115,7 @@ else
     # Create tag pointing to the new commit
     git tag -a "${TAG}" $COMMIT -m "Release ${TAG}"
     git push origin "${TAG}"
+    git push --tags
     
     if [ "${PUSH_DOCKER_IMAGES,,}" = "true" ]; then
         echo "Pushing Docker images..."
@@ -125,6 +127,10 @@ else
 fi
 
 echo "Successfully tagged version ${TAG}"
+echo
+echo "IMPORTANT: When pulling on another machine, run:"
+echo "   git pull"
+echo "   git fetch --tags"
 echo
 echo "To deploy this version:"
 echo "1. Update .env with:"
