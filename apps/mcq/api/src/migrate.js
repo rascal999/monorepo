@@ -87,28 +87,52 @@ async function createOption(questionId, optionText, isCorrect) {
   }
 }
 
+function getAllJsonFiles(dir) {
+  let results = [];
+  const list = fs.readdirSync(dir);
+  
+  for (const file of list) {
+    const filePath = path.join(dir, file);
+    const stat = fs.statSync(filePath);
+    
+    if (stat.isDirectory()) {
+      results = results.concat(getAllJsonFiles(filePath));
+    } else if (file.endsWith('.json')) {
+      results.push(filePath);
+    }
+  }
+  
+  return results;
+}
+
 async function migrateQuestions() {
   try {
     // Try Docker path first, then fallback to local path
-    let questionsDir;
-    if (fs.existsSync('/app/public/questions/veterinary')) {
-      questionsDir = '/app/public/questions/veterinary';
+    let publicDir;
+    if (fs.existsSync('/app/public')) {
+      publicDir = '/app/public';
     } else {
-      questionsDir = path.join(process.cwd(), '..', 'public/questions/veterinary');
+      publicDir = path.join(process.cwd(), '..', 'public');
     }
-    const files = fs.readdirSync(questionsDir);
 
-    for (const file of files) {
-      if (!file.endsWith('.json')) continue;
+    const jsonFiles = getAllJsonFiles(publicDir);
 
-      const filePath = path.join(questionsDir, file);
+    for (const filePath of jsonFiles) {
       const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
       
-      // Create category from filename
-      const categoryName = content.title || file.replace('.json', '').split('-').map(
+      // Get relative path from public directory
+      const relativePath = path.relative(publicDir, filePath);
+      const pathParts = relativePath.split(path.sep);
+      
+      // Skip if not in questions directory
+      if (pathParts[0] !== 'questions') continue;
+      
+      // Remove 'questions' from path and .json extension
+      const categoryPath = pathParts.slice(1, -1).concat(pathParts.slice(-1)[0].replace('.json', ''));
+      const categoryName = content.title || categoryPath.join(' - ').split('-').map(
         word => word.charAt(0).toUpperCase() + word.slice(1)
       ).join(' ');
-      const categorySlug = file.replace('.json', '');
+      const categorySlug = categoryPath.join('-');
       
       console.log(`Migrating category: ${categoryName}`);
       const categoryId = await createCategory(categoryName, categorySlug);
