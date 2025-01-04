@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { LocalStorageManager } from '../utils/LocalStorageManager';
 
 export function QuizOptions({ preferences: initialPreferences, onPreferencesChange }) {
+  const version = import.meta.env.VITE_APP_VERSION || 'mcq/development';
+  const githubTagUrl = `https://github.com/rascal999/monorepo/releases/tag/${version}`;
   const [preferences, setPreferences] = useState(initialPreferences);
 
   const handlePreferencesChange = (changes) => {
@@ -49,6 +51,11 @@ export function QuizOptions({ preferences: initialPreferences, onPreferencesChan
             />
             Randomize question order
           </label>
+        </div>
+        <div className="version-info" style={{ marginTop: '1rem', fontSize: '0.8em', textAlign: 'center' }}>
+          <a href={githubTagUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#666', textDecoration: 'none' }}>
+            {version}
+          </a>
         </div>
       </div>
     </div>
