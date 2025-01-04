@@ -42,14 +42,56 @@ cp .env.production .env
 - `DOMAIN`: Your domain name (e.g., mcq.example.com)
 - `EMAIL`: Your email for SSL certificate notifications
 - `POSTGRES_PASSWORD`: A secure database password
+- `VERSION`: Application version to deploy (optional)
+- `ENV`: Deployment environment (optional, defaults to prod)
 
 3. SSL Setup:
 ```bash
 # Get SSL certificate (run once)
 ./scripts/get-cert.sh
+```
 
-# Start application with SSL
+4. Deploy Application:
+```bash
+# Latest version
 USE_SSL=true ./scripts/manage.sh start
+
+# Specific version
+VERSION=1.0.0 ENV=prod USE_SSL=true ./scripts/manage.sh start
+```
+
+## Version Management
+
+The application uses semantic versioning (MAJOR.MINOR.PATCH) with environment tags.
+
+### Creating a New Version
+
+```bash
+# Tag a new version
+./scripts/tag.sh 1.0.0         # Production release
+./scripts/tag.sh 1.0.1 staging # Staging release
+
+# List available versions
+./scripts/manage.sh versions
+```
+
+### Version Format
+
+- Production: v1.0.0-prod
+- Staging: v1.0.0-staging
+- Development: v1.0.0-dev
+
+### Deployment Examples
+
+```bash
+# Deploy production version
+VERSION=1.0.0 ENV=prod ./scripts/manage.sh start
+
+# Deploy staging version
+VERSION=1.0.1 ENV=staging ./scripts/manage.sh start
+
+# Deploy latest
+./scripts/manage.sh start
 ```
 
 ## Management Scripts
