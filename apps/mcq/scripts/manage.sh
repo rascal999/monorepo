@@ -96,13 +96,12 @@ usage() {
 
 # Function to check SSL requirements
 check_ssl_requirements() {
-    local use_ssl=${USE_SSL:-false}
-    
-    # Source .env file if it exists and USE_SSL not set via environment
-    if [ -z "${USE_SSL+x}" ] && [ -f .env ]; then
-        # Extract USE_SSL value from .env file
-        use_ssl=$(grep "^USE_SSL=" .env | cut -d '=' -f2 | tr -d '"' | tr -d "'")
+    # Source environment variables
+    if [ -f .env ]; then
+        source .env
     fi
+    
+    local use_ssl=${USE_SSL:-false}
 
     # Check if SSL is enabled
     if [ "$use_ssl" = "true" ]; then
@@ -112,20 +111,14 @@ check_ssl_requirements() {
             domain=$(grep "^DOMAIN=" .env | cut -d '=' -f2 | tr -d '"' | tr -d "'")
         fi
 
-        # Check for SSL certificates in both possible locations
-        if { [ ! -d "ssl" ] || [ ! -f "ssl/fullchain.pem" ] || [ ! -f "ssl/privkey.pem" ]; } && \
-           { [ ! -d "/etc/letsencrypt/live/$domain" ] || [ ! -f "/etc/letsencrypt/live/$domain/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$domain/privkey.pem" ]; }; then
-            echo "Error: SSL is enabled (USE_SSL=true) but SSL certificates are missing."
+        # Check for SSL certificates in the required structure
+        if [ ! -d "ssl/live/$domain" ] || \
+           [ ! -f "ssl/live/$domain/fullchain.pem" ] || \
+           [ ! -f "ssl/live/$domain/privkey.pem" ] || \
+           [ ! -d "ssl/archive" ]; then
+            echo "Error: SSL is enabled (USE_SSL=true) but SSL certificates are missing or incomplete."
             echo "Please run scripts/get-cert.sh to generate SSL certificates before starting the application."
             exit 1
-        fi
-        
-        # If certs exist in /etc/letsencrypt but not in ssl/, copy them
-        if [ ! -f "ssl/fullchain.pem" ] && [ -f "/etc/letsencrypt/live/$domain/fullchain.pem" ]; then
-            mkdir -p ssl
-            cp "/etc/letsencrypt/live/$domain/fullchain.pem" ssl/
-            cp "/etc/letsencrypt/live/$domain/privkey.pem" ssl/
-            chmod 644 ssl/*.pem
         fi
     fi
 }
