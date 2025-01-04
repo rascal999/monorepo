@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  db:
+    ports:
+      - "5433:5432"  # Use different port in dev to avoid conflicts
+    networks:
+      - mcq-network  # Allow access from host in dev
