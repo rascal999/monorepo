@@ -4,18 +4,51 @@ import { useGraphValidation } from './useGraphValidation';
 export function useGraphState() {
   // Initialize state
   const [graphs, setGraphs] = useState(() => {
-    const saved = localStorage.getItem('kgraph-graphs');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('kgraph-graphs');
+      if (!saved) return [];
+      
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed)) {
+        console.error('Invalid graphs data in localStorage');
+        return [];
+      }
+      
+      return parsed;
+    } catch (error) {
+      console.error('Error loading graphs from localStorage:', error);
+      localStorage.removeItem('kgraph-graphs');
+      return [];
+    }
   });
 
   const [activeGraph, setActiveGraph] = useState(() => {
-    const lastGraphId = localStorage.getItem('kgraph-last-graph');
-    if (lastGraphId) {
+    try {
+      const lastGraphId = localStorage.getItem('kgraph-last-graph');
+      if (!lastGraphId) return null;
+
       const saved = localStorage.getItem('kgraph-graphs');
-      const graphs = saved ? JSON.parse(saved) : [];
-      return graphs.find(g => g.id.toString() === lastGraphId);
+      if (!saved) return null;
+
+      const graphs = JSON.parse(saved);
+      if (!Array.isArray(graphs)) {
+        console.error('Invalid graphs data in localStorage');
+        return null;
+      }
+
+      const graph = graphs.find(g => g.id.toString() === lastGraphId);
+      if (!graph) {
+        console.error('Active graph not found in graphs array');
+        localStorage.removeItem('kgraph-last-graph');
+        return null;
+      }
+
+      return graph;
+    } catch (error) {
+      console.error('Error loading active graph from localStorage:', error);
+      localStorage.removeItem('kgraph-last-graph');
+      return null;
     }
-    return null;
   });
 
   // Setup persistence
