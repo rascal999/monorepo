@@ -11,7 +11,7 @@ mkdir -p ssl
 docker run -d --name cert-nginx \
     -p 80:80 \
     -v $PWD/certbot:/var/www/certbot \
-    -v $PWD/cert-nginx.conf:/etc/nginx/conf.d/default.conf:ro \
+    -v $PWD/scripts/cert-nginx.conf:/etc/nginx/conf.d/default.conf:ro \
     nginx:alpine
 
 # Wait for nginx to start
