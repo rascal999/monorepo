@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Frontend React app
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+      - "8443:443"
+    depends_on:
+      - api
+    networks:
+      - mcq-network
+
+  # API server
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mcq
+    volumes:
+      - ./public/questions:/app/public/questions
+    depends_on:
+      - db
+    networks:
+      - mcq-network
+
+  # PostgreSQL database
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=mcq
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./api/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - mcq-network
+
+volumes:
+  postgres_data:
+
+networks:
+  mcq-network:
+    driver: bridge
