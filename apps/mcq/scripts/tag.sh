@@ -36,20 +36,27 @@ VERSION=$1
 ENV=$2
 validate_version "$VERSION"
 
-# Create tag name
+# Create tag name with mcq prefix for monorepo
 if [ -n "$ENV" ]; then
-    TAG="v${VERSION}-${ENV}"
+    TAG="mcq/v${VERSION}-${ENV}"
 else
-    TAG="v${VERSION}"
+    TAG="mcq/v${VERSION}"
+fi
+
+# Create Docker tag names (without mcq/ prefix)
+if [ -n "$ENV" ]; then
+    DOCKER_TAG="v${VERSION}-${ENV}"
+else
+    DOCKER_TAG="v${VERSION}"
 fi
 
 # Build and tag Docker images
 echo "Building Docker images..."
 docker-compose build
 
-echo "Tagging Docker images as ${TAG}..."
-docker tag mcq_frontend:latest "mcq_frontend:${TAG}"
-docker tag mcq_api:latest "mcq_api:${TAG}"
+echo "Tagging Docker images as ${DOCKER_TAG}..."
+docker tag mcq_frontend:latest "mcq_frontend:${DOCKER_TAG}"
+docker tag mcq_api:latest "mcq_api:${DOCKER_TAG}"
 
 # Check if git tag exists
 if git rev-parse "$TAG" >/dev/null 2>&1; then
@@ -57,15 +64,17 @@ if git rev-parse "$TAG" >/dev/null 2>&1; then
     read -p "Do you want to force update the tag? [y/N] " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo "Force updating git tag ${TAG}..."
-        git tag -fa "${TAG}" -m "Release ${TAG}"
+        echo "Force updating git tag ${TAG} for apps/mcq directory only..."
+        # Force update tag only including apps/mcq directory
+        git tag -fa "${TAG}" -m "Release ${TAG}" -- apps/mcq
         git push --force origin "${TAG}"
     else
         echo "Skipping git tag creation"
     fi
 else
-    echo "Creating git tag ${TAG}..."
-    git tag -a "${TAG}" -m "Release ${TAG}"
+    echo "Creating git tag ${TAG} for apps/mcq directory only..."
+    # Create tag only including apps/mcq directory
+    git tag -a "${TAG}" -m "Release ${TAG}" -- apps/mcq
     git push origin "${TAG}"
 fi
 
