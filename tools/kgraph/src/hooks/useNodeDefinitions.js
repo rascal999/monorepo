@@ -61,7 +61,7 @@ export function useNodeDefinitions(activeGraph, onUpdateData) {
       const messages = [
         { 
           role: 'system', 
-          content: `Define "${targetNode.data.label}" in the context of "${activeGraph.title}". Start with one concise summary sentence in **bold**. Then provide more detailed explanation. Use markdown for clarity (*italic*, bullet points). No conversational phrases. Total response must be under 120 words.` 
+          content: `Define ${targetNode.data.label} in the context of ${activeGraph.title}. Start with one concise summary sentence in **bold**. Then provide more detailed explanation. Use markdown for clarity (*italic*, bullet points). No conversational phrases. No parentheses around terms. Total response must be under 120 words.` 
         }
       ];
       
@@ -94,7 +94,7 @@ export function useNodeDefinitions(activeGraph, onUpdateData) {
       const messages = [
         { 
           role: 'system', 
-          content: `Define "${node.data.label}" in the context of "${activeGraph.title}". Start with one concise summary sentence in **bold**. Then provide more detailed explanation. Use markdown for clarity (*italic*, bullet points). No conversational phrases. Total response must be under 120 words.` 
+          content: `Define ${node.data.label} in the context of ${activeGraph.title}. Start with one concise summary sentence in **bold**. Then provide more detailed explanation. Use markdown for clarity (*italic*, bullet points). No conversational phrases. No parentheses around terms. Total response must be under 120 words.` 
         },
         ...(nodeData?.chat || []),
         newMessage
