@@ -10,10 +10,14 @@ export function useNodeCreation(activeGraph, updateGraph) {
       return;
     }
 
-    // Check if a node with this term already exists anywhere in the graph
-    const existingNode = activeGraph.nodes.find(node => 
-      node.data.label.toLowerCase() === term.toLowerCase()
-    );
+    // Clean the term by removing parentheses and preserving content inside
+    const cleanTerm = term.replace(/\((.*?)\)/g, '$1').trim();
+
+    // Check if a node with this term exists (ignoring parentheses)
+    const existingNode = activeGraph.nodes.find(node => {
+      const cleanLabel = node.data.label.replace(/\((.*?)\)/g, '$1').trim();
+      return cleanLabel.toLowerCase() === cleanTerm.toLowerCase();
+    });
 
     if (existingNode) {
       // Check if edge already exists between source and existing node
