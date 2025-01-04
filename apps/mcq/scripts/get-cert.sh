@@ -49,12 +49,13 @@ docker run --rm \
     certbot/certbot $CERTBOT_ARGS \
     -d "$domain"
 
-# Copy certificates to local ssl directory
+# Copy certificates to local ssl directory with proper structure
 echo "Copying certificates to ssl directory..."
-mkdir -p ssl
-cp "/etc/letsencrypt/live/$domain/fullchain.pem" ssl/
-cp "/etc/letsencrypt/live/$domain/privkey.pem" ssl/
-chmod 644 ssl/*.pem
+mkdir -p "ssl/live/$domain"
+cp -r "/etc/letsencrypt/live/$domain/." "ssl/live/$domain/"
+cp -r "/etc/letsencrypt/archive" "ssl/"
+chmod -R 644 "ssl/live/$domain"/*.pem
+chmod -R 644 "ssl/archive"/*.pem
 
 # Clean up
 docker rm -f cert-nginx
