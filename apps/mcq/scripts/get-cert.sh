@@ -57,8 +57,12 @@ cp -r "/etc/letsencrypt/archive/." "ssl/archive/"
 
 # Set permissions after copying
 echo "Setting certificate permissions..."
-chmod -R 644 "ssl/live/$domain"/*.pem
-chmod -R 644 "ssl/archive"/*.pem
+if [ -d "ssl/live/$domain" ]; then
+    find "ssl/live/$domain" -name "*.pem" -type f -exec chmod 644 {} \;
+fi
+if [ -d "ssl/archive" ]; then
+    find "ssl/archive" -name "*.pem" -type f -exec chmod 644 {} \;
+fi
 
 # Clean up
 docker rm -f cert-nginx
