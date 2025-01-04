@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# Directory where this script is located
+# Get the directory where the script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_DIR="$( dirname "$SCRIPT_DIR" )"
 
-# Change to script directory to ensure docker-compose.yml is accessible
-cd "$SCRIPT_DIR"
+# Change to project directory
+cd "$PROJECT_DIR"
 
 # Function to display usage instructions
 usage() {

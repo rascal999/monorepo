@@ -1,11 +1,17 @@
 #!/bin/bash
 
+# Get the directory where the script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_DIR="$( dirname "$SCRIPT_DIR" )"
+
+# Change to project directory
+cd "$PROJECT_DIR"
+
 # Stop any existing container
 docker rm -f cert-nginx 2>/dev/null
 
 # Create directories
-mkdir -p certbot
-mkdir -p ssl
+mkdir -p certbot ssl
 
 # Start a simple nginx container for ACME challenge
 docker run -d --name cert-nginx \
