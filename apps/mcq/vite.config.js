@@ -30,7 +30,8 @@ function getFilesRecursively(dir, baseDir = dir) {
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
-    'import.meta.env.VITE_APP_VERSION': JSON.stringify(getVersion())
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(getVersion()),
+    'import.meta.env.VITE_APP_TITLE': JSON.stringify(process.env.NODE_ENV === 'development' ? '[DEV] MCQ Quiz App' : 'MCQ Quiz App')
   },
   server: {
     host: '0.0.0.0',
