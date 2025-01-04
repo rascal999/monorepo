@@ -28,24 +28,55 @@ start() {
     echo "Application started. Use '$0 logs' to view logs."
 }
 
+# Function to verify HTTP access
+verify_http() {
+    local max_attempts=12
+    local attempt=1
+    
+    echo "Verifying HTTP access..."
+    while [ $attempt -le $max_attempts ]; do
+        if curl -s -f http://localhost/ > /dev/null 2>&1; then
+            echo "HTTP access verified"
+            return 0
+        fi
+        echo "Waiting for HTTP access... (attempt $attempt/$max_attempts)"
+        sleep 5
+        attempt=$((attempt + 1))
+    done
+    
+    echo "Error: Cannot access nginx on HTTP after $max_attempts attempts"
+    echo "Debugging information:"
+    echo "1. Container status:"
+    docker ps -a
+    echo
+    echo "2. Container logs:"
+    docker logs mcq_frontend_1
+    echo
+    echo "3. Nginx configuration:"
+    docker exec mcq_frontend_1 nginx -T
+    echo
+    echo "4. Network ports:"
+    netstat -tulpn | grep LISTEN
+    return 1
+}
+
 # Function to setup TLS
 setup_tls() {
     echo "Setting up TLS with Let's Encrypt..."
     
-    # Verify nginx is accessible
-    echo "Verifying HTTP access..."
-    for i in $(seq 1 12); do
-        if curl -s -f http://localhost/ > /dev/null 2>&1; then
-            echo "HTTP access verified"
-            break
-        fi
-        if [ $i -eq 12 ]; then
-            echo "Error: Cannot access nginx on HTTP. Please check your configuration."
-            exit 1
-        fi
-        echo "Waiting for HTTP access... (attempt $i/12)"
-        sleep 5
-    done
+    # First ensure we're in HTTP mode
+    echo "Starting in HTTP mode first..."
+    USE_SSL=false docker-compose up -d
+    
+    # Wait for containers to initialize
+    echo "Waiting for containers to initialize..."
+    sleep 10
+    
+    # Verify HTTP access
+    if ! verify_http; then
+        echo "Failed to establish HTTP access. Please fix the HTTP configuration first."
+        exit 1
+    fi
     
     # Stop current stack
     docker-compose down
