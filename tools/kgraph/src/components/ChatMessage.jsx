@@ -5,21 +5,25 @@ import ReactMarkdown from 'react-markdown';
 const processTextNode = (node, handleWordClick, selectedWords) => {
   if (typeof node === 'string') {
     const words = node.split(/\s+/);
-    return words.filter(word => word).map((word, index) => (
-      <span key={index}>
-        <span
-          onClick={(e) => handleWordClick(word, e)}
-          className={`cursor-pointer hover:text-blue-500 hover:underline ${
-            selectedWords.includes(word.replace(/[.,!?]$/, '')) 
-              ? 'bg-blue-100 text-blue-500' 
-              : ''
-          }`}
-        >
-          {word}
+    return words.filter(word => word).map((word, index) => {
+      const cleanWord = word.replace(/[.,!?:]$/, '');
+      return (
+        <span key={index}>
+          <span
+            onClick={(e) => handleWordClick(word, e)}
+            className={`cursor-pointer hover:text-blue-500 hover:underline ${
+              selectedWords.includes(cleanWord) 
+                ? 'bg-blue-100 text-blue-500' 
+                : ''
+            }`}
+          >
+            {cleanWord}
+          </span>
+          {word.slice(cleanWord.length)}
+          {index < words.length - 1 ? ' ' : ''}
         </span>
-        {index < words.length - 1 ? ' ' : ''}
-      </span>
-    ));
+      );
+    });
   }
   return node;
 };
@@ -30,7 +34,7 @@ function ChatMessage({ message, onWordClick, nodeId }) {
   const handleWordClick = (word, event) => {
     if (!nodeId) return;
     
-    const cleanWord = word.replace(/[.,!?]$/, '');
+    const cleanWord = word.replace(/[.,!?:]$/, '');
     
     if (event.ctrlKey || event.metaKey) {
       setSelectedWords(prev => {
