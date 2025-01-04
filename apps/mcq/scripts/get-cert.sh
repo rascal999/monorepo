@@ -7,6 +7,11 @@ PROJECT_DIR="$( dirname "$SCRIPT_DIR" )"
 # Change to project directory
 cd "$PROJECT_DIR"
 
+# Source environment variables
+if [ -f .env ]; then
+    source .env
+fi
+
 # Stop any existing container
 docker rm -f cert-nginx 2>/dev/null
 
