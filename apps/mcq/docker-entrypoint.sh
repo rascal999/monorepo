@@ -2,9 +2,17 @@
 
 # Function to start nginx and handle SSL if needed
 start_server() {
-    echo "Starting with HTTP configuration first..."
+    echo "Starting nginx..."
     
-    # Always start with HTTP configuration
+    # Clear any existing configuration and certificates
+    rm -f /etc/nginx/conf.d/default.conf
+    rm -rf /etc/letsencrypt/live/*
+    rm -rf /etc/letsencrypt/archive/*
+    rm -rf /etc/letsencrypt/renewal/*
+    rm -rf /var/www/certbot/.well-known/acme-challenge/*
+    
+    # Start with HTTP configuration
+    echo "Setting up HTTP configuration..."
     envsubst '${DOMAIN}' < /etc/nginx/nginx.http.conf > /etc/nginx/conf.d/default.conf
     
     # Start nginx in HTTP mode
