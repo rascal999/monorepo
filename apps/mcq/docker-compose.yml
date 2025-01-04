@@ -8,6 +8,7 @@ services:
       dockerfile: Dockerfile
       args:
         - NODE_ENV=${NODE_ENV:-development}
+    image: mcq_frontend:${VERSION:-latest}
     ports:
       - "80:80"
       - "443:443"
@@ -35,6 +36,7 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
+    image: mcq_api:${VERSION:-latest}
     ports:
       - "3001:3000"
     environment:
