@@ -36,17 +36,23 @@ start() {
     echo "Environment: $env"
     
     if [ "$version" != "latest" ]; then
-        # Pull versioned images
-        echo "Pulling versioned images..."
-        docker pull "mcq_frontend:v${version}-${env}"
-        docker pull "mcq_api:v${version}-${env}"
-        
+        frontend_tag="mcq_frontend:v${version}-${env}"
+        api_tag="mcq_api:v${version}-${env}"
+
+        # Check if images exist locally
+        if docker image inspect "$frontend_tag" >/dev/null 2>&1 && docker image inspect "$api_tag" >/dev/null 2>&1; then
+            echo "Using local images..."
+        else
+            echo "Building images..."
+            docker-compose build
+        fi
+
         # Tag as latest for docker-compose
-        docker tag "mcq_frontend:v${version}-${env}" mcq_frontend:latest
-        docker tag "mcq_api:v${version}-${env}" mcq_api:latest
+        docker tag "$frontend_tag" mcq_frontend:latest 2>/dev/null || true
+        docker tag "$api_tag" mcq_api:latest 2>/dev/null || true
     fi
-    
-    docker-compose up -d
+
+    docker-compose up -d --build
     echo "Application started. Use '$0 logs' to view logs."
 }
 
