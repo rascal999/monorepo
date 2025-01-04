@@ -6,9 +6,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - NODE_ENV=${NODE_ENV:-development}
     ports:
-      - "8080:80"
-      - "8443:443"
+      - "${FRONTEND_PORT:-8080}:80"
+      - "${FRONTEND_SSL_PORT:-8443}:443"
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
+      - EMAIL=${EMAIL:-admin@example.com}
+      - USE_SSL=${USE_SSL:-false}
+    volumes:
+      - ${PWD}/ssl:/etc/letsencrypt:rw
+      - ${PWD}/certbot:/var/www/certbot:rw
     depends_on:
       - api
     networks:

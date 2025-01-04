@@ -1,69 +1,29 @@
 export class LocalStorageManager {
   static async loadQuestionsFromDirectory() {
     try {
-      const files = await this.recursivelyLoadFiles('/questions');
-      return files.filter(file => file !== null);
-    } catch (error) {
-      console.error('Error loading questions from directory:', error);
-      return [];
-    }
-  }
-
-  static async recursivelyLoadFiles(path) {
-    try {
-      // Get list of files from directory
-      const response = await fetch(path);
-      const html = await response.text();
+      const { ApiService } = await import('./ApiService.js');
+      const categories = await ApiService.getCategories();
       
-      // Parse the directory listing HTML to get file and directory names
-      const entries = html.match(/href="([^"]+)"/g)
-        ?.map(href => href.match(/href="([^"]+)"/)[1])
-        ?.filter(name => name !== '../') || [];
-
-      // Process all entries (files and directories)
-      const results = await Promise.all(
-        entries.map(async entry => {
-          // Remove any leading slashes from entry
-          const cleanEntry = entry.startsWith('/') ? entry.slice(1) : entry;
-          // Ensure path ends with slash if it doesn't already
-          const basePath = path.endsWith('/') ? path : `${path}/`;
-          const fullPath = `${basePath}${cleanEntry}`;
-          
-          if (entry.endsWith('/')) {
-            // It's a directory, recursively load its contents
-            return this.recursivelyLoadFiles(fullPath.slice(0, -1)); // Remove trailing slash for fetch
-          } else if (entry.endsWith('.json')) {
-            // It's a JSON file, load its content
-            try {
-              const fileResponse = await fetch(fullPath);
-              const content = await fileResponse.json();
-              
-              // Create ID from path, removing leading '/questions' and trailing '.json'
-              const id = fullPath
-                .replace(/^\/questions\/?/, '') // Remove leading /questions/ or /questions
-                .replace(/^\//, '') // Remove any remaining leading slash
-                .replace(/\.json$/, ''); // Remove .json extension
-              
-              return {
-                id,
-                title: content.title || id.split('/').pop(), // Use last part of path if no title
-                content: JSON.stringify(content),
-                timestamp: new Date().getTime(),
-                stats: this.initializeStats(content.questions)
-              };
-            } catch (error) {
-              console.error(`Error loading file ${fullPath}:`, error);
-              return null;
-            }
+      // Load questions for each category
+      const filesWithQuestions = await Promise.all(
+        categories.map(async (category) => {
+          try {
+            const data = await ApiService.getCategoryQuestions(category.id);
+            return {
+              ...category,
+              content: JSON.stringify(data),
+              stats: this.initializeStats(data.questions)
+            };
+          } catch (error) {
+            console.error(`Error loading questions for category ${category.id}:`, error);
+            return category; // Return category without questions if loading fails
           }
-          return null;
         })
       );
 
-      // Flatten the results array since recursive calls return arrays
-      return results.flat().filter(result => result !== null);
+      return filesWithQuestions;
     } catch (error) {
-      console.error('Error in recursive file loading:', error);
+      console.error('Error loading questions from API:', error);
       return [];
     }
   }

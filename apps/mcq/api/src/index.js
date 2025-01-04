@@ -38,7 +38,7 @@ app.get('/api/categories/:slug/questions', async (req, res) => {
   try {
     const { slug } = req.params;
     const result = await pool.query(
-      `SELECT q.*, json_agg(json_build_object('id', o.id, 'text', o.option_text)) as options
+      `SELECT q.*, json_agg(json_build_object('id', o.id, 'text', o.option_text, 'is_correct', o.is_correct)) as options
        FROM questions q
        JOIN categories c ON q.category_id = c.id
        JOIN options o ON o.question_id = q.id
@@ -58,7 +58,7 @@ app.get('/api/questions/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query(
-      `SELECT q.*, json_agg(json_build_object('id', o.id, 'text', o.option_text)) as options
+      `SELECT q.*, json_agg(json_build_object('id', o.id, 'text', o.option_text, 'is_correct', o.is_correct)) as options
        FROM questions q
        JOIN options o ON o.question_id = q.id
        WHERE q.id = $1
