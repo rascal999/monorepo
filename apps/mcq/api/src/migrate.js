@@ -38,7 +38,7 @@ async function createOption(questionId, optionText, isCorrect) {
 
 async function migrateQuestions() {
   try {
-    const questionsDir = path.join('/app/public/questions/veterinary');
+    const questionsDir = path.join(process.cwd(), '..', 'public/questions/veterinary');
     const files = fs.readdirSync(questionsDir);
 
     for (const file of files) {
