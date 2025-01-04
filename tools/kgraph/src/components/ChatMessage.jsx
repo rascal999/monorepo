@@ -7,14 +7,15 @@ const processTextNode = (node, handleWordClick, selectedWords) => {
     // Split text into words, preserving phrases in parentheses
     const words = node.split(/\s+(?![^(]*\))/);
     return words.filter(word => word).map((word, index) => {
+      // First check if word is wrapped in parentheses
+      const match = word.match(/^\((.*?)\)([.,!?:])?$/);
+      
       // Remove parentheses and trailing punctuation, preserving content inside
       const cleanWord = word.replace(/\((.*?)\)/g, '$1').replace(/[.,!?:]$/g, '');
-      
-      // Check if word is wrapped in parentheses
-      const match = word.match(/^\((.*)\)$/);
       if (match) {
         // For words in parentheses, only make the inner content clickable
         const innerContent = match[1];
+        const punctuation = match[2] || '';
         return (
           <span key={index}>
             {'('}
@@ -29,6 +30,7 @@ const processTextNode = (node, handleWordClick, selectedWords) => {
               {innerContent}
             </span>
             {')'}
+            {punctuation}
             {index < words.length - 1 ? ' ' : ''}
           </span>
         );
