@@ -85,14 +85,107 @@ export function useGraphState() {
   };
 
   const updateGraph = (updatedGraph, selectedNodeId = null) => {
-    const graphToUpdate = {
-      ...updatedGraph,
-      lastSelectedNodeId: selectedNodeId || updatedGraph.lastSelectedNodeId
-    };
-    setGraphs(graphs.map(g => 
-      g.id === graphToUpdate.id ? graphToUpdate : g
-    ));
-    setActiveGraph(graphToUpdate);
+    // Validate graph structure
+    if (!updatedGraph || !Array.isArray(updatedGraph.nodes) || !Array.isArray(updatedGraph.edges)) {
+      console.error('Invalid graph structure:', updatedGraph);
+      return;
+    }
+
+    // Ensure all nodes have valid IDs and positions
+    const validNodes = updatedGraph.nodes.every(node => 
+      node && node.id && node.position && 
+      typeof node.position.x === 'number' && 
+      typeof node.position.y === 'number'
+    );
+
+    if (!validNodes) {
+      console.error('Invalid node data in graph');
+      return;
+    }
+
+    // Ensure all edges have valid source and target
+    const validEdges = updatedGraph.edges.every(edge =>
+      edge && edge.source && edge.target &&
+      updatedGraph.nodes.some(n => n.id === edge.source) &&
+      updatedGraph.nodes.some(n => n.id === edge.target)
+    );
+
+    if (!validEdges) {
+      console.error('Invalid edge data in graph');
+      return;
+    }
+
+    // First, ensure we have the latest state
+    setGraphs(prevGraphs => {
+      const currentGraph = prevGraphs.find(g => g.id === updatedGraph.id);
+      if (!currentGraph) return prevGraphs;
+
+      // Handle node data updates
+      const mergedNodeData = { ...currentGraph.nodeData };
+      
+      // First, handle any explicit nodeData updates
+      if (updatedGraph.nodeData) {
+        Object.assign(mergedNodeData, updatedGraph.nodeData);
+      }
+      
+      // Then ensure all nodes have nodeData
+      updatedGraph.nodes.forEach(node => {
+        if (!mergedNodeData[node.id]) {
+          // Initialize new nodes with null chat to trigger definition fetch
+          mergedNodeData[node.id] = {
+            chat: null,
+            notes: '',
+            quiz: []
+          };
+        }
+      });
+
+      // Remove nodeData for nodes that no longer exist
+      const validNodeIds = new Set(updatedGraph.nodes.map(n => n.id));
+      Object.keys(mergedNodeData).forEach(nodeId => {
+        if (!validNodeIds.has(nodeId)) {
+          delete mergedNodeData[nodeId];
+        }
+      });
+
+      // Create the final graph update
+      const graphToUpdate = {
+        ...updatedGraph,
+        lastSelectedNodeId: selectedNodeId || updatedGraph.lastSelectedNodeId,
+        nodeData: mergedNodeData
+      };
+
+      // Update graphs array
+      const updatedGraphs = prevGraphs.map(g => 
+        g.id === graphToUpdate.id ? graphToUpdate : g
+      );
+
+      // Persist to localStorage
+      try {
+        localStorage.setItem('kgraph-graphs', JSON.stringify(updatedGraphs));
+        if (graphToUpdate.id) {
+          localStorage.setItem('kgraph-last-graph', graphToUpdate.id.toString());
+        }
+      } catch (error) {
+        console.error('Error persisting graph state:', error);
+      }
+
+      return updatedGraphs;
+    });
+
+    // Update active graph to match
+    setActiveGraph(prevGraph => {
+      if (prevGraph?.id !== updatedGraph.id) return prevGraph;
+      
+      return {
+        ...updatedGraph,
+        lastSelectedNodeId: selectedNodeId || updatedGraph.lastSelectedNodeId,
+        nodeData: {
+          ...prevGraph.nodeData,
+          ...updatedGraph.nodeData
+        }
+      };
+    });
   };
 
   const updateViewport = (newViewport) => {

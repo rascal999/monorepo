@@ -10,20 +10,19 @@ export function useNodeCreation(activeGraph, updateGraph) {
       return;
     }
 
-    // Check if a node with this term already exists
+    // Check if a node with this term already exists anywhere in the graph
     const existingNode = activeGraph.nodes.find(node => 
       node.data.label.toLowerCase() === term.toLowerCase()
     );
 
     if (existingNode) {
-      console.log('Node already exists:', existingNode);
-      
       // Check if edge already exists between source and existing node
       const edgeExists = activeGraph.edges.some(edge => 
-        edge.source === sourceNode.id && edge.target === existingNode.id
+        (edge.source === sourceNode.id && edge.target === existingNode.id) ||
+        (edge.source === existingNode.id && edge.target === sourceNode.id)
       );
 
-      if (!edgeExists) {
+      if (!edgeExists && existingNode.id !== sourceNode.id) {
         // Create edge to existing node
         const newEdge = createEdge(sourceNode.id, existingNode.id);
         const updatedGraph = {
@@ -31,8 +30,10 @@ export function useNodeCreation(activeGraph, updateGraph) {
           edges: [...activeGraph.edges, newEdge]
         };
         updateGraph(updatedGraph);
+        console.log('Connected to existing node:', existingNode.data.label);
+      } else {
+        console.log('Node already connected or self-reference:', existingNode.data.label);
       }
-
       return;
     }
 
@@ -43,35 +44,59 @@ export function useNodeCreation(activeGraph, updateGraph) {
 
     // Calculate position based on existing child nodes
     const newPosition = calculateNodePosition(sourceNode, childNodes, position);
-    const newNodeId = Date.now().toString();
+    // Generate a unique ID using timestamp + random suffix to prevent collisions
+    const newNodeId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
-    // Create new node
-    const newNode = {
-      id: newNodeId,
-      type: 'default',
-      position: newPosition,
-      data: { label: term }
-    };
+    // Batch state updates to prevent race conditions
+    try {
+      // Create new node
+      const newNode = {
+        id: newNodeId,
+        type: 'default',
+        position: newPosition,
+        data: { label: term }
+      };
 
-    // Create edge from source to new node
-    const newEdge = createEdge(sourceNode.id, newNodeId);
+      // Create edge from source to new node
+      const newEdge = createEdge(sourceNode.id, newNodeId);
 
-    const updatedGraph = {
-      ...activeGraph,
-      nodes: [...activeGraph.nodes, newNode],
-      edges: [...(activeGraph.edges || []), newEdge],
-      nodeData: {
-        ...activeGraph.nodeData,
-        [newNodeId]: {
-          chat: null,
-          notes: '',
-          quiz: []
-        }
+      // Validate existing graph state before update
+      if (!Array.isArray(activeGraph.nodes) || !Array.isArray(activeGraph.edges)) {
+        console.error('Invalid graph state:', activeGraph);
+        return;
       }
-    };
 
-    // Don't select the new node or change the current selection
-    updateGraph(updatedGraph, activeGraph.lastSelectedNodeId);
+      // Create graph update with structure and initial nodeData
+      const structureUpdate = {
+        ...activeGraph,
+        nodes: [...activeGraph.nodes, newNode],
+        edges: [...activeGraph.edges, newEdge],
+        nodeData: {
+          ...activeGraph.nodeData,
+          [newNodeId]: {
+            chat: null, // Explicitly set to null to trigger definition fetch
+            notes: '',
+            quiz: []
+          }
+        }
+      };
+
+      // Validate the structure update
+      if (structureUpdate.nodes.length !== activeGraph.nodes.length + 1 ||
+          structureUpdate.edges.length !== activeGraph.edges.length + 1) {
+        console.error('Graph structure update validation failed');
+        return;
+      }
+
+      // Let useGraphState handle nodeData synchronization
+      updateGraph(structureUpdate, activeGraph.lastSelectedNodeId);
+    } catch (error) {
+      console.error('Error creating node:', error);
+      // Attempt to recover graph state
+      if (activeGraph) {
+        updateGraph(activeGraph, activeGraph.lastSelectedNodeId);
+      }
+    }
   };
 
   return { addNode };
