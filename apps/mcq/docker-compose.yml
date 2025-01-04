@@ -17,8 +17,7 @@ services:
       - USE_SSL=${USE_SSL:-false}
       - CERTBOT_STAGING=${CERTBOT_STAGING:-true}
     volumes:
-      - ${PWD}/ssl:/etc/letsencrypt:rw
-      - ${PWD}/certbot:/var/www/certbot:rw
+      - ./ssl:/etc/letsencrypt:ro
     depends_on:
       - api
     networks:
