@@ -51,13 +51,23 @@ echo "Tagging Docker images as ${TAG}..."
 docker tag mcq_frontend:latest "mcq_frontend:${TAG}"
 docker tag mcq_api:latest "mcq_api:${TAG}"
 
-# Create git tag with annotation
-echo "Creating git tag ${TAG}..."
-git tag -a "${TAG}" -m "Release ${TAG}"
-
-# Push git tag
-echo "Pushing git tag..."
-git push origin "${TAG}"
+# Check if git tag exists
+if git rev-parse "$TAG" >/dev/null 2>&1; then
+    echo "Warning: Git tag ${TAG} already exists"
+    read -p "Do you want to force update the tag? [y/N] " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "Force updating git tag ${TAG}..."
+        git tag -fa "${TAG}" -m "Release ${TAG}"
+        git push --force origin "${TAG}"
+    else
+        echo "Skipping git tag creation"
+    fi
+else
+    echo "Creating git tag ${TAG}..."
+    git tag -a "${TAG}" -m "Release ${TAG}"
+    git push origin "${TAG}"
+fi
 
 echo "Successfully tagged version ${TAG}"
 echo
