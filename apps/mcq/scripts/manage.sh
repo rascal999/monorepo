@@ -106,19 +106,25 @@ check_ssl_requirements() {
 
     # Check if SSL is enabled
     if [ "$use_ssl" = "true" ]; then
+        # Get domain from environment or .env file
+        local domain=${DOMAIN:-localhost}
+        if [ -z "${DOMAIN+x}" ] && [ -f .env ]; then
+            domain=$(grep "^DOMAIN=" .env | cut -d '=' -f2 | tr -d '"' | tr -d "'")
+        fi
+
         # Check for SSL certificates in both possible locations
         if { [ ! -d "ssl" ] || [ ! -f "ssl/fullchain.pem" ] || [ ! -f "ssl/privkey.pem" ]; } && \
-           { [ ! -d "/etc/letsencrypt/live/alm.gg" ] || [ ! -f "/etc/letsencrypt/live/alm.gg/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/alm.gg/privkey.pem" ]; }; then
+           { [ ! -d "/etc/letsencrypt/live/$domain" ] || [ ! -f "/etc/letsencrypt/live/$domain/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$domain/privkey.pem" ]; }; then
             echo "Error: SSL is enabled (USE_SSL=true) but SSL certificates are missing."
             echo "Please run scripts/get-cert.sh to generate SSL certificates before starting the application."
             exit 1
         fi
         
         # If certs exist in /etc/letsencrypt but not in ssl/, copy them
-        if [ ! -f "ssl/fullchain.pem" ] && [ -f "/etc/letsencrypt/live/alm.gg/fullchain.pem" ]; then
+        if [ ! -f "ssl/fullchain.pem" ] && [ -f "/etc/letsencrypt/live/$domain/fullchain.pem" ]; then
             mkdir -p ssl
-            cp /etc/letsencrypt/live/alm.gg/fullchain.pem ssl/
-            cp /etc/letsencrypt/live/alm.gg/privkey.pem ssl/
+            cp "/etc/letsencrypt/live/$domain/fullchain.pem" ssl/
+            cp "/etc/letsencrypt/live/$domain/privkey.pem" ssl/
             chmod 644 ssl/*.pem
         fi
     fi
