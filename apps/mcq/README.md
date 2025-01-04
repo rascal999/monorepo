@@ -64,22 +64,47 @@ VERSION=1.0.0 ENV=prod USE_SSL=true ./scripts/manage.sh start
 
 The application uses semantic versioning (MAJOR.MINOR.PATCH) with environment tags.
 
-### Creating a New Version
+### Version Management
+
+#### Creating a New Version
 
 ```bash
-# Tag a new version
-./scripts/tag.sh 1.0.0         # Production release
-./scripts/tag.sh 1.0.1 staging # Staging release
+cd apps/mcq
 
-# List available versions
-./scripts/manage.sh versions
+# Create a production release
+./scripts/tag.sh 1.0.0
+# This will:
+# - Build the Docker images
+# - Tag images as mcq_frontend:v1.0.0 and mcq_api:v1.0.0
+# - Create git tag v1.0.0
+
+# Create a staging release
+./scripts/tag.sh 1.0.1 staging
+# This will:
+# - Build the Docker images
+# - Tag images as mcq_frontend:v1.0.1-staging and mcq_api:v1.0.1-staging
+# - Create git tag v1.0.1-staging
 ```
 
-### Version Format
+If a version tag already exists, you'll be prompted to:
+- Force update the existing tag (y)
+- Skip git tag creation (n)
+
+#### Version Format
 
 - Production: v1.0.0-prod
 - Staging: v1.0.0-staging
 - Development: v1.0.0-dev
+
+#### Managing Versions
+
+```bash
+# List all versions
+./scripts/manage.sh versions
+
+# Clean up old versions
+./scripts/manage.sh clean
+```
 
 ### Deployment Examples
 
