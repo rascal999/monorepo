@@ -4,9 +4,11 @@ import ReactMarkdown from 'react-markdown';
 // Helper function to process text nodes
 const processTextNode = (node, handleWordClick, selectedWords) => {
   if (typeof node === 'string') {
-    const words = node.split(/\s+/);
+    // Split text into words, preserving phrases in parentheses
+    const words = node.split(/\s+(?![^(]*\))/);
     return words.filter(word => word).map((word, index) => {
-      const cleanWord = word.replace(/[.,!?:]$/, '');
+      // Remove parentheses and trailing punctuation, preserving content inside
+      const cleanWord = word.replace(/\((.*?)\)/g, '$1').replace(/[.,!?:]$/g, '');
       return (
         <span key={index}>
           <span
@@ -34,7 +36,8 @@ function ChatMessage({ message, onWordClick, nodeId }) {
   const handleWordClick = (word, event) => {
     if (!nodeId) return;
     
-    const cleanWord = word.replace(/[.,!?:]$/, '');
+    // Remove parentheses and trailing punctuation, preserving content inside
+    const cleanWord = word.replace(/\((.*?)\)/g, '$1').replace(/[.,!?:]$/g, '');
     
     if (event.ctrlKey || event.metaKey) {
       setSelectedWords(prev => {
