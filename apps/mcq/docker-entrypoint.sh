@@ -1,22 +1,19 @@
 #!/bin/sh
 
-# Function to start nginx with HTTP-only configuration
+# Function to start nginx with HTTP configuration
 start_http() {
-    echo "Starting nginx with HTTP-only configuration..."
+    echo "Starting nginx with HTTP configuration..."
     echo "Setting up nginx configuration from /etc/nginx/nginx.http.conf..."
     envsubst '${DOMAIN}' < /etc/nginx/nginx.http.conf > /etc/nginx/conf.d/default.conf
-    nginx -g 'daemon off;'
-}
-
-# Function to start nginx with HTTPS configuration
-start_https() {
-    echo "Starting nginx with HTTPS configuration..."
+    nginx -g 'daemon off;' &
     
-    # Check if we already have a certificate
-    if [ -d "/etc/letsencrypt/live/${DOMAIN}" ]; then
-        echo "Found existing certificate for ${DOMAIN}"
-    else
-        echo "Requesting initial certificate for ${DOMAIN}"
+    # Wait for nginx to start
+    sleep 5
+    
+    if [ "${USE_SSL}" = "true" ]; then
+        echo "Attempting to obtain SSL certificate..."
+        
+        # First try to obtain the certificate
         certbot certonly --webroot \
             --webroot-path /var/www/certbot \
             --domain ${DOMAIN} \
@@ -25,34 +22,35 @@ start_https() {
             --non-interactive \
             --keep-until-expiring
         
-        if [ $? -ne 0 ]; then
-            echo "Failed to obtain SSL certificate"
-            exit 1
+        if [ $? -eq 0 ]; then
+            echo "Successfully obtained SSL certificate. Switching to HTTPS..."
+            # Stop nginx gracefully
+            nginx -s quit
+            wait
+            
+            # Switch to SSL configuration
+            envsubst '${DOMAIN}' < /etc/nginx/nginx.ssl.conf > /etc/nginx/conf.d/default.conf
+            nginx -g 'daemon off;' &
+            
+            # Trap SIGTERM and forward it to nginx
+            trap "nginx -s quit" SIGTERM
+            
+            # Renew certificates automatically
+            while :; do
+                certbot renew --webroot --webroot-path /var/www/certbot
+                sleep 12h
+            done
+        else
+            echo "Failed to obtain SSL certificate. Continuing with HTTP only..."
+            # Continue running with HTTP
+            wait
         fi
+    else
+        # If SSL is not requested, just wait
+        wait
     fi
-    
-    echo "Setting up nginx configuration from /etc/nginx/nginx.ssl.conf..."
-    envsubst '${DOMAIN}' < /etc/nginx/nginx.ssl.conf > /etc/nginx/conf.d/default.conf
-    
-    # Start nginx
-    echo "Starting nginx..."
-    nginx -g 'daemon off;' &
-    
-    # Trap SIGTERM and forward it to nginx
-    trap "nginx -s quit" SIGTERM
-    
-    # Renew certificates automatically
-    while :; do
-        certbot renew --webroot --webroot-path /var/www/certbot
-        sleep 12h
-    done
 }
 
 # Main script
-echo "Waiting for nginx to start..."
-
-if [ "${USE_SSL}" = "true" ]; then
-    start_https
-else
-    start_http
-fi
+echo "Starting server..."
+start_http
