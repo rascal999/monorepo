@@ -9,19 +9,43 @@ const processTextNode = (node, handleWordClick, selectedWords) => {
     return words.filter(word => word).map((word, index) => {
       // Remove parentheses and trailing punctuation, preserving content inside
       const cleanWord = word.replace(/\((.*?)\)/g, '$1').replace(/[.,!?:]$/g, '');
+      const hasParens = word.match(/^\(.*\)$/);
+
+      if (hasParens) {
+        // For words in parentheses, only make the content clickable
+        const content = word.slice(1, -1); // Remove outer parentheses
+        return (
+          <span key={index}>
+            {'('}
+            <span
+              onClick={(e) => handleWordClick(content, e)}
+              className={`cursor-pointer hover:text-blue-500 hover:underline ${
+                selectedWords.includes(cleanWord) 
+                  ? 'bg-blue-100 text-blue-500' 
+                  : ''
+              }`}
+            >
+              {content}
+            </span>
+            {')'}
+            {index < words.length - 1 ? ' ' : ''}
+          </span>
+        );
+      }
+
+      // For regular words, make the whole word clickable
       return (
         <span key={index}>
           <span
-            onClick={(e) => handleWordClick(word, e)}
+            onClick={(e) => handleWordClick(cleanWord, e)}
             className={`cursor-pointer hover:text-blue-500 hover:underline ${
               selectedWords.includes(cleanWord) 
                 ? 'bg-blue-100 text-blue-500' 
                 : ''
             }`}
           >
-            {cleanWord}
+            {word}
           </span>
-          {word.slice(cleanWord.length)}
           {index < words.length - 1 ? ' ' : ''}
         </span>
       );
