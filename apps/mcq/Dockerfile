@@ -2,8 +2,9 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Set up build argument
+# Set up build arguments
 ARG NODE_ENV=production
+ARG APP_VERSION
 
 # Copy package files
 COPY package*.json ./
@@ -14,8 +15,9 @@ RUN npm install --include=dev
 # Copy source code
 COPY . .
 
-# Build the application using NODE_ENV from build arg
+# Set environment variables for build
 ENV NODE_ENV=${NODE_ENV}
+ENV APP_VERSION=${APP_VERSION}
 RUN npm run build
 
 # Production stage
