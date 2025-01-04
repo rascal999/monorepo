@@ -12,6 +12,12 @@ if [ -f .env ]; then
     source .env
 fi
 
+# Get domain from environment or .env file
+domain=${DOMAIN:-localhost}
+if [ -z "${DOMAIN+x}" ] && [ -f .env ]; then
+    domain=$(grep "^DOMAIN=" .env | cut -d '=' -f2 | tr -d '"' | tr -d "'")
+fi
+
 # Stop any existing container
 docker rm -f cert-nginx 2>/dev/null
 
@@ -30,7 +36,7 @@ echo "Waiting for nginx to start..."
 sleep 5
 
 # Run certbot
-CERTBOT_ARGS="certonly --webroot --webroot-path /var/www/certbot --email admin@alm.gg --agree-tos --no-eff-email --force-renewal"
+CERTBOT_ARGS="certonly --webroot --webroot-path /var/www/certbot --email admin@$domain --agree-tos --no-eff-email --force-renewal"
 
 # Add staging flag if CERTBOT_STAGING is true
 if [ "$CERTBOT_STAGING" = "true" ]; then
@@ -38,10 +44,17 @@ if [ "$CERTBOT_STAGING" = "true" ]; then
 fi
 
 docker run --rm \
-    -v $PWD/ssl:/etc/letsencrypt \
+    -v /etc/letsencrypt:/etc/letsencrypt \
     -v $PWD/certbot:/var/www/certbot \
     certbot/certbot $CERTBOT_ARGS \
-    -d alm.gg
+    -d "$domain"
+
+# Copy certificates to local ssl directory
+echo "Copying certificates to ssl directory..."
+mkdir -p ssl
+cp "/etc/letsencrypt/live/$domain/fullchain.pem" ssl/
+cp "/etc/letsencrypt/live/$domain/privkey.pem" ssl/
+chmod 644 ssl/*.pem
 
 # Clean up
 docker rm -f cert-nginx
