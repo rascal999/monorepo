@@ -1,113 +1,72 @@
-# MCQ Quiz App
+# MCQ (Multiple Choice Questions) Application
 
-A multiple choice quiz application that supports both uploaded quizzes and quizzes from a directory.
+A web application for managing and taking multiple choice questions, with support for various medical and veterinary topics.
 
-## Adding New Quizzes
+## Development Setup
 
-There are two ways to add quizzes to the application:
-
-1. **Upload Quiz Files**: Use the upload button in the app to add quiz files. These can be modified or deleted through the app interface.
-
-2. **Questions Directory**: Place JSON quiz files in the `public/questions` directory. These will be automatically loaded when the app starts. Files in this directory:
-   - Are automatically available to all users
-   - Cannot be deleted through the app interface
-   - Will be loaded alongside any user-uploaded quizzes
-   - Follow the same format as uploaded quizzes
-
-### Quiz File Format
-
-Quiz files should be JSON files with the following structure:
-
-```json
-{
-    "title": "Quiz Title",
-    "questions": [
-        {
-            "question": "Question text?",
-            "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
-            "correctAnswer": 1
-        }
-    ]
-}
-```
-
-- `title`: The name of the quiz
-- `questions`: Array of question objects
-  - `question`: The question text
-  - `options`: Array of possible answers
-  - `correctAnswer`: Index of the correct answer (0-based)
-
-### Example
-
-See `public/questions/general-knowledge.json` for an example quiz file.
-
-## Deployment with TLS
-
-The application supports secure HTTPS deployment using LetsEncrypt certificates. Follow these steps to deploy with TLS:
-
-### Prerequisites
-
-- A domain name pointing to your server
-- Docker and Docker Compose installed on your server
-- Ports 80 and 443 available on your server
-
-### Deployment Steps
-
-1. Build and run the Docker container with required environment variables:
-
+1. Copy the environment file:
 ```bash
-docker build -t mcq-app .
-docker run -d \
-  -p 80:80 \
-  -p 443:443 \
-  -e DOMAIN=your-domain.com \
-  -e EMAIL=your-email@example.com \
-  -v letsencrypt:/etc/letsencrypt \
-  --name mcq-app \
-  mcq-app
+cp .env.example .env
 ```
 
-Replace:
-- `your-domain.com` with your actual domain name
-- `your-email@example.com` with your email address (used for LetsEncrypt notifications)
+2. Start the development environment:
+```bash
+docker-compose up -d
+```
 
-### Environment Variables
+This will start:
+- Frontend on http://localhost:8080
+- API on http://localhost:3001
+- PostgreSQL database on localhost:5432
 
-- `DOMAIN`: Your domain name (required)
-- `EMAIL`: Your email address for LetsEncrypt notifications (required)
+## Production Setup
 
-### Certificate Management
+1. Copy and modify the production environment file:
+```bash
+cp .env.production .env
+```
 
-The application automatically handles:
-- Initial certificate acquisition
-- Certificate renewal (checked every 12 hours)
-- HTTP to HTTPS redirection
-- Modern SSL configuration with security headers
+2. Update the following variables in `.env`:
+- `DOMAIN`: Your domain name (e.g., mcq.example.com)
+- `EMAIL`: Your email for SSL certificate notifications
+- `POSTGRES_PASSWORD`: A secure database password
 
-### Volume Management
+3. Create SSL certificate directories:
+```bash
+mkdir -p ssl certbot
+```
 
-The container uses a Docker volume to persist LetsEncrypt certificates:
-- `letsencrypt:/etc/letsencrypt`: Stores SSL certificates and LetsEncrypt configuration
+4. Start the production environment:
+```bash
+docker-compose up -d
+```
 
-### Security Features
+This will:
+- Start the frontend with HTTPS support
+- Automatically obtain and renew SSL certificates via Let's Encrypt
+- Run the API server
+- Set up a PostgreSQL database
 
-The TLS configuration includes:
-- Modern SSL protocols (TLSv1.2, TLSv1.3)
-- Strong cipher suites
-- OCSP Stapling
-- Security headers (X-Frame-Options, X-XSS-Protection, etc.)
-- Automatic HTTP to HTTPS redirection
+## Environment Variables
 
-### Troubleshooting
+### Frontend
+- `NODE_ENV`: Environment mode (development/production)
+- `FRONTEND_PORT`: HTTP port (default: 8080 in dev, 80 in prod)
+- `FRONTEND_SSL_PORT`: HTTPS port (default: 8443 in dev, 443 in prod)
+- `DOMAIN`: Domain name
+- `EMAIL`: Email for SSL certificates
+- `USE_SSL`: Enable/disable SSL (default: false in dev, true in prod)
 
-1. **Certificate Issues**:
-   - Check the container logs: `docker logs mcq-app`
-   - Ensure your domain points to the server's IP
-   - Verify ports 80 and 443 are accessible
+### Database
+- `POSTGRES_USER`: Database user
+- `POSTGRES_PASSWORD`: Database password
+- `POSTGRES_DB`: Database name
 
-2. **Container Access**:
-   - Shell access: `docker exec -it mcq-app sh`
-   - View nginx logs: `docker exec mcq-app cat /var/log/nginx/error.log`
+## Features
 
-3. **Manual Certificate Renewal**:
-   - Force renewal: `docker exec mcq-app certbot renew --force-renewal`
+- Multiple choice questions organized by categories
+- Question randomization
+- Score tracking
+- API-driven architecture
+- SSL support for production
+- Docker-based deployment

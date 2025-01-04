@@ -1,105 +1,58 @@
 #!/bin/sh
 
-# Function to replace environment variables in nginx config
-setup_nginx_conf() {
-    local template=$1
-    local output=$2
-    echo "Setting up nginx configuration from $template..."
-    envsubst '${DOMAIN}' < "$template" > "$output"
-}
-
-# Function to wait for nginx to be ready
-wait_for_nginx() {
-    echo "Waiting for nginx to start..."
-    timeout=30
-    while [ $timeout -gt 0 ]; do
-        if curl -s http://localhost/.well-known/acme-challenge/ > /dev/null; then
-            echo "Nginx is ready"
-            return 0
-        fi
-        timeout=$((timeout-1))
-        sleep 1
-    done
-    echo "Nginx failed to start"
-    return 1
-}
-
-# Function to get/renew certificate
-get_certificate() {
-    # Check if domain is provided via environment variable
-    if [ -z "$DOMAIN" ]; then
-        echo "Error: DOMAIN environment variable not set"
-        exit 1
-    fi
-
-    # Check if email is provided via environment variable
-    if [ -z "$EMAIL" ]; then
-        echo "Error: EMAIL environment variable not set"
-        exit 1
-    fi
-
-    # Ensure webroot directory exists and is accessible
-    mkdir -p /var/www/certbot
-    chmod -R 755 /var/www/certbot
-
-    # Setup and start nginx with HTTP-only config
+# Function to start nginx with HTTP-only configuration
+start_http() {
     echo "Starting nginx with HTTP-only configuration..."
-    setup_nginx_conf /etc/nginx/nginx.http.conf /etc/nginx/conf.d/default.conf
-    
-    nginx
-    
-    # Wait for nginx to be ready
-    if ! wait_for_nginx; then
-        echo "Failed to start nginx"
-        exit 1
-    fi
-
-    # Request certificate
-    echo "Requesting initial certificate for $DOMAIN"
-    certbot certonly --webroot \
-        --webroot-path /var/www/certbot \
-        --non-interactive \
-        --agree-tos \
-        --email "$EMAIL" \
-        --domains "$DOMAIN" \
-        --keep-until-expiring \
-        --debug-challenges
-
-    local cert_exit_code=$?
-    
-    # Stop nginx after certificate request
-    nginx -s stop
-    sleep 2
-
-    if [ $cert_exit_code -ne 0 ]; then
-        echo "Failed to obtain SSL certificate"
-        exit 1
-    fi
+    echo "Setting up nginx configuration from /etc/nginx/nginx.http.conf..."
+    envsubst '${DOMAIN}' < /etc/nginx/nginx.http.conf > /etc/nginx/conf.d/default.conf
+    nginx -g 'daemon off;'
 }
 
-# Function to renew certificates
-renew_certificates() {
-    echo "Renewing certificates"
-    certbot renew --webroot --webroot-path /var/www/certbot --non-interactive
+# Function to start nginx with HTTPS configuration
+start_https() {
+    echo "Starting nginx with HTTPS configuration..."
+    
+    # Check if we already have a certificate
+    if [ -d "/etc/letsencrypt/live/${DOMAIN}" ]; then
+        echo "Found existing certificate for ${DOMAIN}"
+    else
+        echo "Requesting initial certificate for ${DOMAIN}"
+        certbot certonly --webroot \
+            --webroot-path /var/www/certbot \
+            --domain ${DOMAIN} \
+            --email ${EMAIL} \
+            --agree-tos \
+            --non-interactive \
+            --keep-until-expiring
+        
+        if [ $? -ne 0 ]; then
+            echo "Failed to obtain SSL certificate"
+            exit 1
+        fi
+    fi
+    
+    echo "Setting up nginx configuration from /etc/nginx/nginx.ssl.conf..."
+    envsubst '${DOMAIN}' < /etc/nginx/nginx.ssl.conf > /etc/nginx/conf.d/default.conf
+    
+    # Start nginx
+    echo "Starting nginx..."
+    nginx -g 'daemon off;' &
+    
+    # Trap SIGTERM and forward it to nginx
+    trap "nginx -s quit" SIGTERM
+    
+    # Renew certificates automatically
+    while :; do
+        certbot renew --webroot --webroot-path /var/www/certbot
+        sleep 12h
+    done
 }
 
-# Create webroot directory for certbot
-mkdir -p /var/www/certbot
-chmod -R 755 /var/www/certbot
+# Main script
+echo "Waiting for nginx to start..."
 
-# Get initial certificate
-get_certificate
-
-# Setup nginx with SSL configuration
-echo "Setting up SSL nginx configuration..."
-setup_nginx_conf /etc/nginx/nginx.ssl.conf /etc/nginx/conf.d/default.conf
-
-# Start periodic certificate renewal in background
-while :; do
-    sleep 12h
-    renew_certificates
-done &
-
-# Start nginx with SSL configuration
-echo "Starting nginx with SSL configuration"
-exec nginx -g "daemon off;"
+if [ "${USE_SSL}" = "true" ]; then
+    start_https
+else
+    start_http
+fi
