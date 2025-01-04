@@ -70,8 +70,8 @@ cleanup() {
     
     # Remove tagged images
     echo "Removing tagged images..."
-    docker images "mcq_frontend:v*" --format "{{.ID}}" | xargs -r docker rmi
-    docker images "mcq_api:v*" --format "{{.ID}}" | xargs -r docker rmi
+    docker images "mcq_frontend:v*" --format "{{.ID}}" | xargs -r docker rmi -f
+    docker images "mcq_api:v*" --format "{{.ID}}" | xargs -r docker rmi -f
     
     # Remove any dangling images
     echo "Removing dangling Docker images..."
