@@ -2,32 +2,10 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import fs from 'fs'
 import path from 'path'
-import { execSync } from 'child_process'
-
-// Get git version
-function getGitVersion() {
-  try {
-    // Get all mcq tags and sort them to get the latest version
-    const tags = execSync('git tag --list "mcq/*"', { encoding: 'utf8' })
-      .trim()
-      .split('\n')
-      .filter(tag => tag.startsWith('mcq/v'))
-      .sort((a, b) => {
-        const versionA = a.replace('mcq/v', '').split('.').map(Number);
-        const versionB = b.replace('mcq/v', '').split('.').map(Number);
-        for (let i = 0; i < 3; i++) {
-          if (versionA[i] !== versionB[i]) {
-            return versionB[i] - versionA[i];
-          }
-        }
-        return 0;
-      });
-    
-    return tags[0] || 'mcq/development';
-  } catch (error) {
-    console.error('Error getting git version:', error);
-    return 'mcq/development';
-  }
+// Get version from environment variable or use development
+function getVersion() {
+  const version = process.env.APP_VERSION;
+  return version ? `mcq/v${version}` : 'mcq/development';
 }
 
 function getFilesRecursively(dir, baseDir = dir) {
@@ -52,7 +30,7 @@ function getFilesRecursively(dir, baseDir = dir) {
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
-    'import.meta.env.VITE_APP_VERSION': JSON.stringify(getGitVersion())
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(getVersion())
   },
   server: {
     host: '0.0.0.0',

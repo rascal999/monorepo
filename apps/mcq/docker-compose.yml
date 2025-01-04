@@ -8,6 +8,7 @@ services:
       dockerfile: Dockerfile
       args:
         - NODE_ENV=${NODE_ENV:-development}
+        - APP_VERSION=${VERSION:-latest}
     image: mcq_frontend:${VERSION:-latest}
     ports:
       - "80:80"
