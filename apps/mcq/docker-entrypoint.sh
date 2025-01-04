@@ -7,10 +7,16 @@ start_http() {
     envsubst '${DOMAIN}' < /etc/nginx/nginx.http.conf > /etc/nginx/conf.d/default.conf
     nginx -g 'daemon off;' &
     
-    # Wait for nginx to start
-    sleep 5
+    # Wait for nginx to start and verify it's responding
+    echo "Waiting for nginx to be accessible..."
+    until curl -s -f http://localhost/.well-known/acme-challenge/ > /dev/null 2>&1; do
+        sleep 2
+    done
+    echo "Nginx is responding correctly"
     
     if [ "${USE_SSL}" = "true" ]; then
+        echo "Waiting 10s for DNS propagation..."
+        sleep 10
         echo "Attempting to obtain SSL certificate..."
         
         # First try to obtain the certificate
