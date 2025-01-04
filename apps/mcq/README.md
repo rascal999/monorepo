@@ -23,13 +23,27 @@ cp .env.example .env
 
 2. Start the development environment:
 ```bash
-./scripts/manage.sh start
+./scripts/manage.sh dev
 ```
 
-This will start:
-- Frontend on http://localhost:8080
-- API on http://localhost:3001
-- PostgreSQL database on localhost:5432
+This single command will:
+- Start PostgreSQL in Docker
+- Install npm dependencies if needed
+- Start frontend on http://localhost:3001
+- Start API on http://localhost:4000
+- Start all services in the background using screen/tmux (or log files if neither is available)
+
+To view service output:
+- If using screen: `screen -r mcq-frontend` or `screen -r mcq-api`
+- If using tmux: `tmux attach -t mcq-frontend` or `tmux attach -t mcq-api`
+- If using log files: Check frontend.log and api.log
+
+3. Stop the development environment:
+```bash
+./scripts/manage.sh dev-stop
+```
+
+This will stop all services and clean up any background processes.
 
 ## Production Setup
 
@@ -135,11 +149,13 @@ Main application management script:
 ./scripts/manage.sh <command>
 
 Commands:
-  start   - Start the application stack
-  stop    - Stop the application stack
-  restart - Restart the application stack
-  clean   - Stop containers and clean up volumes/certificates
-  logs    - Show logs from all services
+  start     - Start the application stack
+  stop      - Stop the application stack
+  restart   - Restart the application stack
+  clean     - Stop containers and clean up volumes/certificates
+  logs      - Show logs from all services
+  dev       - Start development environment with auto-managed services
+  dev-stop  - Stop development environment and clean up
 ```
 
 ### get-cert.sh
