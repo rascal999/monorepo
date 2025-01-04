@@ -212,9 +212,20 @@ export function useGraphState() {
   };
 
   const clearData = () => {
+    // Clear all state
     setGraphs([]);
     setActiveGraph(null);
     resetViewport();
+
+    // Clear localStorage
+    try {
+      localStorage.removeItem('kgraph-graphs');
+      localStorage.removeItem('kgraph-last-graph');
+      localStorage.removeItem('kgraph-viewport');
+    } catch (error) {
+      console.error('Error clearing localStorage:', error);
+    }
+
     return null;
   };
 

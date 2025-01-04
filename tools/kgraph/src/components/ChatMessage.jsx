@@ -9,23 +9,24 @@ const processTextNode = (node, handleWordClick, selectedWords) => {
     return words.filter(word => word).map((word, index) => {
       // Remove parentheses and trailing punctuation, preserving content inside
       const cleanWord = word.replace(/\((.*?)\)/g, '$1').replace(/[.,!?:]$/g, '');
-      const hasParens = word.match(/^\(.*\)$/);
-
-      if (hasParens) {
-        // For words in parentheses, only make the content clickable
-        const content = word.slice(1, -1); // Remove outer parentheses
+      
+      // Check if word is wrapped in parentheses
+      const match = word.match(/^\((.*)\)$/);
+      if (match) {
+        // For words in parentheses, only make the inner content clickable
+        const innerContent = match[1];
         return (
           <span key={index}>
             {'('}
             <span
-              onClick={(e) => handleWordClick(content, e)}
+              onClick={(e) => handleWordClick(innerContent, e)}
               className={`cursor-pointer hover:text-blue-500 hover:underline ${
-                selectedWords.includes(cleanWord) 
+                selectedWords.includes(innerContent) 
                   ? 'bg-blue-100 text-blue-500' 
                   : ''
               }`}
             >
-              {content}
+              {innerContent}
             </span>
             {')'}
             {index < words.length - 1 ? ' ' : ''}
@@ -37,7 +38,7 @@ const processTextNode = (node, handleWordClick, selectedWords) => {
       return (
         <span key={index}>
           <span
-            onClick={(e) => handleWordClick(cleanWord, e)}
+            onClick={(e) => handleWordClick(word, e)}
             className={`cursor-pointer hover:text-blue-500 hover:underline ${
               selectedWords.includes(cleanWord) 
                 ? 'bg-blue-100 text-blue-500' 
