@@ -21,9 +21,9 @@ try {
     console.log(`Version ${tag} saved to .env.version`);
 } catch (error) {
     console.error('Error getting version:', error.message);
-    // Fallback to development version if git tag not found
+    // Fallback to latest version if git tag not found
     writeFileSync(
         join(__dirname, '..', '.env.version'),
-        'VITE_APP_VERSION=mcq/development\n'
+        'VITE_APP_VERSION=mcq/latest\n'
     );
 }
