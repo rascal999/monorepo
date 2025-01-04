@@ -34,11 +34,11 @@ const processTextNode = (node, handleWordClick, selectedWords) => {
         );
       }
 
-      // For regular words, make the whole word clickable
+      // For regular words, make the whole word clickable but pass clean version
       return (
         <span key={index}>
           <span
-            onClick={(e) => handleWordClick(word, e)}
+            onClick={(e) => handleWordClick(cleanWord, e)}
             className={`cursor-pointer hover:text-blue-500 hover:underline ${
               selectedWords.includes(cleanWord) 
                 ? 'bg-blue-100 text-blue-500' 
