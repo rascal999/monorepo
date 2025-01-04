@@ -7,9 +7,25 @@ PROJECT_DIR="$( dirname "$SCRIPT_DIR" )"
 # Change to project directory
 cd "$PROJECT_DIR"
 
+# Function to start development environment
+dev() {
+    echo "Starting development environment..."
+    
+    # Start database with dev configuration
+    docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
+    
+    # Install dependencies if needed
+    [ ! -d "node_modules" ] && npm install
+    [ ! -d "api/node_modules" ] && (cd api && npm install)
+    
+    echo "Database started. Please run these commands in separate terminals:"
+    echo "Terminal 1: cd '$(pwd)' && npm run dev"
+    echo "Terminal 2: cd '$(pwd)'/api && npm run dev"
+}
+
 # Function to display usage instructions
 usage() {
-    echo "Usage: $0 [start|stop|restart|clean|logs|versions|update]"
+    echo "Usage: $0 [start|stop|restart|clean|logs|versions|update|dev]"
     echo
     echo "Commands:"
     echo "  start    - Start the application stack (VERSION=x.y.z ENV=prod for specific version)"
@@ -19,6 +35,7 @@ usage() {
     echo "  logs     - Show logs from all services"
     echo "  versions - List available versions"
     echo "  update   - Pull latest changes and fetch tags"
+    echo "  dev      - Start development environment (database in Docker, frontend/API with npm)"
     echo
     echo "Environment Variables:"
     echo "  VERSION  - Specify version to deploy (e.g., VERSION=1.0.0)"
@@ -142,6 +159,9 @@ case "$1" in
         ;;
     update)
         update
+        ;;
+    dev)
+        dev
         ;;
     *)
         usage
