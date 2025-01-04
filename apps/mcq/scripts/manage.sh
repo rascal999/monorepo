@@ -18,24 +18,74 @@ dev() {
     [ ! -d "node_modules" ] && npm install
     [ ! -d "api/node_modules" ] && (cd api && npm install)
     
-    echo "Database started. Please run these commands in separate terminals:"
-    echo "Terminal 1: cd '$(pwd)' && npm run dev"
-    echo "Terminal 2: cd '$(pwd)'/api && npm run dev"
+    # Function to start services using screen or tmux
+    start_services() {
+        if command -v screen >/dev/null 2>&1; then
+            # Use screen if available
+            screen -dmS mcq-frontend bash -c "cd '$PROJECT_DIR' && npm run dev"
+            screen -dmS mcq-api bash -c "cd '$PROJECT_DIR/api' && npm run dev"
+            echo "Development environment started (using screen)"
+            echo "Use 'screen -r mcq-frontend' or 'screen -r mcq-api' to view output"
+        elif command -v tmux >/dev/null 2>&1; then
+            # Use tmux if available
+            tmux new-session -d -s mcq-frontend "cd '$PROJECT_DIR' && npm run dev"
+            tmux new-session -d -s mcq-api "cd '$PROJECT_DIR/api' && npm run dev"
+            echo "Development environment started (using tmux)"
+            echo "Use 'tmux attach -t mcq-frontend' or 'tmux attach -t mcq-api' to view output"
+        else
+            # Fallback to background processes with log files
+            (cd "$PROJECT_DIR" && npm run dev > frontend.log 2>&1) &
+            (cd "$PROJECT_DIR/api" && npm run dev > api.log 2>&1) &
+            echo "Development environment started (using background processes)"
+            echo "View logs in frontend.log and api.log"
+        fi
+    }
+    
+    start_services
+}
+
+# Function to stop development environment
+dev_stop() {
+    echo "Stopping development environment..."
+    
+    # Stop database
+    docker-compose -f docker-compose.yml -f docker-compose.dev.yml down
+    
+    # Stop screen sessions if they exist
+    if command -v screen >/dev/null 2>&1; then
+        screen -S mcq-frontend -X quit 2>/dev/null
+        screen -S mcq-api -X quit 2>/dev/null
+    fi
+    
+    # Stop tmux sessions if they exist
+    if command -v tmux >/dev/null 2>&1; then
+        tmux kill-session -t mcq-frontend 2>/dev/null
+        tmux kill-session -t mcq-api 2>/dev/null
+    fi
+    
+    # Kill any remaining npm processes
+    pkill -f "node.*apps/mcq" 2>/dev/null
+    
+    # Clean up log files
+    rm -f frontend.log api.log
+    
+    echo "Development environment stopped"
 }
 
 # Function to display usage instructions
 usage() {
-    echo "Usage: $0 [start|stop|restart|clean|logs|versions|update|dev]"
+    echo "Usage: $0 [start|stop|restart|clean|logs|versions|update|dev|dev-stop]"
     echo
     echo "Commands:"
-    echo "  start    - Start the application stack (VERSION=x.y.z ENV=prod for specific version)"
-    echo "  stop     - Stop the application stack"
-    echo "  restart  - Restart the application stack"
-    echo "  clean    - Stop containers and clean up volumes/certificates"
-    echo "  logs     - Show logs from all services"
-    echo "  versions - List available versions"
-    echo "  update   - Pull latest changes and fetch tags"
-    echo "  dev      - Start development environment (database in Docker, frontend/API with npm)"
+    echo "  start     - Start the application stack (VERSION=x.y.z ENV=prod for specific version)"
+    echo "  stop      - Stop the application stack"
+    echo "  restart   - Restart the application stack"
+    echo "  clean     - Stop containers and clean up volumes/certificates"
+    echo "  logs      - Show logs from all services"
+    echo "  versions  - List available versions"
+    echo "  update    - Pull latest changes and fetch tags"
+    echo "  dev       - Start development environment (database in Docker, frontend/API with npm)"
+    echo "  dev-stop  - Stop development environment"
     echo
     echo "Environment Variables:"
     echo "  VERSION  - Specify version to deploy (e.g., VERSION=1.0.0)"
@@ -162,6 +212,9 @@ case "$1" in
         ;;
     dev)
         dev
+        ;;
+    dev-stop)
+        dev_stop
         ;;
     *)
         usage
