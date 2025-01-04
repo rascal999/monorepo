@@ -43,10 +43,13 @@ else
     TAG="v${VERSION}"
 fi
 
-# Tag Docker images
+# Build and tag Docker images
+echo "Building Docker images..."
+docker-compose build
+
 echo "Tagging Docker images as ${TAG}..."
-docker tag mcq_frontend "mcq_frontend:${TAG}"
-docker tag mcq_api "mcq_api:${TAG}"
+docker tag mcq_frontend:latest "mcq_frontend:${TAG}"
+docker tag mcq_api:latest "mcq_api:${TAG}"
 
 # Create git tag with annotation
 echo "Creating git tag ${TAG}..."
