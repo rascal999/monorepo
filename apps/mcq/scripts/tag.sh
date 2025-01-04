@@ -65,16 +65,24 @@ if git rev-parse "$TAG" >/dev/null 2>&1; then
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         echo "Force updating git tag ${TAG} for apps/mcq directory only..."
-        # Force update tag only including apps/mcq directory
-        git tag -fa "${TAG}" -m "Release ${TAG}" -- apps/mcq
+        # Create a tree object containing only apps/mcq
+        TREE=$(git write-tree --prefix=apps/mcq)
+        # Create a commit object with the tree
+        COMMIT=$(echo "Release ${TAG}" | git commit-tree $TREE -p HEAD)
+        # Force update tag to point to the new commit
+        git tag -fa "${TAG}" $COMMIT
         git push --force origin "${TAG}"
     else
         echo "Skipping git tag creation"
     fi
 else
     echo "Creating git tag ${TAG} for apps/mcq directory only..."
-    # Create tag only including apps/mcq directory
-    git tag -a "${TAG}" -m "Release ${TAG}" -- apps/mcq
+    # Create a tree object containing only apps/mcq
+    TREE=$(git write-tree --prefix=apps/mcq)
+    # Create a commit object with the tree
+    COMMIT=$(echo "Release ${TAG}" | git commit-tree $TREE -p HEAD)
+    # Create tag pointing to the new commit
+    git tag -a "${TAG}" $COMMIT -m "Release ${TAG}"
     git push origin "${TAG}"
 fi
 
@@ -86,8 +94,8 @@ echo "   VERSION=${VERSION}"
 echo "   ENV=${ENV:-prod}"
 echo
 echo "2. Pull and run the tagged images:"
-echo "   docker pull mcq_frontend:${TAG}"
-echo "   docker pull mcq_api:${TAG}"
+echo "   docker pull mcq_frontend:${DOCKER_TAG}"
+echo "   docker pull mcq_api:${DOCKER_TAG}"
 echo
 echo "3. Start the application:"
 echo "   VERSION=${VERSION} ENV=${ENV:-prod} ./scripts/manage.sh start"
