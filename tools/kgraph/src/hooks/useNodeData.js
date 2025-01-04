@@ -15,8 +15,8 @@ export function useNodeData(activeGraph, updateGraph) {
       }
     };
 
-    // Preserve the lastSelectedNodeId when updating chat data
-    updateGraph(updatedGraph, activeGraph.lastSelectedNodeId);
+    // Use the node being updated as the selected node
+    updateGraph(updatedGraph, nodeId);
   };
 
   return { updateNodeData };
