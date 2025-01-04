@@ -25,16 +25,17 @@ echo "Waiting for nginx to start..."
 sleep 5
 
 # Run certbot
+CERTBOT_ARGS="certonly --webroot --webroot-path /var/www/certbot --email admin@alm.gg --agree-tos --no-eff-email --force-renewal"
+
+# Add staging flag if CERTBOT_STAGING is true
+if [ "$CERTBOT_STAGING" = "true" ]; then
+    CERTBOT_ARGS="$CERTBOT_ARGS --staging"
+fi
+
 docker run --rm \
     -v $PWD/ssl:/etc/letsencrypt \
     -v $PWD/certbot:/var/www/certbot \
-    certbot/certbot certonly \
-    --webroot \
-    --webroot-path /var/www/certbot \
-    --email admin@alm.gg \
-    --agree-tos \
-    --no-eff-email \
-    --force-renewal \
+    certbot/certbot $CERTBOT_ARGS \
     -d alm.gg
 
 # Clean up
