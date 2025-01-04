@@ -2,6 +2,18 @@
 
 A web application for managing and taking multiple choice questions, with support for various medical and veterinary topics.
 
+## Project Structure
+
+```
+apps/mcq/
+├── api/            # Backend API server
+├── src/            # Frontend React application
+├── scripts/        # Management scripts
+│   ├── manage.sh   # Main application management
+│   └── get-cert.sh # SSL certificate acquisition
+└── public/         # Static assets
+```
+
 ## Development Setup
 
 1. Copy the environment file:
@@ -11,7 +23,7 @@ cp .env.example .env
 
 2. Start the development environment:
 ```bash
-docker-compose up -d
+./scripts/manage.sh start
 ```
 
 This will start:
@@ -31,21 +43,38 @@ cp .env.production .env
 - `EMAIL`: Your email for SSL certificate notifications
 - `POSTGRES_PASSWORD`: A secure database password
 
-3. Create SSL certificate directories:
+3. SSL Setup:
 ```bash
-mkdir -p ssl certbot
+# Get SSL certificate (run once)
+./scripts/get-cert.sh
+
+# Start application with SSL
+USE_SSL=true ./scripts/manage.sh start
 ```
 
-4. Start the production environment:
+## Management Scripts
+
+### manage.sh
+Main application management script:
 ```bash
-docker-compose up -d
+./scripts/manage.sh <command>
+
+Commands:
+  start   - Start the application stack
+  stop    - Stop the application stack
+  restart - Restart the application stack
+  clean   - Stop containers and clean up volumes/certificates
+  logs    - Show logs from all services
 ```
 
-This will:
-- Start the frontend with HTTPS support
-- Automatically obtain and renew SSL certificates via Let's Encrypt
-- Run the API server
-- Set up a PostgreSQL database
+### get-cert.sh
+SSL certificate acquisition script:
+```bash
+./scripts/get-cert.sh
+```
+- Obtains SSL certificate from Let's Encrypt
+- Requires port 80 to be available
+- Run this before starting the app with SSL
 
 ## Environment Variables
 
