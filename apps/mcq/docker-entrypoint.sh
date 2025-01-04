@@ -49,16 +49,29 @@ start_server() {
         fi
         
         echo "Attempting to obtain SSL certificate..."
-        CERTBOT_ARGS="--webroot --webroot-path /var/www/certbot --domain ${DOMAIN} --email ${EMAIL} --agree-tos --non-interactive"
-        
         if [ "${CERTBOT_STAGING:-true}" = "true" ]; then
             echo "Using Let's Encrypt staging environment..."
-            CERTBOT_ARGS="$CERTBOT_ARGS --staging"
+            certbot certonly \
+                --webroot \
+                --webroot-path /var/www/certbot \
+                --domain ${DOMAIN} \
+                --email ${EMAIL} \
+                --agree-tos \
+                --non-interactive \
+                --staging \
+                --break-my-certs \
+                --server https://acme-staging-v02.api.letsencrypt.org/directory
         else
             echo "Using Let's Encrypt production environment..."
+            certbot certonly \
+                --webroot \
+                --webroot-path /var/www/certbot \
+                --domain ${DOMAIN} \
+                --email ${EMAIL} \
+                --agree-tos \
+                --non-interactive \
+                --server https://acme-v02.api.letsencrypt.org/directory
         fi
-        
-        certbot certonly $CERTBOT_ARGS
         
         if [ $? -eq 0 ]; then
             echo "Successfully obtained SSL certificate. Switching to HTTPS..."
