@@ -2,7 +2,9 @@
 
 # Function to start nginx and handle SSL if needed
 start_server() {
-    echo "Starting nginx with HTTP configuration..."
+    echo "Starting with HTTP configuration first..."
+    
+    # Always start with HTTP configuration
     envsubst '${DOMAIN}' < /etc/nginx/nginx.http.conf > /etc/nginx/conf.d/default.conf
     
     # Start nginx in HTTP mode
