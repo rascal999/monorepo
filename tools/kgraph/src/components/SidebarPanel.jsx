@@ -68,7 +68,10 @@ function SidebarPanel({ graphs, activeGraph, onCreateGraph, onSelectGraph, onCle
                   activeGraph?.id === graph.id ? 'bg-[var(--node-bg)]' : ''
                 }`}
               >
-                {graph.title}
+                <div>{graph.title}</div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {new Date(parseInt(graph.id)).toLocaleDateString()} • {graph.nodes.length} node{graph.nodes.length !== 1 ? 's' : ''}
+                </div>
               </button>
             ))}
           </div>
