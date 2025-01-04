@@ -14,26 +14,77 @@ const pool = new pg.Pool({
 });
 
 async function createCategory(name, slug, description = null) {
-  const result = await pool.query(
-    'INSERT INTO categories (name, slug, description) VALUES ($1, $2, $3) RETURNING id',
-    [name, slug, description]
-  );
-  return result.rows[0].id;
+  try {
+    // Try to find existing category first
+    const existing = await pool.query(
+      'SELECT id FROM categories WHERE slug = $1',
+      [slug]
+    );
+    
+    if (existing.rows.length > 0) {
+      console.log(`Category ${name} already exists, skipping...`);
+      return existing.rows[0].id;
+    }
+
+    // Create new category if it doesn't exist
+    const result = await pool.query(
+      'INSERT INTO categories (name, slug, description) VALUES ($1, $2, $3) RETURNING id',
+      [name, slug, description]
+    );
+    return result.rows[0].id;
+  } catch (err) {
+    console.error(`Error creating category ${name}:`, err);
+    throw err;
+  }
 }
 
 async function createQuestion(categoryId, questionText) {
-  const result = await pool.query(
-    'INSERT INTO questions (category_id, question_text) VALUES ($1, $2) RETURNING id',
-    [categoryId, questionText]
-  );
-  return result.rows[0].id;
+  try {
+    // Try to find existing question first
+    const existing = await pool.query(
+      'SELECT id FROM questions WHERE category_id = $1 AND question_text = $2',
+      [categoryId, questionText]
+    );
+    
+    if (existing.rows.length > 0) {
+      console.log(`Question already exists, skipping...`);
+      return existing.rows[0].id;
+    }
+
+    // Create new question if it doesn't exist
+    const result = await pool.query(
+      'INSERT INTO questions (category_id, question_text) VALUES ($1, $2) RETURNING id',
+      [categoryId, questionText]
+    );
+    return result.rows[0].id;
+  } catch (err) {
+    console.error(`Error creating question:`, err);
+    throw err;
+  }
 }
 
 async function createOption(questionId, optionText, isCorrect) {
-  await pool.query(
-    'INSERT INTO options (question_id, option_text, is_correct) VALUES ($1, $2, $3)',
-    [questionId, optionText, isCorrect]
-  );
+  try {
+    // Try to find existing option first
+    const existing = await pool.query(
+      'SELECT id FROM options WHERE question_id = $1 AND option_text = $2',
+      [questionId, optionText]
+    );
+    
+    if (existing.rows.length > 0) {
+      console.log(`Option already exists, skipping...`);
+      return;
+    }
+
+    // Create new option if it doesn't exist
+    await pool.query(
+      'INSERT INTO options (question_id, option_text, is_correct) VALUES ($1, $2, $3)',
+      [questionId, optionText, isCorrect]
+    );
+  } catch (err) {
+    console.error(`Error creating option:`, err);
+    throw err;
+  }
 }
 
 async function migrateQuestions() {
