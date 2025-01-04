@@ -2,6 +2,9 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Set up build argument
+ARG NODE_ENV=production
+
 # Copy package files
 COPY package*.json ./
 
@@ -11,8 +14,8 @@ RUN npm install
 # Copy source code
 COPY . .
 
-# Build the application in production mode
-ENV NODE_ENV=production
+# Build the application using NODE_ENV from build arg
+ENV NODE_ENV=${NODE_ENV}
 RUN npm run build
 
 # Production stage

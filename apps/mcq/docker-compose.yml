@@ -36,6 +36,8 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
+      args:
+        - NODE_ENV=${NODE_ENV:-development}
     image: mcq_api:${VERSION:-latest}
     ports:
       - "3001:3000"
