@@ -13,7 +13,7 @@ export async function fetchChatCompletion(messages) {
       'HTTP-Referer': window.location.href,
     },
     body: JSON.stringify({
-      model: 'google/palm-2-chat-bison',
+      model: 'openai/gpt-4o-mini',
       messages
     })
   });
