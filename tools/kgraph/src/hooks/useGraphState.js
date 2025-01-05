@@ -183,10 +183,10 @@ export function useGraphState() {
         }
       });
 
-      // Create the final graph update
+      // Create the final graph update, preserving existing selection
       const graphToUpdate = {
         ...updatedGraph,
-        lastSelectedNodeId: selectedNodeId || updatedGraph.lastSelectedNodeId,
+        lastSelectedNodeId: currentGraph.lastSelectedNodeId, // Always preserve existing selection
         nodeData: mergedNodeData
       };
 
@@ -202,7 +202,7 @@ export function useGraphState() {
       
       return {
         ...updatedGraph,
-        lastSelectedNodeId: selectedNodeId || updatedGraph.lastSelectedNodeId,
+        lastSelectedNodeId: prevGraph.lastSelectedNodeId, // Always preserve existing selection
         nodeData: {
           ...prevGraph.nodeData,
           ...updatedGraph.nodeData

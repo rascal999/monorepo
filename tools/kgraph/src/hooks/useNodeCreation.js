@@ -92,13 +92,13 @@ export function useNodeCreation(activeGraph, updateGraph) {
         return;
       }
 
-      // Let useGraphState handle nodeData synchronization
-      updateGraph(structureUpdate, activeGraph.lastSelectedNodeId);
+      // Update graph without changing selection
+      updateGraph(structureUpdate);
     } catch (error) {
       console.error('Error creating node:', error);
       // Attempt to recover graph state
       if (activeGraph) {
-        updateGraph(activeGraph, activeGraph.lastSelectedNodeId);
+        updateGraph(activeGraph);
       }
     }
   };
