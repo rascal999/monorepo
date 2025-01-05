@@ -9,7 +9,10 @@ export function useNodeState(activeGraph, updateGraph) {
   const { addNode } = useNodeCreation(activeGraph, updateGraph);
   const { updateNodeData } = useNodeData(activeGraph, updateGraph);
   const { updateNodePosition } = useNodePosition(activeGraph, updateGraph);
-  const { activeTab, setActiveTab, handleNodeSelect } = useNodeInteraction(addNode);
+
+  // Create single instance of useNodeInteraction
+  const nodeInteraction = useNodeInteraction(addNode);
+  const { activeTab, setActiveTab, handleNodeSelect } = nodeInteraction;
 
   const handleNodeClick = (node) => {
     console.log('useNodeState handleNodeClick:', { node });
@@ -29,6 +32,7 @@ export function useNodeState(activeGraph, updateGraph) {
     updateNodeData,
     updateNodePosition,
     activeTab,
-    setActiveTab
+    setActiveTab,
+    nodeInteraction
   };
 }

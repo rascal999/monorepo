@@ -61,6 +61,7 @@ export function MainLayout({
             activeGraph={activeGraph}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
+            nodeInteraction={nodeInteraction}
           />
         </Panel>
       </PanelGroup>
