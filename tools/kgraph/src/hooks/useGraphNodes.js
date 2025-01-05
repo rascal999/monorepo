@@ -21,35 +21,41 @@ export function useGraphNodes(graph, isDragging, draggedNodeId) {
       return;
     }
 
-    // Batch node updates using requestAnimationFrame
-    requestAnimationFrame(() => {
-      try {
-        // Track processed node IDs to prevent duplicates
-        const processedIds = new Set();
+    try {
+      // Create a map of current positions
+      const currentPositions = {};
+      nodes.forEach(node => {
+        if (node.position) {
+          currentPositions[node.id] = { ...node.position };
+        }
+      });
 
-        // Process nodes with validation
-        const styledNodes = graph.nodes.reduce((acc, node) => {
+      // Track processed node IDs to prevent duplicates
+      const processedIds = new Set();
+
+      // Process nodes with validation
+      const styledNodes = graph.nodes.reduce((acc, node) => {
           // Skip duplicate nodes
           if (!node || !node.id || processedIds.has(node.id)) {
             return acc;
           }
           processedIds.add(node.id);
 
-          // Always try to preserve existing node position
-          const currentNode = nodes.find(n => n.id === node.id);
+          // Determine node position with validation
           let position;
           
-          if (currentNode?.position && (isDragging ? node.id === draggedNodeId : true)) {
-            // Use existing position if available and either:
-            // - Node is being dragged (draggedNodeId check)
-            // - Or node is not being dragged (preserve all positions)
-            position = { ...currentNode.position };
+          if (isDragging && node.id === draggedNodeId) {
+            // Use current position for dragged node
+            position = currentPositions[node.id] || node.position;
+          } else if (currentPositions[node.id]) {
+            // Use existing position from current state
+            position = currentPositions[node.id];
+          } else if (node.position?.x !== undefined && node.position?.y !== undefined) {
+            // Use provided position if valid
+            position = { ...node.position };
           } else {
-            // Fallback to graph position or default
-            position = {
-              x: Number.isFinite(node.position?.x) ? node.position.x : 0,
-              y: Number.isFinite(node.position?.y) ? node.position.y : 0
-            };
+            // Fallback to default position
+            position = { x: 0, y: 0 };
           }
 
           acc.push({
@@ -64,11 +70,11 @@ export function useGraphNodes(graph, isDragging, draggedNodeId) {
           return acc;
         }, []);
 
-        setNodes(styledNodes);
-      } catch (error) {
-        console.error('Error updating nodes:', error);
-      }
-    });
+      // Immediately update nodes without animation frame delay
+      setNodes(styledNodes);
+    } catch (error) {
+      console.error('Error updating nodes:', error);
+    }
   };
 
   return {

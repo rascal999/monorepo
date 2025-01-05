@@ -4,11 +4,29 @@ export function useNodeData(activeGraph, updateGraph, setNodeLoading) {
   const updateNodeData = (nodeId, tabName, data, isDefinitionUpdate = false, lastUserSelectedNodeId = null) => {
     if (!activeGraph) return;
 
-    // Create a deep copy of nodes to preserve positions
-    const updatedNodes = activeGraph.nodes.map(node => ({
-      ...node,
-      position: { ...node.position }
-    }));
+    // Create a map of current positions
+    const nodePositions = {};
+    activeGraph.nodes.forEach(node => {
+      nodePositions[node.id] = { ...node.position };
+    });
+
+    // Only update the nodeData, leave nodes unchanged except for loading state
+    const updatedNodes = activeGraph.nodes.map(node => {
+      if (node.id === nodeId) {
+        return {
+          ...node,
+          position: nodePositions[node.id], // Preserve exact position
+          data: {
+            ...node.data,
+            isLoading: tabName === 'chat' // Only update loading state for chat updates
+          }
+        };
+      }
+      return {
+        ...node,
+        position: nodePositions[node.id] // Preserve all node positions
+      };
+    });
 
     const updatedGraph = {
       ...activeGraph,

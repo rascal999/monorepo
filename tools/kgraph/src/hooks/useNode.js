@@ -87,48 +87,66 @@ export function useNode(activeGraph, updateGraph, setNodeLoading) {
 
   // Node data and AI interactions
   const updateNodeData = async (nodeId, tabName, data, isDefinitionUpdate = false) => {
-    if (!activeGraph) return;
-
     if (!activeGraph || !nodeId) return;
 
-    setNodeLoading(true);
-    try {
-      let updatedData = data;
+    // First update with initial data to ensure node visibility
+    const initialUpdate = {
+      ...activeGraph,
+      nodes: activeGraph.nodes.map(node => {
+        if (node.id === nodeId) {
+          return {
+            ...node,
+            position: node.position,
+            data: {
+              ...node.data,
+              [tabName]: data,
+              isLoading: isDefinitionUpdate // Set loading state for definition updates
+            }
+          };
+        }
+        return node;
+      })
+    };
+    updateGraph(initialUpdate);
 
-      // If this is a definition update, fetch from AI
+    // Then handle AI updates if needed
+    try {
       if (isDefinitionUpdate && typeof data === 'string') {
+        setNodeLoading(true);
         const messages = [
           { role: 'system', content: DEFINITION_PROMPT },
           { role: 'user', content: `Define and explain: ${data}` }
         ];
 
         const aiResponse = await fetchChatCompletion(messages);
-        updatedData = {
+        const updatedData = {
           term: data,
           definition: aiResponse.content,
           timestamp: new Date().toISOString()
         };
-      }
 
-      const updatedNodes = activeGraph.nodes.map(node => {
-        if (node.id === nodeId) {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              [tabName]: updatedData
+        // Update with AI response while preserving position
+        const finalUpdate = {
+          ...activeGraph,
+          nodes: activeGraph.nodes.map(node => {
+            if (node.id === nodeId) {
+              return {
+                ...node,
+                position: node.position,
+                data: {
+                  ...node.data,
+                  [tabName]: updatedData,
+                  isLoading: false
+                }
+              };
             }
-          };
-        }
-        return node;
-      });
-
-      updateGraph({
-        ...activeGraph,
-        nodes: updatedNodes
-      });
-
-      return updatedData;
+            return node;
+          })
+        };
+        updateGraph(finalUpdate);
+        return updatedData;
+      }
+      return data;
     } catch (error) {
       console.error('Error updating node data:', error);
       throw error;
@@ -139,19 +157,26 @@ export function useNode(activeGraph, updateGraph, setNodeLoading) {
 
   // Handle getting definitions from AI
   const handleGetDefinition = async (node) => {
-    if (!node?.id || !node?.data?.label) return;
+    if (!node?.id) return;
     
     try {
+      // Find the actual node in the graph to get its label
+      const actualNode = activeGraph.nodes.find(n => n.id === node.id);
+      if (!actualNode?.data?.label) {
+        console.error('Node not found or missing label:', node.id);
+        return;
+      }
+
       await updateNodeData(node.id, 'chat', [], true);
       const messages = [
         { role: 'system', content: DEFINITION_PROMPT },
-        { role: 'user', content: `Define and explain: ${node.data.label}` }
+        { role: 'user', content: `Define and explain: ${actualNode.data.label}` }
       ];
       
       setNodeLoading(true);
       const aiResponse = await fetchChatCompletion(messages);
       const chat = [
-        { role: 'user', content: `What is ${node.data.label}?` },
+        { role: 'user', content: `What is ${actualNode.data.label}?` },
         aiResponse
       ];
       await updateNodeData(node.id, 'chat', chat);

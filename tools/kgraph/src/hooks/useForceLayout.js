@@ -43,12 +43,24 @@ export function useForceLayout(nodes, edges, width = 1000, height = 800, onPosit
   };
 
   useEffect(() => {
-    // Only calculate positions for new nodes
-    const newNodes = nodes.filter(node => !node.position || (node.position.x === 0 && node.position.y === 0));
-    if (newNodes.length > 0) {
+    // Only calculate positions for nodes that have no position at all
+    const nodesToPosition = nodes.filter(node => !node.position);
+
+    if (nodesToPosition.length > 0) {
+      console.log('Force layout: Calculating positions for new nodes:', nodesToPosition.length);
       const positions = calculatePositions();
       if (positions && onPositionsCalculated) {
-        onPositionsCalculated(positions);
+        // Only update positions for nodes that need them
+        const updatedPositions = positions
+          .filter(pos => {
+            const node = nodes.find(n => n.id === pos.id);
+            return !node.position; // Only include nodes without positions
+          });
+        
+        if (updatedPositions.length > 0) {
+          console.log('Force layout: Updating positions for nodes:', updatedPositions.length);
+          onPositionsCalculated(updatedPositions);
+        }
       }
     }
   }, [nodes.length]); // Only run when number of nodes changes
