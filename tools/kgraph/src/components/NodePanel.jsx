@@ -28,7 +28,7 @@ function NodePanel({ node, nodeData, onAddNode, onUpdateData, activeGraph, activ
   useEffect(() => {
     console.log('NodePanel node changed:', { nodeId: node?.id });
     safeHandleNodeChange(node?.id);
-  }, [node?.id, handleNodeChange]);
+  }, [node?.id, safeHandleNodeChange]);
 
   // Handle explicit node selection
   useEffect(() => {
