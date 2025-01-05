@@ -1,26 +1,19 @@
 import { useState, useEffect } from 'react';
 
 export function useNodeInteraction(onAddNode) {
-  const [activeTab, setActiveTab] = useState('chat');
   const [wasNodeClicked, setWasNodeClicked] = useState(false);
 
   // Reset click state when node changes
   const handleNodeChange = (nodeId) => {
+    console.log('useNodeInteraction handleNodeChange:', { nodeId });
     setWasNodeClicked(false);
   };
 
   // Handle explicit node selection
   const handleNodeSelect = () => {
-    console.log('useNodeInteraction handleNodeSelect - before');
+    console.log('useNodeInteraction handleNodeSelect');
     setWasNodeClicked(true);
-    console.log('useNodeInteraction handleNodeSelect - after setWasNodeClicked');
-    setActiveTab('chat');
-    console.log('useNodeInteraction handleNodeSelect - after setActiveTab');
   };
-
-  useEffect(() => {
-    console.log('useNodeInteraction activeTab changed:', activeTab);
-  }, [activeTab]);
 
   const handleWordClick = (node, words) => {
     if (node) {
@@ -42,9 +35,7 @@ export function useNodeInteraction(onAddNode) {
   };
 
   return {
-    activeTab,
     wasNodeClicked,
-    setActiveTab,
     handleNodeChange,
     handleNodeSelect,
     handleWordClick
