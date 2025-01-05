@@ -10,6 +10,7 @@ export function MainLayout({
   selectedNode,
   onCreateGraph,
   onSelectGraph,
+  onDeleteGraph,
   onClearData,
   onNodeClick,
   onAddNode,
@@ -19,7 +20,9 @@ export function MainLayout({
   onViewportChange,
   activeTab,
   setActiveTab,
-  nodeInteraction
+  nodeInteraction,
+  handleGetDefinition,
+  handleSendMessage
 }) {
   useEffect(() => {
     // Set dark theme by default
@@ -35,6 +38,7 @@ export function MainLayout({
             activeGraph={activeGraph}
             onCreateGraph={onCreateGraph}
             onSelectGraph={onSelectGraph}
+            onDeleteGraph={onDeleteGraph}
             onClearData={onClearData}
           />
         </Panel>
@@ -63,6 +67,8 @@ export function MainLayout({
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             nodeInteraction={nodeInteraction}
+            handleGetDefinition={handleGetDefinition}
+            handleSendMessage={handleSendMessage}
           />
         </Panel>
       </PanelGroup>

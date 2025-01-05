@@ -3,16 +3,20 @@ import TabBar from './TabBar';
 import ChatPanel from './ChatPanel';
 import NotesPanel from './NotesPanel';
 import QuizPanel from './QuizPanel';
-import { useNodeDefinitions } from '../hooks/useNodeDefinitions';
 import { useNodeInteraction } from '../hooks/useNodeInteraction';
 
-function NodePanel({ node, nodeData, onAddNode, onUpdateData, activeGraph, activeTab, setActiveTab, nodeInteraction }) {
-  const {
-    initializingNodes,
-    loadingNodes,
-    handleGetDefinition,
-    handleSendMessage
-  } = useNodeDefinitions(activeGraph, onUpdateData);
+function NodePanel({ 
+  node, 
+  nodeData, 
+  onAddNode, 
+  onUpdateData, 
+  activeGraph, 
+  activeTab, 
+  setActiveTab, 
+  nodeInteraction,
+  handleGetDefinition,
+  handleSendMessage
+}) {
 
   const {
     wasNodeClicked,
@@ -30,17 +34,7 @@ function NodePanel({ node, nodeData, onAddNode, onUpdateData, activeGraph, activ
     safeHandleNodeChange(node?.id);
   }, [node?.id, safeHandleNodeChange]);
 
-  // Handle explicit node selection
-  useEffect(() => {
-    console.log('NodePanel selection effect:', { node, nodeData, wasNodeClicked });
-    if (node && nodeData) {
-      // Only load definition for empty chat when explicitly selected
-      if (nodeData.chat?.length === 0 && wasNodeClicked) {
-        console.log('NodePanel getting definition');
-        handleGetDefinition(node);
-      }
-    }
-  }, [node, nodeData, wasNodeClicked, handleGetDefinition]);
+  // Removed automatic definition fetching - only user should trigger this
 
   console.log('NodePanel render:', { activeTab, node });
 
@@ -63,17 +57,12 @@ function NodePanel({ node, nodeData, onAddNode, onUpdateData, activeGraph, activ
         {activeTab === 'chat' && (
           <ChatPanel
             messages={nodeData?.chat || []}
-            isLoading={
-              // Show loading for:
-              // 1. Regular chat responses
-              loadingNodes.has(node.id) || 
-              // 2. Any node being initialized
-              initializingNodes.has(node.id)
-            }
+            isLoading={node.data.isLoading}
             nodeId={node.id}
             nodeLabel={node.data.label}
             onSendMessage={(text) => handleSendMessage(node, nodeData, text)}
             onWordClick={(words) => safeHandleWordClick(node, words)}
+            handleGetDefinition={handleGetDefinition}
           />
         )}
 

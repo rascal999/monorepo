@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { fetchChatCompletion } from '../services/openRouterApi';
 
-export function useNodeDefinitions(activeGraph, onUpdateData) {
+export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
   // Track nodes being loaded for chat responses
   const [loadingNodes, setLoadingNodes] = useState(new Set());
   // Track nodes being initialized
@@ -31,7 +31,7 @@ export function useNodeDefinitions(activeGraph, onUpdateData) {
       if (currentIndex >= nodesToProcess.length) return;
       
       const node = nodesToProcess[currentIndex];
-      handleGetDefinition(node);
+      handleGetDefinition(node, false); // Pass isUserClick=false
       currentIndex++;
       
       // Schedule next node with delay
@@ -51,12 +51,13 @@ export function useNodeDefinitions(activeGraph, onUpdateData) {
     };
   }, [activeGraph?.nodeData, activeGraph?.id]); // Also track graph ID changes
 
-  const handleGetDefinition = async (targetNode) => {
+  const handleGetDefinition = async (targetNode, isUserClick = false) => {
     if (!targetNode) return;
     
     try {
-      // Set initializing state
+      // Set initializing and loading states
       setInitializingNodes(prev => new Set([...prev, targetNode.id]));
+      setNodeLoading(activeGraph.id, targetNode.id, true);
 
       const messages = [
         { 
@@ -66,20 +67,21 @@ export function useNodeDefinitions(activeGraph, onUpdateData) {
       ];
       
       const aiMessage = await fetchChatCompletion(messages);
-      onUpdateData(targetNode.id, 'chat', [aiMessage]);
+      onUpdateData(targetNode.id, 'chat', [aiMessage], true); // Let wrapper handle selection
     } catch (error) {
       console.error('OpenRouter API error:', error);
       onUpdateData(targetNode.id, 'chat', [{
         role: 'assistant',
         content: 'Error fetching definition. Please check your API key and try again.'
-      }]);
+      }], true); // Let wrapper handle selection
     } finally {
-      // Clear initializing state
+      // Clear initializing and loading states
       setInitializingNodes(prev => {
         const next = new Set(prev);
         next.delete(targetNode.id);
         return next;
       });
+      setNodeLoading(activeGraph.id, targetNode.id, false);
     }
   };
 
@@ -89,6 +91,7 @@ export function useNodeDefinitions(activeGraph, onUpdateData) {
     const newMessage = { role: 'user', content: inputText };
     onUpdateData(node.id, 'chat', [...(nodeData?.chat || []), newMessage]);
     setLoadingNodes(prev => new Set([...prev, node.id]));
+    setNodeLoading(activeGraph.id, node.id, true);
 
     try {
       const messages = [
@@ -101,19 +104,20 @@ export function useNodeDefinitions(activeGraph, onUpdateData) {
       ];
       
       const aiMessage = await fetchChatCompletion(messages);
-      onUpdateData(node.id, 'chat', [...(nodeData?.chat || []), newMessage, aiMessage]);
+      onUpdateData(node.id, 'chat', [...(nodeData?.chat || []), newMessage, aiMessage], true); // Let wrapper handle selection
     } catch (error) {
       console.error('OpenRouter API error:', error);
       onUpdateData(node.id, 'chat', [...(nodeData?.chat || []), newMessage, {
         role: 'assistant',
         content: 'Error: Unable to get response. Please try again.'
-      }]);
+      }], true); // Let wrapper handle selection
     } finally {
       setLoadingNodes(prev => {
         const next = new Set(prev);
         next.delete(node.id);
         return next;
       });
+      setNodeLoading(activeGraph.id, node.id, false);
     }
   };
 

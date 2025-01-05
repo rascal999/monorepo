@@ -52,7 +52,7 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange
         onNodeClick={(event, node) => {
           // Only handle click if not dragging
           if (!isDragging && event.detail > 0) {
-            onNodeClick(node);
+            onNodeClick(node, true); // Explicit user click
           }
         }}
         onNodeDragStart={(_, node) => {

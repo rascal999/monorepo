@@ -19,7 +19,9 @@ export function useGraphState() {
 
   const {
     createGraph,
-    updateGraph
+    updateGraph,
+    deleteGraph,
+    setNodeLoading
   } = useGraphOperations(setGraphs, setActiveGraph);
 
   const clearData = () => {
@@ -38,6 +40,8 @@ export function useGraphState() {
     createGraph,
     updateGraph,
     updateViewport,
-    clearData
+    clearData,
+    deleteGraph,
+    setNodeLoading
   };
 }

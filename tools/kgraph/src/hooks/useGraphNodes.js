@@ -35,12 +35,17 @@ export function useGraphNodes(graph, isDragging, draggedNodeId) {
           }
           processedIds.add(node.id);
 
-          // During drag, preserve the current position for the dragged node
+          // Always try to preserve existing node position
+          const currentNode = nodes.find(n => n.id === node.id);
           let position;
-          if (isDragging && node.id === draggedNodeId) {
-            const currentNode = nodes.find(n => n.id === node.id);
-            position = currentNode?.position || node.position;
+          
+          if (currentNode?.position && (isDragging ? node.id === draggedNodeId : true)) {
+            // Use existing position if available and either:
+            // - Node is being dragged (draggedNodeId check)
+            // - Or node is not being dragged (preserve all positions)
+            position = { ...currentNode.position };
           } else {
+            // Fallback to graph position or default
             position = {
               x: Number.isFinite(node.position?.x) ? node.position.x : 0,
               y: Number.isFinite(node.position?.y) ? node.position.y : 0

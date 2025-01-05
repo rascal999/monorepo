@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon, ChevronRightIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 
-function SidebarPanel({ graphs, activeGraph, onCreateGraph, onSelectGraph, onClearData }) {
+function SidebarPanel({ graphs, activeGraph, onCreateGraph, onSelectGraph, onDeleteGraph, onClearData }) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [newGraphTitle, setNewGraphTitle] = useState('');
@@ -61,18 +61,31 @@ function SidebarPanel({ graphs, activeGraph, onCreateGraph, onSelectGraph, onCle
 
           <div className="flex-1 overflow-auto">
             {graphs.map(graph => (
-              <button
+              <div
                 key={graph.id}
                 onClick={() => onSelectGraph(graph)}
-                className={`w-full px-3 py-2 text-left rounded mb-2 hover:bg-[var(--node-bg)] transition-colors ${
+                className={`w-full px-3 py-2 text-left rounded mb-2 hover:bg-[var(--node-bg)] transition-colors cursor-pointer ${
                   activeGraph?.id === graph.id ? 'bg-[var(--node-bg)]' : ''
                 }`}
               >
-                <div>{graph.title}</div>
+                <div className="flex justify-between items-center">
+                  <span>{graph.title}</span>
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm('Are you sure you want to delete this graph?')) {
+                        onDeleteGraph(graph.id);
+                      }
+                    }}
+                    className="p-1 hover:bg-[var(--node-bg)] rounded opacity-50 hover:opacity-100 cursor-pointer"
+                  >
+                    <TrashIcon className="w-4 h-4 text-red-500" />
+                  </div>
+                </div>
                 <div className="text-xs text-gray-500 mt-1">
                   {new Date(parseInt(graph.id)).toLocaleDateString()} • {Array.isArray(graph.nodes) ? graph.nodes.length : 0} node{(!graph.nodes || graph.nodes.length !== 1) ? 's' : ''}
                 </div>
-              </button>
+              </div>
             ))}
           </div>
 
