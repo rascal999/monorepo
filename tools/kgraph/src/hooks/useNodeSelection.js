@@ -22,8 +22,13 @@ export function useNodeSelection(activeGraph, updateGraph) {
     // Ensure we have the complete node with position from the active graph
     const completeNode = activeGraph.nodes.find(n => n.id === node.id);
     setSelectedNode(completeNode);
-    // Update the graph's lastSelectedNodeId
-    updateGraph(activeGraph, completeNode.id);
+
+    // Update the graph with new lastSelectedNodeId
+    const updatedGraph = {
+      ...activeGraph,
+      lastSelectedNodeId: completeNode.id
+    };
+    updateGraph(updatedGraph);
   };
 
   return {
