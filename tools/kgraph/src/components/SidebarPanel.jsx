@@ -1,10 +1,18 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 function SidebarPanel({ graphs, activeGraph, onCreateGraph, onSelectGraph, onDeleteGraph, onClearData }) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [newGraphTitle, setNewGraphTitle] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredGraphs = useMemo(() => {
+    if (!searchTerm.trim()) return graphs;
+    return graphs.filter(graph => 
+      graph.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [graphs, searchTerm]);
 
   const handleCreateClick = () => {
     setIsCreating(true);
@@ -46,6 +54,16 @@ function SidebarPanel({ graphs, activeGraph, onCreateGraph, onSelectGraph, onDel
             New Graph
           </button>
 
+          <div className="mb-4">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search graphs..."
+              className="w-full px-3 py-2 bg-[var(--node-bg)] border border-[var(--border)] rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
           {isCreating && (
             <form onSubmit={handleSubmit} className="mb-4">
               <input
@@ -60,7 +78,7 @@ function SidebarPanel({ graphs, activeGraph, onCreateGraph, onSelectGraph, onDel
           )}
 
           <div className="flex-1 overflow-auto">
-            {graphs.map(graph => (
+            {filteredGraphs.map(graph => (
               <div
                 key={graph.id}
                 onClick={() => onSelectGraph(graph)}
