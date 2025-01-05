@@ -16,7 +16,9 @@ export function MainLayout({
   onUpdateNodeData,
   onNodePositionChange,
   viewport,
-  onViewportChange
+  onViewportChange,
+  activeTab,
+  setActiveTab
 }) {
   useEffect(() => {
     // Set dark theme by default
@@ -57,6 +59,8 @@ export function MainLayout({
             onAddNode={onAddNode}
             onUpdateData={onUpdateNodeData}
             activeGraph={activeGraph}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
           />
         </Panel>
       </PanelGroup>
