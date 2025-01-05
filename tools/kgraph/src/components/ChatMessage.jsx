@@ -7,34 +7,52 @@ const processTextNode = (node, handleWordClick, selectedWords) => {
     // Split text into words, preserving phrases in parentheses
     const words = node.split(/\s+(?![^(]*\))/);
     return words.filter(word => word).map((word, index) => {
-      // First check if word is wrapped in parentheses
+      // Check if word is wrapped in parentheses
       const match = word.match(/^\((.*?)\)([.,!?:])?$/);
       
-      // Remove parentheses and trailing punctuation, preserving content inside
-      const cleanWord = word.replace(/\((.*?)\)/g, '$1').replace(/[.,!?:]$/g, '');
       if (match) {
-        // For words in parentheses, only make the inner content clickable
+        // Split inner content into individual words
         const innerContent = match[1];
         const punctuation = match[2] || '';
+        const innerWords = innerContent.split(/\s+/);
+        
         return (
           <span key={index}>
             {'('}
-            <span
-              onClick={(e) => handleWordClick(innerContent, e)}
-              className={`cursor-pointer hover:text-blue-500 hover:underline ${
-                selectedWords.includes(innerContent) 
-                  ? 'bg-blue-100 text-blue-500' 
-                  : ''
-              }`}
-            >
-              {innerContent}
-            </span>
+            {innerWords.map((innerWord, innerIndex) => {
+              // Handle special characters like & and +
+              if (['&', '+', '/', '\\'].includes(innerWord)) {
+                return <span key={innerIndex}>{innerWord} </span>;
+              }
+              
+              // Clean individual word
+              const cleanInnerWord = innerWord.replace(/[.,!?:]$/g, '');
+              
+              return (
+                <span key={innerIndex}>
+                  <span
+                    onClick={(e) => handleWordClick(cleanInnerWord, e)}
+                    className={`cursor-pointer hover:text-blue-500 hover:underline ${
+                      selectedWords.includes(cleanInnerWord) 
+                        ? 'bg-blue-100 text-blue-500' 
+                        : ''
+                    }`}
+                  >
+                    {innerWord}
+                  </span>
+                  {innerIndex < innerWords.length - 1 ? ' ' : ''}
+                </span>
+              );
+            })}
             {')'}
             {punctuation}
             {index < words.length - 1 ? ' ' : ''}
           </span>
         );
       }
+
+      // Remove parentheses and trailing punctuation, preserving content inside
+      const cleanWord = word.replace(/\((.*?)\)/g, '$1').replace(/[.,!?:]$/g, '');
 
       // For regular words, make the whole word clickable but pass clean version
       return (
