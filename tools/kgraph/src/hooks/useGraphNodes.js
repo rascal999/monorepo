@@ -6,69 +6,8 @@ export function useGraphNodes(graph, isDragging, draggedNodeId) {
   const [nodes, setNodes] = useNodesState([]);
 
   const onNodesChange = useCallback((changes) => {
-    // Batch node updates using requestAnimationFrame
-    requestAnimationFrame(() => {
-      setNodes((nds) => {
-        try {
-          // Validate changes array
-          if (!Array.isArray(changes)) {
-            console.error('Invalid changes array:', changes);
-            return nds;
-          }
-
-          const nextNodes = applyNodeChanges(changes, nds);
-          
-          // Validate nextNodes array
-          if (!Array.isArray(nextNodes)) {
-            console.error('Invalid nodes array after changes:', nextNodes);
-            return nds;
-          }
-
-          // Track processed node IDs to prevent duplicates
-          const processedIds = new Set();
-          
-          // Process nodes with validation
-          const validatedNodes = nextNodes.reduce((acc, node) => {
-            // Skip duplicate nodes
-            if (processedIds.has(node.id)) {
-              return acc;
-            }
-            processedIds.add(node.id);
-
-            // Ensure node has required properties
-            if (!node || !node.id) {
-              return acc;
-            }
-
-            // Handle dragging case
-            if (isDragging && draggedNodeId && node.id === draggedNodeId) {
-              const position = {
-                x: Number.isFinite(node.position?.x) ? node.position.x : 0,
-                y: Number.isFinite(node.position?.y) ? node.position.y : 0
-              };
-              acc.push({ ...node, position });
-              return acc;
-            }
-
-            // For non-dragged nodes, either keep existing position or ensure valid position
-            const existingNode = nds.find(n => n.id === node.id);
-            const position = existingNode ? existingNode.position : {
-              x: Number.isFinite(node.position?.x) ? node.position.x : 0,
-              y: Number.isFinite(node.position?.y) ? node.position.y : 0
-            };
-
-            acc.push({ ...node, position });
-            return acc;
-          }, []);
-
-          return validatedNodes;
-        } catch (error) {
-          console.error('Error processing node changes:', error);
-          return nds;
-        }
-      });
-    });
-  }, [isDragging, draggedNodeId]);
+    setNodes((nds) => applyNodeChanges(changes, nds));
+  }, []);
 
   const updateNodes = (graph, existingNodes) => {
     if (!graph) {
@@ -88,17 +27,6 @@ export function useGraphNodes(graph, isDragging, draggedNodeId) {
         // Track processed node IDs to prevent duplicates
         const processedIds = new Set();
 
-        // Preserve existing node positions with validation
-        const existingPositions = existingNodes.reduce((acc, node) => {
-          if (node && node.id && node.position) {
-            acc[node.id] = {
-              x: Number.isFinite(node.position.x) ? node.position.x : 0,
-              y: Number.isFinite(node.position.y) ? node.position.y : 0
-            };
-          }
-          return acc;
-        }, {});
-        
         // Process nodes with validation
         const styledNodes = graph.nodes.reduce((acc, node) => {
           // Skip duplicate nodes
@@ -107,11 +35,17 @@ export function useGraphNodes(graph, isDragging, draggedNodeId) {
           }
           processedIds.add(node.id);
 
-          // Ensure valid position
-          const position = existingPositions[node.id] || {
-            x: Number.isFinite(node.position?.x) ? node.position.x : 0,
-            y: Number.isFinite(node.position?.y) ? node.position.y : 0
-          };
+          // During drag, preserve the current position for the dragged node
+          let position;
+          if (isDragging && node.id === draggedNodeId) {
+            const currentNode = nodes.find(n => n.id === node.id);
+            position = currentNode?.position || node.position;
+          } else {
+            position = {
+              x: Number.isFinite(node.position?.x) ? node.position.x : 0,
+              y: Number.isFinite(node.position?.y) ? node.position.y : 0
+            };
+          }
 
           acc.push({
             ...node,

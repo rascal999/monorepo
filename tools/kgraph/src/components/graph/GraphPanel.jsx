@@ -26,7 +26,6 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange
   // Update nodes and edges when graph changes
   useEffect(() => {
     if (graph) {
-      console.log('Graph data received:', graph);
       updateNodes(graph, nodes);
       updateEdges(graph);
     } else {
@@ -50,28 +49,26 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onNodeClick={(_, node) => {
-          console.log('GraphPanel onNodeClick:', { node, isDragging });
-          if (!isDragging) {
-            console.log('GraphPanel calling onNodeClick');
+        onNodeClick={(event, node) => {
+          // Only handle click if not dragging
+          if (!isDragging && event.detail > 0) {
             onNodeClick(node);
-            console.log('GraphPanel after onNodeClick');
           }
         }}
         onNodeDragStart={(_, node) => {
-          setIsDragging(true);
           setDraggedNodeId(node.id);
         }}
+        onNodeDrag={(_, node) => {
+          if (!isDragging) {
+            setIsDragging(true);
+          }
+        }}
         onNodeDragStop={(_, node) => {
-          // Use setTimeout to ensure click handler runs after drag state is cleared
-          setTimeout(() => {
-            setIsDragging(false);
-            setDraggedNodeId(null);
-            // Ensure valid position before saving
-            if (node.position && Number.isFinite(node.position.x) && Number.isFinite(node.position.y)) {
-              onNodePositionChange(node);
-            }
-          }, 0);
+          if (isDragging && node.position) {
+            onNodePositionChange(node);
+          }
+          setIsDragging(false);
+          setDraggedNodeId(null);
         }}
         nodeTypes={nodeTypes}
         fitView={!isValidViewport(viewport) && nodes.length <= 1}
