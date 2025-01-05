@@ -11,9 +11,16 @@ export function useNodeInteraction(onAddNode) {
 
   // Handle explicit node selection
   const handleNodeSelect = () => {
+    console.log('useNodeInteraction handleNodeSelect - before');
     setWasNodeClicked(true);
+    console.log('useNodeInteraction handleNodeSelect - after setWasNodeClicked');
     setActiveTab('chat');
+    console.log('useNodeInteraction handleNodeSelect - after setActiveTab');
   };
+
+  useEffect(() => {
+    console.log('useNodeInteraction activeTab changed:', activeTab);
+  }, [activeTab]);
 
   const handleWordClick = (node, words) => {
     if (node) {

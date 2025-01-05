@@ -22,18 +22,23 @@ function NodePanel({ node, nodeData, onAddNode, onUpdateData, activeGraph, activ
 
   // Update node interaction state when node changes
   useEffect(() => {
+    console.log('NodePanel node changed:', { nodeId: node?.id });
     handleNodeChange(node?.id);
   }, [node?.id, handleNodeChange]);
 
   // Handle explicit node selection
   useEffect(() => {
+    console.log('NodePanel selection effect:', { node, nodeData, wasNodeClicked });
     if (node && nodeData) {
       // Only load definition for empty chat when explicitly selected
       if (nodeData.chat?.length === 0 && wasNodeClicked) {
+        console.log('NodePanel getting definition');
         handleGetDefinition(node);
       }
     }
   }, [node, nodeData, wasNodeClicked, handleGetDefinition]);
+
+  console.log('NodePanel render:', { activeTab, node });
 
   if (!node) {
     return (
