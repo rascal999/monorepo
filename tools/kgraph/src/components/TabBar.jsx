@@ -12,7 +12,11 @@ function TabBar({ activeTab, onTabChange }) {
       {tabs.map(({ id, icon: Icon, label }) => (
         <button
           key={id}
-          onClick={() => onTabChange(id)}
+          onClick={() => {
+            console.log('TabBar onClick:', { id });
+            onTabChange(id);
+            console.log('TabBar after onTabChange');
+          }}
           className={`flex items-center gap-2 px-4 py-2 border-b-2 ${
             activeTab === id ? 'border-blue-500' : 'border-transparent'
           }`}

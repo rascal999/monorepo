@@ -51,8 +51,11 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={(_, node) => {
+          console.log('GraphPanel onNodeClick:', { node, isDragging });
           if (!isDragging) {
+            console.log('GraphPanel calling onNodeClick');
             onNodeClick(node);
+            console.log('GraphPanel after onNodeClick');
           }
         }}
         onNodeDragStart={(_, node) => {

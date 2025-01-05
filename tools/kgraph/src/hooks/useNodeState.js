@@ -12,9 +12,13 @@ export function useNodeState(activeGraph, updateGraph) {
   const { activeTab, setActiveTab, handleNodeSelect } = useNodeInteraction(addNode);
 
   const handleNodeClick = (node) => {
+    console.log('useNodeState handleNodeClick:', { node });
     handleNodeClickBase(node);
+    console.log('useNodeState after handleNodeClickBase');
     handleNodeSelect();
+    console.log('useNodeState after handleNodeSelect');
     setActiveTab('chat');
+    console.log('useNodeState after setActiveTab');
   };
 
   return {
