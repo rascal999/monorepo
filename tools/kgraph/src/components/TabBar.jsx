@@ -1,9 +1,10 @@
-import { ChatBubbleLeftIcon, DocumentTextIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
+import { ChatBubbleLeftIcon, DocumentTextIcon, AcademicCapIcon, LinkIcon } from '@heroicons/react/24/outline';
 
 function TabBar({ activeTab, onTabChange }) {
   const tabs = [
     { id: 'chat', icon: ChatBubbleLeftIcon, label: 'Chat' },
     { id: 'notes', icon: DocumentTextIcon, label: 'Notes' },
+    { id: 'sources', icon: LinkIcon, label: 'Sources' },
     { id: 'quiz', icon: AcademicCapIcon, label: 'Quiz' }
   ];
 

@@ -3,6 +3,7 @@ import TabBar from './TabBar';
 import ChatPanel from './ChatPanel';
 import NotesPanel from './NotesPanel';
 import QuizPanel from './QuizPanel';
+import SourcesPanel from './SourcesPanel';
 import { useNodeInteraction } from '../hooks/useNodeInteraction';
 
 function NodePanel({ 
@@ -73,6 +74,14 @@ function NodePanel({
               onChange={(value) => onUpdateData(node.id, 'notes', value)}
             />
           </div>
+        )}
+
+        {activeTab === 'sources' && (
+          <SourcesPanel 
+            selectedNode={node}
+            nodeData={nodeData}
+            onUpdateData={onUpdateData}
+          />
         )}
 
         {activeTab === 'quiz' && (
