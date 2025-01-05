@@ -18,7 +18,8 @@ export function MainLayout({
   viewport,
   onViewportChange,
   activeTab,
-  setActiveTab
+  setActiveTab,
+  nodeInteraction
 }) {
   useEffect(() => {
     // Set dark theme by default
