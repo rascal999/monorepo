@@ -22,7 +22,8 @@ function App() {
     updateNodeData,
     updateNodePosition,
     activeTab,
-    setActiveTab
+    setActiveTab,
+    nodeInteraction
   } = useNodeState(activeGraph, updateGraph);
 
   return (
@@ -44,6 +45,7 @@ function App() {
       onViewportChange={updateViewport}
       activeTab={activeTab}
       setActiveTab={setActiveTab}
+      nodeInteraction={nodeInteraction}
     />
   );
 }
