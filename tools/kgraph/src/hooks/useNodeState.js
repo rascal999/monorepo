@@ -15,8 +15,15 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading) {
     updateNodeData(nodeId, tabName, data, isDefinitionUpdate, lastUserSelectedNodeId);
   };
 
-  // Pass updateNodeDataWithSelection to useNodeDefinitions
-  const { handleGetDefinition, handleSendMessage } = useNodeDefinitions(activeGraph, updateNodeDataWithSelection, setNodeLoading);
+  // Pass updateNodeDataWithSelection and activeGraph to useNodeDefinitions
+  const { handleGetDefinition, handleSendMessage } = useNodeDefinitions(
+    activeGraph,
+    updateNodeDataWithSelection,
+    (graphId, nodeId, isLoading) => {
+      console.log('Setting node loading state:', { graphId, nodeId, isLoading });
+      setNodeLoading(graphId, nodeId, isLoading);
+    }
+  );
   const { updateNodePosition } = useNodePosition(activeGraph, updateGraph);
 
   // Track the last user-selected node ID, initialized from activeGraph
@@ -36,8 +43,23 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading) {
   // Manage tab state
   const [activeTab, setActiveTab] = useState('chat');
 
-  // Create single instance of useNodeInteraction
-  const nodeInteraction = useNodeInteraction(addNode);
+  // Create single instance of useNodeInteraction with definition handling
+  const nodeInteraction = useNodeInteraction(
+    (sourceNode, term, position) => {
+      console.log('Adding node:', { term, position });
+      const newNodeId = addNode(sourceNode, term, position);
+      if (newNodeId) {
+        console.log('Node added, triggering definition fetch:', newNodeId);
+        // Find the new node in the graph
+        const newNode = activeGraph.nodes.find(n => n.id === newNodeId);
+        if (newNode) {
+          handleGetDefinition(newNode);
+        }
+      }
+      return newNodeId;
+    },
+    handleGetDefinition
+  );
 
 
   const handleNodeClick = (node, isUserClick = true) => {

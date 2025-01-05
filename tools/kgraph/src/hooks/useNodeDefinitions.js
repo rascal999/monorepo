@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchChatCompletion } from '../services/openRouterApi';
+import { aiService } from '../services/aiService';
 
 export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
   // Track nodes being loaded for chat responses
@@ -7,14 +7,14 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
   // Track nodes being initialized
   const [initializingNodes, setInitializingNodes] = useState(new Set());
 
-  // Process new nodes that need definitions
+  // Process new nodes that need definitions in batches
   useEffect(() => {
     if (!activeGraph) return;
 
     // Find nodes that need definitions
     const nodesToProcess = Object.entries(activeGraph.nodeData)
       .filter(([nodeId, data]) => 
-        data.chat === null && // Needs definition
+        (!data.chat || data.chat.length === 0) && // Needs definition
         !initializingNodes.has(nodeId) && // Not currently initializing
         !loadingNodes.has(nodeId) // Not currently loading
       )
@@ -23,66 +23,69 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
 
     if (nodesToProcess.length === 0) return;
 
-    // Process nodes sequentially
-    let currentIndex = 0;
-    let timeoutId = null;
+    // Mark all nodes as initializing
+    const newInitializing = new Set([...initializingNodes]);
+    nodesToProcess.forEach(node => {
+      newInitializing.add(node.id);
+      setNodeLoading(activeGraph.id, node.id, true);
+    });
+    setInitializingNodes(newInitializing);
 
-    const processNextNode = () => {
-      if (currentIndex >= nodesToProcess.length) return;
-      
-      const node = nodesToProcess[currentIndex];
-      handleGetDefinition(node, false); // Pass isUserClick=false
-      currentIndex++;
-      
-      // Schedule next node with delay
-      if (currentIndex < nodesToProcess.length) {
-        timeoutId = setTimeout(processNextNode, 1000);
-      }
-    };
+    // Queue each node for batch processing
+    nodesToProcess.forEach(node => {
+      aiService.queueDefinitionRequest(
+        node.data.label,
+        activeGraph.title,
+        (result) => {
+          if (result.success) {
+            onUpdateData(node.id, 'chat', [result.message], true);
+          } else {
+            onUpdateData(node.id, 'chat', [{
+              role: 'assistant',
+              content: 'Error fetching definition. Please check your API key and try again.'
+            }], true);
+          }
+          // Clear loading states
+          setInitializingNodes(prev => {
+            const next = new Set(prev);
+            next.delete(node.id);
+            return next;
+          });
+          setNodeLoading(activeGraph.id, node.id, false);
+        }
+      );
+    });
+  }, [activeGraph?.nodeData, activeGraph?.id]);
 
-    // Start processing after initial delay
-    timeoutId = setTimeout(processNextNode, 500);
-
-    // Cleanup function
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [activeGraph?.nodeData, activeGraph?.id]); // Also track graph ID changes
-
-  const handleGetDefinition = async (targetNode, isUserClick = false) => {
+  const handleGetDefinition = (targetNode) => {
     if (!targetNode) return;
     
-    try {
-      // Set initializing and loading states
-      setInitializingNodes(prev => new Set([...prev, targetNode.id]));
-      setNodeLoading(activeGraph.id, targetNode.id, true);
+    // Set loading state
+    setInitializingNodes(prev => new Set([...prev, targetNode.id]));
+    setNodeLoading(activeGraph.id, targetNode.id, true);
 
-      const messages = [
-        { 
-          role: 'system', 
-          content: `Define ${targetNode.data.label} in the context of ${activeGraph.title}. Start with one concise summary sentence in **bold**. Then provide more detailed explanation. Use markdown for clarity (*italic*, bullet points). No conversational phrases. No parentheses around terms. Total response must be under 120 words.` 
+    // Queue the definition request
+    aiService.queueDefinitionRequest(
+      targetNode.data.label,
+      activeGraph.title,
+      (result) => {
+        if (result.success) {
+          onUpdateData(targetNode.id, 'chat', [result.message], true);
+        } else {
+          onUpdateData(targetNode.id, 'chat', [{
+            role: 'assistant',
+            content: 'Error fetching definition. Please check your API key and try again.'
+          }], true);
         }
-      ];
-      
-      const aiMessage = await fetchChatCompletion(messages);
-      onUpdateData(targetNode.id, 'chat', [aiMessage], true); // Let wrapper handle selection
-    } catch (error) {
-      console.error('OpenRouter API error:', error);
-      onUpdateData(targetNode.id, 'chat', [{
-        role: 'assistant',
-        content: 'Error fetching definition. Please check your API key and try again.'
-      }], true); // Let wrapper handle selection
-    } finally {
-      // Clear initializing and loading states
-      setInitializingNodes(prev => {
-        const next = new Set(prev);
-        next.delete(targetNode.id);
-        return next;
-      });
-      setNodeLoading(activeGraph.id, targetNode.id, false);
-    }
+        // Clear loading states
+        setInitializingNodes(prev => {
+          const next = new Set(prev);
+          next.delete(targetNode.id);
+          return next;
+        });
+        setNodeLoading(activeGraph.id, targetNode.id, false);
+      }
+    );
   };
 
   const handleSendMessage = async (node, nodeData, inputText) => {
@@ -94,17 +97,12 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
     setNodeLoading(activeGraph.id, node.id, true);
 
     try {
-      const messages = [
-        { 
-          role: 'system', 
-          content: `Define ${node.data.label} in the context of ${activeGraph.title}. Start with one concise summary sentence in **bold**. Then provide more detailed explanation. Use markdown for clarity (*italic*, bullet points). No conversational phrases. No parentheses around terms. Total response must be under 120 words.` 
-        },
-        ...(nodeData?.chat || []),
-        newMessage
-      ];
-      
-      const aiMessage = await fetchChatCompletion(messages);
-      onUpdateData(node.id, 'chat', [...(nodeData?.chat || []), newMessage, aiMessage], true); // Let wrapper handle selection
+      const result = await aiService.getChatResponse([...(nodeData?.chat || []), newMessage], activeGraph.title);
+      if (result.success) {
+        onUpdateData(node.id, 'chat', [...(nodeData?.chat || []), newMessage, result.message], true);
+      } else {
+        throw new Error(result.error);
+      }
     } catch (error) {
       console.error('OpenRouter API error:', error);
       onUpdateData(node.id, 'chat', [...(nodeData?.chat || []), newMessage, {

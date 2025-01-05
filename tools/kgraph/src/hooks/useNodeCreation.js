@@ -100,50 +100,55 @@ export function useNodeCreation(activeGraph, updateGraph) {
     ];
     
     try {
+      // Calculate position for new node
+      const nodePosition = position || (() => {
+        // Fixed positions for first 8 nodes in a circle
+        const positions = [
+          { x: 0, y: -200 },     // Top
+          { x: 200, y: -200 },   // Top right
+          { x: 200, y: 0 },      // Right
+          { x: 200, y: 200 },    // Bottom right
+          { x: 0, y: 200 },      // Bottom
+          { x: -200, y: 0 },     // Left
+          { x: -200, y: -200 },  // Top left
+          { x: -200, y: 200 }    // Bottom left
+        ];
+
+        // Get position based on number of existing children
+        const offset = positions[childNodes.length] || {
+          x: Math.cos((childNodes.length * Math.PI) / 4) * 250,
+          y: Math.sin((childNodes.length * Math.PI) / 4) * 250
+        };
+
+        return {
+          x: sourceNode.position.x + offset.x,
+          y: sourceNode.position.y + offset.y
+        };
+      })();
+
+      // Create new node with initial state
+      const newNode = {
+        id: newNodeId,
+        type: 'default',
+        position: nodePosition,
+        data: { 
+          label: term.trim(),
+          isLoading: true, // Start with loading state
+          chat: [], // Initialize with empty chat
+          notes: '',
+          quiz: []
+        }
+      };
+
       // Create graph update with structure and initial nodeData
       const structureUpdate = {
         ...activeGraph,
-        nodes: [
-          ...activeGraph.nodes,
-          {
-            id: newNodeId,
-            type: 'default',
-            // Place new node in a circle around parent
-            position: position || (() => {
-              // Fixed positions for first 8 nodes in a circle
-              const positions = [
-                { x: 0, y: -200 },     // Top
-                { x: 200, y: -200 },   // Top right
-                { x: 200, y: 0 },      // Right
-                { x: 200, y: 200 },    // Bottom right
-                { x: 0, y: 200 },      // Bottom
-                { x: -200, y: 0 },     // Left
-                { x: -200, y: -200 },  // Top left
-                { x: -200, y: 200 }    // Bottom left
-              ];
-
-              // Get position based on number of existing children
-              const offset = positions[childNodes.length] || {
-                x: Math.cos((childNodes.length * Math.PI) / 4) * 250,
-                y: Math.sin((childNodes.length * Math.PI) / 4) * 250
-              };
-
-              return {
-                x: sourceNode.position.x + offset.x,
-                y: sourceNode.position.y + offset.y
-              };
-            })(),
-            data: { 
-              label: term.trim(),
-              isLoading: false
-            }
-          }
-        ],
+        nodes: [...activeGraph.nodes, newNode],
         edges: [...activeGraph.edges, newEdge],
         nodeData: {
           ...activeGraph.nodeData,
           [newNodeId]: {
-            chat: null, // Explicitly set to null to trigger definition fetch
+            chat: [], // Initialize with empty array instead of null
             notes: '',
             quiz: []
           }
@@ -157,12 +162,25 @@ export function useNodeCreation(activeGraph, updateGraph) {
         return;
       }
 
-      // Update graph while preserving current selection
+      // Create a map of current node positions to ensure they're preserved
+      const nodePositions = {};
+      activeGraph.nodes.forEach(node => {
+        nodePositions[node.id] = { ...node.position };
+      });
+
+      // Update graph while preserving positions and current selection
       const updatedGraph = {
         ...structureUpdate,
-        lastSelectedNodeId: activeGraph.lastSelectedNodeId // Keep current selection
+        nodes: structureUpdate.nodes.map(node => ({
+          ...node,
+          position: nodePositions[node.id] || node.position // Use existing position if available
+        })),
+        lastSelectedNodeId: newNodeId // Select the new node to trigger definition fetch
       };
       updateGraph(updatedGraph);
+
+      // Return the new node ID so it can be used to fetch definition
+      return newNodeId;
     } catch (error) {
       console.error('Error creating node:', error);
       // Attempt to recover graph state

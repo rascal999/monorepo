@@ -13,7 +13,7 @@ const nodeTypes = {
   default: CustomNode,
 };
 
-function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange, viewport }) {
+function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange, viewport, onGetDefinition }) {
   const containerRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedNodeId, setDraggedNodeId] = useState(null);
@@ -79,7 +79,22 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange
         ...graph,
         nodes: updatedNodes
       };
-      updateGraph(updatedGraph);
+      onNodePositionChange(updatedGraph);
+    }
+  };
+
+  // Handle node selection and definition fetching
+  const handleNodeClick = (event, node) => {
+    // Only handle click if not dragging
+    if (!isDragging && event.detail > 0) {
+      onNodeClick(node, true); // Explicit user click
+      // Also trigger definition fetch for new nodes
+      if (node && node.data && !node.data.chat) {
+        onGetDefinition({
+          id: node.id,
+          data: { label: node.data.label }
+        });
+      }
     }
   };
 
@@ -101,12 +116,7 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onNodeClick={(event, node) => {
-          // Only handle click if not dragging
-          if (!isDragging && event.detail > 0) {
-            onNodeClick(node, true); // Explicit user click
-          }
-        }}
+        onNodeClick={handleNodeClick}
         onNodeDragStart={(_, node) => {
           setDraggedNodeId(node.id);
         }}
