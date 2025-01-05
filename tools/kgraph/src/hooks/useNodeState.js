@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNodeSelection } from './useNodeSelection';
 import { useNodeCreation } from './useNodeCreation';
 import { useNodeData } from './useNodeData';
@@ -12,7 +13,10 @@ export function useNodeState(activeGraph, updateGraph) {
 
   // Create single instance of useNodeInteraction
   const nodeInteraction = useNodeInteraction(addNode);
-  const { activeTab, setActiveTab, handleNodeSelect } = nodeInteraction;
+  const { handleNodeSelect } = nodeInteraction;
+
+  // Manage tab state
+  const [activeTab, setActiveTab] = useState('chat');
 
   const handleNodeClick = (node) => {
     console.log('useNodeState handleNodeClick:', { node });
@@ -20,7 +24,7 @@ export function useNodeState(activeGraph, updateGraph) {
     console.log('useNodeState after handleNodeClickBase');
     handleNodeSelect();
     console.log('useNodeState after handleNodeSelect');
-    setActiveTab('chat');
+    setActiveTab('chat'); // Switch to chat tab on node selection
     console.log('useNodeState after setActiveTab');
   };
 
