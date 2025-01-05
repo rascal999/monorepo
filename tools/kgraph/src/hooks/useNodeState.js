@@ -11,12 +11,12 @@ export function useNodeState(activeGraph, updateGraph) {
   const { updateNodeData } = useNodeData(activeGraph, updateGraph);
   const { updateNodePosition } = useNodePosition(activeGraph, updateGraph);
 
+  // Manage tab state
+  const [activeTab, setActiveTab] = useState('chat');
+
   // Create single instance of useNodeInteraction
   const nodeInteraction = useNodeInteraction(addNode);
   const { handleNodeSelect } = nodeInteraction;
-
-  // Manage tab state
-  const [activeTab, setActiveTab] = useState('chat');
 
   const handleNodeClick = (node) => {
     console.log('useNodeState handleNodeClick:', { node });
