@@ -19,7 +19,6 @@ function NodePanel({ node, nodeData, onAddNode, onUpdateData, activeGraph }) {
     wasNodeClicked,
     setActiveTab,
     handleNodeChange,
-    handleNodeSelect,
     handleWordClick
   } = useNodeInteraction(onAddNode);
 
