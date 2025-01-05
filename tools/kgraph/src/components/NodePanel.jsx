@@ -18,12 +18,16 @@ function NodePanel({ node, nodeData, onAddNode, onUpdateData, activeGraph, activ
     wasNodeClicked,
     handleNodeChange,
     handleWordClick
-  } = nodeInteraction;
+  } = nodeInteraction || {};
+
+  // Provide default handlers if nodeInteraction is not provided
+  const safeHandleNodeChange = handleNodeChange || (() => {});
+  const safeHandleWordClick = handleWordClick || (() => {});
 
   // Update node interaction state when node changes
   useEffect(() => {
     console.log('NodePanel node changed:', { nodeId: node?.id });
-    handleNodeChange(node?.id);
+    safeHandleNodeChange(node?.id);
   }, [node?.id, handleNodeChange]);
 
   // Handle explicit node selection
@@ -69,7 +73,7 @@ function NodePanel({ node, nodeData, onAddNode, onUpdateData, activeGraph, activ
             nodeId={node.id}
             nodeLabel={node.data.label}
             onSendMessage={(text) => handleSendMessage(node, nodeData, text)}
-            onWordClick={(words) => handleWordClick(node, words)}
+            onWordClick={(words) => safeHandleWordClick(node, words)}
           />
         )}
 
