@@ -29,8 +29,21 @@ export function useNodeCreation(activeGraph, updateGraph) {
       if (!edgeExists && existingNode.id !== sourceNode.id) {
         // Create edge to existing node
         const newEdge = createEdge(sourceNode.id, existingNode.id);
+        // Create a map of current node positions
+        const nodePositions = {};
+        activeGraph.nodes.forEach(node => {
+          nodePositions[node.id] = node.position;
+        });
+
+        // Update nodes while preserving positions
+        const updatedNodes = activeGraph.nodes.map(node => ({
+          ...node,
+          position: nodePositions[node.id]
+        }));
+
         const updatedGraph = {
           ...activeGraph,
+          nodes: updatedNodes,
           edges: [...activeGraph.edges, newEdge]
         };
         updateGraph(updatedGraph);
@@ -58,7 +71,10 @@ export function useNodeCreation(activeGraph, updateGraph) {
         id: newNodeId,
         type: 'default',
         position: newPosition,
-        data: { label: term.trim() }
+        data: { 
+          label: term.trim(),
+          isLoading: false
+        }
       };
 
       // Create edge from source to new node
@@ -70,10 +86,22 @@ export function useNodeCreation(activeGraph, updateGraph) {
         return;
       }
 
+      // Create a map of current node positions
+      const nodePositions = {};
+      activeGraph.nodes.forEach(node => {
+        nodePositions[node.id] = node.position;
+      });
+
+      // Update nodes while preserving positions
+      const updatedNodes = activeGraph.nodes.map(node => ({
+        ...node,
+        position: nodePositions[node.id]
+      }));
+
       // Create graph update with structure and initial nodeData
       const structureUpdate = {
         ...activeGraph,
-        nodes: [...activeGraph.nodes, newNode],
+        nodes: [...updatedNodes, newNode],
         edges: [...activeGraph.edges, newEdge],
         nodeData: {
           ...activeGraph.nodeData,
@@ -92,8 +120,12 @@ export function useNodeCreation(activeGraph, updateGraph) {
         return;
       }
 
-      // Update graph without changing selection
-      updateGraph(structureUpdate);
+      // Update graph while preserving current selection
+      const updatedGraph = {
+        ...structureUpdate,
+        lastSelectedNodeId: activeGraph.lastSelectedNodeId // Keep current selection
+      };
+      updateGraph(updatedGraph);
     } catch (error) {
       console.error('Error creating node:', error);
       // Attempt to recover graph state

@@ -3,15 +3,17 @@ import { useState, useEffect } from 'react';
 export function useNodeInteraction(onAddNode) {
   const [wasNodeClicked, setWasNodeClicked] = useState(false);
 
-  // Reset click state when node changes
+  // Track node changes and handle click state
   const handleNodeChange = (nodeId) => {
     console.log('useNodeInteraction handleNodeChange:', { nodeId });
+    // Reset wasNodeClicked when node changes
     setWasNodeClicked(false);
   };
 
   // Handle explicit node selection
   const handleNodeSelect = () => {
     console.log('useNodeInteraction handleNodeSelect');
+    // Only set wasNodeClicked if it's not already true
     setWasNodeClicked(true);
   };
 
@@ -30,7 +32,14 @@ export function useNodeInteraction(onAddNode) {
         position: sourcePosition
       };
       
+      // Prevent wasNodeClicked from being set to true during word click node creation
+      const prevWasNodeClicked = wasNodeClicked;
+      setWasNodeClicked(false);
+      
       onAddNode(sourceNode, words.join(' '), newPosition);
+      
+      // Restore previous wasNodeClicked state
+      setWasNodeClicked(prevWasNodeClicked);
     }
   };
 

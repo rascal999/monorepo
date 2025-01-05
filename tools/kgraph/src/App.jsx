@@ -9,9 +9,11 @@ function App() {
     setActiveGraph,
     createGraph,
     updateGraph,
+    deleteGraph,
     clearData,
     viewport,
-    updateViewport
+    updateViewport,
+    setNodeLoading
   } = useGraphState();
 
   const {
@@ -23,8 +25,10 @@ function App() {
     updateNodePosition,
     activeTab,
     setActiveTab,
-    nodeInteraction
-  } = useNodeState(activeGraph, updateGraph);
+    nodeInteraction,
+    handleGetDefinition,
+    handleSendMessage
+  } = useNodeState(activeGraph, updateGraph, setNodeLoading);
 
   return (
     <MainLayout
@@ -33,6 +37,7 @@ function App() {
       selectedNode={selectedNode}
       onCreateGraph={createGraph}
       onSelectGraph={setActiveGraph}
+      onDeleteGraph={deleteGraph}
       onClearData={() => {
         setSelectedNode(null);
         clearData();
@@ -46,6 +51,8 @@ function App() {
       activeTab={activeTab}
       setActiveTab={setActiveTab}
       nodeInteraction={nodeInteraction}
+      handleGetDefinition={handleGetDefinition}
+      handleSendMessage={handleSendMessage}
     />
   );
 }

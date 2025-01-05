@@ -4,34 +4,62 @@ import { useNodeCreation } from './useNodeCreation';
 import { useNodeData } from './useNodeData';
 import { useNodePosition } from './useNodePosition';
 import { useNodeInteraction } from './useNodeInteraction';
+import { useNodeDefinitions } from './useNodeDefinitions';
 
-export function useNodeState(activeGraph, updateGraph) {
+export function useNodeState(activeGraph, updateGraph, setNodeLoading) {
   const { selectedNode, setSelectedNode, handleNodeClick: handleNodeClickBase } = useNodeSelection(activeGraph, updateGraph);
   const { addNode } = useNodeCreation(activeGraph, updateGraph);
-  const { updateNodeData } = useNodeData(activeGraph, updateGraph);
+  const { updateNodeData } = useNodeData(activeGraph, updateGraph, setNodeLoading);
+  // Create wrapper for updateNodeData that includes lastUserSelectedNodeId
+  const updateNodeDataWithSelection = (nodeId, tabName, data, isDefinitionUpdate = false) => {
+    updateNodeData(nodeId, tabName, data, isDefinitionUpdate, lastUserSelectedNodeId);
+  };
+
+  // Pass updateNodeDataWithSelection to useNodeDefinitions
+  const { handleGetDefinition, handleSendMessage } = useNodeDefinitions(activeGraph, updateNodeDataWithSelection, setNodeLoading);
   const { updateNodePosition } = useNodePosition(activeGraph, updateGraph);
+
+  // Track the last user-selected node ID, initialized from activeGraph
+  const [lastUserSelectedNodeId, setLastUserSelectedNodeId] = useState(() => 
+    activeGraph?.lastSelectedNodeId || null
+  );
+
+  // Update lastUserSelectedNodeId when switching graphs
+  useEffect(() => {
+    if (activeGraph?.lastSelectedNodeId) {
+      setLastUserSelectedNodeId(activeGraph.lastSelectedNodeId);
+    } else {
+      setLastUserSelectedNodeId(null);
+    }
+  }, [activeGraph?.id]);
 
   // Manage tab state
   const [activeTab, setActiveTab] = useState('chat');
 
   // Create single instance of useNodeInteraction
   const nodeInteraction = useNodeInteraction(addNode);
-  const { handleNodeSelect } = nodeInteraction;
 
-  // Switch to chat tab when selected node changes
-  useEffect(() => {
-    if (selectedNode) {
-      console.log('useNodeState selectedNode changed, switching to chat tab');
-      setActiveTab('chat');
+
+  const handleNodeClick = (node, isUserClick = true) => {
+    console.log('useNodeState handleNodeClick:', { node, isUserClick });
+    
+    // Only update selection for explicit user clicks
+    if (isUserClick) {
+      // Update selected node
+      handleNodeClickBase(node);
+      console.log('useNodeState after handleNodeClickBase');
+      
+      // Update last user-selected node
+      setLastUserSelectedNodeId(node.id);
+      
+      // Handle interaction state
+      nodeInteraction.handleNodeSelect();
+      console.log('useNodeState after handleNodeSelect');
+    } else {
+      // For non-user updates, just handle interaction state
+      nodeInteraction.handleNodeChange(node?.id);
+      console.log('useNodeState after handleNodeChange');
     }
-  }, [selectedNode]);
-
-  const handleNodeClick = (node) => {
-    console.log('useNodeState handleNodeClick:', { node });
-    handleNodeClickBase(node);
-    console.log('useNodeState after handleNodeClickBase');
-    handleNodeSelect();
-    console.log('useNodeState after handleNodeSelect');
   };
 
   return {
@@ -39,10 +67,12 @@ export function useNodeState(activeGraph, updateGraph) {
     setSelectedNode,
     handleNodeClick,
     addNode,
-    updateNodeData,
+    updateNodeData: updateNodeDataWithSelection,
     updateNodePosition,
     activeTab,
     setActiveTab,
-    nodeInteraction
+    nodeInteraction,
+    handleGetDefinition,
+    handleSendMessage
   };
 }

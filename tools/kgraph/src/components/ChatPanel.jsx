@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 
-function ChatPanel({ messages, isLoading, nodeId, nodeLabel, onSendMessage, onWordClick }) {
+function ChatPanel({ messages, isLoading, nodeId, nodeLabel, onSendMessage, onWordClick, handleGetDefinition }) {
   const chatEndRef = useRef(null);
 
   const chatContainerRef = useRef(null);
@@ -34,6 +34,16 @@ function ChatPanel({ messages, isLoading, nodeId, nodeLabel, onSendMessage, onWo
         className="flex-1 overflow-auto"
 >
         <div className="p-4 space-y-4">
+          {(!messages || messages.length === 0) && !isLoading && (
+            <div className="flex justify-center">
+              <button
+                onClick={() => handleGetDefinition({ id: nodeId, data: { label: nodeLabel } })}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              >
+                Get Definition
+              </button>
+            </div>
+          )}
           {messages?.map((message, index) => (
             <ChatMessage 
               key={index} 
