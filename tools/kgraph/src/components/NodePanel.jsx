@@ -6,7 +6,7 @@ import QuizPanel from './QuizPanel';
 import { useNodeDefinitions } from '../hooks/useNodeDefinitions';
 import { useNodeInteraction } from '../hooks/useNodeInteraction';
 
-function NodePanel({ node, nodeData, onAddNode, onUpdateData, activeGraph }) {
+function NodePanel({ node, nodeData, onAddNode, onUpdateData, activeGraph, activeTab, setActiveTab }) {
   const {
     initializingNodes,
     loadingNodes,
@@ -15,9 +15,7 @@ function NodePanel({ node, nodeData, onAddNode, onUpdateData, activeGraph }) {
   } = useNodeDefinitions(activeGraph, onUpdateData);
 
   const {
-    activeTab,
     wasNodeClicked,
-    setActiveTab,
     handleNodeChange,
     handleWordClick
   } = useNodeInteraction(onAddNode);

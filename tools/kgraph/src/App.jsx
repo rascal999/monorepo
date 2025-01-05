@@ -20,7 +20,9 @@ function App() {
     handleNodeClick,
     addNode,
     updateNodeData,
-    updateNodePosition
+    updateNodePosition,
+    activeTab,
+    setActiveTab
   } = useNodeState(activeGraph, updateGraph);
 
   return (
@@ -40,6 +42,8 @@ function App() {
       onNodePositionChange={updateNodePosition}
       viewport={viewport}
       onViewportChange={updateViewport}
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
     />
   );
 }

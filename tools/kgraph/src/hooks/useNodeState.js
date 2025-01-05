@@ -9,11 +9,12 @@ export function useNodeState(activeGraph, updateGraph) {
   const { addNode } = useNodeCreation(activeGraph, updateGraph);
   const { updateNodeData } = useNodeData(activeGraph, updateGraph);
   const { updateNodePosition } = useNodePosition(activeGraph, updateGraph);
-  const { handleNodeSelect } = useNodeInteraction(addNode);
+  const { activeTab, setActiveTab, handleNodeSelect } = useNodeInteraction(addNode);
 
   const handleNodeClick = (node) => {
     handleNodeClickBase(node);
     handleNodeSelect();
+    setActiveTab('chat');
   };
 
   return {
@@ -22,6 +23,8 @@ export function useNodeState(activeGraph, updateGraph) {
     handleNodeClick,
     addNode,
     updateNodeData,
-    updateNodePosition
+    updateNodePosition,
+    activeTab,
+    setActiveTab
   };
 }
