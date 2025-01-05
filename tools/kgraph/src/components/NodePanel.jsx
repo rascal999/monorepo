@@ -50,8 +50,7 @@ function NodePanel({ node, nodeData, onAddNode, onUpdateData, activeGraph }) {
     <div className="panel h-full border-l flex flex-col">
       <TabBar 
         activeTab={activeTab} 
-        onTabChange={setActiveTab} 
-        onNodeSelect={handleNodeSelect}
+        onTabChange={setActiveTab}
       />
 
       <div className="flex-1 overflow-auto">

@@ -1,6 +1,6 @@
 import { ChatBubbleLeftIcon, DocumentTextIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
 
-function TabBar({ activeTab, onTabChange, onNodeSelect }) {
+function TabBar({ activeTab, onTabChange }) {
   const tabs = [
     { id: 'chat', icon: ChatBubbleLeftIcon, label: 'Chat' },
     { id: 'notes', icon: DocumentTextIcon, label: 'Notes' },
@@ -12,12 +12,7 @@ function TabBar({ activeTab, onTabChange, onNodeSelect }) {
       {tabs.map(({ id, icon: Icon, label }) => (
         <button
           key={id}
-          onClick={() => {
-            onTabChange(id);
-            if (id === 'chat') {
-              onNodeSelect?.();
-            }
-          }}
+          onClick={() => onTabChange(id)}
           className={`flex items-center gap-2 px-4 py-2 border-b-2 ${
             activeTab === id ? 'border-blue-500' : 'border-transparent'
           }`}
