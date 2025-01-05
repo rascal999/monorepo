@@ -19,26 +19,17 @@ export function useNodeInteraction(onAddNode) {
 
   const handleWordClick = (node, words) => {
     if (node) {
-      // Calculate new node position relative to source node
-      // Position new node below and slightly to the right of source node
-      const sourcePosition = node.position || { x: 0, y: 0 };
-      const newPosition = {
-        x: sourcePosition.x + 150, // Offset horizontally by 150px
-        y: sourcePosition.y + 100  // Offset vertically by 100px
-      };
-      
       const sourceNode = {
         ...node,
-        position: sourcePosition
+        position: node.position || { x: 0, y: 0 }
       };
       
-      // Prevent wasNodeClicked from being set to true during word click node creation
+      // Let useNodeCreation handle positioning
       const prevWasNodeClicked = wasNodeClicked;
       setWasNodeClicked(false);
       
-      onAddNode(sourceNode, words.join(' '), newPosition);
+      onAddNode(sourceNode, words.join(' '));
       
-      // Restore previous wasNodeClicked state
       setWasNodeClicked(prevWasNodeClicked);
     }
   };

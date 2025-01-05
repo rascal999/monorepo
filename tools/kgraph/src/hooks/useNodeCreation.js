@@ -55,53 +55,90 @@ export function useNodeCreation(activeGraph, updateGraph) {
     }
 
     // If no existing node, create new one
+    // Get all child nodes and ensure they exist
     const childNodes = activeGraph.edges
       .filter(edge => edge.source === sourceNode.id)
-      .map(edge => activeGraph.nodes.find(n => n.id === edge.target));
+      .map(edge => activeGraph.nodes.find(n => n.id === edge.target))
+      .filter(node => node !== undefined); // Filter out any undefined nodes
 
-    // Calculate position based on existing child nodes
-    const newPosition = calculateNodePosition(sourceNode, childNodes, position);
+    // Double check child count
+    const directChildCount = activeGraph.edges.reduce((count, edge) => {
+      return edge.source === sourceNode.id ? count + 1 : count;
+    }, 0);
+
+    console.log('Child count verification:', {
+      edgeBasedCount: directChildCount,
+      nodeBasedCount: childNodes.length,
+      allEdges: activeGraph.edges.map(e => `${e.source} -> ${e.target}`)
+    });
+
+    // Log all edges and nodes for debugging
+    console.log('Graph state:', {
+      allEdges: activeGraph.edges,
+      allNodes: activeGraph.nodes,
+      sourceNodeId: sourceNode.id,
+      filteredEdges: activeGraph.edges.filter(edge => edge.source === sourceNode.id),
+      foundChildNodes: childNodes
+    });
+    
+    console.log('Creating new node with:', {
+      sourceNodeId: sourceNode.id,
+      numExistingChildren: childNodes.length,
+      childNodeIds: childNodes.map(n => n.id)
+    });
+
     // Generate a unique ID using timestamp + random suffix to prevent collisions
     const newNodeId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
-    // Batch state updates to prevent race conditions
+    // Create edge first to include in child count
+    const newEdge = createEdge(sourceNode.id, newNodeId);
+    
+    // Recalculate child nodes including the new edge
+    const updatedChildNodes = [
+      ...childNodes,
+      { id: newNodeId } // Add new node to child count
+    ];
+    
     try {
-      // Create new node with original term format
-      const newNode = {
-        id: newNodeId,
-        type: 'default',
-        position: newPosition,
-        data: { 
-          label: term.trim(),
-          isLoading: false
-        }
-      };
-
-      // Create edge from source to new node
-      const newEdge = createEdge(sourceNode.id, newNodeId);
-
-      // Validate existing graph state before update
-      if (!Array.isArray(activeGraph.nodes) || !Array.isArray(activeGraph.edges)) {
-        console.error('Invalid graph state:', activeGraph);
-        return;
-      }
-
-      // Create a map of current node positions
-      const nodePositions = {};
-      activeGraph.nodes.forEach(node => {
-        nodePositions[node.id] = node.position;
-      });
-
-      // Update nodes while preserving positions
-      const updatedNodes = activeGraph.nodes.map(node => ({
-        ...node,
-        position: nodePositions[node.id]
-      }));
-
       // Create graph update with structure and initial nodeData
       const structureUpdate = {
         ...activeGraph,
-        nodes: [...updatedNodes, newNode],
+        nodes: [
+          ...activeGraph.nodes,
+          {
+            id: newNodeId,
+            type: 'default',
+            // Place new node in a circle around parent
+            position: position || (() => {
+              // Fixed positions for first 8 nodes in a circle
+              const positions = [
+                { x: 0, y: -200 },     // Top
+                { x: 200, y: -200 },   // Top right
+                { x: 200, y: 0 },      // Right
+                { x: 200, y: 200 },    // Bottom right
+                { x: 0, y: 200 },      // Bottom
+                { x: -200, y: 0 },     // Left
+                { x: -200, y: -200 },  // Top left
+                { x: -200, y: 200 }    // Bottom left
+              ];
+
+              // Get position based on number of existing children
+              const offset = positions[childNodes.length] || {
+                x: Math.cos((childNodes.length * Math.PI) / 4) * 250,
+                y: Math.sin((childNodes.length * Math.PI) / 4) * 250
+              };
+
+              return {
+                x: sourceNode.position.x + offset.x,
+                y: sourceNode.position.y + offset.y
+              };
+            })(),
+            data: { 
+              label: term.trim(),
+              isLoading: false
+            }
+          }
+        ],
         edges: [...activeGraph.edges, newEdge],
         nodeData: {
           ...activeGraph.nodeData,
@@ -158,28 +195,5 @@ function createEdge(sourceId, targetId) {
       height: 20,
       color: '#F472B6',
     }
-  };
-}
-
-// Helper function to calculate new node position
-function calculateNodePosition(sourceNode, childNodes, providedPosition) {
-  if (providedPosition) {
-    return providedPosition;
-  }
-
-  const baseX = sourceNode.position.x;
-  const baseY = sourceNode.position.y;
-  const radius = 400; // Distance from parent node
-  const numChildren = childNodes.length;
-  
-  // Calculate angle based on number of existing children
-  // Start from -180 degrees and spread children in a 360-degree arc
-  const angleStep = numChildren > 0 ? 360 / (numChildren + 1) : 0;
-  const angle = (-180 + (numChildren + 1) * angleStep) * (Math.PI / 180);
-  
-  // Calculate new position using polar coordinates
-  return {
-    x: baseX + radius * Math.cos(angle),
-    y: baseY + radius * Math.sin(angle)
   };
 }

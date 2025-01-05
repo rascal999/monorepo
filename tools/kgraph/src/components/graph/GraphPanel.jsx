@@ -1,6 +1,7 @@
 import ReactFlow from 'reactflow';
 import 'reactflow/dist/style.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useForceLayout } from '../../hooks/useForceLayout';
 import CustomNode from './CustomNode';
 import GraphControls from './GraphControls';
 import { useGraphNodes } from '../../hooks/useGraphNodes';
@@ -13,6 +14,7 @@ const nodeTypes = {
 };
 
 function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange, viewport }) {
+  const containerRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedNodeId, setDraggedNodeId] = useState(null);
 
@@ -23,16 +25,66 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange
   const { nodes, onNodesChange, updateNodes } = useGraphNodes(graph, isDragging, draggedNodeId);
   const { edges, onEdgesChange, updateEdges } = useGraphEdges();
 
+  // Get container dimensions for force layout
+  const [dimensions, setDimensions] = useState({ width: 1000, height: 800 });
+
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const { width, height } = containerRef.current.getBoundingClientRect();
+        setDimensions({ width, height });
+      }
+    };
+
+    // Initial dimensions
+    updateDimensions();
+
+    // Update dimensions on window resize
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+
+  // Log dimensions for debugging
+  useEffect(() => {
+    console.log('Container dimensions:', dimensions);
+  }, [dimensions]);
+
   // Update nodes and edges when graph changes
   useEffect(() => {
     if (graph) {
-      updateNodes(graph, nodes);
-      updateEdges(graph);
+      // Delay force layout until after initial render
+      requestAnimationFrame(() => {
+        updateNodes(graph, nodes);
+        updateEdges(graph);
+      });
     } else {
       updateNodes(null, []);
       updateEdges(null);
     }
   }, [graph]);
+
+  // Handle force layout position updates
+  const handlePositionsCalculated = (positions) => {
+    if (!positions) return;
+    
+    // Update node positions in graph state
+    const updatedNodes = nodes.map(node => {
+      const newPos = positions.find(p => p.id === node.id);
+      return newPos ? { ...node, position: newPos.position } : node;
+    });
+
+    // Update graph with new positions
+    if (graph) {
+      const updatedGraph = {
+        ...graph,
+        nodes: updatedNodes
+      };
+      updateGraph(updatedGraph);
+    }
+  };
+
+  // Apply force layout only for position calculation
+  useForceLayout(nodes, edges, dimensions.width, dimensions.height, handlePositionsCalculated);
 
   if (!graph) {
     return (
@@ -43,7 +95,7 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange
   }
 
   return (
-    <div className="h-full w-full">
+    <div ref={containerRef} className="h-full w-full">
       <ReactFlow
         nodes={nodes}
         edges={edges}
