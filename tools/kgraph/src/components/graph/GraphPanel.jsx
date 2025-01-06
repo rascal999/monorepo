@@ -10,7 +10,7 @@ import { validateGraph, validateCytoscapeElements, logCytoscapeElements } from '
 import { processElements } from './GraphElements';
 import { setupEventHandlers } from './GraphEventHandlers';
 
-function GraphPanel({ graph, onNodeClick, onNodePositionChange }) {
+function GraphPanel({ graph, onNodeClick, onNodePositionChange, graphOperations }) {
   // Refs
   const containerRef = useRef(null);
   const cyRef = useRef(null);
@@ -162,6 +162,25 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange }) {
     };
   }, [graph?.id]);
 
+  // File input ref for import
+  const fileInputRef = useRef(null);
+
+  const handleImport = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      await graphOperations.importGraph(file);
+    } catch (error) {
+      console.error('Import failed:', error);
+      // TODO: Add proper error notification
+      alert('Failed to import graph: ' + error.message);
+    } finally {
+      // Reset file input
+      event.target.value = '';
+    }
+  };
+
   if (!graph) {
     return (
       <div className="h-full flex items-center justify-center text-gray-500">
@@ -171,7 +190,41 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange }) {
   }
 
   return (
-    <div ref={containerRef} className="h-full w-full bg-[var(--background)]">
+    <div ref={containerRef} className="h-full w-full bg-[var(--background)] relative">
+      {/* Export/Import Controls */}
+      <div className="absolute top-4 right-4 z-10 flex gap-2">
+        <button
+          onClick={() => {
+            console.log('[GraphPanel] Export clicked:', {
+              graphId: graph.id,
+              title: graph.title,
+              nodesCount: graph.nodes.length,
+              firstNodeLabel: graph.nodes[0]?.data?.label,
+              allNodes: graph.nodes.map(n => ({
+                id: n.id,
+                label: n.data?.label
+              }))
+            });
+            graphOperations.exportGraph(graph.id);
+          }}
+          className="px-3 py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
+        >
+          Export
+        </button>
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="px-3 py-1.5 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors text-sm"
+        >
+          Import
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          onChange={handleImport}
+          className="hidden"
+        />
+      </div>
       <CytoscapeComponent
         key={graph.id} // Force remount when graph changes
         elements={elements}

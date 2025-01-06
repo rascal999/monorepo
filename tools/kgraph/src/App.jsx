@@ -15,7 +15,9 @@ function App() {
     clearData,
     viewport,
     updateViewport,
-    setNodeLoading
+    setNodeLoading,
+    exportGraph,
+    importGraph
   } = useGraphState();
 
   const {
@@ -68,6 +70,22 @@ function App() {
     }
   }, [updateNodePosition]);
 
+  // Create graphOperations object from useGraphState functions
+  const graphOperations = {
+    exportGraph: (graphId) => {
+      console.log('[App] Exporting graph:', {
+        graphId,
+        availableGraphs: graphs.map(g => ({
+          id: g.id,
+          title: g.title,
+          firstNodeLabel: g.nodes[0]?.data?.label
+        }))
+      });
+      exportGraph(graphId);
+    },
+    importGraph
+  };
+
   return (
     <MainLayout
       graphs={graphs}
@@ -91,6 +109,7 @@ function App() {
       nodeInteraction={nodeInteraction}
       handleGetDefinition={handleGetDefinition}
       handleSendMessage={handleSendMessage}
+      graphOperations={graphOperations}
     />
   );
 }
