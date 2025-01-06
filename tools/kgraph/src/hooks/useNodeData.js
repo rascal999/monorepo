@@ -27,12 +27,14 @@ export function useNodeData(activeGraph, updateGraph, setNodeLoading) {
         [nodeId]: {
           ...activeGraph.nodeData[nodeId],
           // Handle chat data updates
-          chat: tabName === 'chat' ? data : (activeGraph.nodeData[nodeId]?.chat || []),
-          // Keep loading states in sync and ensure they're boolean
-          isLoadingDefinition: tabName === 'isLoadingDefinition' ? Boolean(data) : false,
-          // Preserve other data
-          notes: activeGraph.nodeData[nodeId]?.notes || '',
-          quiz: activeGraph.nodeData[nodeId]?.quiz || []
+        chat: tabName === 'chat' ? data : (activeGraph.nodeData[nodeId]?.chat || []),
+        // Keep loading states in sync and ensure they're boolean
+        isLoadingDefinition: tabName === 'isLoadingDefinition' ? Boolean(data) : false,
+        // Preserve other data
+        notes: activeGraph.nodeData[nodeId]?.notes || '',
+        quiz: activeGraph.nodeData[nodeId]?.quiz || [],
+        // Store chat scroll position
+        chatScrollPosition: tabName === 'chatScrollPosition' ? data : (activeGraph.nodeData[nodeId]?.chatScrollPosition || 0)
         }
       }
     };
@@ -43,7 +45,8 @@ export function useNodeData(activeGraph, updateGraph, setNodeLoading) {
         chat: tabName === 'chat' ? data : [],
         notes: '',
         quiz: [],
-        isLoadingDefinition: tabName === 'isLoadingDefinition' ? Boolean(data) : false
+        isLoadingDefinition: tabName === 'isLoadingDefinition' ? Boolean(data) : false,
+        chatScrollPosition: tabName === 'chatScrollPosition' ? data : 0
       };
     }
 
