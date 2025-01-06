@@ -22,11 +22,15 @@ export function useGraphValidation() {
     }
 
     // Validate edges
-    const validEdges = graph.edges.every(edge =>
-      edge && edge.source && edge.target &&
-      graph.nodes.some(n => n.id === edge.source) &&
-      graph.nodes.some(n => n.id === edge.target)
-    );
+    const validEdges = graph.edges.every(edge => {
+      // Get source and target from either top level or data object
+      const source = edge.source || edge.data?.source;
+      const target = edge.target || edge.data?.target;
+      
+      return edge && source && target &&
+        graph.nodes.some(n => n.id === source) &&
+        graph.nodes.some(n => n.id === target);
+    });
 
     if (!validEdges) {
       console.error('Invalid edge data in graph');
