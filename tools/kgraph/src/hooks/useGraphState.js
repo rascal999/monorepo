@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useGraphPersistence } from './useGraphPersistence';
 import { useViewportState } from './useViewportState';
 import { useGraphOperations } from './useGraphOperations';
+import { isValidViewport } from '../utils/viewport';
 
 // Store handleGetDefinition callback
 let globalHandleGetDefinition = null;
@@ -19,8 +20,31 @@ export function useGraphState() {
   // Track current viewport state
   const {
     viewport,
-    updateViewport
+    updateViewport,
+    loadSavedViewport
   } = useViewportState(activeGraph?.id);
+
+  // Load saved viewport when switching graphs
+  useEffect(() => {
+    if (!activeGraph) return;
+
+    // Try to load saved viewport from localStorage
+    const saved = localStorage.getItem(`kgraph-viewport-${activeGraph.id}`);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (isValidViewport(parsed)) {
+          console.log('[GraphState] Loading saved viewport for graph:', {
+            graphId: activeGraph.id,
+            viewport: parsed
+          });
+          updateViewport(parsed);
+        }
+      } catch (e) {
+        console.error('[GraphState] Error loading viewport:', e);
+      }
+    }
+  }, [activeGraph?.id]);
 
   // Get operations with validation
   const operations = useGraphOperations(setGraphs, setActiveGraph, handleGetDefinitionRef.current);

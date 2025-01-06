@@ -3,31 +3,16 @@ import { useState, useEffect, useRef } from 'react';
 import { useForceLayout } from '../../hooks/useForceLayout';
 import { useGraphNodes } from '../../hooks/useGraphNodes';
 import { useGraphEdges } from '../../hooks/useGraphEdges';
-import { isValidViewport } from '../../utils/viewport';
+import { isValidViewport, getDefaultViewport } from '../../utils/viewport';
 import { cytoscapeStylesheet } from './graphStyles';
 import { getDarkModeStyles } from './GraphStyles';
 import { validateGraph, validateCytoscapeElements, logCytoscapeElements } from './GraphValidation';
 import { processElements } from './GraphElements';
-import { setupEventHandlers, setInitialViewport } from './GraphEventHandlers';
 
-function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange, viewport }) {
-  // Early validation of props
-  useEffect(() => {
-    console.log('GraphPanel props:', {
-      hasGraph: !!graph,
-      graphId: graph?.id,
-      hasOnNodeClick: !!onNodeClick,
-      hasOnNodePositionChange: !!onNodePositionChange,
-      hasOnViewportChange: !!onViewportChange,
-      hasViewport: !!viewport
-    });
-  }, [graph?.id, onNodeClick, onNodePositionChange, onViewportChange, viewport]);
-
+function GraphPanel({ graph, onNodeClick, onNodePositionChange }) {
   // Refs
   const containerRef = useRef(null);
   const cyRef = useRef(null);
-  const prevGraphIdRef = useRef(graph?.id);
-  const prevViewportRef = useRef(viewport);
 
   // State
   const [isDragging, setIsDragging] = useState(false);
@@ -40,12 +25,6 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange
   // Initialize graph state
   const { nodes, updateNodes } = useGraphNodes(graph, isDragging, draggedNodeId);
   const { edges, updateEdges } = useGraphEdges();
-
-  // Validate graph structure
-  useEffect(() => {
-    if (!graph) return;
-    validateGraph(graph);
-  }, [graph?.id, graph?.nodes?.length, graph?.edges?.length]);
 
   // Process elements for Cytoscape
   const elements = processElements(nodes, edges);
@@ -83,7 +62,7 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  // Update nodes and edges when graph or its nodes change
+  // Update nodes and edges when graph changes
   useEffect(() => {
     if (graph) {
       updateNodes(graph, nodes);
@@ -127,24 +106,94 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange
   useForceLayout(nodes, edges, dimensions.width, dimensions.height, handlePositionsCalculated);
 
   const handleInit = (cy) => {
-    console.log('Cytoscape initialization');
     cyRef.current = cy;
 
     validateCytoscapeElements(cy);
     logCytoscapeElements(cy);
 
-    setupEventHandlers(cy, {
-      onNodeClick,
-      onNodePositionChange,
-      onViewportChange,
-      setIsDragging,
-      setDraggedNodeId,
-      isDragging,
-      graph
+    // Load stored viewport
+    if (graph?.id) {
+      const storedViewport = localStorage.getItem(`kgraph-viewport-${graph.id}`);
+      if (storedViewport) {
+        const viewport = JSON.parse(storedViewport);
+        cy.zoom(viewport.zoom);
+        cy.pan({ x: viewport.x, y: viewport.y });
+        console.log('[GraphPanel] Applied stored viewport:', viewport);
+      } else {
+        cy.fit(undefined, 50);
+      }
+    }
+
+    // Node click handler
+    cy.on('tap', 'node', (evt) => {
+      if (!isDragging) {
+        const nodeData = evt.target.data();
+        const nodePosition = evt.target.position();
+        const node = {
+          id: nodeData.id,
+          data: nodeData,
+          position: nodePosition
+        };
+        onNodeClick(node, true);
+      }
     });
 
-    setInitialViewport(cy, viewport);
+    // Node drag handlers
+    cy.on('dragstart', 'node', (evt) => {
+      setDraggedNodeId(evt.target.id());
+    });
+
+    cy.on('drag', 'node', () => {
+      if (!isDragging) {
+        setIsDragging(true);
+      }
+    });
+
+    cy.on('dragfree', 'node', (evt) => {
+      if (isDragging && graph) {
+        const node = evt.target;
+        const nodeId = node.id();
+        const newPosition = node.position();
+        
+        // Update the graph with new node position
+        const updatedNodes = graph.nodes.map(n => 
+          n.id === nodeId 
+            ? { ...n, position: newPosition }
+            : n
+        );
+        
+        const updatedGraph = {
+          ...graph,
+          nodes: updatedNodes
+        };
+        
+        onNodePositionChange(updatedGraph);
+      }
+      setIsDragging(false);
+      setDraggedNodeId(null);
+    });
+
+    // Viewport change handler
+    cy.on('viewport', () => {
+      if (graph?.id) {
+        const viewport = {
+          zoom: cy.zoom(),
+          x: cy.pan().x,
+          y: cy.pan().y
+        };
+        localStorage.setItem(`kgraph-viewport-${graph.id}`, JSON.stringify(viewport));
+      }
+    });
   };
+
+  // Cleanup event handlers
+  useEffect(() => {
+    return () => {
+      if (cyRef.current) {
+        cyRef.current.removeAllListeners();
+      }
+    };
+  }, [graph?.id]);
 
   if (!graph) {
     return (
@@ -157,6 +206,7 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange
   return (
     <div ref={containerRef} className="h-full w-full bg-[var(--background)]">
       <CytoscapeComponent
+        key={graph.id} // Force remount when graph changes
         elements={elements}
         style={{ width: '100%', height: '100%' }}
         stylesheet={isDarkMode ? getDarkModeStyles(cytoscapeStylesheet) : cytoscapeStylesheet}

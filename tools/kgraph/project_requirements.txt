@@ -29,9 +29,9 @@
    - Force-directed layout using D3-force
 
 4. State Management
-   - Persist viewport state for each graph
-   - Maintain separate viewport settings per graph
-   - Handle graph switching without losing state
+   - ✓ Persist viewport state for each graph
+   - ✓ Maintain separate viewport settings per graph
+   - ✓ Handle graph switching without losing state
 
 5. Data Structure
    - Define clear node and edge data structures

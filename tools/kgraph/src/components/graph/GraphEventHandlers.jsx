@@ -1,4 +1,4 @@
-import { isValidViewport } from '../../utils/viewport';
+import { isValidViewport, getDefaultViewport } from '../../utils/viewport';
 
 export const setupEventHandlers = (cy, {
   onNodeClick,
@@ -58,34 +58,57 @@ export const setupEventHandlers = (cy, {
     setDraggedNodeId(null);
   });
 
-  // Viewport change handler
+  // Handle viewport changes
   cy.on('viewport', () => {
-    // Only update viewport if it changed due to user interaction
-    if (!cy.userZoomingEnabled() && !cy.userPanningEnabled()) {
-      return;
-    }
-
     const newViewport = {
       zoom: cy.zoom(),
       x: cy.pan().x,
       y: cy.pan().y
     };
 
-    if (isValidViewport(newViewport) && onViewportChange) {
+    if (isValidViewport(newViewport)) {
       onViewportChange(newViewport);
     }
   });
+
+  // Return cleanup function
+  return () => {
+    cy.removeListener('tap');
+    cy.removeListener('dragstart');
+    cy.removeListener('drag');
+    cy.removeListener('dragfree');
+    cy.removeListener('viewport');
+  };
 };
 
 export const setInitialViewport = (cy, viewport) => {
-  if (viewport && isValidViewport(viewport)) {
-    cy.userZoomingEnabled(false);
-    cy.userPanningEnabled(false);
-    cy.zoom(viewport.zoom);
-    cy.pan({ x: viewport.x, y: viewport.y });
-    cy.userZoomingEnabled(true);
-    cy.userPanningEnabled(true);
-  } else {
+  // Temporarily disable user interactions while setting viewport
+  cy.userZoomingEnabled(false);
+  cy.userPanningEnabled(false);
+
+  try {
+    if (viewport && isValidViewport(viewport)) {
+      // Apply saved viewport
+      cy.zoom(viewport.zoom);
+      cy.pan({ x: viewport.x, y: viewport.y });
+      console.log('[GraphEventHandlers] Applied viewport:', viewport);
+    } else {
+      // Reset to default view
+      const defaultViewport = getDefaultViewport();
+      cy.zoom(defaultViewport.zoom);
+      cy.pan({ x: defaultViewport.x, y: defaultViewport.y });
+      cy.fit(undefined, 50);
+      console.log('[GraphEventHandlers] Applied default viewport:', defaultViewport);
+    }
+  } catch (error) {
+    console.error('[GraphEventHandlers] Error setting viewport:', error);
+    // Fallback to safe defaults
+    cy.zoom(1);
+    cy.pan({ x: 0, y: 0 });
     cy.fit(undefined, 50);
   }
+
+  // Re-enable user interactions
+  cy.userZoomingEnabled(true);
+  cy.userPanningEnabled(true);
 };
