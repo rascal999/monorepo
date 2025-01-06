@@ -22,12 +22,46 @@ export function useGraphState() {
     updateViewport
   } = useViewportState(activeGraph?.id);
 
+  // Get operations with validation
+  const operations = useGraphOperations(setGraphs, setActiveGraph, handleGetDefinitionRef.current);
+
+  // Validate operations
+  useEffect(() => {
+    if (!operations || typeof operations.updateGraph !== 'function') {
+      console.error('[GraphState] Invalid operations:', {
+        hasOperations: !!operations,
+        updateGraphType: typeof operations?.updateGraph,
+        availableOperations: operations ? Object.keys(operations) : []
+      });
+    }
+  }, [operations]);
+
+  // Wrap updateGraph to ensure it's always a function
+  const updateGraph = (...args) => {
+    console.log('[GraphState] updateGraph called with:', {
+      args,
+      hasOperations: !!operations,
+      hasUpdateGraph: typeof operations?.updateGraph === 'function'
+    });
+    
+    if (operations?.updateGraph) {
+      return operations.updateGraph(...args);
+    } else {
+      console.error('[GraphState] updateGraph called but not available');
+    }
+  };
+
   const {
-    createGraph,
-    updateGraph,
-    deleteGraph,
-    setNodeLoading
-  } = useGraphOperations(setGraphs, setActiveGraph, handleGetDefinitionRef.current);
+    createGraph = () => {
+      console.error('[GraphState] createGraph called but not available');
+    },
+    deleteGraph = () => {
+      console.error('[GraphState] deleteGraph called but not available');
+    },
+    setNodeLoading = () => {
+      console.error('[GraphState] setNodeLoading called but not available');
+    }
+  } = operations || {};
 
   // Update ref when global callback changes
   useEffect(() => {

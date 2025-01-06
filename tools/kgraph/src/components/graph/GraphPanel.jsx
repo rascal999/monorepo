@@ -72,6 +72,17 @@ const getDarkModeStyles = (baseStyles) => [
 ];
 
 function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange, viewport }) {
+  // Early validation of props
+  useEffect(() => {
+    console.log('GraphPanel props:', {
+      hasGraph: !!graph,
+      graphId: graph?.id,
+      hasOnNodeClick: !!onNodeClick,
+      hasOnNodePositionChange: !!onNodePositionChange,
+      hasOnViewportChange: !!onViewportChange,
+      hasViewport: !!viewport
+    });
+  }, [graph?.id, onNodeClick, onNodePositionChange, onViewportChange, viewport]);
   // Refs
   const containerRef = useRef(null);
   const cyRef = useRef(null);
@@ -328,12 +339,24 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange
     });
 
     cy.on('dragfree', 'node', (evt) => {
-      if (isDragging) {
+      if (isDragging && graph) {
         const node = evt.target;
-        onNodePositionChange({
-          id: node.id(),
-          position: node.position()
-        });
+        const nodeId = node.id();
+        const newPosition = node.position();
+        
+        // Update the graph with new node position
+        const updatedNodes = graph.nodes.map(n => 
+          n.id === nodeId 
+            ? { ...n, position: newPosition }
+            : n
+        );
+        
+        const updatedGraph = {
+          ...graph,
+          nodes: updatedNodes
+        };
+        
+        onNodePositionChange(updatedGraph);
       }
       setIsDragging(false);
       setDraggedNodeId(null);

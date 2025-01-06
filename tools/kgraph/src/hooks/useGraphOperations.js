@@ -81,32 +81,57 @@ export function useGraphOperations(setGraphs, setActiveGraph, handleGetDefinitio
     setActiveGraph(graphWithLoading);
   };
 
-  const updateGraph = (updatedGraph) => {
+  const updateGraph = (updatedGraph, sourceNodeId) => {
+    console.log('[GraphOperations] Updating graph:', {
+      graphId: updatedGraph?.id,
+      hasNodes: Array.isArray(updatedGraph?.nodes),
+      nodeCount: updatedGraph?.nodes?.length,
+      sourceNodeId,
+      stack: new Error().stack
+    });
+
     // Simple validation
     if (!updatedGraph?.id || !Array.isArray(updatedGraph.nodes)) {
-      console.error('Invalid graph update');
+      console.error('[GraphOperations] Invalid graph update:', {
+        hasId: !!updatedGraph?.id,
+        hasNodes: Array.isArray(updatedGraph?.nodes)
+      });
       return;
     }
 
     // Update graphs array
-    setGraphs(prevGraphs => 
-      prevGraphs.map(g => g.id === updatedGraph.id ? updatedGraph : g)
-    );
+    setGraphs(prevGraphs => {
+      const newGraphs = prevGraphs.map(g => 
+        g.id === updatedGraph.id ? updatedGraph : g
+      );
+      console.log('[GraphOperations] Updated graphs array:', {
+        prevCount: prevGraphs.length,
+        newCount: newGraphs.length,
+        updatedGraphId: updatedGraph.id
+      });
+      return newGraphs;
+    });
 
     // Update active graph
-    setActiveGraph(prevGraph => 
-      prevGraph?.id === updatedGraph.id ? updatedGraph : prevGraph
-    );
+    setActiveGraph(prevGraph => {
+      const shouldUpdate = prevGraph?.id === updatedGraph.id;
+      console.log('[GraphOperations] Updating active graph:', {
+        prevGraphId: prevGraph?.id,
+        newGraphId: updatedGraph.id,
+        shouldUpdate
+      });
+      return shouldUpdate ? updatedGraph : prevGraph;
+    });
   };
 
   const setNodeLoading = (graphId, nodeId, isLoading) => {
-    console.log('Setting node loading state:', {
+    console.log('[GraphOperations] Setting node loading state:', {
       graphId,
       nodeId,
       isLoading
     });
 
-    const updateGraph = (graph) => {
+    const createUpdatedGraph = (graph) => {
       if (!graph) return graph;
 
       const updatedNodes = graph.nodes.map(node => 
@@ -125,7 +150,7 @@ export function useGraphOperations(setGraphs, setActiveGraph, handleGetDefinitio
     // Update graphs array
     setGraphs(prevGraphs => {
       const newGraphs = prevGraphs.map(g => 
-        g.id === graphId ? updateGraph(g) : g
+        g.id === graphId ? createUpdatedGraph(g) : g
       );
       return newGraphs;
     });
@@ -133,7 +158,7 @@ export function useGraphOperations(setGraphs, setActiveGraph, handleGetDefinitio
     // Update active graph if it matches
     setActiveGraph(prevGraph => {
       if (prevGraph?.id !== graphId) return prevGraph;
-      return updateGraph(prevGraph);
+      return createUpdatedGraph(prevGraph);
     });
   };
 
