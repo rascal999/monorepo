@@ -4,28 +4,19 @@ export function useNodeData(activeGraph, updateGraph, setNodeLoading) {
   const updateNodeData = (nodeId, tabName, data, isDefinitionUpdate = false, lastUserSelectedNodeId = null) => {
     if (!activeGraph) return;
 
-    // Create a map of current positions
-    const nodePositions = {};
-    activeGraph.nodes.forEach(node => {
-      nodePositions[node.id] = { ...node.position };
-    });
-
-    // Only update the nodeData, leave nodes unchanged except for loading state
+    // Update only the loading state for the target node, preserve all positions
     const updatedNodes = activeGraph.nodes.map(node => {
       if (node.id === nodeId) {
         return {
           ...node,
-          position: nodePositions[node.id], // Preserve exact position
+          position: node.position, // Explicitly preserve Cytoscape position
           data: {
             ...node.data,
-            isLoading: tabName === 'isLoadingDefinition' ? data : false // Reset loading state unless explicitly setting it
+            isLoading: tabName === 'isLoadingDefinition' ? data : false
           }
         };
       }
-      return {
-        ...node,
-        position: nodePositions[node.id] // Preserve all node positions
-      };
+      return node;
     });
 
     const updatedGraph = {
