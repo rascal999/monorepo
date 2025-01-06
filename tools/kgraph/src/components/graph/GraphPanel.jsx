@@ -161,14 +161,14 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange
   edges.forEach(edge => {
     console.log('Processing edge for Cytoscape:', edge);
 
-    if (!edge.id || !edge.source || !edge.target) {
+    if (!edge.data?.id || !edge.data?.source || !edge.data?.target) {
       console.error('Invalid edge structure:', edge);
       return;
     }
 
     // Verify source and target nodes exist
-    const sourceExists = nodes.some(n => n.id === edge.source);
-    const targetExists = nodes.some(n => n.id === edge.target);
+    const sourceExists = nodes.some(n => n.id === edge.data.source);
+    const targetExists = nodes.some(n => n.id === edge.data.target);
 
     if (!sourceExists || !targetExists) {
       console.error('Edge references non-existent node:', {
@@ -180,12 +180,8 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange
     }
 
     elements.push({
-      data: {
-        id: edge.id,
-        source: edge.source,
-        target: edge.target,
-        ...edge.data
-      }
+      group: 'edges',
+      data: edge.data
     });
   });
 
@@ -238,7 +234,7 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, onViewportChange
       updateNodes(null, []);
       updateEdges(null);
     }
-  }, [graph?.id, graph?.nodes]); // Update when graph ID or nodes change
+  }, [graph?.id, graph?.nodes, graph?.edges]); // Update when graph ID, nodes, or edges change
 
   // Handle force layout position updates
   const handlePositionsCalculated = (positions) => {
