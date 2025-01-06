@@ -57,6 +57,13 @@
    - Viewport state storage
    - Graph selection state
    - OpenRouter API logging for debugging and monitoring
+   - Chat message management with auto-scrolling
+     * Auto-scroll only when user sends a message
+     * Smooth scrolling behavior for better UX
+     * Manual scrolling for received messages
+     * Maintain scroll position when streaming completes
+     * Proper spacing to prevent input overlay
+     * Smooth transition between streaming and final states
 
 ## Migration Notes
 - Migrated from ReactFlow to Cytoscape.js

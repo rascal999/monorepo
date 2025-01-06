@@ -38,7 +38,7 @@ export async function fetchModels() {
   }
 }
 
-export async function fetchChatCompletion(messages, model = 'openai/gpt-4-turbo') {
+export async function fetchChatCompletion(messages, model = 'openai/gpt-4-turbo', onStream) {
   console.log('Fetching chat completion with messages:', messages);
   
   validateApiKey();
@@ -46,7 +46,8 @@ export async function fetchChatCompletion(messages, model = 'openai/gpt-4-turbo'
   try {
     const requestBody = {
       model,
-      messages
+      messages,
+      stream: Boolean(onStream)
     };
     console.log('Request body:', requestBody);
 
@@ -56,26 +57,77 @@ export async function fetchChatCompletion(messages, model = 'openai/gpt-4-turbo'
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'HTTP-Referer': window.location.href,
+        'Accept': 'text/event-stream'
       },
       body: JSON.stringify(requestBody)
     });
 
-    const data = await response.json();
-    console.log('API response:', data);
-    
     if (!response.ok) {
+      const data = await response.json();
       console.error('API error:', data);
       throw new Error(data.error?.message || `API request failed with status ${response.status}`);
     }
-    
-    const content = data.choices?.[0]?.message?.content;
-    if (!content) {
-      console.error('No content in response:', data);
-      throw new Error('No content in response');
+
+    if (requestBody.stream) {
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let fullContent = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.trim() === '') continue;
+          if (line.trim() === 'data: [DONE]') {
+            // Return the complete message
+            return { role: 'assistant', content: fullContent };
+          }
+
+          // Skip empty lines or lines without data prefix
+          if (!line.startsWith('data: ')) continue;
+          
+          const jsonStr = line.replace(/^data: /, '').trim();
+          if (!jsonStr || jsonStr === '[DONE]') continue;
+          
+          try {
+            const data = JSON.parse(jsonStr);
+            const content = data.choices?.[0]?.delta?.content;
+            if (content) {
+              fullContent += content;
+              if (onStream) {
+                onStream(content);
+              }
+            }
+          } catch (e) {
+            console.warn('Error parsing stream line:', e, 'Line:', jsonStr);
+            // Continue processing other lines even if one fails
+            continue;
+          }
+        }
+      }
+      
+      // Return the complete message if we exit the loop without [DONE]
+      return { role: 'assistant', content: fullContent };
+    } else {
+      // Handle non-streaming response
+      const data = await response.json();
+      console.log('API response:', data);
+      
+      const content = data.choices?.[0]?.message?.content;
+      if (!content) {
+        console.error('No content in response:', data);
+        throw new Error('No content in response');
+      }
+      
+      console.log('Returning message:', data.choices[0].message);
+      return data.choices[0].message;
     }
-    
-    console.log('Returning message:', data.choices[0].message);
-    return data.choices[0].message;
   } catch (error) {
     console.error('Error in fetchChatCompletion:', error);
     console.error('Stack trace:', error.stack);
