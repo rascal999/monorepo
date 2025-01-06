@@ -40,7 +40,9 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading) {
   const { updateNodeData } = useNodeData(activeGraph, updateGraph, setNodeLoading);
   // Create wrapper for updateNodeData that includes lastUserSelectedNodeId
   const updateNodeDataWithSelection = (nodeId, tabName, data, isDefinitionUpdate = false) => {
-    updateNodeData(nodeId, tabName, data, isDefinitionUpdate, lastUserSelectedNodeId);
+    // Only pass lastUserSelectedNodeId if it's not null/undefined and different from nodeId
+    const selectionId = lastUserSelectedNodeId && lastUserSelectedNodeId !== nodeId ? lastUserSelectedNodeId : null;
+    updateNodeData(nodeId, tabName, data, isDefinitionUpdate, selectionId);
   };
 
   // Pass updateNodeDataWithSelection and activeGraph to useNodeDefinitions
