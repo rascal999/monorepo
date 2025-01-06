@@ -31,7 +31,7 @@ export function useNodeData(activeGraph, updateGraph, setNodeLoading) {
         // Keep loading states in sync and ensure they're boolean
         isLoadingDefinition: tabName === 'isLoadingDefinition' ? Boolean(data) : false,
         // Preserve other data
-        notes: activeGraph.nodeData[nodeId]?.notes || '',
+        notes: tabName === 'notes' ? data : (activeGraph.nodeData[nodeId]?.notes || ''),
         quiz: activeGraph.nodeData[nodeId]?.quiz || [],
         // Store chat scroll position
         chatScrollPosition: tabName === 'chatScrollPosition' ? data : (activeGraph.nodeData[nodeId]?.chatScrollPosition || 0)
@@ -43,7 +43,7 @@ export function useNodeData(activeGraph, updateGraph, setNodeLoading) {
     if (!activeGraph.nodeData[nodeId]) {
       updatedGraph.nodeData[nodeId] = {
         chat: tabName === 'chat' ? data : [],
-        notes: '',
+        notes: tabName === 'notes' ? data : '',
         quiz: [],
         isLoadingDefinition: tabName === 'isLoadingDefinition' ? Boolean(data) : false,
         chatScrollPosition: tabName === 'chatScrollPosition' ? data : 0
