@@ -8,6 +8,7 @@ import { cytoscapeStylesheet } from './graphStyles';
 import { getDarkModeStyles } from './GraphStyles';
 import { validateGraph, validateCytoscapeElements, logCytoscapeElements } from './GraphValidation';
 import { processElements } from './GraphElements';
+import { setupEventHandlers } from './GraphEventHandlers';
 
 function GraphPanel({ graph, onNodeClick, onNodePositionChange }) {
   // Refs
@@ -116,64 +117,29 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange }) {
       const storedViewport = localStorage.getItem(`kgraph-viewport-${graph.id}`);
       if (storedViewport) {
         const viewport = JSON.parse(storedViewport);
-        cy.zoom(viewport.zoom);
-        cy.pan({ x: viewport.x, y: viewport.y });
-        console.log('[GraphPanel] Applied stored viewport:', viewport);
+        if (isValidViewport(viewport)) {
+          cy.zoom(viewport.zoom);
+          cy.pan({ x: viewport.x, y: viewport.y });
+          console.log('[GraphPanel] Applied stored viewport:', viewport);
+        } else {
+          cy.fit(undefined, 50);
+        }
       } else {
         cy.fit(undefined, 50);
       }
     }
 
-    // Node click handler
-    cy.on('tap', 'node', (evt) => {
-      if (!isDragging) {
-        const nodeData = evt.target.data();
-        const nodePosition = evt.target.position();
-        const node = {
-          id: nodeData.id,
-          data: nodeData,
-          position: nodePosition
-        };
-        onNodeClick(node, true);
-      }
+    // Setup event handlers
+    setupEventHandlers(cy, {
+      onNodeClick,
+      onNodePositionChange,
+      setIsDragging,
+      setDraggedNodeId,
+      isDragging,
+      graph
     });
 
-    // Node drag handlers
-    cy.on('dragstart', 'node', (evt) => {
-      setDraggedNodeId(evt.target.id());
-    });
-
-    cy.on('drag', 'node', () => {
-      if (!isDragging) {
-        setIsDragging(true);
-      }
-    });
-
-    cy.on('dragfree', 'node', (evt) => {
-      if (isDragging && graph) {
-        const node = evt.target;
-        const nodeId = node.id();
-        const newPosition = node.position();
-        
-        // Update the graph with new node position
-        const updatedNodes = graph.nodes.map(n => 
-          n.id === nodeId 
-            ? { ...n, position: newPosition }
-            : n
-        );
-        
-        const updatedGraph = {
-          ...graph,
-          nodes: updatedNodes
-        };
-        
-        onNodePositionChange(updatedGraph);
-      }
-      setIsDragging(false);
-      setDraggedNodeId(null);
-    });
-
-    // Viewport change handler
+    // Setup viewport change handler
     cy.on('viewport', () => {
       if (graph?.id) {
         const viewport = {
@@ -182,6 +148,7 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange }) {
           y: cy.pan().y
         };
         localStorage.setItem(`kgraph-viewport-${graph.id}`, JSON.stringify(viewport));
+        console.log('[GraphPanel] Saved viewport:', viewport);
       }
     });
   };

@@ -241,29 +241,40 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
     );
   };
 
-  const handleSendMessage = async (node, nodeData, inputText) => {
+  const handleSendMessage = async (node, nodeData, inputText, onStream) => {
     if (!node) return;
 
     const newMessage = { role: 'user', content: inputText };
-    onUpdateData(node.id, 'chat', [...(nodeData?.chat || []), newMessage]);
+    const currentChat = [...(nodeData?.chat || []), newMessage];
+    onUpdateData(node.id, 'chat', currentChat);
+    
     setLoadingNodes(prev => new Set([...prev, node.id]));
     if (activeGraph?.id) {
       setNodeLoading(activeGraph.id, node.id, true);
     }
 
     try {
-      const result = await aiService.getChatResponse([...(nodeData?.chat || []), newMessage], activeGraph.title);
+      const result = await aiService.getChatResponse(
+        currentChat,
+        activeGraph.title,
+        onStream ? (update) => {
+          if (update.success) {
+            onStream(update);
+          }
+        } : null
+      );
+
       if (result.success) {
-        onUpdateData(node.id, 'chat', [...(nodeData?.chat || []), newMessage, result.message], true);
+        onUpdateData(node.id, 'chat', [...currentChat, result.message], true);
       } else {
         throw new Error(result.error);
       }
     } catch (error) {
       console.error('OpenRouter API error:', error);
-      onUpdateData(node.id, 'chat', [...(nodeData?.chat || []), newMessage, {
+      onUpdateData(node.id, 'chat', [...currentChat, {
         role: 'assistant',
         content: 'Error: Unable to get response. Please try again.'
-      }], true); // Let wrapper handle selection
+      }], true);
     } finally {
       setLoadingNodes(prev => {
         const next = new Set(prev);

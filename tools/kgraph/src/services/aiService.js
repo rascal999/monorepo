@@ -165,7 +165,7 @@ class AIService {
     }, this.BATCH_DELAY);
   }
 
-  async getChatResponse(messages, context = '') {
+  async getChatResponse(messages, context = '', onStream) {
     console.log('AIService: Getting chat response:', { context, messageCount: messages.length });
     
     const fullMessages = [
@@ -177,12 +177,29 @@ class AIService {
     ];
 
     try {
-      const response = await fetchChatCompletion(fullMessages, this.model);
-      console.log('AIService: Chat response received');
-      return {
-        success: true,
-        message: response
-      };
+      if (onStream) {
+        // For streaming, we'll accumulate the full response
+        let fullContent = '';
+        await fetchChatCompletion(fullMessages, this.model, (content) => {
+          fullContent += content;
+          onStream({
+            success: true,
+            message: { role: 'assistant', content: fullContent }
+          });
+        });
+        return {
+          success: true,
+          message: { role: 'assistant', content: fullContent }
+        };
+      } else {
+        // Non-streaming response
+        const response = await fetchChatCompletion(fullMessages, this.model);
+        console.log('AIService: Chat response received');
+        return {
+          success: true,
+          message: response
+        };
+      }
     } catch (error) {
       console.error('AIService: Error getting chat response:', error);
       return {
