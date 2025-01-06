@@ -56,12 +56,29 @@ export function useGraphPersistence() {
   }, [graphs]);
 
   useEffect(() => {
+    console.log('[GraphPersistence] Active graph changed:', {
+      hasActiveGraph: !!activeGraph,
+      graphId: activeGraph?.id,
+      lastSelectedNodeId: activeGraph?.lastSelectedNodeId,
+      nodesCount: activeGraph?.nodes?.length,
+      stack: new Error().stack
+    });
+
     if (activeGraph) {
       localStorage.setItem('kgraph-last-graph', activeGraph.id.toString());
     } else {
       localStorage.removeItem('kgraph-last-graph');
     }
   }, [activeGraph]);
+
+  // Monitor graphs array changes
+  useEffect(() => {
+    console.log('[GraphPersistence] Graphs array changed:', {
+      count: graphs.length,
+      graphIds: graphs.map(g => g.id),
+      lastSelectedIds: graphs.map(g => g.lastSelectedNodeId)
+    });
+  }, [graphs]);
 
   const clearData = () => {
     try {

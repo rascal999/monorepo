@@ -261,15 +261,31 @@ export function useGraphOperations(graphs, setGraphs, setActiveGraph, handleGetD
       // Update graph ID, title, and node IDs
       const initialNode = graph.nodes[0];
       const graphTitle = initialNode?.data?.label || 'Untitled Graph';
+      // First create all node mappings
+      const updatedNodes = graph.nodes.map(node => {
+        const newId = (Date.now() + Math.random() * 1000).toString();
+        idMap.set(node.id, newId);
+        return { ...node, id: newId };
+      });
+
+      // Now we can safely get mapped IDs
+      // Ensure we have a valid lastSelectedNodeId that exists in the graph
+      const lastSelectedNodeId = graph.lastSelectedNodeId && graph.nodes.find(n => n.id === graph.lastSelectedNodeId)
+        ? idMap.get(graph.lastSelectedNodeId)
+        : idMap.get(graph.nodes[0].id);
+
+      console.log('[GraphOperations] Setting lastSelectedNodeId:', {
+        original: graph.lastSelectedNodeId,
+        mapped: lastSelectedNodeId,
+        firstNode: graph.nodes[0].id
+      });
+
       const updatedGraph = {
         ...graph,
         id: parseInt(newGraphId),
-        title: graphTitle, // Set title from initial node's label
-        nodes: graph.nodes.map(node => {
-          const newId = (Date.now() + Math.random() * 1000).toString();
-          idMap.set(node.id, newId);
-          return { ...node, id: newId };
-        }),
+        title: graphTitle,
+        lastSelectedNodeId,
+        nodes: updatedNodes,
         edges: graph.edges.map(edge => ({
           ...edge,
           id: (Date.now() + Math.random() * 1000).toString(),
@@ -290,9 +306,17 @@ export function useGraphOperations(graphs, setGraphs, setActiveGraph, handleGetD
         );
       }
 
-      // Add graph to state
+      // Add graph to state and ensure node selection
       setGraphs(prevGraphs => [...prevGraphs, updatedGraph]);
-      setActiveGraph(updatedGraph);
+      
+      // Find the node to select
+      const nodeToSelect = updatedNodes.find(n => n.id === lastSelectedNodeId) || updatedNodes[0];
+      
+      // Set active graph with explicit node selection
+      setActiveGraph({
+        ...updatedGraph,
+        lastSelectedNodeId: nodeToSelect.id
+      });
 
       return updatedGraph;
     } catch (error) {
