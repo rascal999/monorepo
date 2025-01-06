@@ -1,11 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { useGraphPersistence } from './useGraphPersistence';
 import { useGraphOperations } from './useGraphOperations';
+import { useGraphValidation } from './useGraphValidation';
 
 // Store handleGetDefinition callback
 let globalHandleGetDefinition = null;
 
 export function useGraphState() {
+  const { validateGraph } = useGraphValidation();
   const handleGetDefinitionRef = useRef(globalHandleGetDefinition);
   const {
     graphs,
@@ -16,7 +18,7 @@ export function useGraphState() {
   } = useGraphPersistence();
 
   // Get operations with validation
-  const operations = useGraphOperations(setGraphs, setActiveGraph, handleGetDefinitionRef.current);
+  const operations = useGraphOperations(graphs, setGraphs, setActiveGraph, handleGetDefinitionRef.current);
 
   // Validate operations
   useEffect(() => {
@@ -82,6 +84,113 @@ export function useGraphState() {
     return null;
   };
 
+  // Export/Import operations
+  const exportGraph = (graphId) => {
+    console.log('[GraphState] Exporting graph', graphId);
+    
+    // Find the graph to export
+    const graph = graphs.find(g => g.id === graphId);
+    if (!graph) {
+      console.error('[GraphState] Graph not found for export:', graphId);
+      return null;
+    }
+
+    // Get viewport data
+    const viewportData = localStorage.getItem(`kgraph-viewport-${graphId}`);
+    const viewport = viewportData ? JSON.parse(viewportData) : null;
+
+    // Create export data structure
+    const exportData = {
+      version: '1.0',
+      graph,
+      viewport,
+      exportDate: new Date().toISOString()
+    };
+
+    // Create and download file
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    // Get initial node's label for filename
+    const initialNode = graph.nodes[0];
+    if (!initialNode?.data?.label) {
+      console.error('[GraphState] Initial node label not found');
+      return null;
+    }
+    const safeTitle = initialNode.data.label.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric with single dash
+      .replace(/^-+|-+$/g, ''); // Remove leading/trailing dashes
+    a.download = `kgraph-${safeTitle}-${exportData.exportDate.split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const importGraph = async (file) => {
+    console.log('[GraphState] Importing graph from file');
+    
+    try {
+      const text = await file.text();
+      const importData = JSON.parse(text);
+      
+      // Validate import data structure
+      if (!importData.version || !importData.graph) {
+        throw new Error('Invalid import data structure');
+      }
+
+      const graph = importData.graph;
+      
+      // Validate graph structure
+      if (!validateGraph(graph)) {
+        throw new Error('Invalid graph structure in import data');
+      }
+      
+      // Generate new IDs to avoid conflicts
+      const newGraphId = Date.now().toString();
+      const idMap = new Map();
+      
+      // Update graph ID and node IDs
+      const updatedGraph = {
+        ...graph,
+        id: parseInt(newGraphId),
+        nodes: graph.nodes.map(node => {
+          const newId = (Date.now() + Math.random() * 1000).toString();
+          idMap.set(node.id, newId);
+          return { ...node, id: newId };
+        }),
+        edges: graph.edges.map(edge => ({
+          ...edge,
+          id: (Date.now() + Math.random() * 1000).toString(),
+          source: idMap.get(edge.source),
+          target: idMap.get(edge.target)
+        })),
+        nodeData: Object.entries(graph.nodeData).reduce((acc, [oldId, data]) => {
+          acc[idMap.get(oldId)] = data;
+          return acc;
+        }, {})
+      };
+
+      // Store viewport data if present
+      if (importData.viewport) {
+        localStorage.setItem(
+          `kgraph-viewport-${newGraphId}`,
+          JSON.stringify(importData.viewport)
+        );
+      }
+
+      // Add graph to state
+      setGraphs(prevGraphs => [...prevGraphs, updatedGraph]);
+      setActiveGraph(updatedGraph);
+
+      return updatedGraph;
+    } catch (error) {
+      console.error('[GraphState] Import failed:', error);
+      throw new Error(`Import failed: ${error.message}`);
+    }
+  };
+
   const result = {
     graphs,
     activeGraph,
@@ -90,7 +199,9 @@ export function useGraphState() {
     updateGraph,
     clearData,
     deleteGraph,
-    setNodeLoading
+    setNodeLoading,
+    exportGraph,
+    importGraph
   };
   // Add static method to update the global callback
   useGraphState.setHandleGetDefinition = (callback) => {
