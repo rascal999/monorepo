@@ -19,25 +19,7 @@ function NodePanel({
   handleSendMessage
 }) {
 
-  const {
-    wasNodeClicked,
-    handleNodeChange,
-    handleWordClick
-  } = nodeInteraction || {};
-
-  // Provide default handlers if nodeInteraction is not provided
-  const safeHandleNodeChange = handleNodeChange || (() => {});
-  const safeHandleWordClick = handleWordClick || (() => {});
-
-  // Update node interaction state when node changes
-  useEffect(() => {
-    console.log('NodePanel node changed:', { nodeId: node?.id });
-    safeHandleNodeChange(node?.id);
-  }, [node?.id, safeHandleNodeChange]);
-
-  // Removed automatic definition fetching - only user should trigger this
-
-  console.log('NodePanel render:', { activeTab, node });
+  const { handleWordClick } = nodeInteraction || {};
 
   if (!node) {
     return (
@@ -57,12 +39,16 @@ function NodePanel({
       <div className="flex-1 overflow-auto">
         {activeTab === 'chat' && (
           <ChatPanel
-            messages={nodeData?.chat || []}
-            isLoading={node.data.isLoading}
+            messages={nodeData?.chat}
+            isLoading={nodeData?.isLoadingDefinition}
             nodeId={node.id}
             nodeLabel={node.data.label}
+            nodeData={nodeData}
             onSendMessage={(text) => handleSendMessage(node, nodeData, text)}
-            onWordClick={(words) => safeHandleWordClick(node, words)}
+            onWordClick={(words) => {
+              if (!handleWordClick) return;
+              handleWordClick(node, words);
+            }}
             handleGetDefinition={handleGetDefinition}
           />
         )}

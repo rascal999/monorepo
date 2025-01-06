@@ -23,22 +23,24 @@ export function useNodeSelection(activeGraph, updateGraph) {
   }, [activeGraph?.id]); // Only update when switching graphs
 
   const handleNodeClick = (node, isUserClick = true) => {
-    console.log('useNodeSelection handleNodeClick:', { node, isUserClick });
-    if (node && isUserClick) { // Only handle explicit user clicks
-      // Ensure we have the complete node with position from the active graph
-      const completeNode = activeGraph.nodes.find(n => n.id === node.id);
-      console.log('useNodeSelection found completeNode:', { completeNode });
-      setSelectedNode(completeNode);
-      console.log('useNodeSelection after setSelectedNode');
-
-      // Update the graph with new lastSelectedNodeId
-      const updatedGraph = {
-        ...activeGraph,
-        lastSelectedNodeId: completeNode.id
-      };
-      console.log('useNodeSelection updating graph with:', { updatedGraph });
-      updateGraph(updatedGraph);
+    console.log('useNodeSelection handleNodeClick:', { node, isUserClick, activeGraph });
+    
+    if (!node || !isUserClick || !activeGraph) return;
+    
+    // Only allow selecting nodes that have required data
+    if (!node.data?.label) {
+      console.warn('useNodeSelection: Ignoring invalid node', { node });
+      return;
     }
+
+    // Update selection
+    setSelectedNode(node);
+    
+    // Update graph selection state
+    updateGraph({
+      ...activeGraph,
+      lastSelectedNodeId: node.id
+    });
   };
 
   return {

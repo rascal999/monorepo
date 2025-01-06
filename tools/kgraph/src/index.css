@@ -30,14 +30,6 @@ body {
   @apply bg-[var(--node-bg)] border-[var(--border)];
 }
 
-.react-flow__node {
-  @apply rounded-lg border shadow-sm;
-}
-
-.react-flow__handle {
-  @apply bg-blue-500;
-}
-
 .tab-panel {
   @apply h-full overflow-auto;
 }

@@ -1,56 +1,32 @@
-import { useState, useEffect } from 'react';
-
-export function useNodeInteraction(onAddNode, onGetDefinition) {
-  const [wasNodeClicked, setWasNodeClicked] = useState(false);
-  const [lastCreatedNodeId, setLastCreatedNodeId] = useState(null);
-
-  // Track node changes and handle click state
-  const handleNodeChange = (nodeId) => {
-    console.log('useNodeInteraction handleNodeChange:', { nodeId });
-    // Reset wasNodeClicked when node changes
-    setWasNodeClicked(false);
-  };
-
-  // Handle explicit node selection
-  const handleNodeSelect = () => {
-    console.log('useNodeInteraction handleNodeSelect');
-    // Only set wasNodeClicked if it's not already true
-    setWasNodeClicked(true);
-  };
-
-  const handleWordClick = (node, words) => {
-    if (!node) return;
-
-    // Ensure we have a valid source node with position
-    const sourceNode = {
-      ...node,
-      position: node.position || { x: 0, y: 0 },
-      data: {
-        ...node.data,
-        isLoading: true // Set loading state on parent node during creation
-      }
-    };
-    
-    // Preserve click state
-    const prevWasNodeClicked = wasNodeClicked;
-    setWasNodeClicked(false);
-    
-    // Create node (definition fetch is handled in the wrapped addNode)
-    try {
-      onAddNode(sourceNode, words.join(' '));
-    } catch (error) {
-      console.error('Error creating node:', error);
-      sourceNode.data.isLoading = false; // Reset loading state on error
-    }
-    
-    setWasNodeClicked(prevWasNodeClicked);
-  };
-
-
+export function useNodeInteraction(onAddNode) {
+  // Simple pass-through to add node with minimal validation
   return {
-    wasNodeClicked,
-    handleNodeChange,
-    handleNodeSelect,
-    handleWordClick
+    handleWordClick: (node, words) => {
+      console.log('useNodeInteraction.handleWordClick called with:', {
+        nodeId: node?.id,
+        nodePosition: node?.position,
+        words
+      });
+
+      if (!node?.id || !node?.position || !words?.length) {
+        console.log('useNodeInteraction.handleWordClick validation failed:', {
+          hasNodeId: !!node?.id,
+          hasPosition: !!node?.position,
+          hasWords: !!words?.length
+        });
+        return;
+      }
+
+      console.log('useNodeInteraction calling onAddNode with:', {
+        node: {
+          id: node.id,
+          position: node.position
+        },
+        term: words.join(' ')
+      });
+
+      const newNodeId = onAddNode(node, words.join(' '));
+      console.log('useNodeInteraction.handleWordClick result:', { newNodeId });
+    }
   };
 }

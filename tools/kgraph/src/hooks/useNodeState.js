@@ -43,58 +43,33 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading) {
   // Manage tab state
   const [activeTab, setActiveTab] = useState('chat');
 
-  // Create single instance of useNodeInteraction with definition handling
-  const nodeInteraction = useNodeInteraction(
-    (sourceNode, term, position) => {
-      console.log('Adding node:', { term, position });
-      const newNodeId = addNode(sourceNode, term, position);
-      if (newNodeId) {
-        console.log('Node added, triggering definition fetch:', newNodeId);
-        // Find the new node in the graph
-        const newNode = activeGraph.nodes.find(n => n.id === newNodeId);
-        if (newNode) {
-          handleGetDefinition(newNode);
-        }
-      }
-      return newNodeId;
-    },
-    handleGetDefinition
-  );
+  // Create nodeInteraction instance
+  const nodeInteraction = useNodeInteraction((sourceNode, term) => {
+    console.log('useNodeState nodeInteraction callback called with:', {
+      sourceNode: {
+        id: sourceNode?.id,
+        position: sourceNode?.position
+      },
+      term
+    });
 
+    const nodeId = addNode(sourceNode, term);
+    console.log('useNodeState addNode result:', { nodeId });
 
-  const handleNodeClick = (node, isUserClick = true) => {
-    console.log('useNodeState handleNodeClick:', { node, isUserClick });
-    
-    // Only update selection for explicit user clicks
-    if (isUserClick) {
-      // Update selected node
-      handleNodeClickBase(node);
-      console.log('useNodeState after handleNodeClickBase');
-      
-      // Update last user-selected node
-      setLastUserSelectedNodeId(node.id);
-      
-      // Handle interaction state
-      nodeInteraction.handleNodeSelect();
-      console.log('useNodeState after handleNodeSelect');
-    } else {
-      // For non-user updates, just handle interaction state
-      nodeInteraction.handleNodeChange(node?.id);
-      console.log('useNodeState after handleNodeChange');
+    if (nodeId?.includes('-')) {
+      console.log('useNodeState calling handleGetDefinition for nodeId:', nodeId);
+      handleGetDefinition({ id: nodeId });
     }
-  };
+    return nodeId;
+  });
 
   return {
     selectedNode,
     setSelectedNode,
-    handleNodeClick,
-    addNode,
-    updateNodeData: updateNodeDataWithSelection,
-    updateNodePosition,
     activeTab,
     setActiveTab,
     nodeInteraction,
-    handleGetDefinition,
-    handleSendMessage
+    handleSendMessage,
+    handleNodeClick: handleNodeClickBase // Use handler from useNodeSelection
   };
 }

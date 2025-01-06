@@ -8,9 +8,12 @@ export function useGraphValidation() {
 
     // Validate nodes
     const validNodes = graph.nodes.every(node => 
-      node && node.id && node.position && 
+      node && 
+      node.id && 
+      node.position && 
       typeof node.position.x === 'number' && 
-      typeof node.position.y === 'number'
+      typeof node.position.y === 'number' &&
+      node.data?.label // Ensure label exists
     );
 
     if (!validNodes) {

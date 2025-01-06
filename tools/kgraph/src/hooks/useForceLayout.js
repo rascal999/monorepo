@@ -10,19 +10,24 @@ export function useForceLayout(nodes, edges, width = 1000, height = 800, onPosit
       .force('charge', forceManyBody().strength(-500))
       .force('center', forceCenter(width / 2, height / 2))
       .force('collision', forceCollide(100))
-      .force('link', forceLink().distance(200));
+      .force('link', forceLink().id(d => d.id).distance(200));
 
     // Create simulation nodes with current positions
     const simNodes = nodes.map(node => ({
-      ...node,
-      x: node.position.x,
-      y: node.position.y,
-      id: node.id
+      id: node.id,
+      x: node.position?.x || width / 2,
+      y: node.position?.y || height / 2
+    }));
+
+    // Convert edges to D3 format
+    const simLinks = edges.map(edge => ({
+      source: edge.data.source,
+      target: edge.data.target
     }));
 
     // Set nodes and edges
     simulation.nodes(simNodes);
-    simulation.force('link').links(edges);
+    simulation.force('link').links(simLinks);
 
     // Run simulation synchronously
     simulation.tick(300);
@@ -63,5 +68,5 @@ export function useForceLayout(nodes, edges, width = 1000, height = 800, onPosit
         }
       }
     }
-  }, [nodes.length]); // Only run when number of nodes changes
+  }, [nodes.length, width, height]); // Update when nodes or dimensions change
 }

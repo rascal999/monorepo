@@ -18,7 +18,7 @@ export function useNodeData(activeGraph, updateGraph, setNodeLoading) {
           position: nodePositions[node.id], // Preserve exact position
           data: {
             ...node.data,
-            isLoading: tabName === 'chat' // Only update loading state for chat updates
+            isLoading: tabName === 'isLoadingDefinition' ? data : false // Reset loading state unless explicitly setting it
           }
         };
       }
@@ -35,27 +35,32 @@ export function useNodeData(activeGraph, updateGraph, setNodeLoading) {
         ...activeGraph.nodeData,
         [nodeId]: {
           ...activeGraph.nodeData[nodeId],
-          [tabName]: data
+          // Handle chat data updates
+          chat: tabName === 'chat' ? data : (activeGraph.nodeData[nodeId]?.chat || []),
+          // Keep loading states in sync and ensure they're boolean
+          isLoadingDefinition: tabName === 'isLoadingDefinition' ? Boolean(data) : false,
+          // Preserve other data
+          notes: activeGraph.nodeData[nodeId]?.notes || '',
+          quiz: activeGraph.nodeData[nodeId]?.quiz || []
         }
       }
     };
 
-    // Always respect the last user-selected node if available
-    if (lastUserSelectedNodeId) {
-      updateGraph({
-        ...updatedGraph,
-        lastSelectedNodeId: lastUserSelectedNodeId
-      });
-    } else if (isDefinitionUpdate) {
-      // For definition updates without user selection, preserve current selection
-      updateGraph({
-        ...updatedGraph,
-        lastSelectedNodeId: activeGraph.lastSelectedNodeId
-      });
-    } else {
-      // For normal updates without user selection, let the selection change
-      updateGraph(updatedGraph);
+    // Ensure the node data exists in the graph before updating
+    if (!activeGraph.nodeData[nodeId]) {
+      updatedGraph.nodeData[nodeId] = {
+        chat: tabName === 'chat' ? data : [],
+        notes: '',
+        quiz: [],
+        isLoadingDefinition: tabName === 'isLoadingDefinition' ? Boolean(data) : false
+      };
     }
+
+    // Update the graph with proper selection handling
+    updateGraph({
+      ...updatedGraph,
+      lastSelectedNodeId: lastUserSelectedNodeId || (isDefinitionUpdate ? activeGraph.lastSelectedNodeId : nodeId)
+    });
   };
 
   return { updateNodeData };

@@ -2,9 +2,21 @@ import { fetchChatCompletion } from './openRouterApi';
 
 class AIService {
   constructor() {
-    this.batchQueue = [];
+    this.batchQueue = new Map(); // Map of term -> array of callbacks
     this.batchTimeout = null;
-    this.BATCH_DELAY = 500; // Wait 500ms to collect requests
+    this.BATCH_DELAY = 250; // Reduced delay to improve responsiveness
+    this.activeRequests = new Set(); // Track active requests to prevent duplicates
+
+    // Load model settings
+    const savedSettings = localStorage.getItem('modelSettings');
+    if (savedSettings) {
+      const { model, temperature } = JSON.parse(savedSettings);
+      this.model = model;
+      this.temperature = temperature;
+    } else {
+      this.model = 'openai/gpt-4-turbo';
+      this.temperature = 0.7;
+    }
 
     this.systemPrompt = `You are a knowledgeable assistant helping to define concepts and explain their relationships. When given a term or concept:
 1. Provide a clear, concise definition
@@ -12,6 +24,33 @@ class AIService {
 3. Use academic/technical language when appropriate
 4. Keep responses focused and relevant
 5. Aim for 2-3 paragraphs maximum`;
+  }
+
+  clearStaleRequests() {
+    console.log('AIService: Clearing stale requests:', {
+      activeRequests: [...this.activeRequests],
+      queueSize: this.batchQueue.size
+    });
+
+    // Clear timeout first to prevent new requests
+    if (this.batchTimeout) {
+      clearTimeout(this.batchTimeout);
+      this.batchTimeout = null;
+    }
+
+    // Process any pending callbacks with cancellation
+    Array.from(this.batchQueue.entries()).forEach(([requestId, request]) => {
+      request.callbacks.forEach(({ callback }) => {
+        callback({
+          success: false,
+          error: 'Request cancelled due to graph change'
+        });
+      });
+    });
+
+    // Clear tracking state
+    this.activeRequests.clear();
+    this.batchQueue = new Map();
   }
 
   async getDefinitions(terms, context = '') {
@@ -35,7 +74,7 @@ class AIService {
       // Process requests in sequence but as a batch
       const responses = [];
       for (const request of requests) {
-        const response = await fetchChatCompletion(request.messages);
+        const response = await fetchChatCompletion(request.messages, this.model);
         responses.push(response);
       }
 
@@ -55,8 +94,30 @@ class AIService {
 
   // Queue a definition request for batch processing
   queueDefinitionRequest(term, context, callback) {
-    this.batchQueue.push({ term, context, callback });
+    // Generate unique request ID using term and context
+    const requestId = `${term}-${context}`;
     
+    // Skip if exact request is already being processed
+    if (this.activeRequests.has(requestId)) {
+      console.log('AIService: Request already in progress:', { term, context });
+      return;
+    }
+
+    console.log('AIService: Queueing request:', {
+      requestId,
+      term,
+      context,
+      activeRequests: [...this.activeRequests],
+      queueSize: this.batchQueue.size
+    });
+
+    // Add to queue with unique ID
+    if (!this.batchQueue.has(requestId)) {
+      this.batchQueue.set(requestId, { term, callbacks: [] });
+    }
+    this.batchQueue.get(requestId).callbacks.push({ context, callback });
+    this.activeRequests.add(requestId);
+
     // Clear existing timeout
     if (this.batchTimeout) {
       clearTimeout(this.batchTimeout);
@@ -64,20 +125,42 @@ class AIService {
 
     // Set new timeout to process batch
     this.batchTimeout = setTimeout(async () => {
-      const currentBatch = [...this.batchQueue];
-      this.batchQueue = []; // Clear queue
+      const currentBatch = new Map(this.batchQueue);
+      this.batchQueue = new Map(); // Clear queue
 
-      if (currentBatch.length > 0) {
-        console.log('AIService: Processing batch of', currentBatch.length, 'requests');
-        const terms = currentBatch.map(req => req.term);
-        const context = currentBatch[0].context; // Use context from first request
+      if (currentBatch.size > 0) {
+        console.log('AIService: Processing batch of', currentBatch.size, 'requests');
+        const requests = Array.from(currentBatch.values());
+        const terms = requests.map(r => r.term);
+        const context = requests[0].callbacks[0].context; // Use context from first request
         
-        const results = await this.getDefinitions(terms, context);
-        
-        // Call callbacks with results
-        currentBatch.forEach((request, index) => {
-          request.callback(results[index]);
-        });
+        try {
+          const results = await this.getDefinitions(terms, context);
+          
+          // Process results
+          Array.from(currentBatch.entries()).forEach(([requestId, request], index) => {
+            const result = results[index];
+            
+            // Call all callbacks for this request
+            request.callbacks.forEach(({ callback }) => {
+              callback(result);
+            });
+            
+            this.activeRequests.delete(requestId);
+          });
+        } catch (error) {
+          console.error('AIService: Batch processing error:', error);
+          // Handle error for all requests in batch
+          Array.from(currentBatch.entries()).forEach(([requestId, request]) => {
+            request.callbacks.forEach(({ callback }) => {
+              callback({
+                success: false,
+                error: error.message || 'Failed to fetch definition'
+              });
+            });
+            this.activeRequests.delete(requestId);
+          });
+        }
       }
     }, this.BATCH_DELAY);
   }
@@ -94,7 +177,7 @@ class AIService {
     ];
 
     try {
-      const response = await fetchChatCompletion(fullMessages);
+      const response = await fetchChatCompletion(fullMessages, this.model);
       console.log('AIService: Chat response received');
       return {
         success: true,
@@ -124,7 +207,7 @@ class AIService {
     ];
 
     try {
-      const response = await fetchChatCompletion(messages, 'anthropic/claude-3-opus');
+      const response = await fetchChatCompletion(messages, this.model);
       console.log('AIService: Sources received');
       
       let sources;
@@ -145,6 +228,16 @@ class AIService {
         success: false,
         error: error.message || 'Failed to search sources'
       };
+    }
+  }
+
+  updateSettings() {
+    const savedSettings = localStorage.getItem('modelSettings');
+    if (savedSettings) {
+      const { model, temperature } = JSON.parse(savedSettings);
+      this.model = model;
+      this.temperature = temperature;
+      console.log('AIService: Settings updated:', { model, temperature });
     }
   }
 }
