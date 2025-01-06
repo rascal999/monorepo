@@ -1,0 +1,66 @@
+# KGraph Web App Requirements
+
+## Core Features
+1. Create a React web application using Vite as the build tool
+2. Implement Cytoscape for node graph visualization
+3. Create a left panel for graph selection
+4. Support multiple node graphs
+5. Persist viewport state for each graph
+6. Support node interactions (click, drag, etc.)
+7. Support dark mode styling
+
+## Technical Requirements
+1. Project Setup
+   - Use React 18+
+   - Use Cytoscape.js with react-cytoscapejs
+   - Use Vite for development and building
+   - Implement proper project structure (components, hooks, etc.)
+
+2. Layout Requirements
+   - Left panel for graph selection
+   - Main area for Cytoscape graph display
+   - Responsive design
+
+3. Graph Requirements
+   - Support multiple distinct node graphs
+   - Each graph should have unique nodes and edges
+   - Implement proper node and edge styling
+   - Support basic interactions (pan, zoom, drag)
+   - Force-directed layout using D3-force
+
+4. State Management
+   - Persist viewport state for each graph
+   - Maintain separate viewport settings per graph
+   - Handle graph switching without losing state
+
+5. Data Structure
+   - Define clear node and edge data structures
+   - Support proper data organization and separation
+   - Handle node loading states
+
+## Implementation Details
+1. Components
+   - App (main container)
+   - GraphPanel (Cytoscape container)
+   - Custom hooks for graph state management
+   - Utility functions for viewport management
+
+2. Features
+   - Graph switching functionality
+   - Viewport persistence
+   - Proper error handling
+   - Loading states
+   - Dark mode support
+
+3. Data
+   - Graph data management
+   - Viewport state storage
+   - Graph selection state
+   - OpenRouter API logging for debugging and monitoring
+
+## Migration Notes
+- Migrated from ReactFlow to Cytoscape.js
+- Updated node/edge data structures to match Cytoscape format
+- Implemented custom styling using Cytoscape's stylesheet
+- Adapted force layout to work with Cytoscape's API
+- Updated viewport management for Cytoscape compatibility

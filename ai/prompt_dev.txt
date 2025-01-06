@@ -1,0 +1,4 @@
+1. Output interpretation of above requirements.
+2. Read through project_requirements.txt if it exists.
+3. Update project_requirements.txt after confirming with user.
+4. DO NOT WRITE CODE without confirmation.
