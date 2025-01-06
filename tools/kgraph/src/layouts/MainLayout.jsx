@@ -24,6 +24,15 @@ export function MainLayout({
   handleGetDefinition,
   handleSendMessage
 }) {
+  // Validate onNodePositionChange is a function
+  useEffect(() => {
+    if (typeof onNodePositionChange !== 'function') {
+      console.error('MainLayout: onNodePositionChange is not a function:', {
+        type: typeof onNodePositionChange,
+        value: onNodePositionChange
+      });
+    }
+  }, [onNodePositionChange]);
   useEffect(() => {
     // Set dark theme by default
     document.documentElement.classList.add('dark');

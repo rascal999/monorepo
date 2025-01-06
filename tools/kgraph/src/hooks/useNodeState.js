@@ -2,9 +2,37 @@ import { useState, useEffect } from 'react';
 import { useNodeSelection } from './useNodeSelection';
 import { useNodeCreation } from './useNodeCreation';
 import { useNodeData } from './useNodeData';
-import { useNodePosition } from './useNodePosition';
+import { useNodePosition as importedUseNodePosition } from './useNodePosition';
 import { useNodeInteraction } from './useNodeInteraction';
 import { useNodeDefinitions } from './useNodeDefinitions';
+
+// Create validated version of useNodePosition
+const useNodePosition = (activeGraph, updateGraph) => {
+  console.log('useNodePosition called with:', {
+    hasActiveGraph: !!activeGraph,
+    hasUpdateGraph: !!updateGraph
+  });
+
+  const result = importedUseNodePosition(activeGraph, updateGraph);
+  
+  console.log('useNodePosition result:', {
+    hasResult: !!result,
+    hasUpdateNodePosition: result?.updateNodePosition !== undefined,
+    updateNodePositionType: typeof result?.updateNodePosition
+  });
+
+  if (!result || typeof result.updateNodePosition !== 'function') {
+    console.error('useNodePosition hook returned invalid result');
+    // Return a default implementation to prevent undefined errors
+    return {
+      updateNodePosition: (update) => {
+        console.error('Called fallback updateNodePosition:', update);
+      }
+    };
+  }
+
+  return result;
+};
 
 export function useNodeState(activeGraph, updateGraph, setNodeLoading) {
   const { selectedNode, setSelectedNode, handleNodeClick: handleNodeClickBase } = useNodeSelection(activeGraph, updateGraph);
@@ -24,7 +52,21 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading) {
       setNodeLoading(graphId, nodeId, isLoading);
     }
   );
-  const { updateNodePosition } = useNodePosition(activeGraph, updateGraph);
+  // Initialize node position handling
+  const nodePosition = useNodePosition(activeGraph, updateGraph);
+  const updateNodePosition = nodePosition?.updateNodePosition;
+
+  // Validate updateNodePosition is a function
+  useEffect(() => {
+    if (typeof updateNodePosition !== 'function') {
+      console.error('updateNodePosition is not a function:', {
+        type: typeof updateNodePosition,
+        value: updateNodePosition,
+        hasActiveGraph: !!activeGraph,
+        hasUpdateGraph: !!updateGraph
+      });
+    }
+  }, [updateNodePosition, activeGraph, updateGraph]);
 
   // Track the last user-selected node ID, initialized from activeGraph
   const [lastUserSelectedNodeId, setLastUserSelectedNodeId] = useState(() => 
@@ -70,6 +112,10 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading) {
     setActiveTab,
     nodeInteraction,
     handleSendMessage,
-    handleNodeClick: handleNodeClickBase // Use handler from useNodeSelection
+    handleNodeClick: handleNodeClickBase, // Use handler from useNodeSelection
+    addNode,
+    updateNodeData: updateNodeDataWithSelection,
+    updateNodePosition,
+    handleGetDefinition
   };
 }
