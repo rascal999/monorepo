@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 
-function ChatPanel({ messages, isLoading, nodeId, nodeLabel, onSendMessage, onWordClick, handleGetDefinition }) {
+function ChatPanel({ messages, isLoading, nodeId, nodeLabel, nodeData, onSendMessage, onWordClick, handleGetDefinition }) {
   const chatEndRef = useRef(null);
 
   const chatContainerRef = useRef(null);
@@ -27,6 +27,33 @@ function ChatPanel({ messages, isLoading, nodeId, nodeLabel, onSendMessage, onWo
     setPrevMessages(messages);
   }, [nodeId, messages]);
 
+  // Reset state when node changes
+  useEffect(() => {
+    setPrevMessages([]);
+  }, [nodeId]);
+
+  // Ensure messages is always an array
+  const messageArray = Array.isArray(messages) ? messages : [];
+  const hasMessages = messageArray.length > 0;
+  const isLoadingDefinition = Boolean(nodeData?.isLoadingDefinition);
+  // Only show loading if we're actually loading and don't have messages yet
+  const showLoading = isLoadingDefinition && !hasMessages;
+  const showButton = !hasMessages && !showLoading && nodeId;
+
+  // Log state for debugging
+  useEffect(() => {
+    console.log('ChatPanel state:', {
+      messages: messageArray,
+      hasMessages,
+      isLoading,
+      isLoadingDefinition,
+      showLoading,
+      showButton,
+      nodeData,
+      nodeId
+    });
+  }, [messageArray, hasMessages, isLoading, isLoadingDefinition, showLoading, showButton, nodeData, nodeId]);
+
   return (
     <div className="relative flex flex-col h-full">
       <div 
@@ -34,7 +61,7 @@ function ChatPanel({ messages, isLoading, nodeId, nodeLabel, onSendMessage, onWo
         className="flex-1 overflow-auto"
 >
         <div className="p-4 space-y-4">
-          {(!messages || messages.length === 0) && !isLoading && (
+          {showButton && (
             <div className="flex justify-center">
               <button
                 onClick={() => handleGetDefinition({ id: nodeId, data: { label: nodeLabel } })}
@@ -44,7 +71,7 @@ function ChatPanel({ messages, isLoading, nodeId, nodeLabel, onSendMessage, onWo
               </button>
             </div>
           )}
-          {messages?.map((message, index) => (
+          {messageArray.map((message, index) => (
             <ChatMessage 
               key={index} 
               message={message} 
@@ -52,10 +79,10 @@ function ChatPanel({ messages, isLoading, nodeId, nodeLabel, onSendMessage, onWo
               nodeId={nodeId}
             />
           ))}
-          {isLoading && (
+          {showLoading && (
             <div className="p-3 rounded-lg bg-[var(--node-bg)] flex items-center gap-3">
               <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              {!messages || messages.length === 0 ? (
+              {messageArray.length === 0 ? (
                 <div>Fetching definition for "{nodeLabel}"...</div>
               ) : (
                 <div>Thinking...</div>

@@ -1,9 +1,11 @@
 import { useState, useMemo } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon, ChevronRightIcon, PlusIcon, TrashIcon, EllipsisVerticalIcon } from '@heroicons/react/24/outline';
+import SettingsPanel from './settings/SettingsPanel';
 
 function SidebarPanel({ graphs, activeGraph, onCreateGraph, onSelectGraph, onDeleteGraph, onClearData }) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [newGraphTitle, setNewGraphTitle] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -29,19 +31,28 @@ function SidebarPanel({ graphs, activeGraph, onCreateGraph, onSelectGraph, onDel
   };
 
   return (
+    <>
     <div className={`panel h-full border-r flex flex-col ${isExpanded ? 'p-4' : 'p-2'}`}>
       <div className="flex items-center justify-between mb-4">
         {isExpanded && <h2 className="text-lg font-semibold">Knowledge Graphs</h2>}
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="p-1 hover:bg-[var(--node-bg)] rounded"
-        >
-          {isExpanded ? (
-            <ChevronLeftIcon className="w-5 h-5" />
-          ) : (
-            <ChevronRightIcon className="w-5 h-5" />
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowSettings(true)}
+            className="p-1 hover:bg-[var(--node-bg)] rounded"
+          >
+            <EllipsisVerticalIcon className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-1 hover:bg-[var(--node-bg)] rounded"
+          >
+            {isExpanded ? (
+              <ChevronLeftIcon className="w-5 h-5" />
+            ) : (
+              <ChevronRightIcon className="w-5 h-5" />
+            )}
+          </button>
+        </div>
       </div>
 
       {isExpanded && (
@@ -122,6 +133,8 @@ function SidebarPanel({ graphs, activeGraph, onCreateGraph, onSelectGraph, onDel
         </>
       )}
     </div>
+    {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
+    </>
   );
 }
 

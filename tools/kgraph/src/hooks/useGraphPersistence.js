@@ -65,9 +65,17 @@ export function useGraphPersistence() {
 
   const clearData = () => {
     try {
+      // Clear graph data
       localStorage.removeItem('kgraph-graphs');
       localStorage.removeItem('kgraph-last-graph');
-      localStorage.removeItem('kgraph-viewport');
+      
+      // Clear all viewport data for all graphs
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.startsWith('kgraph-viewport-')) {
+          localStorage.removeItem(key);
+        }
+      });
     } catch (error) {
       console.error('Error clearing localStorage:', error);
     }
