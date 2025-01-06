@@ -18,8 +18,14 @@ function NodePanel({
   handleGetDefinition,
   handleSendMessage
 }) {
-
   const { handleWordClick } = nodeInteraction || {};
+
+  // Switch to chat tab when chat updates occur
+  useEffect(() => {
+    if (nodeData?.chat?.length > 0 && activeTab !== 'chat') {
+      setActiveTab('chat');
+    }
+  }, [nodeData?.chat?.length, activeTab, setActiveTab]);
 
   if (!node) {
     return (
@@ -44,12 +50,13 @@ function NodePanel({
             nodeId={node.id}
             nodeLabel={node.data.label}
             nodeData={nodeData}
-            onSendMessage={(text) => handleSendMessage(node, nodeData, text)}
+            onSendMessage={(text, onStream) => handleSendMessage(node, nodeData, text, onStream)}
             onWordClick={(words) => {
               if (!handleWordClick) return;
               handleWordClick(node, words);
             }}
             handleGetDefinition={handleGetDefinition}
+            updateNodeData={onUpdateData}
           />
         )}
 
