@@ -22,11 +22,11 @@ export function useGraphNodes(graph, isDragging, draggedNodeId) {
         existingNodeCount: existingNodes.length
       });
 
-      // Create a map of current positions
+      // Create a map of current positions - preserve exact references
       const currentPositions = {};
       nodes.forEach(node => {
         if (node.position) {
-          currentPositions[node.id] = { ...node.position };
+          currentPositions[node.id] = node.position; // Keep original reference
         }
       });
 
@@ -72,7 +72,7 @@ export function useGraphNodes(graph, isDragging, draggedNodeId) {
           });
         } else if (node.position?.x !== undefined && node.position?.y !== undefined) {
           // Use provided position if valid
-          position = { ...node.position };
+          position = node.position;
           console.log('Using provided position for node:', {
             nodeId: node.id,
             position
