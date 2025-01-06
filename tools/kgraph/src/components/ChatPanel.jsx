@@ -1,29 +1,88 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 
-function ChatPanel({ messages: propMessages, isLoading, nodeId, nodeLabel, nodeData, onSendMessage, onWordClick, handleGetDefinition }) {
+function ChatPanel({ messages: propMessages, isLoading, nodeId, nodeLabel, nodeData, onSendMessage, onWordClick, handleGetDefinition, updateNodeData }) {
   const chatEndRef = useRef(null);
   const chatContainerRef = useRef(null);
+  const restoredRef = useRef(false);
   const [prevNodeId, setPrevNodeId] = useState(nodeId);
   const [localMessages, setLocalMessages] = useState(nodeData?.chat || []);
-
   const [streamingMessage, setStreamingMessage] = useState(null);
+  
+  // Calculate initial scroll position
+  const initialScrollTop = nodeData?.chatScrollPosition ?? 0;
+
+  // Update scroll position handler
+  const updatePosition = useCallback(() => {
+    if (!chatContainerRef.current || !nodeId) return;
+    updateNodeData(nodeId, 'chatScrollPosition', chatContainerRef.current.scrollTop);
+  }, [nodeId, updateNodeData]);
+
+  // Handle scroll events with throttling and mouseleave
+  useEffect(() => {
+    if (!chatContainerRef.current) return;
+
+    let lastUpdate = 0;
+    let scrollTimeout;
+    const THROTTLE_MS = 150; // Throttle to ~6 updates per second
+
+    const handleScroll = () => {
+      const now = Date.now();
+      
+      // Clear any pending scroll end timeout
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+
+      // Set new scroll end timeout
+      scrollTimeout = setTimeout(updatePosition, 100);
+
+      // Skip if within throttle window
+      if (now - lastUpdate < THROTTLE_MS) return;
+
+      lastUpdate = now;
+      updatePosition();
+    };
+
+    // Save position when mouse leaves the chat container
+    const handleMouseLeave = () => {
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+      updatePosition();
+    };
+
+    const container = chatContainerRef.current;
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    container.addEventListener('mouseleave', handleMouseLeave);
+    
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+      container.removeEventListener('mouseleave', handleMouseLeave);
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+    };
+  }, [updatePosition]);
 
   // Handle node switching and message updates
   useEffect(() => {
     // Handle node switching
     if (nodeId !== prevNodeId) {
-      setPrevNodeId(nodeId);
-      if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTop = 0;
+      // Save scroll position of previous node before switching
+      if (prevNodeId && chatContainerRef.current) {
+        updateNodeData(prevNodeId, 'chatScrollPosition', chatContainerRef.current.scrollTop);
       }
+      
+      setPrevNodeId(nodeId);
       setStreamingMessage(null);
+      restoredRef.current = false;
     }
 
     // Always update local messages from nodeData
     setLocalMessages(nodeData?.chat || []);
-  }, [nodeId, prevNodeId, nodeData?.chat]);
+  }, [nodeId, prevNodeId, nodeData?.chat, updateNodeData]);
 
   // Handle message sending with streaming
   const handleSendMessage = async (content) => {
@@ -72,26 +131,18 @@ function ChatPanel({ messages: propMessages, isLoading, nodeId, nodeLabel, nodeD
   const showLoading = isLoadingDefinition && !hasMessages;
   const showButton = !nodeData?.chat?.length && !showLoading && nodeId;
 
-  // Log state for debugging
-  useEffect(() => {
-    console.log('ChatPanel state:', {
-      messages: allMessages,
-      hasMessages,
-      isLoading,
-      isLoadingDefinition,
-      showLoading,
-      showButton,
-      nodeData,
-      nodeId,
-      streaming: Boolean(streamingMessage)
-    });
-  }, [allMessages, hasMessages, isLoading, isLoadingDefinition, showLoading, showButton, nodeData, nodeId, streamingMessage]);
-
   return (
     <div className="relative flex flex-col h-full">
       <div 
-        ref={chatContainerRef}
+        ref={(el) => {
+          if (el && !restoredRef.current) {
+            chatContainerRef.current = el;
+            el.scrollTop = initialScrollTop;
+            restoredRef.current = true;
+          }
+        }}
         className="flex-1 overflow-auto"
+        style={{ scrollBehavior: 'instant' }}
       >
         <div className="p-4 pb-20 space-y-4">
           {showButton && (
