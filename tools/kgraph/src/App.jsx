@@ -45,6 +45,29 @@ function App() {
     }
   }, [graphs.length, createGraph]);
 
+  // Validate updateNodePosition before passing to MainLayout
+  useEffect(() => {
+    if (typeof updateNodePosition !== 'function') {
+      console.error('App: updateNodePosition is not a function:', {
+        type: typeof updateNodePosition,
+        value: updateNodePosition,
+        nodeStateKeys: Object.keys({ 
+          selectedNode, 
+          setSelectedNode, 
+          handleNodeClick, 
+          addNode, 
+          updateNodeData, 
+          updateNodePosition, 
+          activeTab, 
+          setActiveTab, 
+          nodeInteraction, 
+          handleGetDefinition, 
+          handleSendMessage 
+        })
+      });
+    }
+  }, [updateNodePosition]);
+
   return (
     <MainLayout
       graphs={graphs}
