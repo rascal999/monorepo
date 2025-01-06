@@ -43,6 +43,8 @@
      * Validate imported graph data structure
      * Preserve node positions and relationships
      * Include viewport settings in export
+     * Preserve last selected node state
+     * Auto-select initial node on import if no last selection
 
 ## Implementation Details
 1. Components
