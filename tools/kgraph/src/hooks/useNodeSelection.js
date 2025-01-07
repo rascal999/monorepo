@@ -16,53 +16,48 @@ export function useNodeSelection(activeGraph, updateGraph) {
       stack: new Error().stack
     });
 
+    // Always clear selection when switching graphs
+    if (!activeGraph) {
+      console.log('[NodeSelection] No active graph, clearing selection');
+      setSelectedNode(null);
+      setHasManualSelection(false);
+      return;
+    }
+
     // Reset manual selection flag when switching graphs
     setHasManualSelection(false);
 
-    // Handle node selection
-    if (!hasManualSelection) {
-      if (!activeGraph) {
-        console.log('[NodeSelection] No active graph, clearing selection');
-        setSelectedNode(null);
-        return;
-      }
+    // Try to find node with chat data first
+    const nodeWithChat = activeGraph.nodes.find(n => 
+      activeGraph.nodeData[n.id]?.chat?.length > 0
+    );
 
-      // Try to find the last selected node
-      const lastNode = activeGraph.lastSelectedNodeId 
-        ? activeGraph.nodes.find(n => n.id === activeGraph.lastSelectedNodeId)
-        : null;
+    // Use node with chat, lastSelectedNode, or first node
+    const nodeToSelect = nodeWithChat || 
+      (activeGraph.lastSelectedNodeId && 
+        activeGraph.nodes.find(n => n.id === activeGraph.lastSelectedNodeId)) ||
+      activeGraph.nodes[0];
 
-      console.log('[NodeSelection] Finding node to select:', {
-        lastSelectedNodeId: activeGraph.lastSelectedNodeId,
-        foundLastNode: !!lastNode,
-        lastNodeLabel: lastNode?.data?.label
+    if (nodeToSelect) {
+      console.log('[NodeSelection] Selecting node:', {
+        nodeId: nodeToSelect.id,
+        hasChat: !!activeGraph.nodeData[nodeToSelect.id]?.chat?.length,
+        isLastSelected: nodeToSelect.id === activeGraph.lastSelectedNodeId
       });
-
-      // If no last selected node or not found, use first node
-      const nodeToSelect = lastNode || activeGraph.nodes[0];
-
-      if (nodeToSelect) {
-        console.log('[NodeSelection] Auto-selecting node:', {
-          nodeId: nodeToSelect.id,
-          nodeLabel: nodeToSelect.data?.label,
-          isLastSelected: nodeToSelect === lastNode
+      setSelectedNode(nodeToSelect);
+      
+      // Update graph selection state if needed
+      if (activeGraph.lastSelectedNodeId !== nodeToSelect.id) {
+        updateGraph({
+          ...activeGraph,
+          lastSelectedNodeId: nodeToSelect.id
         });
-        setSelectedNode(nodeToSelect);
-        
-        // Ensure lastSelectedNodeId is set in graph
-        if (activeGraph.lastSelectedNodeId !== nodeToSelect.id) {
-          console.log('[NodeSelection] Updating graph lastSelectedNodeId:', nodeToSelect.id);
-          updateGraph({
-            ...activeGraph,
-            lastSelectedNodeId: nodeToSelect.id
-          });
-        }
-      } else {
-        console.log('[NodeSelection] No node to select, clearing selection');
-        setSelectedNode(null);
       }
+    } else {
+      console.log('[NodeSelection] No node to select, clearing selection');
+      setSelectedNode(null);
     }
-  }, [activeGraph?.id]); // Only run on graph changes, not lastSelectedNodeId changes
+  }, [activeGraph?.id]); // Only run on graph changes
 
   const handleNodeClick = (node, isUserClick = true) => {
     console.log('useNodeSelection handleNodeClick:', { node, isUserClick, activeGraph });

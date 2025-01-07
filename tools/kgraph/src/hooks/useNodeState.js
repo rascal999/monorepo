@@ -35,7 +35,25 @@ const useNodePosition = (activeGraph, updateGraph) => {
 };
 
 export function useNodeState(activeGraph, updateGraph, setNodeLoading) {
+  console.log('[NodeState] Initializing with:', {
+    activeGraphId: activeGraph?.id,
+    lastSelectedNodeId: activeGraph?.lastSelectedNodeId,
+    hasNodes: activeGraph?.nodes?.length,
+    stack: new Error().stack
+  });
+
   const { selectedNode, setSelectedNode, handleNodeClick: handleNodeClickBase } = useNodeSelection(activeGraph, updateGraph);
+
+  // Add effect to monitor selectedNode changes
+  useEffect(() => {
+    console.log('[NodeState] Selected node changed:', {
+      hasSelectedNode: !!selectedNode,
+      nodeId: selectedNode?.id,
+      nodeLabel: selectedNode?.data?.label,
+      activeGraphId: activeGraph?.id,
+      lastSelectedNodeId: activeGraph?.lastSelectedNodeId
+    });
+  }, [selectedNode, activeGraph]);
   const { addNode } = useNodeCreation(activeGraph, updateGraph);
   const { updateNodeData } = useNodeData(activeGraph, updateGraph, setNodeLoading);
   // Create wrapper for updateNodeData that includes lastUserSelectedNodeId
@@ -70,17 +88,62 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading) {
     }
   }, [updateNodePosition, activeGraph, updateGraph]);
 
+  // Track current graph ID to handle transitions
+  const [prevGraphId, setPrevGraphId] = useState(activeGraph?.id);
+
   // Track the last user-selected node ID, initialized from activeGraph
   const [lastUserSelectedNodeId, setLastUserSelectedNodeId] = useState(() => 
     activeGraph?.lastSelectedNodeId || null
   );
 
-  // Update lastUserSelectedNodeId when switching graphs
+  // Handle graph transitions and node selection
   useEffect(() => {
-    if (activeGraph?.lastSelectedNodeId) {
-      setLastUserSelectedNodeId(activeGraph.lastSelectedNodeId);
-    } else {
+    const currentGraphId = activeGraph?.id;
+    console.log('[NodeState] Graph transition:', {
+      prevGraphId,
+      currentGraphId,
+      lastSelectedNodeId: activeGraph?.lastSelectedNodeId,
+      hasNodes: activeGraph?.nodes?.length
+    });
+
+    // Skip if this is the initial mount
+    if (prevGraphId === undefined && currentGraphId === undefined) {
+      setPrevGraphId(currentGraphId);
+      return;
+    }
+
+    // Handle graph transitions
+    if (currentGraphId !== prevGraphId) {
+      // Reset selection states
       setLastUserSelectedNodeId(null);
+      setSelectedNode(null);
+      setPrevGraphId(currentGraphId);
+
+      // If new graph has nodes, select appropriate node
+      if (activeGraph?.nodes?.length > 0) {
+        // Try to find node with chat data first
+        const nodeWithChat = activeGraph.nodes.find(n => 
+          activeGraph.nodeData[n.id]?.chat?.length > 0
+        );
+
+        // Use node with chat, lastSelectedNode, or first node
+        const nodeToSelect = nodeWithChat || 
+          (activeGraph.lastSelectedNodeId && 
+            activeGraph.nodes.find(n => n.id === activeGraph.lastSelectedNodeId)) ||
+          activeGraph.nodes[0];
+
+        if (nodeToSelect) {
+          console.log('[NodeState] Selecting node on graph change:', {
+            nodeId: nodeToSelect.id,
+            hasChat: !!activeGraph.nodeData[nodeToSelect.id]?.chat?.length,
+            isLastSelected: nodeToSelect.id === activeGraph.lastSelectedNodeId
+          });
+          setSelectedNode(nodeToSelect);
+          if (activeGraph.nodeData[nodeToSelect.id]?.chat?.length > 0) {
+            setLastUserSelectedNodeId(nodeToSelect.id);
+          }
+        }
+      }
     }
   }, [activeGraph?.id]);
 
