@@ -8,6 +8,11 @@
 5. Persist viewport state for each graph
 6. Support node interactions (click, drag, etc.)
 7. Support dark mode styling
+8. Smart node selection
+   - Prioritize nodes with existing chat data
+   - Fall back to last selected node
+   - Default to first node if needed
+   - Preserve selection state during graph transitions
 
 ## Technical Requirements
 1. Project Setup
