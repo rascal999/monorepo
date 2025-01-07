@@ -8,7 +8,6 @@ export const getDarkModeStyles = (baseStyles) => [
     style: {
       'background-color': '#6366f1',
       'border-color': '#4338ca',
-      'border-width': 2,
       'label': 'data(label)',
       'color': '#fff',
       'text-valign': 'center',
