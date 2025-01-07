@@ -34,7 +34,7 @@ const useNodePosition = (activeGraph, updateGraph) => {
   return result;
 };
 
-export function useNodeState(activeGraph, updateGraph, setNodeLoading) {
+export function useNodeState(activeGraph, updateGraph, setNodeLoading, graphs) {
   console.log('[NodeState] Initializing with:', {
     activeGraphId: activeGraph?.id,
     lastSelectedNodeId: activeGraph?.lastSelectedNodeId,
@@ -42,7 +42,7 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading) {
     stack: new Error().stack
   });
 
-  const { selectedNode, setSelectedNode, handleNodeClick: handleNodeClickBase } = useNodeSelection(activeGraph, updateGraph);
+  const { selectedNode, setSelectedNode, handleNodeClick: handleNodeClickBase } = useNodeSelection(activeGraph, updateGraph, graphs);
 
   // Add effect to monitor selectedNode changes
   useEffect(() => {
@@ -54,8 +54,13 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading) {
       lastSelectedNodeId: activeGraph?.lastSelectedNodeId
     });
   }, [selectedNode, activeGraph]);
+
   const { addNode } = useNodeCreation(activeGraph, updateGraph);
   const { updateNodeData } = useNodeData(activeGraph, updateGraph, setNodeLoading);
+
+  // Track the last user-selected node ID
+  const [lastUserSelectedNodeId, setLastUserSelectedNodeId] = useState(null);
+
   // Create wrapper for updateNodeData that includes lastUserSelectedNodeId
   const updateNodeDataWithSelection = (nodeId, tabName, data, isDefinitionUpdate = false) => {
     // Only pass lastUserSelectedNodeId if it's not null/undefined and different from nodeId
@@ -72,6 +77,7 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading) {
       setNodeLoading(graphId, nodeId, isLoading);
     }
   );
+
   // Initialize node position handling
   const nodePosition = useNodePosition(activeGraph, updateGraph);
   const updateNodePosition = nodePosition?.updateNodePosition;
@@ -87,65 +93,6 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading) {
       });
     }
   }, [updateNodePosition, activeGraph, updateGraph]);
-
-  // Track current graph ID to handle transitions
-  const [prevGraphId, setPrevGraphId] = useState(activeGraph?.id);
-
-  // Track the last user-selected node ID, initialized from activeGraph
-  const [lastUserSelectedNodeId, setLastUserSelectedNodeId] = useState(() => 
-    activeGraph?.lastSelectedNodeId || null
-  );
-
-  // Handle graph transitions and node selection
-  useEffect(() => {
-    const currentGraphId = activeGraph?.id;
-    console.log('[NodeState] Graph transition:', {
-      prevGraphId,
-      currentGraphId,
-      lastSelectedNodeId: activeGraph?.lastSelectedNodeId,
-      hasNodes: activeGraph?.nodes?.length
-    });
-
-    // Skip if this is the initial mount
-    if (prevGraphId === undefined && currentGraphId === undefined) {
-      setPrevGraphId(currentGraphId);
-      return;
-    }
-
-    // Handle graph transitions
-    if (currentGraphId !== prevGraphId) {
-      // Reset selection states
-      setLastUserSelectedNodeId(null);
-      setSelectedNode(null);
-      setPrevGraphId(currentGraphId);
-
-      // If new graph has nodes, select appropriate node
-      if (activeGraph?.nodes?.length > 0) {
-        // Try to find node with chat data first
-        const nodeWithChat = activeGraph.nodes.find(n => 
-          activeGraph.nodeData[n.id]?.chat?.length > 0
-        );
-
-        // Use node with chat, lastSelectedNode, or first node
-        const nodeToSelect = nodeWithChat || 
-          (activeGraph.lastSelectedNodeId && 
-            activeGraph.nodes.find(n => n.id === activeGraph.lastSelectedNodeId)) ||
-          activeGraph.nodes[0];
-
-        if (nodeToSelect) {
-          console.log('[NodeState] Selecting node on graph change:', {
-            nodeId: nodeToSelect.id,
-            hasChat: !!activeGraph.nodeData[nodeToSelect.id]?.chat?.length,
-            isLastSelected: nodeToSelect.id === activeGraph.lastSelectedNodeId
-          });
-          setSelectedNode(nodeToSelect);
-          if (activeGraph.nodeData[nodeToSelect.id]?.chat?.length > 0) {
-            setLastUserSelectedNodeId(nodeToSelect.id);
-          }
-        }
-      }
-    }
-  }, [activeGraph?.id]);
 
   // Manage tab state
   const [activeTab, setActiveTab] = useState('chat');
@@ -177,7 +124,7 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading) {
     setActiveTab,
     nodeInteraction,
     handleSendMessage,
-    handleNodeClick: handleNodeClickBase, // Use handler from useNodeSelection
+    handleNodeClick: handleNodeClickBase,
     addNode,
     updateNodeData: updateNodeDataWithSelection,
     updateNodePosition,

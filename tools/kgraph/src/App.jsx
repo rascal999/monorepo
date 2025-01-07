@@ -32,7 +32,7 @@ function App() {
     nodeInteraction,
     handleGetDefinition,
     handleSendMessage
-  } = useNodeState(activeGraph, updateGraph, setNodeLoading);
+  } = useNodeState(activeGraph, updateGraph, setNodeLoading, graphs);
 
   // Pass handleGetDefinition to useGraphState
   useEffect(() => {
