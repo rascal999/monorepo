@@ -138,7 +138,7 @@ States and Transitions:
 7. clearing_data
    Entry: Confirm data clear
    Transitions:
-   - CONFIRM → app_idle
+   - CONFIRM → app_idle (triggers clearAll action: resets graphs, currentGraph, selectedNode, and error)
    - CANCEL → app_idle
    - ERROR → error
 
