@@ -6,19 +6,22 @@ import {
   selectNode, 
   moveNode, 
   connectNodes,
-  updateViewport,
+  updateGraphViewport,
   setError 
 } from '../store/slices/appSlice';
 import { ActionTypes } from '../store/types';
+
+const defaultViewport = { zoom: 1, position: { x: 0, y: 0 } };
 
 const GraphPanel: React.FC = () => {
   const dispatch = useAppDispatch();
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<cytoscape.Core | null>(null);
+  const isInitializing = useRef(false);
   
   const currentGraph = useAppSelector(state => state.app.currentGraph);
   const selectedNode = useAppSelector(state => state.app.selectedNode);
-  const viewport = useAppSelector(state => state.app.viewport);
+  const viewport = useAppSelector(state => state.app.currentGraph?.viewport ?? defaultViewport);
 
   const handleImport = () => {
     const input = document.createElement('input');
@@ -50,8 +53,10 @@ const GraphPanel: React.FC = () => {
   useEffect(() => {
     if (!containerRef.current) return;
 
+    isInitializing.current = true;
+
     // Initialize Cytoscape
-    cyRef.current = cytoscape({
+    const cy = cytoscape({
       container: containerRef.current,
       style: [
         {
@@ -79,33 +84,31 @@ const GraphPanel: React.FC = () => {
         {
           selector: ':selected',
           style: {
-            'background-color': 'var(--primary-color)',
-            'line-color': 'var(--primary-color)',
-            'target-arrow-color': 'var(--primary-color)'
+            'background-color': '#007bff',
+            'line-color': '#007bff', 
+            'target-arrow-color': '#007bff'
           }
         }
       ],
       layout: {
         name: 'grid'
-      },
-      zoom: viewport.zoom,
-      pan: { ...viewport.position }
+      }
     });
 
     // Event handlers
-    cyRef.current.on('tap', 'node', (evt) => {
+    cy.on('tap', 'node', (evt) => {
       const node = evt.target;
       dispatch(selectNode(node.id()));
     });
 
-    cyRef.current.on('dragfree', 'node', (evt) => {
+    cy.on('dragfree', 'node', (evt) => {
       const node = evt.target;
       const position = node.position();
       dispatch(moveNode({ id: node.id(), position }));
     });
 
     // Track last focused node
-    cyRef.current.on('mouseover', 'node', (evt) => {
+    cy.on('mouseover', 'node', (evt) => {
       const node = evt.target;
       if (!selectedNode || selectedNode.id !== node.id()) {
         dispatch(selectNode(node.id()));
@@ -114,8 +117,8 @@ const GraphPanel: React.FC = () => {
 
     // Double click to create node
     let doubleClickTimer: NodeJS.Timeout;
-    cyRef.current.on('tap', (evt) => {
-      if (evt.target === cyRef.current) {
+    cy.on('tap', (evt) => {
+      if (evt.target === cy) {
         if (doubleClickTimer) {
           // Double click - create node
           clearTimeout(doubleClickTimer);
@@ -134,15 +137,38 @@ const GraphPanel: React.FC = () => {
       }
     });
 
+    // Track viewport changes
+    cy.on('viewport', () => {
+      if (!isInitializing.current) {
+        dispatch(updateGraphViewport({
+          zoom: cy.zoom(),
+          position: {
+            x: -cy.pan().x,
+            y: -cy.pan().y
+          }
+        }));
+      }
+    });
+
+    cyRef.current = cy;
+
+    // Set initial viewport
+    cy.zoom(viewport.zoom);
+    cy.pan({ x: -viewport.position.x, y: -viewport.position.y });
+    
+    isInitializing.current = false;
+
     return () => {
       cyRef.current?.destroy();
     };
-  }, []);
+  }, [dispatch]);
 
   // Update graph data when currentGraph changes
   useEffect(() => {
     if (!cyRef.current || !currentGraph) return;
 
+    isInitializing.current = true;
+    
     cyRef.current.elements().remove();
     
     // Add nodes
@@ -170,7 +196,14 @@ const GraphPanel: React.FC = () => {
       });
     });
 
-    cyRef.current.fit();
+    // Restore viewport
+    cyRef.current.zoom(currentGraph.viewport.zoom);
+    cyRef.current.pan({ 
+      x: -currentGraph.viewport.position.x, 
+      y: -currentGraph.viewport.position.y 
+    });
+    
+    isInitializing.current = false;
   }, [currentGraph]);
 
   // Update selected node
@@ -190,7 +223,17 @@ const GraphPanel: React.FC = () => {
           className="button button-secondary"
           onClick={() => {
             if (cyRef.current) {
+              isInitializing.current = true;
               cyRef.current.fit();
+              const newViewport = {
+                zoom: cyRef.current.zoom(),
+                position: {
+                  x: -cyRef.current.pan().x,
+                  y: -cyRef.current.pan().y
+                }
+              };
+              dispatch(updateGraphViewport(newViewport));
+              isInitializing.current = false;
             }
           }}
         >
