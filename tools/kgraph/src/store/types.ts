@@ -7,7 +7,13 @@ export interface Node {
   id: string;
   label: string;
   position: { x: number; y: number };
-  properties: Record<string, any>;
+  properties: {
+    chatHistory?: Array<{
+      role: 'user' | 'assistant';
+      content: string;
+    }>;
+    [key: string]: any;
+  };
 }
 
 export interface Edge {
@@ -36,13 +42,6 @@ export interface AppState {
   loading: {
     graphId: string | null;
     status: boolean;
-  };
-  chatSession: {
-    isActive: boolean;
-    messages: Array<{
-      role: 'user' | 'assistant';
-      content: string;
-    }>;
   };
   panelWidth: number;
 }

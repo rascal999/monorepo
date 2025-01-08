@@ -47,7 +47,7 @@ States and Transitions:
       - ERROR → error
 
    c. creating_node
-      Entry: Creates node and logs context
+      Entry: Creates node and initializes chat history
       Exit: Logs context
       Transitions:
       - SUCCESS → chat_processing (with auto-prompt for node definition)
@@ -60,7 +60,8 @@ States and Transitions:
       - MOVE → node_moving
       - CONNECT → node_connecting
       - DELETE → node_deleting
-      - CHAT → chat_active
+      - CHAT → chat_active (loads node's chat history)
+      - SELECT_NODE → node_selected (when different node selected)
       - DESELECT → node_idle
       - ERROR → error
 
@@ -94,16 +95,16 @@ States and Transitions:
       - ERROR → error
 
    i. chat_active
-      Entry: Initialize chat session
+      Entry: Load node's chat history
       Transitions:
       - SEND_MESSAGE → chat_processing
-      - CLOSE → node_selected
+      - SELECT_NODE → node_selected (when different node selected)
       - ERROR → error
 
    j. chat_processing
-      Entry: Send message to AI
+      Entry: Send message to AI with node context
       Transitions:
-      - MESSAGE_RECEIVED → chat_active
+      - MESSAGE_RECEIVED → chat_active (adds message to node's chat history)
       - ERROR → error
 
 4. importing
@@ -154,6 +155,7 @@ Actions:
 
 3. initNodeData
    - Sets node data from event
+   - Initializes empty chat history
 
 4. setNodeData
    - Updates node data from event
@@ -167,11 +169,9 @@ Actions:
 7. loadFromLocalStorage
    - Loads state from localStorage
 
-8. initChatSession
-   - Initializes AI chat session
-
-9. processAIResponse
+8. processAIResponse
    - Handles AI message processing
+   - Updates node's chat history
 
 Guards:
 - Position validation for POSITION_SET events

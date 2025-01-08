@@ -2,8 +2,6 @@ import React, { useState, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
 import { 
   editNode, 
-  openChat, 
-  closeChat, 
   addMessage,
   updatePanelWidth
 } from '../store/slices/appSlice';
@@ -13,7 +11,6 @@ type Tab = 'properties' | 'chat';
 const NodePropertiesPanel: React.FC = () => {
   const dispatch = useAppDispatch();
   const selectedNode = useAppSelector(state => state.app.selectedNode);
-  const chatSession = useAppSelector(state => state.app.chatSession);
   const panelWidth = useAppSelector(state => state.app.panelWidth);
   const [activeTab, setActiveTab] = useState<Tab>('chat');
   const [chatInput, setChatInput] = useState('');
@@ -81,9 +78,10 @@ const NodePropertiesPanel: React.FC = () => {
 
   // Handle chat message send
   const handleSendMessage = () => {
-    if (!chatInput.trim()) return;
+    if (!chatInput.trim() || !selectedNode) return;
 
     dispatch(addMessage({
+      nodeId: selectedNode.id,
       role: 'user',
       content: chatInput.trim()
     }));
@@ -93,11 +91,6 @@ const NodePropertiesPanel: React.FC = () => {
   // Handle tab change
   const handleTabChange = (tab: Tab) => {
     setActiveTab(tab);
-    if (tab === 'chat') {
-      dispatch(openChat());
-    } else {
-      dispatch(closeChat());
-    }
   };
 
   if (!selectedNode) {
@@ -150,16 +143,19 @@ const NodePropertiesPanel: React.FC = () => {
               />
             </div>
 
-            {Object.entries(selectedNode.properties).map(([key, value]) => (
-              <div key={key} className="input-group">
-                <label>{key}</label>
-                <input
-                  type="text"
-                  value={value}
-                  onChange={(e) => handlePropertyChange(key, e.target.value)}
-                />
-              </div>
-            ))}
+            {Object.entries(selectedNode.properties)
+              .filter(([key]) => key !== 'chatHistory')
+              .map(([key, value]) => (
+                <div key={key} className="input-group">
+                  <label>{key}</label>
+                  <input
+                    type="text"
+                    value={value}
+                    onChange={(e) => handlePropertyChange(key, e.target.value)}
+                  />
+                </div>
+              ))
+            }
 
             <button
               className="button button-secondary"
@@ -172,7 +168,7 @@ const NodePropertiesPanel: React.FC = () => {
         ) : (
           <div className="chat-content">
             <div className="chat-messages">
-              {chatSession.messages.map((message, index) => (
+              {selectedNode.properties.chatHistory?.map((message, index) => (
                 <div
                   key={index}
                   className={`chat-message ${message.role}`}
