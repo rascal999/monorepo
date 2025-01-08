@@ -240,19 +240,16 @@ input:focus, textarea:focus {
 }
 
 .clickable-word {
-  display: inline-block;
-  padding: 2px 4px;
-  margin: 0 2px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.clickable-word:hover {
-  background-color: var(--background-hover);
+/* Default highlight for assistant messages */
+.chat-message.assistant .clickable-word:hover {
+  background-color: rgba(76, 175, 80, 0.15);
 }
 
-/* Ensure words in user messages are still visible when highlighted */
+/* Light highlight for user messages */
 .chat-message.user .clickable-word:hover {
   background-color: rgba(255, 255, 255, 0.2);
 }
