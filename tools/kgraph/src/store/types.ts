@@ -29,6 +29,7 @@ export interface Graph {
   nodes: Node[];
   edges: Edge[];
   viewport: Viewport;
+  lastFocusedNodeId?: string;
 }
 
 export type Theme = 'light' | 'dark';

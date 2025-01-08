@@ -55,12 +55,22 @@ const appSlice = createSlice({
     // App Actions
     loadGraphSuccess: (state, action: PayloadAction<Graph>) => {
       state.currentGraph = action.payload;
-      state.selectedNode = null;
       state.error = null;
       state.loading = {
         graphId: null,
         status: false
       };
+      
+      // Focus on last focused node or first node
+      if (action.payload.nodes.length > 0) {
+        const nodeToFocus = action.payload.lastFocusedNodeId 
+          ? action.payload.nodes.find(n => n.id === action.payload.lastFocusedNodeId)
+          : action.payload.nodes[0];
+        
+        state.selectedNode = nodeToFocus || null;
+      } else {
+        state.selectedNode = null;
+      }
     },
     createGraph: (state, action: PayloadAction<{ title: string }>) => {
       const newGraph: Graph = {
@@ -71,7 +81,8 @@ const appSlice = createSlice({
         viewport: {
           zoom: 1,
           position: { x: 0, y: 0 }
-        }
+        },
+        lastFocusedNodeId: undefined
       };
       state.graphs.push(newGraph);
       state.currentGraph = newGraph;
@@ -109,11 +120,27 @@ const appSlice = createSlice({
         state.selectedNode = newNode;
         // Initialize chat history
         newNode.properties.chatHistory = [];
+        
+        // Set as last focused node
+        state.currentGraph.lastFocusedNodeId = newNode.id;
+        if (graphInArray) {
+          graphInArray.lastFocusedNodeId = newNode.id;
+        }
       }
     },
     selectNode: (state, action: PayloadAction<string>) => {
       if (state.currentGraph) {
-        state.selectedNode = state.currentGraph.nodes.find(n => n.id === action.payload) || null;
+        const node = state.currentGraph.nodes.find(n => n.id === action.payload);
+        state.selectedNode = node || null;
+        
+        if (node) {
+          // Update lastFocusedNodeId in both currentGraph and graphs array
+          state.currentGraph.lastFocusedNodeId = node.id;
+          const graphInArray = state.graphs.find(g => g.id === state.currentGraph!.id);
+          if (graphInArray) {
+            graphInArray.lastFocusedNodeId = node.id;
+          }
+        }
       }
     },
     editNode: (state, action: PayloadAction<{ id: string; changes: Partial<Node> }>) => {
@@ -180,6 +207,14 @@ const appSlice = createSlice({
         
         if (state.selectedNode?.id === action.payload) {
           state.selectedNode = null;
+        }
+        
+        // Clear lastFocusedNodeId if it was this node
+        if (state.currentGraph.lastFocusedNodeId === action.payload) {
+          state.currentGraph.lastFocusedNodeId = undefined;
+          if (graphInArray) {
+            graphInArray.lastFocusedNodeId = undefined;
+          }
         }
       }
     },

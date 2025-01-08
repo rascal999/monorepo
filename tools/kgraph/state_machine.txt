@@ -7,6 +7,7 @@ Global Context:
   * nodes: Array of nodes
   * edges: Array of edges
   * viewport: Graph-specific viewport state (zoom and position)
+  * lastFocusedNodeId: ID of the last focused node in this graph
 - currentGraph: Currently open graph data
 - selectedNode: Currently selected node
 - error: Error message if any
@@ -30,7 +31,9 @@ States and Transitions:
    - ERROR → error
 
 3. graph_open
-   Entry: Load graph data
+   Entry: 
+   - Load graph data
+   - Focus on lastFocusedNodeId if it exists, otherwise focus on first node
    States:
    
    a. node_idle
@@ -58,7 +61,9 @@ States and Transitions:
       - ERROR → error
 
    d. node_selected
-      Entry: Logs context
+      Entry: 
+      - Logs context
+      - Updates lastFocusedNodeId to track currently selected node
       Transitions:
       - EDIT → node_editing
       - MOVE → node_moving
