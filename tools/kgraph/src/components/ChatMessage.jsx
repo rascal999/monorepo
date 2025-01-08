@@ -81,16 +81,19 @@ function ChatMessage({ message, onWordClick, nodeId }) {
 
   // Validate message on mount and update
   useEffect(() => {
+    // Skip validation if message is not yet available
+    if (!message) return;
+
     const valid = Boolean(
-      message?.content && 
+      message.content && 
       typeof message.content === 'string' && 
       message.content.trim().length > 0
     );
 
     console.log('[ChatMessage] Validating message:', {
-      role: message?.role,
-      contentLength: message?.content?.length,
-      contentType: typeof message?.content,
+      role: message.role,
+      contentLength: message.content?.length,
+      contentType: typeof message.content,
       isValid: valid,
       nodeId
     });
@@ -98,11 +101,14 @@ function ChatMessage({ message, onWordClick, nodeId }) {
     setIsValid(valid);
   }, [message, nodeId]);
 
+  // Return null if message is not yet available
+  if (!message) return null;
+
+  // Return null if message is invalid
   if (!isValid) {
-    console.warn('[ChatMessage] Invalid message:', {
-      hasMessage: Boolean(message),
-      hasContent: Boolean(message?.content),
-      contentType: typeof message?.content
+    console.debug('[ChatMessage] Message not yet valid:', {
+      hasContent: Boolean(message.content),
+      contentType: typeof message.content
     });
     return null;
   }
