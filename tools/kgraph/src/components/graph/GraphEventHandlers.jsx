@@ -32,11 +32,18 @@ export const setupEventHandlers = (cy, {
   });
 
   cy.on('dragfree', 'node', (evt) => {
-    if (isDragging && graph) {
-      const node = evt.target;
-      const nodeId = node.id();
-      const newPosition = node.position();
-      
+    if (!isDragging || !graph) {
+      setIsDragging(false);
+      setDraggedNodeId(null);
+      return;
+    }
+
+    const node = evt.target;
+    const nodeId = node.id();
+    const newPosition = node.position();
+    
+    // Debounce position update
+    requestAnimationFrame(() => {
       // Update the graph with new node position
       const updatedNodes = graph.nodes.map(n => 
         n.id === nodeId 
@@ -50,9 +57,9 @@ export const setupEventHandlers = (cy, {
       };
       
       onNodePositionChange(updatedGraph);
-    }
-    setIsDragging(false);
-    setDraggedNodeId(null);
+      setIsDragging(false);
+      setDraggedNodeId(null);
+    });
   });
 
   // Return cleanup function
