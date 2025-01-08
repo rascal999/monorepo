@@ -44,11 +44,10 @@ const graphSlice = createSlice({
     },
     createGraph: {
       reducer: (state, action: PayloadAction<{ title: string; id: string }>) => {
-        // Center viewport for new graph
-        // Using negative values because Cytoscape pan is inverse of our position
-        const centeredViewport = {
+        // Initialize viewport with zoom, position will be set by Cytoscape's center()
+        const initialViewport = {
           zoom: 0.75,
-          position: { x: -450, y: -300 } // Center of 900x600 viewport
+          position: { x: 0, y: 0 }
         };
 
         const newGraph: Graph = {
@@ -56,7 +55,7 @@ const graphSlice = createSlice({
           title: action.payload.title,
           nodes: [],
           edges: [],
-          viewport: centeredViewport,
+          viewport: initialViewport,
           lastFocusedNodeId: undefined
         };
         state.graphs.push(newGraph);
