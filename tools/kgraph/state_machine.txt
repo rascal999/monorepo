@@ -50,7 +50,7 @@ States and Transitions:
       Entry: Creates node and logs context
       Exit: Logs context
       Transitions:
-      - SUCCESS → node_idle
+      - SUCCESS → chat_processing (with auto-prompt for node definition)
       - ERROR → error
 
    d. node_selected
