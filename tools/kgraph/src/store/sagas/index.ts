@@ -5,7 +5,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { loadGraphSuccess, restoreState, addNode } from '../slices/graphSlice';
 import { addMessage } from '../slices/chatSlice';
 import { setError, clearError, setLoading, clearLoading } from '../slices/uiSlice';
-import type { Graph } from '../types';
+import type { Graph, Node } from '../types';
 
 // Selectors
 const getState = (state: { 
@@ -39,6 +39,31 @@ function* loadFromLocalStorage(): Generator {
     if (data) {
       const parsed = JSON.parse(data);
       yield put(restoreState(parsed));
+
+      // After state restoration, select appropriate node if there's a current graph
+      if (parsed.currentGraph) {
+        const nodeToSelect = parsed.currentGraph.nodes.find((n: Node) => 
+          n.id === parsed.currentGraph.lastFocusedNodeId
+        ) || parsed.currentGraph.nodes[0];
+
+        if (nodeToSelect) {
+          // Select the node
+          yield put({ 
+            type: 'node/selectNode', 
+            payload: { node: nodeToSelect }
+          });
+          
+          // Trigger chat tab population
+          yield put({ 
+            type: 'chat/addMessage', 
+            payload: {
+              nodeId: nodeToSelect.id,
+              role: 'system',
+              content: 'Chat history loaded'
+            }
+          });
+        }
+      }
     }
   } catch (error) {
     yield put(setError('Failed to load from localStorage'));
@@ -163,6 +188,28 @@ function* handleLoadGraph(action: PayloadAction<string>): Generator {
     if (graph) {
       console.log('Saga: Dispatching LOAD_GRAPH_SUCCESS');
       yield put(loadGraphSuccess(graph));
+
+      // Select node based on lastFocusedNodeId or first node
+      const nodeToSelect = graph.nodes.find((n: Node) => n.id === graph.lastFocusedNodeId) || graph.nodes[0];
+      
+      if (nodeToSelect) {
+        console.log('Saga: Selecting node:', nodeToSelect.id);
+        // Select the node
+        yield put({ 
+          type: 'node/selectNode', 
+          payload: { node: nodeToSelect }
+        });
+        
+        // Transition to chat_active state by triggering chat tab population
+        yield put({ 
+          type: 'chat/addMessage', 
+          payload: {
+            nodeId: nodeToSelect.id,
+            role: 'system',
+            content: 'Chat history loaded'
+          }
+        });
+      }
     } else {
       console.log('Saga: Graph not found, dispatching error');
       yield put(setError('Graph not found'));
