@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAppDispatch } from '../../store';
-import { setError } from '../../store/slices/appSlice';
+import { setError } from '../../store/slices/uiSlice';
 import { ActionTypes } from '../../store/types';
 
 interface GraphToolbarProps {
