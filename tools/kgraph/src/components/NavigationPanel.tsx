@@ -96,7 +96,6 @@ const NavigationPanel: React.FC = () => {
             onClick={() => {
               console.log('NavigationPanel: Clicking graph:', graph.id, graph.title);
               console.log('NavigationPanel: Current graphs:', graphs);
-              dispatch(setLoading(graph.id));
               console.log('NavigationPanel: Dispatching LOAD_GRAPH action');
               dispatch(loadGraph(graph.id));
             }}

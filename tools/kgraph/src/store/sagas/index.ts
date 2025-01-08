@@ -54,6 +54,9 @@ function* handleLoadGraph(action: PayloadAction<string>): Generator {
   try {
     console.log('Saga: handleLoadGraph called with id:', action.payload);
     
+    // Set loading state at the start
+    yield put({ type: 'app/setLoading', payload: action.payload });
+    
     // Simulate loading delay
     yield delay(800);
     console.log('Saga: After delay');
@@ -70,9 +73,8 @@ function* handleLoadGraph(action: PayloadAction<string>): Generator {
     } else {
       console.log('Saga: Graph not found, dispatching error');
       yield put(setError('Graph not found'));
+      yield put(clearLoading());
     }
-    
-    yield put(clearLoading());
   } catch (error) {
     console.error('Saga: Error in handleLoadGraph:', error);
     yield put(setError('Failed to load graph'));
