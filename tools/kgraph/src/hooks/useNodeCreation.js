@@ -42,10 +42,38 @@ export function useNodeCreation(activeGraph, updateGraph) {
     const newNodeId = Date.now().toString();
     console.log('Creating node with ID:', newNodeId);
 
-    // Calculate position relative to source node
+    // Calculate number of existing child nodes
+    const childNodes = activeGraph.edges.filter(edge => 
+      edge.source === sourceNode.id
+    ).length;
+
+    // Use 8 slots for even distribution around the circle
+    const numSlots = 8; // Number of positions around the circle
+    const slotIndex = childNodes % numSlots;
+    
+    // Calculate angle to distribute nodes evenly in a full circle
+    // Start at -22.5 degrees (-π/8) to offset first node from horizontal
+    const startAngle = -Math.PI / 8;
+    const angle = startAngle + (slotIndex * Math.PI * 2) / numSlots;
+    
+    console.log('Angle calculation:', {
+      childNodes,
+      slotIndex,
+      startAngleDegrees: (startAngle * 180) / Math.PI,
+      angleRadians: angle,
+      angleDegrees: (angle * 180) / Math.PI,
+      position: {
+        x: Math.cos(angle),
+        y: Math.sin(angle)
+      }
+    });
+
+    // Fixed radius for better spacing
+    const cycleCount = Math.floor(childNodes / numSlots);
+    const radius = 250 + (cycleCount * 100); // Start at 250px, increase by 100px each cycle
     const position = {
-      x: sourceNode.position.x + 200,
-      y: sourceNode.position.y
+      x: sourceNode.position.x + (radius * Math.cos(angle)),
+      y: sourceNode.position.y + (radius * Math.sin(angle))
     };
 
     console.log('Calculated new node position:', {
