@@ -231,6 +231,15 @@ const GraphPanel: React.FC = () => {
         y: -currentGraph.viewport.position.y 
       });
     }
+
+    // Select the last focused node or first node
+    const nodeToSelect = currentGraph.lastFocusedNodeId 
+      ? currentGraph.nodes.find(n => n.id === currentGraph.lastFocusedNodeId)
+      : currentGraph.nodes[0];
+    
+    if (nodeToSelect) {
+      dispatch(selectNode(nodeToSelect.id));
+    }
     
     isInitializing.current = false;
   }, [currentGraph, dispatch]);
