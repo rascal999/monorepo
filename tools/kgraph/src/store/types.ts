@@ -44,6 +44,7 @@ export interface AppState {
       content: string;
     }>;
   };
+  panelWidth: number;
 }
 
 // Action Types
@@ -88,5 +89,8 @@ export enum ActionTypes {
 
   // Loading Actions
   SET_LOADING = 'SET_LOADING',
-  CLEAR_LOADING = 'CLEAR_LOADING'
+  CLEAR_LOADING = 'CLEAR_LOADING',
+
+  // Panel Actions
+  UPDATE_PANEL_WIDTH = 'UPDATE_PANEL_WIDTH'
 }

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
 import { 
   editNode, 
   openChat, 
   closeChat, 
-  addMessage 
+  addMessage,
+  updatePanelWidth
 } from '../store/slices/appSlice';
 
 type Tab = 'properties' | 'chat';
@@ -13,8 +14,39 @@ const NodePropertiesPanel: React.FC = () => {
   const dispatch = useAppDispatch();
   const selectedNode = useAppSelector(state => state.app.selectedNode);
   const chatSession = useAppSelector(state => state.app.chatSession);
+  const panelWidth = useAppSelector(state => state.app.panelWidth);
   const [activeTab, setActiveTab] = useState<Tab>('chat');
   const [chatInput, setChatInput] = useState('');
+  const [isResizing, setIsResizing] = useState(false);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    setIsResizing(true);
+    e.preventDefault();
+  }, []);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isResizing) return;
+    
+    const newWidth = window.innerWidth - e.clientX;
+    // Limit minimum and maximum width
+    const clampedWidth = Math.min(Math.max(newWidth, 300), 800);
+    dispatch(updatePanelWidth(clampedWidth));
+  }, [isResizing, dispatch]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (isResizing) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing, handleMouseMove, handleMouseUp]);
 
   // Handle property changes
   const handlePropertyChange = (key: string, value: string) => {
@@ -70,7 +102,11 @@ const NodePropertiesPanel: React.FC = () => {
 
   if (!selectedNode) {
     return (
-      <div className="node-properties-panel">
+      <div className="node-properties-panel" style={{ width: panelWidth }}>
+        <div 
+          className={`resize-handle ${isResizing ? 'resizing' : ''}`}
+          onMouseDown={handleMouseDown}
+        />
         <div className="content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <p style={{ color: 'var(--text-secondary)' }}>Select a node to view properties</p>
         </div>
@@ -79,7 +115,11 @@ const NodePropertiesPanel: React.FC = () => {
   }
 
   return (
-    <div className="node-properties-panel">
+    <div className="node-properties-panel" style={{ width: panelWidth }}>
+      <div 
+        className={`resize-handle ${isResizing ? 'resizing' : ''}`}
+        onMouseDown={handleMouseDown}
+      />
       <div className="tabs">
         <button
           className={`tab ${activeTab === 'chat' ? 'active' : ''}`}
