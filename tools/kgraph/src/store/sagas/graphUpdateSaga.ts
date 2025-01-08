@@ -195,8 +195,8 @@ function* handleWordNodeCreationWithEdge(action: PayloadAction<{
     // Short delay to ensure state is updated
     yield new Promise(resolve => setTimeout(resolve, 100));
 
-    // Create the prompt
-    const content = `You are a knowledgeable assistant. Please provide a clear and concise definition (1-2 sentences) of: ${action.payload.word}`;
+    // Create the prompt with graph context
+    const content = `You are a knowledgeable assistant. This is part of a knowledge graph titled "${graph.title}". Please provide a clear and concise definition (1-2 sentences) of: ${action.payload.word}`;
 
     // Add user message
     yield put(addMessage({
