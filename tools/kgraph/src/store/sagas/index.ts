@@ -246,12 +246,14 @@ export default function* rootSaga(): Generator {
         'graph/deleteGraph',
         'graph/clearAll',
         'graph/addNode',
+        'graph/addEdge',
         'graph/updateGraphViewport',
         'graph/loadGraphSuccess',
         'node/editNode',
         'node/moveNode',
         'node/connectNodes',
-        'node/deleteNode'
+        'node/deleteNode',
+        'node/createWordNode'
       ], handleStateChange),
       
       // Chat

@@ -70,6 +70,7 @@ States and Transitions:
       Entry: 
       - Logs context
       - Updates lastFocusedNodeId to track currently selected node
+      - Preserves all node properties including chat history
       Transitions:
       - EDIT → node_editing
       - MOVE → node_moving
@@ -115,12 +116,21 @@ States and Transitions:
       Transitions:
       - SEND_MESSAGE → chat_processing
       - SELECT_NODE → node_selected (when different node selected)
+      - WORD_CLICK → word_node_creating (creates child node from clicked word)
       - ERROR → error
 
    j. chat_processing
       Entry: Send message to AI with node context
       Transitions:
       - MESSAGE_RECEIVED → chat_active (adds message to node's chat history)
+      - ERROR → error
+
+   k. word_node_creating
+      Entry: 
+      - Store clicked word and parent node context
+      - Calculate position for new node relative to parent
+      Transitions:
+      - SUCCESS → creating_node (with word as label and parent node connection)
       - ERROR → error
 
 4. importing
@@ -188,6 +198,12 @@ Actions:
 8. processAIResponse
    - Handles AI message processing
    - Updates node's chat history
+
+9. createWordNode
+   - Creates new node from clicked word
+   - Positions node relative to parent
+   - Creates edge connecting to parent node
+   - Initializes chat history with word context
 
 Guards:
 - Position validation for POSITION_SET events
