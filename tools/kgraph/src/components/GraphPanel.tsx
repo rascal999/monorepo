@@ -89,7 +89,7 @@ const GraphPanel: React.FC = () => {
         name: 'grid'
       },
       zoom: viewport.zoom,
-      pan: { x: viewport.position.x, y: viewport.position.y }
+      pan: { ...viewport.position }
     });
 
     // Event handlers
@@ -102,14 +102,6 @@ const GraphPanel: React.FC = () => {
       const node = evt.target;
       const position = node.position();
       dispatch(moveNode({ id: node.id(), position }));
-    });
-
-    cyRef.current.on('viewport', () => {
-      if (!cyRef.current) return;
-      dispatch(updateViewport({
-        zoom: cyRef.current.zoom(),
-        position: cyRef.current.pan()
-      }));
     });
 
     // Track last focused node
