@@ -32,34 +32,23 @@ function* handleChatMessage(action: PayloadAction<{
     content: action.payload.content
   };
 
-  // Create updated node with new chat history
+  // Update node in graph with new chat history
   const chatHistory = node.properties.chatHistory || [];
-  const updatedNode = {
-    ...node,
-    properties: {
-      ...node.properties,
-      chatHistory: [...chatHistory, message]
-    }
-  };
-  console.log('chatUpdateSaga: Updated node', updatedNode);
-
-  // First ensure node is selected
-  yield put({ 
-    type: 'node/selectNode', 
-    payload: { node: updatedNode }
+  console.log('chatUpdateSaga: Updating node with new chat history', {
+    currentLength: chatHistory.length,
+    newMessage: message
   });
 
-  // Then update both node and graph state
-  console.log('chatUpdateSaga: Dispatching updateNodeChatHistory');
-  yield put(updateNodeChatHistory({
-    nodeId: action.payload.nodeId,
-    message
-  }));
-
-  console.log('chatUpdateSaga: Dispatching updateNodeInGraph');
+  // Update graph state only - nodeSlice will be updated via the reference
   yield put(updateNodeInGraph({
     nodeId: action.payload.nodeId,
-    changes: updatedNode
+    changes: {
+      ...node,
+      properties: {
+        ...node.properties,
+        chatHistory: [...chatHistory, message]
+      }
+    }
   }));
 }
 
