@@ -9,8 +9,9 @@ export const GraphStyles: cytoscape.Stylesheet[] = [
       'text-valign': 'center',
       'text-halign': 'center',
       'shape': 'rectangle',
-      'width': '40px',
-      'height': '30px'
+      'width': 'label',
+      'height': 'label',
+      'padding': '10px'
     } as cytoscape.Css.Node
   },
   {
