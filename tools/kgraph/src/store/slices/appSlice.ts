@@ -20,10 +20,6 @@ const initialState: AppState = {
     graphId: null,
     status: false
   },
-  chatSession: {
-    isActive: false,
-    messages: []
-  },
   panelWidth: 400
 };
 
@@ -47,9 +43,6 @@ const appSlice = createSlice({
       }
       if (action.payload.currentGraph) {
         state.currentGraph = action.payload.currentGraph;
-      }
-      if (action.payload.chatSession) {
-        state.chatSession = action.payload.chatSession;
       }
     },
     // Loading Actions
@@ -99,7 +92,6 @@ const appSlice = createSlice({
       state.currentGraph = null;
       state.selectedNode = null;
       state.error = null;
-      state.chatSession = { isActive: false, messages: [] };
     },
 
     // Node Actions
@@ -118,8 +110,8 @@ const appSlice = createSlice({
           graphInArray.nodes.push(newNode);
         }
         state.selectedNode = newNode;
-        // Just activate chat session, saga will handle the message
-        state.chatSession.isActive = true;
+        // Initialize chat history
+        newNode.properties.chatHistory = [];
       }
     },
     selectNode: (state, action: PayloadAction<string>) => {
@@ -199,14 +191,32 @@ const appSlice = createSlice({
     },
 
     // Chat Actions
-    openChat: (state) => {
-      state.chatSession.isActive = true;
-    },
-    closeChat: (state) => {
-      state.chatSession.isActive = false;
-    },
-    addMessage: (state, action: PayloadAction<{ role: 'user' | 'assistant'; content: string }>) => {
-      state.chatSession.messages.push(action.payload);
+    addMessage: (state, action: PayloadAction<{ nodeId: string; role: 'user' | 'assistant'; content: string }>) => {
+      if (state.currentGraph) {
+        const node = state.currentGraph.nodes.find(n => n.id === action.payload.nodeId);
+        const graphInArray = state.graphs.find(g => g.id === state.currentGraph!.id);
+        const nodeInArray = graphInArray?.nodes.find(n => n.id === action.payload.nodeId);
+        
+        if (node) {
+          if (!node.properties.chatHistory) {
+            node.properties.chatHistory = [];
+          }
+          node.properties.chatHistory.push({
+            role: action.payload.role,
+            content: action.payload.content
+          });
+          
+          if (nodeInArray) {
+            if (!nodeInArray.properties.chatHistory) {
+              nodeInArray.properties.chatHistory = [];
+            }
+            nodeInArray.properties.chatHistory.push({
+              role: action.payload.role,
+              content: action.payload.content
+            });
+          }
+        }
+      }
     },
 
     // Error Actions
@@ -261,8 +271,6 @@ export const {
   connectNodes,
   deleteNode,
   deselectNode,
-  openChat,
-  closeChat,
   addMessage,
   setError,
   clearError,

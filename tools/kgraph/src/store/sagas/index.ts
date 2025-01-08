@@ -33,7 +33,7 @@ function* loadFromLocalStorage(): Generator {
 }
 
 // Chat
-function* handleSendMessage(action: PayloadAction<{ content: string }>): Generator {
+function* handleSendMessage(action: PayloadAction<{ nodeId: string; content: string }>): Generator {
   try {
     yield put(clearError());
     console.log('Sending message to OpenRouter:', action.payload.content);
@@ -82,7 +82,7 @@ function* handleSendMessage(action: PayloadAction<{ content: string }>): Generat
     console.log('Received response from OpenRouter:', data);
     const aiResponse = data.choices[0]?.message?.content || 'No response from AI';
 
-    yield put(addMessage({ role: 'assistant', content: aiResponse }));
+    yield put(addMessage({ nodeId: action.payload.nodeId, role: 'assistant', content: aiResponse }));
   } catch (error: any) {
     console.error('Error in handleSendMessage:', error);
     yield put(setError(error.message || 'Failed to send message'));
@@ -93,14 +93,19 @@ function* handleSendMessage(action: PayloadAction<{ content: string }>): Generat
 function* handleNodeCreation(action: PayloadAction<{ label: string; position: { x: number; y: number } }>): Generator {
   try {
     console.log('Node creation detected:', action.payload.label);
-    const message = {
-      role: 'user' as const,
-      content: `You are a knowledgeable assistant. Please provide a clear and concise definition (1-2 sentences) of: ${action.payload.label}`
-    };
-    console.log('Adding message to chat:', message);
-    yield put(addMessage(message));
-    console.log('Dispatching message to OpenRouter:', message);
-    yield put({ type: 'app/sendMessage', payload: message });
+    const state = yield select(getState);
+    const currentNode = state.currentGraph?.nodes.find((n: any) => n.label === action.payload.label);
+    if (currentNode) {
+      const message = {
+        nodeId: currentNode.id,
+        role: 'user' as const,
+        content: `You are a knowledgeable assistant. Please provide a clear and concise definition (1-2 sentences) of: ${action.payload.label}`
+      };
+      console.log('Adding message to chat:', message);
+      yield put(addMessage(message));
+      console.log('Dispatching message to OpenRouter:', message);
+      yield put({ type: 'app/sendMessage', payload: message });
+    }
   } catch (error: any) {
     console.error('Error in handleNodeCreation:', error);
     yield put(setError(error.message || 'Failed to process node creation'));
@@ -209,7 +214,7 @@ export default function* rootSaga(): Generator {
         console.log('createNode action caught in root saga:', action);
         yield call(handleNodeCreation, action);
       }),
-      takeLatest('app/sendMessage', function* (action: PayloadAction<{ content: string }>) {
+      takeLatest('app/sendMessage', function* (action: PayloadAction<{ nodeId: string; content: string }>) {
         console.log('sendMessage action caught in root saga:', action);
         yield call(handleSendMessage, action);
         console.log('sendMessage saga completed');
