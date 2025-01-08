@@ -19,17 +19,19 @@ const GraphPanel: React.FC = () => {
   const selectedNode = useAppSelector(state => state.app.selectedNode);
   const viewport = useAppSelector(state => state.app.currentGraph?.viewport ?? defaultViewport);
 
-  // Helper function to update node selection
-  const updateNodeSelection = () => {
-    if (!cyRef.current || !selectedNode) return;
+  // Helper function to update visual node selection
+  const updateVisualNodeSelection = () => {
+    if (!cyRef.current) return;
     
     // Remove selection from all nodes
     cyRef.current.$('.selected').removeClass('selected');
     
-    // Add selection to the selected node
-    const node = cyRef.current.$(`node[id="${selectedNode.id}"]`);
-    if (node.length > 0) {
-      node.addClass('selected');
+    // Add selection to the selected node if one exists
+    if (selectedNode) {
+      const node = cyRef.current.$(`node[id="${selectedNode.id}"]`);
+      if (node.length > 0) {
+        node.addClass('selected');
+      }
     }
   };
 
@@ -89,10 +91,10 @@ const GraphPanel: React.FC = () => {
     isInitializing.current = false;
   }, [currentGraph]);
 
-  // Update selected node
+  // Update visual selection when selectedNode changes
   React.useEffect(() => {
     if (!cyRef.current) return;
-    updateNodeSelection();
+    updateVisualNodeSelection();
   }, [selectedNode]);
 
   return (
@@ -110,7 +112,7 @@ const GraphPanel: React.FC = () => {
           isInitializing={isInitializing}
           viewport={viewport}
           selectedNode={selectedNode}
-          onNodeSelection={updateNodeSelection}
+          onNodeSelection={updateVisualNodeSelection}
         />
         <GraphEventHandlers cyRef={cyRef} />
       </div>
