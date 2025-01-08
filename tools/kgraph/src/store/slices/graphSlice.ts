@@ -25,22 +25,51 @@ const graphSlice = createSlice({
   initialState,
   reducers: {
     rehydrateComplete: (state, action: PayloadAction<GraphState>) => {
-      const newState = {
-        ...state,
-        ...action.payload
-      };
-      return newState;
+      // First restore graphs array
+      state.graphs = action.payload.graphs || [];
+      
+      // Then set currentGraph to reference the correct graph in the array
+      if (action.payload.currentGraph) {
+        const graphIndex = state.graphs.findIndex(g => g.id === action.payload.currentGraph!.id);
+        if (graphIndex === -1) {
+          console.warn('graphSlice: Current graph not found in rehydrated graphs');
+          state.currentGraph = null;
+        } else {
+          state.currentGraph = state.graphs[graphIndex];
+        }
+      } else {
+        state.currentGraph = null;
+      }
+      
+      // Restore meta
+      state.meta = action.payload.meta || {};
     },
     restoreState: (state, action: PayloadAction<Partial<GraphState>>) => {
       if (action.payload.graphs) {
         state.graphs = action.payload.graphs;
       }
       if (action.payload.currentGraph) {
-        state.currentGraph = action.payload.currentGraph;
+        // Find the graph in the restored graphs array
+        const graphIndex = state.graphs.findIndex(g => g.id === action.payload.currentGraph!.id);
+        if (graphIndex === -1) {
+          console.warn('graphSlice: Current graph not found in restored graphs');
+          state.currentGraph = null;
+        } else {
+          // Set currentGraph to reference the graph in the array
+          state.currentGraph = state.graphs[graphIndex];
+        }
       }
     },
     loadGraphSuccess: (state, action: PayloadAction<Graph>) => {
-      state.currentGraph = action.payload;
+      // Find the graph in the graphs array
+      const graphIndex = state.graphs.findIndex(g => g.id === action.payload.id);
+      if (graphIndex === -1) {
+        console.warn('graphSlice: Graph not found in graphs array');
+        return;
+      }
+      
+      // Set currentGraph to reference the graph in the array
+      state.currentGraph = state.graphs[graphIndex];
     },
     createGraph: {
       reducer: (state, action: PayloadAction<{ title: string; id: string }>) => {
@@ -50,6 +79,7 @@ const graphSlice = createSlice({
           position: { x: 0, y: 0 }
         };
 
+        // Create new graph
         const newGraph: Graph = {
           id: action.payload.id,
           title: action.payload.title,
@@ -58,8 +88,13 @@ const graphSlice = createSlice({
           viewport: initialViewport,
           lastFocusedNodeId: undefined
         };
+
+        // Add to graphs array
         state.graphs.push(newGraph);
-        state.currentGraph = newGraph;
+        
+        // Set currentGraph to reference the graph in the array
+        const graphIndex = state.graphs.length - 1;
+        state.currentGraph = state.graphs[graphIndex];
       },
       prepare: (params: { title: string }) => {
         const id = Date.now().toString();
@@ -69,17 +104,29 @@ const graphSlice = createSlice({
     addNode: (state, action: PayloadAction<{ graphId: string; node: Node }>) => {
       const { graphId, node } = action.payload;
       
-      // Add to currentGraph if it matches
-      if (state.currentGraph?.id === graphId) {
-        state.currentGraph.nodes.push(node);
-        state.currentGraph.lastFocusedNodeId = node.id;
+      // Find the graph in the graphs array
+      const graphIndex = state.graphs.findIndex(g => g.id === graphId);
+      if (graphIndex === -1) {
+        console.warn('graphSlice: Graph not found in graphs array');
+        return;
       }
       
-      // Add to graphs array
-      const graphInArray = state.graphs.find(g => g.id === graphId);
-      if (graphInArray) {
-        graphInArray.nodes.push(node);
-        graphInArray.lastFocusedNodeId = node.id;
+      // Add node to graph in graphs array
+      state.graphs[graphIndex].nodes.push(node);
+      state.graphs[graphIndex].lastFocusedNodeId = node.id;
+      
+      // Update currentGraph reference if it matches
+      if (state.currentGraph?.id === graphId) {
+        state.currentGraph = state.graphs[graphIndex];
+        
+        // If this is the first node, ensure it's focused
+        if (state.currentGraph.nodes.length === 1) {
+          console.log('graphSlice: First node added, ensuring focus', {
+            nodeId: node.id,
+            graphId: graphId
+          });
+          // The node will be focused by the selectNode action dispatched after this
+        }
       }
     },
     deleteGraph: (state, action: PayloadAction<string>) => {
@@ -93,97 +140,89 @@ const graphSlice = createSlice({
       state.currentGraph = null;
     },
     updateGraphViewport: (state, action: PayloadAction<Partial<Viewport>>) => {
-      if (state.currentGraph) {
-        // Update viewport
-        state.currentGraph.viewport = { 
-          ...state.currentGraph.viewport, 
-          ...action.payload 
-        };
-        
-        // Update viewport in graphs array too
-        const graphInArray = state.graphs.find(g => g.id === state.currentGraph!.id);
-        if (graphInArray) {
-          graphInArray.viewport = { 
-            ...graphInArray.viewport, 
-            ...action.payload 
-          };
-        }
-      }
-    },
-    updateNodeInGraph: (state, action: PayloadAction<{
-      nodeId: string;
-      changes: Partial<Node>;
-    }>) => {
-      console.log('graphSlice: Updating node in graph', {
-        currentGraph: state.currentGraph ? {
-          id: state.currentGraph.id,
-          nodeCount: state.currentGraph.nodes.length
-        } : null,
-        nodeId: action.payload.nodeId,
-        changeType: action.payload.changes.properties ? 'properties' : 'other'
-      });
-
       if (!state.currentGraph) {
         console.warn('graphSlice: No current graph');
         return;
       }
 
-      // Update node in current graph
-      const nodeIndex = state.currentGraph.nodes.findIndex(n => n.id === action.payload.nodeId);
-      console.log('graphSlice: Found node index in current graph', {
-        nodeId: action.payload.nodeId,
-        nodeIndex,
-        found: nodeIndex !== -1
-      });
+      // Find the graph in the graphs array
+      const graphIndex = state.graphs.findIndex(g => g.id === state.currentGraph!.id);
+      if (graphIndex === -1) {
+        console.warn('graphSlice: Graph not found in graphs array');
+        return;
+      }
 
-      if (nodeIndex !== -1) {
-        const currentNode = state.currentGraph.nodes[nodeIndex];
-        const updatedNode = {
-          ...currentNode,
-          ...action.payload.changes,
-          properties: {
-            ...currentNode.properties,
-            ...(action.payload.changes.properties || {})
-          }
-        };
-        console.log('graphSlice: Updating node in current graph', {
-          nodeId: currentNode.id,
-          label: currentNode.label,
-          hasProperties: Boolean(currentNode.properties),
-          chatHistoryLength: currentNode.properties?.chatHistory?.length || 0
-        });
-        state.currentGraph.nodes[nodeIndex] = updatedNode;
+      // Update viewport in graphs array
+      state.graphs[graphIndex].viewport = {
+        ...state.graphs[graphIndex].viewport,
+        ...action.payload
+      };
+
+      // Update currentGraph reference
+      state.currentGraph = state.graphs[graphIndex];
+    },
+    updateNodeInGraph: (state, action: PayloadAction<{
+      nodeId: string;
+      changes: Partial<Node>;
+    }>) => {
+      if (!state.currentGraph) {
+        console.warn('graphSlice: No current graph');
+        return;
+      }
+
+      // Find the graph in the graphs array first
+      const graphIndex = state.graphs.findIndex(g => g.id === state.currentGraph!.id);
+      if (graphIndex === -1) {
+        console.warn('graphSlice: Graph not found in graphs array');
+        return;
       }
 
       // Update node in graphs array
-      const graphIndex = state.graphs.findIndex(g => g.id === state.currentGraph!.id);
-      if (graphIndex !== -1) {
-        const nodeIndex = state.graphs[graphIndex].nodes.findIndex(n => n.id === action.payload.nodeId);
-        if (nodeIndex !== -1) {
-          const currentNode = state.graphs[graphIndex].nodes[nodeIndex];
-          const updatedNode = {
-            ...currentNode,
-            ...action.payload.changes,
-            properties: {
-              ...currentNode.properties,
-              ...(action.payload.changes.properties || {})
-            }
-          };
-          state.graphs[graphIndex].nodes[nodeIndex] = updatedNode;
-        }
+      const nodeIndex = state.graphs[graphIndex].nodes.findIndex(n => n.id === action.payload.nodeId);
+      if (nodeIndex === -1) {
+        console.warn('graphSlice: Node not found in graph');
+        return;
       }
+
+      const currentNode = state.graphs[graphIndex].nodes[nodeIndex];
+      const updatedNode = {
+        ...currentNode,
+        ...action.payload.changes,
+        properties: {
+          ...currentNode.properties,
+          ...(action.payload.changes.properties || {})
+        }
+      };
+
+      // Update in graphs array
+      state.graphs[graphIndex].nodes[nodeIndex] = updatedNode;
+      
+      // Update currentGraph reference to point to the updated graph
+      state.currentGraph = state.graphs[graphIndex];
     }
   },
   extraReducers: (builder) => {
     builder.addCase(REHYDRATE, (state, action: any) => {
       if (action.payload && action.key === 'kgraph') {
-        const newState = {
-          ...state,
-          ...action.payload
-        };
-        return newState;
+        // First restore graphs array
+        state.graphs = action.payload.graphs || [];
+        
+        // Then set currentGraph to reference the correct graph in the array
+        if (action.payload.currentGraph) {
+          const graphIndex = state.graphs.findIndex(g => g.id === action.payload.currentGraph.id);
+          if (graphIndex === -1) {
+            console.warn('graphSlice: Current graph not found in rehydrated graphs');
+            state.currentGraph = null;
+          } else {
+            state.currentGraph = state.graphs[graphIndex];
+          }
+        } else {
+          state.currentGraph = null;
+        }
+        
+        // Restore meta
+        state.meta = action.payload.meta || {};
       }
-      return state;
     });
   }
 });

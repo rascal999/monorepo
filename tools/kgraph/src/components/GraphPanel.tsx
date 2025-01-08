@@ -135,7 +135,10 @@ const GraphPanel: React.FC = () => {
 
   // Update graph data
   useEffect(() => {
-    if (!cyRef.current || !currentGraph) return;
+    if (!cyRef.current || !currentGraph) {
+      isFirstNode.current = false; // Reset flag when no graph is selected
+      return;
+    }
 
     // Check if we need to rebuild by comparing node/edge IDs
     const currentNodeIds = cyRef.current.nodes().map(n => n.id()).sort().join(',');
@@ -178,7 +181,7 @@ const GraphPanel: React.FC = () => {
         });
       });
 
-      // If this is a new graph (only has one node), center it
+      // If this is a new graph (only has one node), center it and select it
       if (currentGraph.nodes.length === 1 && !isFirstNode.current) {
         isFirstNode.current = true;
         cyRef.current.zoom(0.75);
@@ -192,6 +195,21 @@ const GraphPanel: React.FC = () => {
             y: -cyRef.current.pan().y
           }
         }));
+
+        // Select the first node
+        const firstNode = currentGraph.nodes[0];
+        const completeNode = {
+          ...firstNode,
+          properties: {
+            chatHistory: firstNode.properties?.chatHistory || []
+          }
+        };
+        console.log('GraphPanel: Selecting first node', {
+          id: completeNode.id,
+          label: completeNode.label,
+          chatHistoryLength: completeNode.properties.chatHistory.length
+        });
+        dispatch(selectNode({ node: completeNode }));
       } else {
         // Restore saved viewport state
         cyRef.current.zoom(currentGraph.viewport.zoom);
