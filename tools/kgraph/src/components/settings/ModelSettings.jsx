@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { fetchModels } from '../../services/openRouterApi';
-import { aiService } from '../../services/aiService';
+import { aiService } from '../../services/ai';
 
 function ModelSettings() {
   const [model, setModel] = useState('');
