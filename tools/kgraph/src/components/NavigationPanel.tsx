@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
-import { createGraph, deleteGraph, openGraph, clearAll, createNode, setTheme } from '../store/slices/appSlice';
+import { createGraph, deleteGraph, clearAll, createNode, setTheme, setLoading, loadGraph } from '../store/slices/appSlice';
 import { Theme } from '../store/types';
 
 const NavigationPanel: React.FC = () => {
   const dispatch = useAppDispatch();
-  const graphs = useAppSelector(state => state.app.graphs);
+  const graphs = useAppSelector(state => {
+    console.log('NavigationPanel: Current state:', state);
+    return state.app.graphs;
+  });
   const currentGraph = useAppSelector(state => state.app.currentGraph);
   const currentTheme = useAppSelector(state => state.app.theme);
+  const loading = useAppSelector(state => state.app.loading);
   const [newGraphTitle, setNewGraphTitle] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [showConfirmClear, setShowConfirmClear] = useState(false);
@@ -89,9 +93,19 @@ const NavigationPanel: React.FC = () => {
               borderRadius: '4px',
               marginBottom: '4px'
             }}
+            onClick={() => {
+              console.log('NavigationPanel: Clicking graph:', graph.id, graph.title);
+              console.log('NavigationPanel: Current graphs:', graphs);
+              dispatch(setLoading(graph.id));
+              console.log('NavigationPanel: Dispatching LOAD_GRAPH action');
+              dispatch(loadGraph(graph.id));
+            }}
           >
-            <span onClick={() => dispatch(openGraph(graph.id))}>
+            <span>
               {graph.title}
+              {loading.status && loading.graphId === graph.id && (
+                <span style={{ marginLeft: '8px', fontSize: '12px' }}>Loading...</span>
+              )}
             </span>
             <button
               onClick={() => handleDeleteGraph(graph.id)}
