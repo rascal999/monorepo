@@ -2,6 +2,7 @@ import { takeEvery, select, all, put, call } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Graph, Node } from '../types';
 import { addNode, addEdge } from '../slices/graphSlice';
+import { addMessage } from '../slices/chatSlice';
 import cytoscape from 'cytoscape';
 
 // Selector to get current graph
@@ -158,61 +159,8 @@ function* handleWordNodeCreationWithEdge(action: PayloadAction<{
     edgeCount: graph.edges.length
   });
 
-  // Wait for Cytoscape instance to be ready with timeout and retries
-  const waitForCytoscape = () => new Promise<cytoscape.Core>((resolve, reject) => {
-    let attempts = 0;
-    const maxAttempts = 50; // 5 seconds total
-    const interval = 100; // 100ms between attempts
-
-    const checkCy = () => {
-      const cyElement = document.querySelector('.cytoscape-container');
-      if (!cyElement) {
-        attempts++;
-        if (attempts >= maxAttempts) {
-          console.error('handleWordNodeCreationWithEdge: Timeout waiting for Cytoscape container', {
-            attempts,
-            maxAttempts,
-            interval
-          });
-          reject(new Error('Timeout waiting for Cytoscape container'));
-          return;
-        }
-        setTimeout(checkCy, interval);
-        return;
-      }
-
-      // Try to get the Cytoscape instance
-      const cy = (cyElement as any).cy;
-      if (!cy) {
-        attempts++;
-        if (attempts >= maxAttempts) {
-          console.error('handleWordNodeCreationWithEdge: Timeout waiting for Cytoscape instance', {
-            attempts,
-            maxAttempts,
-            interval,
-            hasContainer: Boolean(cyElement)
-          });
-          reject(new Error('Timeout waiting for Cytoscape instance'));
-          return;
-        }
-        setTimeout(checkCy, interval);
-        return;
-      }
-
-      console.log('handleWordNodeCreationWithEdge: Cytoscape ready', {
-        nodes: cy.nodes().length,
-        edges: cy.edges().length,
-        attempts
-      });
-      resolve(cy);
-    };
-
-    // Start checking
-    checkCy();
-  });
-
   try {
-    // First update the graph state
+    // Update graph state - visualization will be handled by React
     yield put(addNode({
       graphId: graph.id,
       node: {
@@ -234,6 +182,7 @@ function* handleWordNodeCreationWithEdge(action: PayloadAction<{
     yield put(addEdge({
       source: action.payload.parentNodeId,
       target: action.payload.nodeId,
+      label: '',
       graphId: graph.id
     }));
 
@@ -243,40 +192,38 @@ function* handleWordNodeCreationWithEdge(action: PayloadAction<{
       graphId: graph.id
     });
 
-    // Now wait for Cytoscape and update visualization
-    const cy: cytoscape.Core = yield call(waitForCytoscape);
+    // Short delay to ensure state is updated
+    yield new Promise(resolve => setTimeout(resolve, 100));
 
-    // Add the new node
-    cy.add({
-      group: 'nodes',
-      data: {
-        id: action.payload.nodeId,
-        label: action.payload.word
-      },
-      position: action.payload.position
-    });
+    // Create the prompt
+    const content = `You are a knowledgeable assistant. Please provide a clear and concise definition (1-2 sentences) of: ${action.payload.word}`;
 
-    console.log('handleWordNodeCreationWithEdge: Node added to cytoscape', {
+    // Add user message
+    yield put(addMessage({
       nodeId: action.payload.nodeId,
-      label: action.payload.word
+      role: 'user',
+      content
+    }));
+
+    console.log('handleWordNodeCreationWithEdge: Added auto-prompt for definition', {
+      nodeId: action.payload.nodeId,
+      word: action.payload.word
     });
 
-    // Create connection to parent node
-    const edgeId = `${action.payload.parentNodeId}-${action.payload.nodeId}`;
-    cy.add({
-      group: 'edges',
-      data: {
-        id: edgeId,
-        source: action.payload.parentNodeId,
-        target: action.payload.nodeId
+    // Trigger OpenRouter query
+    yield put({
+      type: 'chat/sendMessage',
+      payload: {
+        nodeId: action.payload.nodeId,
+        content
       }
     });
 
-    console.log('handleWordNodeCreationWithEdge: Edge added to cytoscape', {
-      edgeId,
-      source: action.payload.parentNodeId,
-      target: action.payload.nodeId
+    console.log('handleWordNodeCreationWithEdge: Triggered OpenRouter query', {
+      nodeId: action.payload.nodeId,
+      content
     });
+
   } catch (error) {
     console.error('handleWordNodeCreationWithEdge: Error', error);
   }
