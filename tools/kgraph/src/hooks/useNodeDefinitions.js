@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { aiService } from '../services/aiService';
 
-export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
-  // Track nodes being loaded for chat responses
-  const [loadingNodes, setLoadingNodes] = useState(new Set());
+export function useNodeDefinitions(activeGraph, onUpdateData) {
   // Track nodes being initialized
   const [initializingNodes, setInitializingNodes] = useState(new Set());
 
@@ -22,35 +20,18 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
 
     // Handle graph transitions
     if (currentGraphId !== prevGraphId) {
-      // First clear all loading states
+      // Clear initializing state and pending requests
       setInitializingNodes(new Set());
-      setLoadingNodes(new Set());
-
-      // Clear any pending requests in AIService
       aiService.clearStaleRequests();
 
       // If previous graph exists, clean up its state
-      if (prevGraphId) {
-        // Find all nodes that were being loaded
-        const nodesToCleanup = new Set([
-          ...initializingNodes,
-          ...loadingNodes,
-          // Also include any nodes marked as loading in nodeData
-          ...(activeGraph?.nodeData ? 
-            Object.entries(activeGraph.nodeData)
-              .filter(([_, data]) => data.isLoadingDefinition)
-              .map(([id]) => id) : 
-            []
-          )
-        ]);
-
-        // Clean up each node's state
-        nodesToCleanup.forEach(nodeId => {
-          onUpdateData(nodeId, 'isLoadingDefinition', false);
-          if (activeGraph?.id) {
-            setNodeLoading(activeGraph.id, nodeId, false);
-          }
-        });
+      if (prevGraphId && activeGraph?.nodeData) {
+        // Find and clean up any nodes marked as loading
+        Object.entries(activeGraph.nodeData)
+          .filter(([_, data]) => data.isLoadingDefinition)
+          .forEach(([nodeId]) => {
+            onUpdateData(nodeId, 'isLoadingDefinition', false);
+          });
       }
 
       setPrevGraphId(currentGraphId);
@@ -74,7 +55,7 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
         }
 
         // Skip if node is being processed
-        if (initializingNodes.has(nodeId) || loadingNodes.has(nodeId)) {
+        if (initializingNodes.has(nodeId)) {
           return false;
         }
 
@@ -179,9 +160,9 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
       return;
     }
     
-    // Skip if already loading
-    if (initializingNodes.has(targetNode.id) || loadingNodes.has(targetNode.id)) {
-      console.log('Node already loading:', targetNode.id);
+    // Skip if already initializing
+    if (initializingNodes.has(targetNode.id)) {
+      console.log('Node already initializing:', targetNode.id);
       // Clear loading state since we're skipping
       onUpdateData(targetNode.id, 'isLoadingDefinition', false);
       return;
@@ -274,56 +255,8 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
     }
   };
 
-  const handleSendMessage = async (node, nodeData, inputText, onStream) => {
-    if (!node) return;
-
-    const newMessage = { role: 'user', content: inputText };
-    const currentChat = [...(nodeData?.chat || []), newMessage];
-    onUpdateData(node.id, 'chat', currentChat);
-    
-    setLoadingNodes(prev => new Set([...prev, node.id]));
-    if (activeGraph?.id) {
-      setNodeLoading(activeGraph.id, node.id, true);
-    }
-
-    try {
-      const result = await aiService.getChatResponse(
-        currentChat,
-        activeGraph.title,
-        onStream ? (update) => {
-          if (update.success) {
-            onStream(update);
-          }
-        } : null
-      );
-
-      if (result.success) {
-        onUpdateData(node.id, 'chat', [...currentChat, result.message], true);
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error('OpenRouter API error:', error);
-      onUpdateData(node.id, 'chat', [...currentChat, {
-        role: 'assistant',
-        content: 'Error: Unable to get response. Please try again.'
-      }], true);
-    } finally {
-      setLoadingNodes(prev => {
-        const next = new Set(prev);
-        next.delete(node.id);
-        return next;
-      });
-      if (activeGraph?.id) {
-        setNodeLoading(activeGraph.id, node.id, false);
-      }
-    }
-  };
-
   return {
     initializingNodes,
-    loadingNodes,
-    handleGetDefinition,
-    handleSendMessage
+    handleGetDefinition
   };
 }
