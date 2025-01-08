@@ -39,16 +39,24 @@ function* handleChatMessage(action: PayloadAction<{
     newMessage: message
   });
 
-  // Update graph state only - nodeSlice will be updated via the reference
+  // Update both graph and node states
+  const changes = {
+    properties: {
+      ...node.properties,
+      chatHistory: [...chatHistory, message]
+    }
+  };
+
+  // Update graph state
   yield put(updateNodeInGraph({
     nodeId: action.payload.nodeId,
-    changes: {
-      ...node,
-      properties: {
-        ...node.properties,
-        chatHistory: [...chatHistory, message]
-      }
-    }
+    changes
+  }));
+
+  // Update node state
+  yield put(updateNodeChatHistory({
+    nodeId: action.payload.nodeId,
+    message
   }));
 }
 
