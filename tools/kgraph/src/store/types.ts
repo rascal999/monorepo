@@ -33,6 +33,10 @@ export interface AppState {
   selectedNode: Node | null;
   error: string | null;
   theme: Theme;
+  loading: {
+    graphId: string | null;
+    status: boolean;
+  };
   chatSession: {
     isActive: boolean;
     messages: Array<{
@@ -45,7 +49,8 @@ export interface AppState {
 // Action Types
 export enum ActionTypes {
   // App Actions
-  OPEN_GRAPH = 'OPEN_GRAPH',
+  LOAD_GRAPH = 'LOAD_GRAPH',
+  LOAD_GRAPH_SUCCESS = 'LOAD_GRAPH_SUCCESS',
   CREATE_GRAPH = 'CREATE_GRAPH',
   DELETE_GRAPH = 'DELETE_GRAPH',
   CLEAR_ALL = 'CLEAR_ALL',
@@ -78,5 +83,9 @@ export enum ActionTypes {
   SET_THEME = 'SET_THEME',
   
   // Viewport Actions
-  UPDATE_VIEWPORT = 'UPDATE_VIEWPORT'
+  UPDATE_VIEWPORT = 'UPDATE_VIEWPORT',
+
+  // Loading Actions
+  SET_LOADING = 'SET_LOADING',
+  CLEAR_LOADING = 'CLEAR_LOADING'
 }

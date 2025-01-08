@@ -2,6 +2,15 @@ kgraph
 
 Knowledge graph with AI.
 
+Logging:
+* Express server to handle log file creation
+* Logs stored in kgraph/logs directory
+* New log files created per page reload with session ID
+* Separate error and session logs for each reload
+* Console output preserved with colorization
+* Log server runs on port 3030
+* Frontend sends logs to server via HTTP
+
 General:
 * Use state machine (Redux)
 * Localstorage to store state

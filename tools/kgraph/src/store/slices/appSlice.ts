@@ -1,5 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppState, Node, Graph, Viewport, ActionTypes, Theme } from '../types';
+import { createAction } from '@reduxjs/toolkit';
+
+// Create action for loading graph
+export const loadGraph = createAction<string>('app/loadGraph');
+import { REHYDRATE } from 'redux-persist';
 
 const initialState: AppState = {
   viewport: {
@@ -11,6 +16,10 @@ const initialState: AppState = {
   selectedNode: null,
   error: null,
   theme: 'light',
+  loading: {
+    graphId: null,
+    status: false
+  },
   chatSession: {
     isActive: false,
     messages: []
@@ -21,14 +30,52 @@ const appSlice = createSlice({
   name: 'app',
   initialState,
   reducers: {
-    // App Actions
-    openGraph: (state, action: PayloadAction<string>) => {
-      const graph = state.graphs.find(g => g.id === action.payload);
-      if (graph) {
-        state.currentGraph = graph;
-        state.selectedNode = null;
-        state.error = null;
+    rehydrateComplete: (state, action: PayloadAction<AppState>) => {
+      console.log('Rehydrate complete:', action.payload);
+      return {
+        ...state,
+        ...action.payload,
+        loading: { graphId: null, status: false }
+      };
+    },
+    restoreState: (state, action: PayloadAction<Partial<AppState>>) => {
+      console.log('Restoring state:', action.payload);
+      if (action.payload.graphs) {
+        state.graphs = action.payload.graphs;
       }
+      if (action.payload.viewport) {
+        state.viewport = action.payload.viewport;
+      }
+      if (action.payload.currentGraph) {
+        state.currentGraph = action.payload.currentGraph;
+      }
+      console.log('Restored state:', state);
+    },
+    // Loading Actions
+    setLoading: (state, action: PayloadAction<string>) => {
+      state.loading = {
+        graphId: action.payload,
+        status: true
+      };
+    },
+    clearLoading: (state) => {
+      state.loading = {
+        graphId: null,
+        status: false
+      };
+    },
+
+    // App Actions
+    loadGraphSuccess: (state, action: PayloadAction<Graph>) => {
+      console.log('Reducer: loadGraphSuccess called with payload:', action.payload);
+      state.currentGraph = action.payload;
+      state.selectedNode = null;
+      state.error = null;
+      state.loading = {
+        graphId: null,
+        status: false
+      };
+      console.log('Reducer: Updated state:', state);
     },
     createGraph: (state, action: PayloadAction<{ title: string }>) => {
       const newGraph: Graph = {
@@ -147,11 +194,25 @@ const appSlice = createSlice({
     updateViewport: (state, action: PayloadAction<Partial<Viewport>>) => {
       state.viewport = { ...state.viewport, ...action.payload };
     }
+  },
+  extraReducers: (builder) => {
+    builder.addCase(REHYDRATE, (state, action: any) => {
+      console.log('REHYDRATE in extraReducers:', action);
+      if (action.payload && action.key === 'kgraph') {
+        return {
+          ...state,
+          ...action.payload,
+          loading: { graphId: null, status: false }
+        };
+      }
+    });
   }
 });
 
 export const {
-  openGraph,
+  rehydrateComplete,
+  restoreState,
+  loadGraphSuccess,
   createGraph,
   deleteGraph,
   clearAll,
@@ -168,7 +229,9 @@ export const {
   setError,
   clearError,
   setTheme,
-  updateViewport
+  updateViewport,
+  setLoading,
+  clearLoading
 } = appSlice.actions;
 
 export default appSlice.reducer;
