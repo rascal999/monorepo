@@ -28,12 +28,12 @@ export interface Graph {
   title: string;
   nodes: Node[];
   edges: Edge[];
+  viewport: Viewport;
 }
 
 export type Theme = 'light' | 'dark';
 
 export interface AppState {
-  viewport: Viewport;
   graphs: Graph[];
   currentGraph: Graph | null;
   selectedNode: Node | null;

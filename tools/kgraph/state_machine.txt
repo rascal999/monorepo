@@ -1,8 +1,12 @@
 Knowledge Graph State Machine Structure
 
 Global Context:
-- viewport: Viewport state and settings
-- graphs: Array of saved graphs
+- graphs: Array of saved graphs, each containing:
+  * id: Unique identifier
+  * title: Graph title
+  * nodes: Array of nodes
+  * edges: Array of edges
+  * viewport: Graph-specific viewport state (zoom and position)
 - currentGraph: Currently open graph data
 - selectedNode: Currently selected node
 - error: Error message if any
