@@ -29,6 +29,7 @@ Navigation panel (left panel):
 Graph panel (centre panel):
 * Cytoscape graphs
 * When new graph created, first node is title of new graph
+* First node is centered once when graph is created, otherwise viewport state is restored
 * Last focused node is selected
 * Import / export buttons
 
