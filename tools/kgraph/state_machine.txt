@@ -24,7 +24,10 @@ States and Transitions:
    - OPEN_SETTINGS → settings_open
 
 2. graph_creating
-   Entry: Initialize new graph
+   Entry: 
+   - Initialize new graph
+   - Set initial viewport state (centered, zoom: 0.75)
+   - Save viewport state to persist through reload
    Transitions:
    - SAVE → graph_open
    - CANCEL → app_idle
@@ -54,7 +57,10 @@ States and Transitions:
       - ERROR → error
 
    c. creating_node
-      Entry: Creates node and initializes chat history
+      Entry: 
+      - Creates node and initializes chat history
+      - Centers viewport on node if it's the first node
+      - Saves viewport state
       Exit: Logs context
       Transitions:
       - SUCCESS → chat_processing (with auto-prompt for node definition)
