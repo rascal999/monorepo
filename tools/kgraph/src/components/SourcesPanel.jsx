@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { aiService } from '../services/aiService';
+import { aiService } from '../services/ai';
 
 function SourcesPanel({ selectedNode, nodeData, onUpdateData }) {
   const [loading, setLoading] = useState(false);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { aiService } from '../services/aiService';
+import { aiService } from '../services/ai';
 
 export function useNodeDefinitionsBatch(activeGraph, onUpdateData) {
   // Track nodes being initialized

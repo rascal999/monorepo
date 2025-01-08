@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { aiService } from '../services/aiService';
+import { aiService } from '../services/ai';
 
 export function useNodeDefinitionHandler(activeGraph, onUpdateData) {
   const [initializingNodes, setInitializingNodes] = useState(new Set());

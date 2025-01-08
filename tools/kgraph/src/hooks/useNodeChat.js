@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { aiService } from '../services/aiService';
+import { aiService } from '../services/ai';
 
 export function useNodeChat(activeGraph, onUpdateData, setNodeLoading) {
   // Track nodes being loaded for chat responses
