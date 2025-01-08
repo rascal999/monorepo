@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
-import { createGraph, deleteGraph, openGraph, clearAll, createNode } from '../store/slices/appSlice';
+import { createGraph, deleteGraph, openGraph, clearAll, createNode, setTheme } from '../store/slices/appSlice';
+import { Theme } from '../store/types';
 
 const NavigationPanel: React.FC = () => {
   const dispatch = useAppDispatch();
   const graphs = useAppSelector(state => state.app.graphs);
   const currentGraph = useAppSelector(state => state.app.currentGraph);
+  const currentTheme = useAppSelector(state => state.app.theme);
   const [newGraphTitle, setNewGraphTitle] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [showConfirmClear, setShowConfirmClear] = useState(false);
@@ -119,9 +121,33 @@ const NavigationPanel: React.FC = () => {
 
         {showSettings && (
           <div className="settings-panel" style={{ marginTop: '16px', padding: '16px', backgroundColor: 'var(--panel-background)' }}>
-            <h3>Settings</h3>
-            {/* Add settings options here */}
-            <p style={{ color: 'var(--text-secondary)' }}>Settings coming soon...</p>
+            <h3 style={{ marginBottom: '16px' }}>Settings</h3>
+            <div className="input-group">
+              <label>Theme</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  className={`button ${currentTheme === 'light' ? 'button-primary' : 'button-secondary'}`}
+                  onClick={() => dispatch(setTheme('light'))}
+                >
+                  Light
+                </button>
+                <button
+                  className={`button ${currentTheme === 'dark' ? 'button-primary' : 'button-secondary'}`}
+                  onClick={() => dispatch(setTheme('dark'))}
+                >
+                  Dark
+                </button>
+                <button
+                  className="button button-secondary"
+                  onClick={() => {
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    dispatch(setTheme(prefersDark ? 'dark' : 'light'));
+                  }}
+                >
+                  System
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
