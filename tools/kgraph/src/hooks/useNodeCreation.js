@@ -98,7 +98,7 @@ export function useNodeCreation(activeGraph, updateGraph) {
       position,
       data: { 
         label: cleanTerm,
-        isLoadingDefinition: true
+        isLoadingDefinition: true // Set loading state to trigger batch process
       }
     };
 
@@ -136,7 +136,7 @@ export function useNodeCreation(activeGraph, updateGraph) {
       chat: [],
       notes: '',
       quiz: [],
-      isLoadingDefinition: true
+      isLoadingDefinition: true // Set loading state to trigger batch process
     };
 
     // Create edge data
@@ -180,7 +180,6 @@ export function useNodeCreation(activeGraph, updateGraph) {
     // Update graph synchronously to ensure node exists before any operations
     updateGraph(updatedGraph);
 
-    // Return node ID after ensuring graph is updated
     return newNodeId;
   };
 

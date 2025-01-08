@@ -5,11 +5,7 @@ import { useGraphUpdate } from './useGraphUpdate';
 import { useGraphClear } from './useGraphClear';
 import { useGraphIO } from './useGraphIO';
 
-// Store handleGetDefinition callback
-let globalHandleGetDefinition = null;
-
 export function useGraphState() {
-  const handleGetDefinitionRef = useRef(globalHandleGetDefinition);
   const {
     graphs,
     setGraphs,
@@ -19,7 +15,7 @@ export function useGraphState() {
   } = useGraphPersistence();
 
   // Get operations with validation
-  const operations = useGraphOperations(graphs, setGraphs, setActiveGraph, handleGetDefinitionRef.current);
+  const operations = useGraphOperations(graphs, setGraphs, setActiveGraph);
 
   // Validate operations
   useEffect(() => {
@@ -53,13 +49,6 @@ export function useGraphState() {
     }
   } = operations || {};
 
-  // Update ref when global callback changes
-  useEffect(() => {
-    if (globalHandleGetDefinition) {
-      handleGetDefinitionRef.current = globalHandleGetDefinition;
-    }
-  }, [globalHandleGetDefinition]);
-
   // Prevent unnecessary graph recreation
   useEffect(() => {
     if (activeGraph && graphs.length > 0) {
@@ -83,11 +72,6 @@ export function useGraphState() {
     setNodeLoading,
     exportGraph,
     importGraph
-  };
-
-  // Add static method to update the global callback
-  useGraphState.setHandleGetDefinition = (callback) => {
-    globalHandleGetDefinition = callback;
   };
 
   return result;

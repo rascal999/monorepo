@@ -7,6 +7,7 @@ export function useGraphCreate(setGraphs, setActiveGraph) {
     console.log('[GraphOperations] Creating new graph', title);
     const graphId = Date.now().toString();
     const nodeId = (Date.now() + 1).toString(); // Ensure unique ID by adding 1
+    
     // Create initial node with title as label
     const initialNode = {
       id: nodeId,
@@ -14,7 +15,7 @@ export function useGraphCreate(setGraphs, setActiveGraph) {
       position: { x: 250, y: 100 },
       data: { 
         label: title,
-        isLoadingDefinition: true
+        isLoadingDefinition: true // Start with loading state to trigger definition fetch
       }
     };
 
@@ -25,10 +26,10 @@ export function useGraphCreate(setGraphs, setActiveGraph) {
       edges: [],
       nodeData: {
         [nodeId]: {
-          chat: [],
+          chat: [], // Initialize empty chat array
           notes: '',
           quiz: [],
-          isLoadingDefinition: true
+          isLoadingDefinition: true // Start with loading state to trigger definition fetch
         }
       },
       lastSelectedNodeId: nodeId
@@ -39,27 +40,23 @@ export function useGraphCreate(setGraphs, setActiveGraph) {
       return;
     }
 
-    // Create graph with loading state
-    const graphWithLoading = {
-      ...newGraph,
-      nodeData: {
-        [nodeId]: {
-          ...newGraph.nodeData[nodeId],
-          isLoadingDefinition: true
-        }
-      }
-    };
-
     // Update graphs and set active synchronously
     setGraphs(prevGraphs => {
-      const newGraphs = [...prevGraphs, graphWithLoading];
+      const newGraphs = [...prevGraphs, newGraph];
       // Set active graph immediately
-      setActiveGraph(graphWithLoading);
+      setActiveGraph(newGraph);
       return newGraphs;
     });
 
-    // Return the graph ID so it can be used immediately
-    return graphWithLoading.id;
+    // Return the node info so definition can be fetched after graph creation
+    return {
+      graphId: newGraph.id,
+      nodeId,
+      node: {
+        id: nodeId,
+        data: { label: title }
+      }
+    };
   };
 
   return {

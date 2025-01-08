@@ -38,7 +38,7 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading, graphs) {
   }, [lastUserSelectedNodeId, updateNodeData]);
 
   // Pass updateNodeDataWithSelection and activeGraph to useNodeDefinitions
-  const { handleGetDefinition, handleSendMessage } = useNodeDefinitions(
+  const { handleSendMessage } = useNodeDefinitions(
     activeGraph,
     updateNodeDataWithSelection,
     setNodeLoading
@@ -62,55 +62,9 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading, graphs) {
   // Manage tab state
   const [activeTab, setActiveTab] = useState('chat');
 
-  // Batch definition requests
-  const pendingDefinitionsRef = useRef(new Set());
-  const definitionTimeoutRef = useRef(null);
-  const DEFINITION_BATCH_DELAY = 50;
-
-  // Process definition requests in batches
-  const processPendingDefinitions = useCallback(() => {
-    if (!activeGraph || pendingDefinitionsRef.current.size === 0) return;
-
-    const pendingIds = Array.from(pendingDefinitionsRef.current);
-    pendingDefinitionsRef.current.clear();
-
-    pendingIds.forEach(nodeId => {
-      const node = activeGraph.nodes.find(n => n.id === nodeId);
-      if (node) {
-        handleGetDefinition(node);
-      }
-    });
-  }, [activeGraph, handleGetDefinition]);
-
-  // Clean up on unmount
-  useEffect(() => {
-    return () => {
-      if (definitionTimeoutRef.current) {
-        clearTimeout(definitionTimeoutRef.current);
-      }
-    };
-  }, []);
-
   const nodeInteraction = useNodeInteraction((sourceNode, term) => {
     const nodeId = addNode(sourceNode, term);
     
-    if (nodeId?.includes('-')) {
-      // Only queue if node doesn't already have chat data
-      const nodeData = activeGraph?.nodeData[nodeId];
-      if (!nodeData?.chat?.length) {
-        // Queue definition request
-        pendingDefinitionsRef.current.add(nodeId);
-
-        // Clear existing timeout
-        if (definitionTimeoutRef.current) {
-          clearTimeout(definitionTimeoutRef.current);
-        }
-
-        // Process batch after delay
-        definitionTimeoutRef.current = setTimeout(processPendingDefinitions, DEFINITION_BATCH_DELAY);
-      }
-    }
-
     return nodeId;
   });
 
@@ -125,6 +79,5 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading, graphs) {
     addNode,
     updateNodeData: updateNodeDataWithSelection,
     updateNodePosition,
-    handleGetDefinition
   };
 }

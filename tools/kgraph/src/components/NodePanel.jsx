@@ -15,7 +15,6 @@ function NodePanel({
   activeTab, 
   setActiveTab, 
   nodeInteraction,
-  handleGetDefinition,
   handleSendMessage
 }) {
   const { handleWordClick } = nodeInteraction || {};
@@ -55,7 +54,6 @@ function NodePanel({
               if (!handleWordClick) return;
               handleWordClick(node, words);
             }}
-            handleGetDefinition={handleGetDefinition}
             updateNodeData={onUpdateData}
           />
         )}

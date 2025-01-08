@@ -2,12 +2,12 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 
-function ChatPanel({ messages: propMessages, isLoading, nodeId, nodeLabel, nodeData, onSendMessage, onWordClick, handleGetDefinition, updateNodeData }) {
+function ChatPanel({ messages: propMessages, isLoading, nodeId, nodeLabel, nodeData, onSendMessage, onWordClick, updateNodeData }) {
   const chatEndRef = useRef(null);
   const chatContainerRef = useRef(null);
   const restoredRef = useRef(false);
   const [prevNodeId, setPrevNodeId] = useState(nodeId);
-  const [localMessages, setLocalMessages] = useState(nodeData?.chat || []);
+  const [localMessages, setLocalMessages] = useState([]);
   const [streamingMessage, setStreamingMessage] = useState(null);
   
   // Calculate initial scroll position
@@ -80,8 +80,12 @@ function ChatPanel({ messages: propMessages, isLoading, nodeId, nodeLabel, nodeD
       restoredRef.current = false;
     }
 
-    // Always update local messages from nodeData
-    setLocalMessages(nodeData?.chat || []);
+    // Update local messages from nodeData
+    if (nodeData?.chat) {
+      setLocalMessages(nodeData.chat);
+    } else {
+      setLocalMessages([]);
+    }
   }, [nodeId, prevNodeId, nodeData?.chat, updateNodeData]);
 
   // Handle message sending with streaming
@@ -129,9 +133,7 @@ function ChatPanel({ messages: propMessages, isLoading, nodeId, nodeLabel, nodeD
   const hasMessages = allMessages.length > 0;
   const isLoadingDefinition = Boolean(nodeData?.isLoadingDefinition);
   // Show loading only if we're loading and don't have any messages yet
-  const showLoading = isLoadingDefinition && !hasMessages;
-  // Show button only if we don't have chat data and aren't loading
-  const showButton = !nodeData?.chat?.length && !isLoadingDefinition && nodeId;
+  const showLoading = isLoadingDefinition;
 
   return (
     <div className="relative flex flex-col h-full">
@@ -147,16 +149,6 @@ function ChatPanel({ messages: propMessages, isLoading, nodeId, nodeLabel, nodeD
         style={{ scrollBehavior: 'instant' }}
       >
         <div className="p-4 pb-20 space-y-4">
-          {showButton && (
-            <div className="flex justify-center">
-              <button
-                onClick={() => handleGetDefinition({ id: nodeId, data: { label: nodeLabel } })}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-              >
-                Get Definition
-              </button>
-            </div>
-          )}
           {allMessages.map((message, index) => (
             <ChatMessage 
               key={index} 

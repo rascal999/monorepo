@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { aiService } from '../services/ai';
+import { chatService } from '../services/ai/chatService';
 
 export function useNodeChat(activeGraph, onUpdateData, setNodeLoading) {
   // Track nodes being loaded for chat responses
@@ -18,14 +18,15 @@ export function useNodeChat(activeGraph, onUpdateData, setNodeLoading) {
     }
 
     try {
-      const result = await aiService.getChatResponse(
+      const result = await chatService.getChatResponse(
         currentChat,
         activeGraph.title,
         onStream ? (update) => {
           if (update.success) {
             onStream(update);
           }
-        } : null
+        } : null,
+        false // isDefinitionRequest = false for regular chat
       );
 
       if (result.success) {
