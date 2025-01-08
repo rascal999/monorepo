@@ -96,11 +96,33 @@
 
 /* Node Properties Panel (Right) */
 .node-properties-panel {
-  width: 300px;
+  width: 400px;
   background-color: var(--panel-background);
   border-left: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+/* Resize handle */
+.resize-handle {
+  position: absolute;
+  left: -5px;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  cursor: col-resize;
+  z-index: 10;
+}
+
+.resize-handle:hover {
+  background-color: var(--primary-color);
+  opacity: 0.2;
+}
+
+.resize-handle.resizing {
+  background-color: var(--primary-color);
+  opacity: 0.2;
 }
 
 .node-properties-panel .tabs {

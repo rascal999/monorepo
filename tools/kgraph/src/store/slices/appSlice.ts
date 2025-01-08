@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AppState, Node, Graph, Viewport, ActionTypes, Theme } from '../types';
+import type { AppState, Node, Graph, Viewport, Theme } from '../types';
 import { createAction } from '@reduxjs/toolkit';
+import { REHYDRATE } from 'redux-persist';
 
 // Create action for loading graph
 export const loadGraph = createAction<string>('app/loadGraph');
-import { REHYDRATE } from 'redux-persist';
 
 const initialState: AppState = {
   viewport: {
@@ -23,7 +23,8 @@ const initialState: AppState = {
   chatSession: {
     isActive: false,
     messages: []
-  }
+  },
+  panelWidth: 400
 };
 
 const appSlice = createSlice({
@@ -31,7 +32,6 @@ const appSlice = createSlice({
   initialState,
   reducers: {
     rehydrateComplete: (state, action: PayloadAction<AppState>) => {
-      console.log('Rehydrate complete:', action.payload);
       return {
         ...state,
         ...action.payload,
@@ -39,7 +39,6 @@ const appSlice = createSlice({
       };
     },
     restoreState: (state, action: PayloadAction<Partial<AppState>>) => {
-      console.log('Restoring state:', action.payload);
       if (action.payload.graphs) {
         state.graphs = action.payload.graphs;
       }
@@ -49,7 +48,9 @@ const appSlice = createSlice({
       if (action.payload.currentGraph) {
         state.currentGraph = action.payload.currentGraph;
       }
-      console.log('Restored state:', state);
+      if (action.payload.chatSession) {
+        state.chatSession = action.payload.chatSession;
+      }
     },
     // Loading Actions
     setLoading: (state, action: PayloadAction<string>) => {
@@ -67,7 +68,6 @@ const appSlice = createSlice({
 
     // App Actions
     loadGraphSuccess: (state, action: PayloadAction<Graph>) => {
-      console.log('Reducer: loadGraphSuccess called with payload:', action.payload);
       state.currentGraph = action.payload;
       state.selectedNode = null;
       state.error = null;
@@ -75,7 +75,6 @@ const appSlice = createSlice({
         graphId: null,
         status: false
       };
-      console.log('Reducer: Updated state:', state);
     },
     createGraph: (state, action: PayloadAction<{ title: string }>) => {
       const newGraph: Graph = {
@@ -119,6 +118,8 @@ const appSlice = createSlice({
           graphInArray.nodes.push(newNode);
         }
         state.selectedNode = newNode;
+        // Just activate chat session, saga will handle the message
+        state.chatSession.isActive = true;
       }
     },
     selectNode: (state, action: PayloadAction<string>) => {
@@ -175,13 +176,11 @@ const appSlice = createSlice({
     },
     deleteNode: (state, action: PayloadAction<string>) => {
       if (state.currentGraph) {
-        // Update currentGraph
         state.currentGraph.nodes = state.currentGraph.nodes.filter(n => n.id !== action.payload);
         state.currentGraph.edges = state.currentGraph.edges.filter(
           e => e.source !== action.payload && e.target !== action.payload
         );
         
-        // Update graph in graphs array
         const graphInArray = state.graphs.find(g => g.id === state.currentGraph!.id);
         if (graphInArray) {
           graphInArray.nodes = graphInArray.nodes.filter(n => n.id !== action.payload);
@@ -227,11 +226,15 @@ const appSlice = createSlice({
     // Viewport Actions
     updateViewport: (state, action: PayloadAction<Partial<Viewport>>) => {
       state.viewport = { ...state.viewport, ...action.payload };
+    },
+
+    // Panel Actions
+    updatePanelWidth: (state, action: PayloadAction<number>) => {
+      state.panelWidth = action.payload;
     }
   },
   extraReducers: (builder) => {
     builder.addCase(REHYDRATE, (state, action: any) => {
-      console.log('REHYDRATE in extraReducers:', action);
       if (action.payload && action.key === 'kgraph') {
         return {
           ...state,
@@ -239,6 +242,7 @@ const appSlice = createSlice({
           loading: { graphId: null, status: false }
         };
       }
+      return state;
     });
   }
 });
@@ -265,7 +269,8 @@ export const {
   setTheme,
   updateViewport,
   setLoading,
-  clearLoading
+  clearLoading,
+  updatePanelWidth
 } = appSlice.actions;
 
 export default appSlice.reducer;
