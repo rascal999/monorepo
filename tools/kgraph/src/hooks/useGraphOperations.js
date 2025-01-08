@@ -92,8 +92,46 @@ export function useGraphOperations(graphs, setGraphs, setActiveGraph, handleGetD
       return;
     }
 
+    // Validate all nodes have required data
+    const hasInvalidNodes = updatedGraph.nodes.some(node => 
+      !node?.id || !node?.data?.label || !node?.position?.x || !node?.position?.y
+    );
+
+    if (hasInvalidNodes) {
+      console.error('[GraphOperations] Invalid node data in update:', 
+        updatedGraph.nodes.map(n => ({
+          id: n?.id,
+          hasData: !!n?.data,
+          hasLabel: !!n?.data?.label,
+          hasPosition: !!(n?.position?.x && n?.position?.y)
+        }))
+      );
+      return;
+    }
+
+    // Ensure nodeData exists for all nodes
+    const missingNodeData = updatedGraph.nodes.filter(node => 
+      !updatedGraph.nodeData[node.id]
+    );
+
+    if (missingNodeData.length > 0) {
+      console.log('[GraphOperations] Adding missing nodeData for nodes:', 
+        missingNodeData.map(n => n.id)
+      );
+      
+      missingNodeData.forEach(node => {
+        updatedGraph.nodeData[node.id] = {
+          chat: [],
+          notes: '',
+          quiz: [],
+          isLoadingDefinition: true
+        };
+      });
+    }
+
     // Batch state updates
     const batchUpdate = () => {
+      // Update graphs array first
       setGraphs(prevGraphs => {
         const currentGraphs = Array.isArray(prevGraphs) ? prevGraphs : [];
         return currentGraphs.map(g => 
@@ -101,17 +139,15 @@ export function useGraphOperations(graphs, setGraphs, setActiveGraph, handleGetD
         );
       });
 
-      setActiveGraph(prevGraph => 
-        prevGraph?.id === updatedGraph.id ? updatedGraph : prevGraph
-      );
+      // Then update active graph
+      setActiveGraph(prevGraph => {
+        if (prevGraph?.id !== updatedGraph.id) return prevGraph;
+        return updatedGraph;
+      });
     };
 
-    // Use RAF for position updates to improve performance
-    if (sourceNodeId) {
-      requestAnimationFrame(batchUpdate);
-    } else {
-      batchUpdate();
-    }
+    // Always execute update immediately to prevent race conditions
+    batchUpdate();
   }, [setGraphs, setActiveGraph]);
 
   const setNodeLoading = (graphId, nodeId, isLoading) => {
