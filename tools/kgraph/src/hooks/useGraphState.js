@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import { useGraphPersistence } from './useGraphPersistence';
 import { useGraphOperations } from './useGraphOperations';
 import { useGraphValidation } from './useGraphValidation';
@@ -31,29 +31,47 @@ export function useGraphState() {
     }
   }, [operations]);
 
-  // Throttled logging ref
-  const lastLogTimeRef = useRef(0);
-  const LOG_THROTTLE = 1000; // 1 second
+  // Track updates
+  const updateTimeoutRef = useRef(null);
+  const lastUpdateRef = useRef(null);
+  const UPDATE_THROTTLE = 16; // ~60fps
 
-  // Wrap updateGraph to ensure it's always a function
+  // Throttled update function
   const updateGraph = useCallback((...args) => {
-    // Throttled logging
     const now = Date.now();
-    if (now - lastLogTimeRef.current >= LOG_THROTTLE) {
-      console.log('[GraphState] updateGraph called with:', {
-        args,
-        hasOperations: !!operations,
-        hasUpdateGraph: typeof operations?.updateGraph === 'function'
-      });
-      lastLogTimeRef.current = now;
+    const timeSinceLastUpdate = now - (lastUpdateRef.current || 0);
+
+    // Clear any pending update
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
     }
-    
+
+    // If we're updating too frequently, throttle
+    if (timeSinceLastUpdate < UPDATE_THROTTLE) {
+      updateTimeoutRef.current = setTimeout(() => {
+        if (operations?.updateGraph) {
+          operations.updateGraph(...args);
+          lastUpdateRef.current = Date.now();
+        }
+      }, UPDATE_THROTTLE - timeSinceLastUpdate);
+      return;
+    }
+
+    // Otherwise update immediately
     if (operations?.updateGraph) {
-      return operations.updateGraph(...args);
-    } else {
-      console.error('[GraphState] updateGraph called but not available');
+      operations.updateGraph(...args);
+      lastUpdateRef.current = now;
     }
   }, [operations]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const {
     createGraph = () => {
