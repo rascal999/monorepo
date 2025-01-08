@@ -98,7 +98,7 @@ export function useNodeCreation(activeGraph, updateGraph) {
       position,
       data: { 
         label: cleanTerm,
-        isLoading: true
+        isLoadingDefinition: true
       }
     };
 
@@ -155,7 +155,8 @@ export function useNodeCreation(activeGraph, updateGraph) {
       nodeData: {
         ...activeGraph.nodeData,
         [newNodeId]: nodeData
-      }
+      },
+      lastSelectedNodeId: newNodeId // Set new node as selected
     };
 
     console.log('Graph update details:', {
@@ -176,8 +177,10 @@ export function useNodeCreation(activeGraph, updateGraph) {
       }))
     });
 
-    // Update graph and return node ID
+    // Update graph synchronously to ensure node exists before any operations
     updateGraph(updatedGraph);
+
+    // Return node ID after ensuring graph is updated
     return newNodeId;
   };
 

@@ -1,7 +1,7 @@
 export function useNodeInteraction(onAddNode) {
-  // Simple pass-through to add node with minimal validation
+  // Handle word click with proper async flow
   return {
-    handleWordClick: (node, words) => {
+    handleWordClick: async (node, words) => {
       console.log('useNodeInteraction.handleWordClick called with:', {
         nodeId: node?.id,
         nodePosition: node?.position,
@@ -25,8 +25,18 @@ export function useNodeInteraction(onAddNode) {
         term: words.join(' ')
       });
 
-      const newNodeId = onAddNode(node, words.join(' '));
-      console.log('useNodeInteraction.handleWordClick result:', { newNodeId });
+      try {
+        // Wait for node creation to complete
+        const newNodeId = await Promise.resolve(onAddNode(node, words.join(' ')));
+        
+        // Log result only if we got a valid node ID
+        if (newNodeId) {
+          console.log('useNodeInteraction.handleWordClick result:', { newNodeId });
+          return { newNodeId };
+        }
+      } catch (error) {
+        console.error('useNodeInteraction.handleWordClick error:', error);
+      }
     }
   };
 }

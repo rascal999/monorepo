@@ -44,7 +44,7 @@ export function useGraphOperations(graphs, setGraphs, setActiveGraph, handleGetD
       position: { x: 250, y: 100 },
       data: { 
         label: title,
-        isLoading: false
+        isLoadingDefinition: true
       }
     };
 
@@ -80,9 +80,16 @@ export function useGraphOperations(graphs, setGraphs, setActiveGraph, handleGetD
       }
     };
 
-    // Update graphs and set active
-    setGraphs(prevGraphs => [...prevGraphs, graphWithLoading]);
-    setActiveGraph(graphWithLoading);
+    // Update graphs and set active synchronously
+    setGraphs(prevGraphs => {
+      const newGraphs = [...prevGraphs, graphWithLoading];
+      // Set active graph immediately
+      setActiveGraph(graphWithLoading);
+      return newGraphs;
+    });
+
+    // Return the graph ID so it can be used immediately
+    return graphWithLoading.id;
   };
 
   const updateGraph = useCallback((updatedGraph, sourceNodeId) => {
@@ -92,62 +99,90 @@ export function useGraphOperations(graphs, setGraphs, setActiveGraph, handleGetD
       return;
     }
 
-    // Validate all nodes have required data
-    const hasInvalidNodes = updatedGraph.nodes.some(node => 
-      !node?.id || !node?.data?.label || !node?.position?.x || !node?.position?.y
-    );
+    // Helper function to wait
+    const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    if (hasInvalidNodes) {
-      console.error('[GraphOperations] Invalid node data in update:', 
-        updatedGraph.nodes.map(n => ({
-          id: n?.id,
-          hasData: !!n?.data,
-          hasLabel: !!n?.data?.label,
-          hasPosition: !!(n?.position?.x && n?.position?.y)
-        }))
+    // Find existing graph with retry
+    const findGraph = async (retries = 3, delay = 50) => {
+      for (let i = retries; i >= 0; i--) {
+        const existingGraph = graphs.find(g => g.id === updatedGraph.id);
+        if (existingGraph) {
+          return existingGraph;
+        }
+        if (i > 0) {
+          console.log('[GraphOperations] Graph not found, retrying...', {
+            graphId: updatedGraph.id,
+            remainingRetries: i - 1
+          });
+          await wait(delay);
+        }
+      }
+      console.warn('[GraphOperations] Graph not found after retries:', updatedGraph.id);
+      return null;
+    };
+
+    // Use async/await to handle the graph update
+    (async () => {
+      const existingGraph = await findGraph();
+      if (!existingGraph) {
+        return;
+      }
+
+      // Continue with graph update...
+      // Validate all nodes have required data
+      const hasInvalidNodes = updatedGraph.nodes.some(node => 
+        !node?.id || !node?.data?.label || !node?.position?.x || !node?.position?.y
       );
-      return;
-    }
 
-    // Ensure nodeData exists for all nodes
-    const missingNodeData = updatedGraph.nodes.filter(node => 
-      !updatedGraph.nodeData[node.id]
-    );
+      if (hasInvalidNodes) {
+        console.error('[GraphOperations] Invalid node data in update:', 
+          updatedGraph.nodes.map(n => ({
+            id: n?.id,
+            hasData: !!n?.data,
+            hasLabel: !!n?.data?.label,
+            hasPosition: !!(n?.position?.x && n?.position?.y)
+          }))
+        );
+        return;
+      }
 
-    if (missingNodeData.length > 0) {
-      console.log('[GraphOperations] Adding missing nodeData for nodes:', 
-        missingNodeData.map(n => n.id)
-      );
+      // Merge nodeData from existing graph
+      const mergedNodeData = { ...existingGraph.nodeData };
       
-      missingNodeData.forEach(node => {
-        updatedGraph.nodeData[node.id] = {
-          chat: [],
-          notes: '',
-          quiz: [],
-          isLoadingDefinition: true
-        };
+      // Add any new nodeData
+      updatedGraph.nodes.forEach(node => {
+        if (!mergedNodeData[node.id]) {
+          mergedNodeData[node.id] = {
+            chat: [],
+            notes: '',
+            quiz: [],
+            isLoadingDefinition: true
+          };
+        }
       });
-    }
 
-    // Batch state updates
-    const batchUpdate = () => {
+      // Create merged graph
+      const mergedGraph = {
+        ...updatedGraph,
+        nodeData: mergedNodeData
+      };
+
       // Update graphs array first
       setGraphs(prevGraphs => {
         const currentGraphs = Array.isArray(prevGraphs) ? prevGraphs : [];
         return currentGraphs.map(g => 
-          g.id === updatedGraph.id ? updatedGraph : g
+          g.id === mergedGraph.id ? mergedGraph : g
         );
       });
 
-      // Then update active graph
+      // Then update active graph if it matches
       setActiveGraph(prevGraph => {
-        if (prevGraph?.id !== updatedGraph.id) return prevGraph;
-        return updatedGraph;
+        if (prevGraph?.id !== mergedGraph.id) return prevGraph;
+        return mergedGraph;
       });
-    };
-
-    // Always execute update immediately to prevent race conditions
-    batchUpdate();
+    })().catch(error => {
+      console.error('[GraphOperations] Error updating graph:', error);
+    });
   }, [setGraphs, setActiveGraph]);
 
   const setNodeLoading = (graphId, nodeId, isLoading) => {
@@ -162,7 +197,7 @@ export function useGraphOperations(graphs, setGraphs, setActiveGraph, handleGetD
 
       const updatedNodes = graph.nodes.map(node => 
         node.id === nodeId 
-          ? { ...node, data: { ...node.data, isLoading } }
+          ? { ...node, data: { ...node.data, isLoadingDefinition: isLoading } }
           : node
       );
 
