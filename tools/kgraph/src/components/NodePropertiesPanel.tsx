@@ -13,7 +13,7 @@ const NodePropertiesPanel: React.FC = () => {
   const dispatch = useAppDispatch();
   const selectedNode = useAppSelector(state => state.app.selectedNode);
   const chatSession = useAppSelector(state => state.app.chatSession);
-  const [activeTab, setActiveTab] = useState<Tab>('properties');
+  const [activeTab, setActiveTab] = useState<Tab>('chat');
   const [chatInput, setChatInput] = useState('');
 
   // Handle property changes
@@ -82,16 +82,16 @@ const NodePropertiesPanel: React.FC = () => {
     <div className="node-properties-panel">
       <div className="tabs">
         <button
-          className={`tab ${activeTab === 'properties' ? 'active' : ''}`}
-          onClick={() => handleTabChange('properties')}
-        >
-          Properties
-        </button>
-        <button
           className={`tab ${activeTab === 'chat' ? 'active' : ''}`}
           onClick={() => handleTabChange('chat')}
         >
           Chat
+        </button>
+        <button
+          className={`tab ${activeTab === 'properties' ? 'active' : ''}`}
+          onClick={() => handleTabChange('properties')}
+        >
+          Properties
         </button>
       </div>
 

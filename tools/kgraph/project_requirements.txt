@@ -33,9 +33,9 @@ Graph panel (centre panel):
 * Import / export buttons
 
 Node properties panel (right panel):
+* Chat tab (AI stream chat, OpenRouter) - default tab
 * Node properties panel
-* Chat tab (AI stream chat, OpenRouter)
 
 Chat tab (tab in node properties panel):
-* Tab in node properties panel
+* Default tab in node properties panel
 * Words in chat tab

@@ -57,10 +57,6 @@ function* handleLoadGraph(action: PayloadAction<string>): Generator {
     // Set loading state at the start
     yield put({ type: 'app/setLoading', payload: action.payload });
     
-    // Simulate loading delay
-    yield delay(800);
-    console.log('Saga: After delay');
-    
     const state = yield select(getState);
     console.log('Saga: Current state:', state);
     
