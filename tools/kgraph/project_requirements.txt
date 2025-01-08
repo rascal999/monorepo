@@ -28,6 +28,7 @@ Navigation panel (left panel):
 
 Graph panel (centre panel):
 * Cytoscape graphs
+* Node sizes automatically adjust to fit their text content with padding
 * When new graph created, first node is title of new graph
 * First node is centered once when graph is created, otherwise viewport state is restored
 * Last focused node is selected
