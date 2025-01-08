@@ -1,11 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { aiService } from '../services/ai';
 
 export function useNodeDefinitionHandler(activeGraph, onUpdateData) {
+  // Track nodes being initialized
   const [initializingNodes, setInitializingNodes] = useState(new Set());
 
+  // Clear stale requests when graph changes
+  useEffect(() => {
+    if (!activeGraph) return;
+
+    console.log('useNodeDefinitionHandler: Graph changed, cleaning up requests');
+    aiService.clearStaleRequests();
+
+    // Clean up any stuck loading states
+    Object.entries(activeGraph.nodeData || {})
+      .filter(([_, data]) => data.isLoadingDefinition)
+      .forEach(([nodeId]) => {
+        console.log('useNodeDefinitionHandler: Clearing stuck loading state:', nodeId);
+        onUpdateData(nodeId, null, {
+          chat: activeGraph.nodeData[nodeId]?.chat || [],
+          isLoadingDefinition: false
+        });
+      });
+  }, [activeGraph?.id]);
+
   const handleGetDefinition = async (targetNode, graphId) => {
-    console.log('handleGetDefinition called with:', {
+    console.log('useNodeDefinitionHandler: Starting definition fetch:', {
       nodeId: targetNode?.id,
       label: targetNode?.data?.label,
       graphId
@@ -13,7 +33,7 @@ export function useNodeDefinitionHandler(activeGraph, onUpdateData) {
 
     // Validate target node exists in current graph
     if (!targetNode?.id || !targetNode?.data?.label || !activeGraph?.nodes?.find(n => n.id === targetNode.id)) {
-      console.error('Invalid or missing target node:', {
+      console.error('useNodeDefinitionHandler: Invalid or missing target node:', {
         hasId: !!targetNode?.id,
         hasLabel: !!targetNode?.data?.label,
         existsInGraph: !!activeGraph?.nodes?.find(n => n.id === targetNode?.id)
@@ -23,26 +43,26 @@ export function useNodeDefinitionHandler(activeGraph, onUpdateData) {
     
     // Skip if already initializing
     if (initializingNodes.has(targetNode.id)) {
-      console.log('Node already initializing:', targetNode.id);
-      // Clear loading state since we're skipping
-      onUpdateData(targetNode.id, 'isLoadingDefinition', false);
+      console.log('useNodeDefinitionHandler: Node already initializing:', targetNode.id);
       return;
     }
     
     // Use provided graphId or fall back to activeGraph.id
     const effectiveGraphId = graphId || activeGraph?.id;
     if (!effectiveGraphId) {
-      console.error('No graph ID available for definition request');
+      console.error('useNodeDefinitionHandler: No graph ID available');
       return;
     }
 
     try {
-      // Set loading state only if not already loaded
-      console.log('Setting loading state for node:', targetNode.id);
-      if (!activeGraph.nodeData[targetNode.id]?.chat?.length) {
-        onUpdateData(targetNode.id, 'isLoadingDefinition', true);
-        setInitializingNodes(prev => new Set([...prev, targetNode.id]));
-      }
+      // Track initializing state
+      setInitializingNodes(prev => new Set([...prev, targetNode.id]));
+
+      // Initialize chat array and set loading state
+      onUpdateData(targetNode.id, null, {
+        chat: [],
+        isLoadingDefinition: true
+      });
 
       // Verify node still exists before proceeding
       if (!activeGraph?.nodes?.find(n => n.id === targetNode.id)) {
@@ -51,7 +71,11 @@ export function useNodeDefinitionHandler(activeGraph, onUpdateData) {
 
       // Return a promise that resolves when definition is complete
       return new Promise((resolve, reject) => {
-        console.log('Queueing definition request for:', targetNode.data.label);
+        console.log('useNodeDefinitionHandler: Queueing definition request:', {
+          nodeId: targetNode.id,
+          label: targetNode.data.label
+        });
+
         aiService.queueDefinitionRequest(
           targetNode.data.label,
           activeGraph.title,
@@ -59,24 +83,24 @@ export function useNodeDefinitionHandler(activeGraph, onUpdateData) {
             try {
               // Verify node still exists before updating
               if (!activeGraph?.nodes?.find(n => n.id === targetNode.id)) {
-                console.error('Node no longer exists, skipping update');
+                console.error('useNodeDefinitionHandler: Node no longer exists');
                 reject(new Error('Node no longer exists'));
                 return;
               }
 
-              // Update chat data and clear loading state
-              if (result.success) {
+              // Update chat data and ensure loading state is cleared
+              if (result.success && result.message) {
                 const formattedMessage = {
                   role: result.message.role || 'assistant',
-                  content: result.message.content
+                  content: result.message.content || ''
                 };
-                // Update chat data and loading state in a single operation
                 onUpdateData(targetNode.id, null, {
                   chat: [formattedMessage],
                   isLoadingDefinition: false
                 }, true);
+                resolve();
               } else {
-                // Update chat with error and loading state in a single operation
+                console.error('useNodeDefinitionHandler: Definition request failed:', result.error);
                 onUpdateData(targetNode.id, null, {
                   chat: [{
                     role: 'assistant',
@@ -84,10 +108,10 @@ export function useNodeDefinitionHandler(activeGraph, onUpdateData) {
                   }],
                   isLoadingDefinition: false
                 }, true);
+                reject(new Error(result.error || 'Definition request failed'));
               }
-              resolve();
             } catch (error) {
-              console.error('Error updating node data:', error);
+              console.error('useNodeDefinitionHandler: Error updating node data:', error);
               reject(error);
             } finally {
               // Always clean up initializing state
@@ -101,15 +125,21 @@ export function useNodeDefinitionHandler(activeGraph, onUpdateData) {
         );
       });
     } catch (error) {
-      console.error('Error in handleGetDefinition:', error);
-      // Ensure loading states are cleared on error
-      onUpdateData(targetNode.id, 'isLoadingDefinition', false);
+      console.error('useNodeDefinitionHandler: Error in definition handler:', error);
+      // Clean up state
+      onUpdateData(targetNode.id, null, {
+        chat: [{
+          role: 'assistant',
+          content: 'Error fetching definition. Please try again.'
+        }],
+        isLoadingDefinition: false
+      });
       setInitializingNodes(prev => {
         const next = new Set(prev);
         next.delete(targetNode.id);
         return next;
       });
-      throw error; // Re-throw to be handled by caller
+      throw error; // Re-throw to let parent handle error state
     }
   };
 

@@ -41,11 +41,21 @@ function App() {
     }
   }, [handleGetDefinition]);
 
+  // Create initial graph and fetch definition
   useEffect(() => {
-    if (graphs.length === 0) {
-      createGraph('Git');
+    if (graphs.length === 0 && handleGetDefinition) {
+      console.log('App: Creating initial Git graph');
+      const result = createGraph('Git');
+      if (result) {
+        // Wait for graph state to settle before fetching definition
+        const timeoutId = setTimeout(() => {
+          console.log('App: Fetching definition for initial node:', result.node);
+          handleGetDefinition(result.node);
+        }, 100); // Add delay to ensure graph state is stable
+        return () => clearTimeout(timeoutId);
+      }
     }
-  }, [graphs.length, createGraph]);
+  }, [graphs.length, createGraph, handleGetDefinition]);
 
   // Validate updateNodePosition before passing to MainLayout
   useEffect(() => {
@@ -91,7 +101,15 @@ function App() {
       graphs={graphs}
       activeGraph={activeGraph}
       selectedNode={selectedNode}
-      onCreateGraph={createGraph}
+      onCreateGraph={(title) => {
+        const result = createGraph(title);
+        if (result) {
+          // Wait for graph state to settle before fetching definition
+          setTimeout(() => {
+            handleGetDefinition(result.node);
+          }, 100); // Add delay to ensure graph state is stable
+        }
+      }}
       onSelectGraph={setActiveGraph}
       onDeleteGraph={deleteGraph}
       onClearData={() => {
