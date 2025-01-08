@@ -4,12 +4,15 @@
   "private": true,
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.5",
+    "cors": "^2.8.5",
     "cytoscape": "^3.26.0",
+    "express": "^4.21.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.1.2",
     "redux-persist": "^6.0.0",
-    "redux-saga": "^1.2.3"
+    "redux-saga": "^1.2.3",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@types/cytoscape": "^3.21.8",
@@ -23,6 +26,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "log-server": "node server/index.js"
   }
 }
