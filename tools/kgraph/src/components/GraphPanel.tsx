@@ -183,6 +183,15 @@ const GraphPanel: React.FC = () => {
         isFirstNode.current = true;
         cyRef.current.zoom(0.75);
         cyRef.current.center();
+        
+        // Save the centered viewport state
+        dispatch(updateGraphViewport({
+          zoom: cyRef.current.zoom(),
+          position: {
+            x: -cyRef.current.pan().x,
+            y: -cyRef.current.pan().y
+          }
+        }));
       } else {
         // Restore saved viewport state
         cyRef.current.zoom(currentGraph.viewport.zoom);
