@@ -87,8 +87,8 @@ function* handleGraphCreation(action: PayloadAction<{ title: string; id: string 
     // Add node to graph
     yield put(addNode({ graphId, node }));
     
-    // Create initial chat message
-    const content = `You are a knowledgeable assistant. Please provide a clear and concise definition (1-2 sentences) of: ${title}`;
+    // Create initial chat message with graph context
+    const content = `You are a knowledgeable assistant. This is part of a knowledge graph titled "${title}". Please provide a clear and concise definition (1-2 sentences) of: ${title}`;
     
     // Add user message
     yield put(addMessage({
@@ -124,6 +124,16 @@ function* handleSendMessage(action: PayloadAction<{ nodeId: string; content: str
       throw new Error('OpenRouter API key not found. Please set VITE_OPENROUTER_API_KEY in .env');
     }
 
+    // Get current graph and determine if this is not the first node
+    const state = yield select(getState);
+    const currentGraph = state.currentGraph;
+    const isNotFirstNode = currentGraph && currentGraph.nodes[0].id !== action.payload.nodeId;
+    
+    // Construct context message
+    const contextMessage = isNotFirstNode ? 
+      `You are a knowledgeable assistant. This is part of a knowledge graph titled "${currentGraph?.title}". ` :
+      'You are a knowledgeable assistant. ';
+
     console.log('Making API request to OpenRouter...');
     const response = yield call(fetch, 'https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -136,6 +146,10 @@ function* handleSendMessage(action: PayloadAction<{ nodeId: string; content: str
       body: JSON.stringify({
         model: model,
         messages: [
+          {
+            role: 'system',
+            content: contextMessage
+          },
           {
             role: 'user',
             content: action.payload.content
