@@ -1,10 +1,18 @@
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 
 function validateApiKey() {
+  console.log('Validating API key...');
+  console.log('API Key value:', OPENROUTER_API_KEY ? 'Present (length: ' + OPENROUTER_API_KEY.length + ')' : 'Missing');
+  console.log('Available env vars:', Object.keys(import.meta.env));
+  
   if (!OPENROUTER_API_KEY) {
     console.error('OpenRouter API key not found in environment variables');
-    console.log('Available env vars:', import.meta.env);
     throw new Error('OpenRouter API key not found. Please check your .env file and ensure VITE_OPENROUTER_API_KEY is set correctly.');
+  }
+  
+  if (OPENROUTER_API_KEY === 'your_api_key_here') {
+    console.error('Default API key detected. Please replace with actual key.');
+    throw new Error('Please replace the default API key with your actual OpenRouter API key.');
   }
 }
 

@@ -13,13 +13,6 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
   // Reset loading states when graph changes or is cleared
   useEffect(() => {
     const currentGraphId = activeGraph?.id;
-    console.log('Graph changed or cleared:', {
-      prevGraphId,
-      currentGraphId,
-      hasGraph: !!activeGraph,
-      initializingNodes: [...initializingNodes],
-      loadingNodes: [...loadingNodes]
-    });
 
     // Skip if this is the initial mount
     if (prevGraphId === undefined && currentGraphId === undefined) {
@@ -29,11 +22,6 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
 
     // Handle graph transitions
     if (currentGraphId !== prevGraphId) {
-      console.log('Graph transition detected:', {
-        from: prevGraphId,
-        to: currentGraphId
-      });
-
       // First clear all loading states
       setInitializingNodes(new Set());
       setLoadingNodes(new Set());
@@ -73,37 +61,20 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
   useEffect(() => {
     if (!activeGraph) return;
 
-    console.log('Processing nodes for definitions:', {
-      graphId: activeGraph.id,
-      nodeCount: Object.keys(activeGraph.nodeData).length,
-      initializingNodes: [...initializingNodes],
-      loadingNodes: [...loadingNodes]
-    });
-
     // Find nodes that need definitions
     const nodesToProcess = Object.entries(activeGraph.nodeData)
       .filter(([nodeId, data]) => {
-        console.log('Checking node for processing:', {
-          nodeId,
-          hasChat: data.chat && data.chat.length > 0,
-          isInitializing: initializingNodes.has(nodeId),
-          isLoading: loadingNodes.has(nodeId),
-          isLoadingDefinition: data.isLoadingDefinition
-        });
-
         // Get the node from activeGraph
         const node = activeGraph.nodes.find(n => n.id === nodeId);
         if (!node) return false;
 
         // Skip if node already has chat data
         if (data.chat && data.chat.length > 0) {
-          console.log('Node already has chat data:', nodeId);
           return false;
         }
 
         // Skip if node is being processed
         if (initializingNodes.has(nodeId) || loadingNodes.has(nodeId)) {
-          console.log('Node is being processed:', nodeId);
           return false;
         }
 
@@ -117,10 +88,6 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
 
     // Process nodes in small batches to balance performance and reliability
     const nodesToProcessNow = nodesToProcess.slice(0, 3);
-    console.log('Processing nodes:', nodesToProcessNow.map(n => ({
-      nodeId: n.id,
-      label: n.data.label
-    })));
 
     // Update loading states for all nodes in batch
     const newInitializingNodes = new Set(initializingNodes);
@@ -138,7 +105,6 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
         (result) => {
           // Ensure the node and graph still exist
           if (!activeGraph?.nodeData[node.id]) {
-            console.log('Node no longer exists:', node.id);
             setInitializingNodes(prev => {
               const next = new Set(prev);
               next.delete(node.id);
@@ -147,17 +113,8 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
             return;
           }
 
-          console.log('Definition callback received:', {
-            nodeId: node.id,
-            success: result.success
-          });
-
           // Update chat data first
           if (result.success) {
-            console.log('Definition received, updating node data:', {
-              nodeId: node.id,
-              message: result.message
-            });
             // Ensure message is properly formatted
             const formattedMessage = {
               role: result.message.role || 'assistant',
@@ -165,25 +122,20 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
             };
             // Update chat data with definition
             onUpdateData(node.id, 'chat', [formattedMessage], true);
-            // Clear loading states
-            setInitializingNodes(prev => {
-              const next = new Set(prev);
-              next.delete(node.id);
-              return next;
-            });
           } else {
             // Update chat with error
             onUpdateData(node.id, 'chat', [{
               role: 'assistant',
               content: 'Error fetching definition. Please check your API key and try again.'
             }], true);
-            // Clear loading states
-            setInitializingNodes(prev => {
-              const next = new Set(prev);
-              next.delete(node.id);
-              return next;
-            });
           }
+          
+          // Clear loading states
+          setInitializingNodes(prev => {
+            const next = new Set(prev);
+            next.delete(node.id);
+            return next;
+          });
 
         }
       );
@@ -195,7 +147,6 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
     
     // Skip if already loading
     if (initializingNodes.has(targetNode.id) || loadingNodes.has(targetNode.id)) {
-      console.log('Definition request already in progress for node:', targetNode.id);
       return;
     }
     
@@ -205,11 +156,6 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
       console.error('No graph ID available for definition request');
       return;
     }
-
-    console.log('Starting definition request:', {
-      nodeId: targetNode.id,
-      graphId: effectiveGraphId
-    });
     
     // Set loading state
     onUpdateData(targetNode.id, 'isLoadingDefinition', true);
@@ -219,24 +165,19 @@ export function useNodeDefinitions(activeGraph, onUpdateData, setNodeLoading) {
       targetNode.data.label,
       activeGraph.title,
       (result) => {
-        console.log('Definition callback received:', {
-          nodeId: targetNode.id,
-          success: result.success
-        });
-
-          // Update chat data and clear loading state
-          if (result.success) {
-            const formattedMessage = {
-              role: result.message.role || 'assistant',
-              content: result.message.content
-            };
-            onUpdateData(targetNode.id, 'chat', [formattedMessage], true);
-          } else {
-            onUpdateData(targetNode.id, 'chat', [{
-              role: 'assistant',
-              content: 'Error fetching definition. Please check your API key and try again.'
-            }], true);
-          }
+        // Update chat data and clear loading state
+        if (result.success) {
+          const formattedMessage = {
+            role: result.message.role || 'assistant',
+            content: result.message.content
+          };
+          onUpdateData(targetNode.id, 'chat', [formattedMessage], true);
+        } else {
+          onUpdateData(targetNode.id, 'chat', [{
+            role: 'assistant',
+            content: 'Error fetching definition. Please check your API key and try again.'
+          }], true);
+        }
       }
     );
   };

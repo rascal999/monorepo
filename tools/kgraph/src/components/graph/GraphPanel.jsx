@@ -1,12 +1,12 @@
 import CytoscapeComponent from 'react-cytoscapejs';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useForceLayout } from '../../hooks/useForceLayout';
 import { useGraphNodes } from '../../hooks/useGraphNodes';
 import { useGraphEdges } from '../../hooks/useGraphEdges';
-import { isValidViewport, getDefaultViewport } from '../../utils/viewport';
+import { isValidViewport } from '../../utils/viewport';
 import { cytoscapeStylesheet } from './graphStyles';
 import { getDarkModeStyles } from './GraphStyles';
-import { validateGraph, validateCytoscapeElements, logCytoscapeElements } from './GraphValidation';
+import { validateCytoscapeElements } from './GraphValidation';
 import { processElements } from './GraphElements';
 import { setupEventHandlers } from './GraphEventHandlers';
 
@@ -23,12 +23,12 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, graphOperations 
     document.documentElement.classList.contains('dark')
   );
 
-  // Initialize graph state
-  const { nodes, updateNodes } = useGraphNodes(graph, isDragging, draggedNodeId);
-  const { edges, updateEdges } = useGraphEdges();
+  // Initialize graph state with memoized updates
+  const { nodes } = useGraphNodes(graph, isDragging, draggedNodeId);
+  const { edges } = useGraphEdges(graph);
 
-  // Process elements for Cytoscape
-  const elements = processElements(nodes, edges);
+  // Process elements for Cytoscape with memoization
+  const elements = useMemo(() => processElements(nodes, edges), [nodes, edges]);
 
   // Effects
   // Dark mode observer
@@ -63,19 +63,8 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, graphOperations 
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  // Update nodes and edges when graph changes
-  useEffect(() => {
-    if (graph) {
-      updateNodes(graph, nodes);
-      updateEdges(graph);
-    } else {
-      updateNodes(null, []);
-      updateEdges(null);
-    }
-  }, [graph?.id, graph?.nodes, graph?.edges]);
-
   // Handle force layout position updates
-  const handlePositionsCalculated = (positions) => {
+  const handlePositionsCalculated = useCallback((positions) => {
     if (!positions || !cyRef.current) return;
     
     positions.forEach(({ id, position }) => {
@@ -101,16 +90,15 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, graphOperations 
       };
       onNodePositionChange(updatedGraph);
     }
-  };
+  }, [graph, nodes, onNodePositionChange]);
 
   // Apply force layout
   useForceLayout(nodes, edges, dimensions.width, dimensions.height, handlePositionsCalculated);
 
-  const handleInit = (cy) => {
+  const handleInit = useCallback((cy) => {
     cyRef.current = cy;
 
     validateCytoscapeElements(cy);
-    logCytoscapeElements(cy);
 
     // Load stored viewport
     if (graph?.id) {
@@ -120,7 +108,6 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, graphOperations 
         if (isValidViewport(viewport)) {
           cy.zoom(viewport.zoom);
           cy.pan({ x: viewport.x, y: viewport.y });
-          console.log('[GraphPanel] Applied stored viewport:', viewport);
         } else {
           cy.fit(undefined, 50);
         }
@@ -148,10 +135,9 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, graphOperations 
           y: cy.pan().y
         };
         localStorage.setItem(`kgraph-viewport-${graph.id}`, JSON.stringify(viewport));
-        console.log('[GraphPanel] Saved viewport:', viewport);
       }
     });
-  };
+  }, [graph?.id, onNodeClick, onNodePositionChange, setIsDragging, setDraggedNodeId, isDragging]);
 
   // Cleanup event handlers
   useEffect(() => {
@@ -165,7 +151,7 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, graphOperations 
   // File input ref for import
   const fileInputRef = useRef(null);
 
-  const handleImport = async (event) => {
+  const handleImport = useCallback(async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -179,7 +165,7 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, graphOperations 
       // Reset file input
       event.target.value = '';
     }
-  };
+  }, [graphOperations]);
 
   if (!graph) {
     return (
@@ -194,19 +180,7 @@ function GraphPanel({ graph, onNodeClick, onNodePositionChange, graphOperations 
       {/* Export/Import Controls */}
       <div className="absolute top-4 right-4 z-10 flex gap-2">
         <button
-          onClick={() => {
-            console.log('[GraphPanel] Export clicked:', {
-              graphId: graph.id,
-              title: graph.title,
-              nodesCount: graph.nodes.length,
-              firstNodeLabel: graph.nodes[0]?.data?.label,
-              allNodes: graph.nodes.map(n => ({
-                id: n.id,
-                label: n.data?.label
-              }))
-            });
-            graphOperations.exportGraph(graph.id);
-          }}
+          onClick={() => graphOperations.exportGraph(graph.id)}
           className="px-3 py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
         >
           Export

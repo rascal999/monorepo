@@ -1,9 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
-export function useGraphEdges() {
+export function useGraphEdges(graph) {
   const [edges, setEdges] = useState([]);
 
-  const updateEdges = useCallback((graph) => {
+  // Update edges when graph changes
+  useEffect(() => {
     if (!graph) {
       setEdges([]);
       return;
@@ -57,10 +58,7 @@ export function useGraphEdges() {
     } catch (error) {
       console.error('Error updating edges:', error);
     }
-  }, []);
+  }, [graph]);
 
-  return {
-    edges,
-    updateEdges
-  };
+  return { edges };
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useGraphPersistence } from './useGraphPersistence';
 import { useGraphOperations } from './useGraphOperations';
 import { useGraphValidation } from './useGraphValidation';
@@ -31,20 +31,29 @@ export function useGraphState() {
     }
   }, [operations]);
 
+  // Throttled logging ref
+  const lastLogTimeRef = useRef(0);
+  const LOG_THROTTLE = 1000; // 1 second
+
   // Wrap updateGraph to ensure it's always a function
-  const updateGraph = (...args) => {
-    console.log('[GraphState] updateGraph called with:', {
-      args,
-      hasOperations: !!operations,
-      hasUpdateGraph: typeof operations?.updateGraph === 'function'
-    });
+  const updateGraph = useCallback((...args) => {
+    // Throttled logging
+    const now = Date.now();
+    if (now - lastLogTimeRef.current >= LOG_THROTTLE) {
+      console.log('[GraphState] updateGraph called with:', {
+        args,
+        hasOperations: !!operations,
+        hasUpdateGraph: typeof operations?.updateGraph === 'function'
+      });
+      lastLogTimeRef.current = now;
+    }
     
     if (operations?.updateGraph) {
       return operations.updateGraph(...args);
     } else {
       console.error('[GraphState] updateGraph called but not available');
     }
-  };
+  }, [operations]);
 
   const {
     createGraph = () => {

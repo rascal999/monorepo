@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useGraphValidation } from './useGraphValidation';
 
 export function useGraphOperations(graphs, setGraphs, setActiveGraph, handleGetDefinition) {
@@ -84,50 +85,34 @@ export function useGraphOperations(graphs, setGraphs, setActiveGraph, handleGetD
     setActiveGraph(graphWithLoading);
   };
 
-  const updateGraph = (updatedGraph, sourceNodeId) => {
-    console.log('[GraphOperations] Updating graph:', {
-      graphId: updatedGraph?.id,
-      hasNodes: Array.isArray(updatedGraph?.nodes),
-      nodeCount: updatedGraph?.nodes?.length,
-      sourceNodeId,
-      stack: new Error().stack
-    });
-
-    // Simple validation
+  const updateGraph = useCallback((updatedGraph, sourceNodeId) => {
+    // Basic validation
     if (!updatedGraph?.id || !Array.isArray(updatedGraph.nodes)) {
-      console.error('[GraphOperations] Invalid graph update:', {
-        hasId: !!updatedGraph?.id,
-        hasNodes: Array.isArray(updatedGraph?.nodes)
-      });
+      console.warn('[GraphOperations] Invalid graph update');
       return;
     }
 
-    // Update graphs array
-    setGraphs(prevGraphs => {
-      // Ensure prevGraphs is an array
-      const currentGraphs = Array.isArray(prevGraphs) ? prevGraphs : [];
-      const newGraphs = currentGraphs.map(g => 
-        g.id === updatedGraph.id ? updatedGraph : g
-      );
-      console.log('[GraphOperations] Updated graphs array:', {
-        prevCount: prevGraphs.length,
-        newCount: newGraphs.length,
-        updatedGraphId: updatedGraph.id
+    // Batch state updates
+    const batchUpdate = () => {
+      setGraphs(prevGraphs => {
+        const currentGraphs = Array.isArray(prevGraphs) ? prevGraphs : [];
+        return currentGraphs.map(g => 
+          g.id === updatedGraph.id ? updatedGraph : g
+        );
       });
-      return newGraphs;
-    });
 
-    // Update active graph
-    setActiveGraph(prevGraph => {
-      const shouldUpdate = prevGraph?.id === updatedGraph.id;
-      console.log('[GraphOperations] Updating active graph:', {
-        prevGraphId: prevGraph?.id,
-        newGraphId: updatedGraph.id,
-        shouldUpdate
-      });
-      return shouldUpdate ? updatedGraph : prevGraph;
-    });
-  };
+      setActiveGraph(prevGraph => 
+        prevGraph?.id === updatedGraph.id ? updatedGraph : prevGraph
+      );
+    };
+
+    // Use RAF for position updates to improve performance
+    if (sourceNodeId) {
+      requestAnimationFrame(batchUpdate);
+    } else {
+      batchUpdate();
+    }
+  }, [setGraphs, setActiveGraph]);
 
   const setNodeLoading = (graphId, nodeId, isLoading) => {
     console.log('[GraphOperations] Setting node loading state:', {

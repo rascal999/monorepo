@@ -12,30 +12,30 @@ export function useNodePosition(activeGraph, updateGraph) {
   }, [activeGraph, updateGraph]);
 
   const updateNodePosition = useCallback((update) => {
-    console.log('[NodePosition] updateNodePosition called:', {
-      hasUpdate: !!update,
-      updateType: update?.nodes ? 'full-graph' : 'single-node',
-      graphId: activeGraph?.id,
-      stack: new Error().stack
-    });
-
-    if (!activeGraph) {
-      console.warn('[NodePosition] Called without activeGraph');
-      return;
-    }
-    if (!update) {
-      console.warn('[NodePosition] Called without update data');
-      return;
-    }
-    if (typeof updateGraph !== 'function') {
-      console.error('[NodePosition] updateGraph is not a function');
+    // Basic validation
+    if (!activeGraph || !update || typeof updateGraph !== 'function') {
+      console.warn('[NodePosition] Invalid inputs:', {
+        hasActiveGraph: !!activeGraph,
+        hasUpdate: !!update,
+        updateGraphType: typeof updateGraph
+      });
       return;
     }
 
     // Handle full graph update
     if (update.nodes) {
-      console.log('[NodePosition] Handling full graph update');
-      updateGraph(update);
+      // Only update if positions actually changed
+      const hasPositionChanges = update.nodes.some((newNode, i) => {
+        const oldNode = activeGraph.nodes[i];
+        return oldNode && (
+          oldNode.position.x !== newNode.position.x ||
+          oldNode.position.y !== newNode.position.y
+        );
+      });
+
+      if (hasPositionChanges) {
+        updateGraph(update);
+      }
       return;
     }
 
@@ -46,11 +46,11 @@ export function useNodePosition(activeGraph, updateGraph) {
       return;
     }
 
-    console.log('[NodePosition] Updating node position:', {
-      nodeId: nodeToUpdate.id,
-      oldPosition: nodeToUpdate.position,
-      newPosition: update.position
-    });
+    // Only update if position actually changed
+    if (nodeToUpdate.position.x === update.position.x && 
+        nodeToUpdate.position.y === update.position.y) {
+      return;
+    }
 
     // Create updated graph with new position
     const updatedGraph = {
