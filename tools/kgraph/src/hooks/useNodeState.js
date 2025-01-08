@@ -31,11 +31,39 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading, graphs) {
   // Track the last user-selected node ID
   const [lastUserSelectedNodeId, setLastUserSelectedNodeId] = useState(null);
 
+  // Debug current node state
+  useEffect(() => {
+    if (activeGraph && selectedNode) {
+      console.log('[NodeState] Current state:', {
+        selectedNodeId: selectedNode.id,
+        nodeData: activeGraph.nodeData[selectedNode.id],
+        lastUserSelected: lastUserSelectedNodeId
+      });
+    }
+  }, [activeGraph, selectedNode, lastUserSelectedNodeId]);
+
+  // Manage tab state
+  const [activeTab, setActiveTab] = useState('chat');
+
   // Create wrapper for updateNodeData that includes lastUserSelectedNodeId
   const updateNodeDataWithSelection = useCallback((nodeId, tabName, data, isDefinitionUpdate = false) => {
+    console.log('[NodeState] Updating node data:', {
+      nodeId,
+      tabName,
+      isDefinition: isDefinitionUpdate,
+      currentData: activeGraph?.nodeData[nodeId],
+      newData: data
+    });
+
     const selectionId = lastUserSelectedNodeId && lastUserSelectedNodeId !== nodeId ? lastUserSelectedNodeId : null;
     updateNodeData(nodeId, tabName, data, isDefinitionUpdate, selectionId);
-  }, [lastUserSelectedNodeId, updateNodeData]);
+
+    // Force tab switch on definition update
+    if (isDefinitionUpdate) {
+      console.log('[NodeState] Switching to chat tab');
+      setActiveTab('chat');
+    }
+  }, [lastUserSelectedNodeId, updateNodeData, activeGraph]);
 
   // Pass updateNodeDataWithSelection and activeGraph to useNodeDefinitions
   const { handleSendMessage } = useNodeDefinitions(
@@ -43,6 +71,18 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading, graphs) {
     updateNodeDataWithSelection,
     setNodeLoading
   );
+
+  // Handle node selection
+  const handleNodeClick = useCallback((node) => {
+    console.log('[NodeState] Node clicked:', {
+      id: node.id,
+      label: node.data.label,
+      hasChat: Boolean(activeGraph?.nodeData[node.id]?.chat)
+    });
+    
+    setLastUserSelectedNodeId(node.id);
+    handleNodeClickBase(node);
+  }, [activeGraph, handleNodeClickBase]);
 
   // Initialize node position handling
   const nodePosition = useNodePosition(activeGraph, updateGraph);
@@ -59,25 +99,36 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading, graphs) {
     }
   }, [updateNodePosition, activeGraph, updateGraph]);
 
-  // Manage tab state
-  const [activeTab, setActiveTab] = useState('chat');
-
   const nodeInteraction = useNodeInteraction((sourceNode, term) => {
     const nodeId = addNode(sourceNode, term);
     
     return nodeId;
   });
 
-  return {
+  // Debug return values
+  const returnValues = {
     selectedNode,
     setSelectedNode,
     activeTab,
     setActiveTab,
     nodeInteraction,
     handleSendMessage,
-    handleNodeClick: handleNodeClickBase,
+    handleNodeClick,  // Use our wrapped version
     addNode,
     updateNodeData: updateNodeDataWithSelection,
     updateNodePosition,
   };
+
+  // Log state on changes
+  useEffect(() => {
+    console.log('[NodeState] State updated:', {
+      hasSelectedNode: Boolean(selectedNode),
+      activeTab,
+      hasNodeInteraction: Boolean(nodeInteraction),
+      hasHandleClick: Boolean(handleNodeClick),
+      hasUpdateData: Boolean(updateNodeDataWithSelection)
+    });
+  }, [selectedNode, activeTab, nodeInteraction, handleNodeClick, updateNodeDataWithSelection]);
+
+  return returnValues;
 }

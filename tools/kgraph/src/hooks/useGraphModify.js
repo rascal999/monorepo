@@ -1,96 +1,56 @@
 import { useCallback } from 'react';
 
 export function useGraphModify(graphs, setGraphs, setActiveGraph) {
-  const updateGraph = useCallback((updatedGraph, sourceNodeId) => {
-    // Basic validation
+  const updateGraph = useCallback((updatedGraph) => {
+    // Validate input
     if (!updatedGraph?.id || !Array.isArray(updatedGraph.nodes)) {
-      console.warn('[GraphOperations] Invalid graph update');
+      console.error('[GraphModify] Invalid graph:', {
+        hasId: Boolean(updatedGraph?.id),
+        hasNodes: Array.isArray(updatedGraph?.nodes)
+      });
       return;
     }
 
-    // Helper function to wait
-    const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    console.log('[GraphModify] Updating graph:', {
+      id: updatedGraph.id,
+      nodeCount: updatedGraph.nodes.length,
+      nodeDataCount: Object.keys(updatedGraph.nodeData || {}).length
+    });
 
-    // Find existing graph with retry
-    const findGraph = async (retries = 3, delay = 50) => {
-      for (let i = retries; i >= 0; i--) {
-        const existingGraph = graphs.find(g => g.id === updatedGraph.id);
-        if (existingGraph) {
-          return existingGraph;
-        }
-        if (i > 0) {
-          console.log('[GraphOperations] Graph not found, retrying...', {
-            graphId: updatedGraph.id,
-            remainingRetries: i - 1
-          });
-          await wait(delay);
-        }
+    // Find existing graph
+    const existingGraph = graphs.find(g => g.id === updatedGraph.id);
+    if (!existingGraph) {
+      console.error('[GraphModify] Graph not found:', updatedGraph.id);
+      return;
+    }
+
+    // Preserve existing node data
+    const mergedGraph = {
+      ...updatedGraph,
+      nodeData: {
+        ...existingGraph.nodeData,
+        ...updatedGraph.nodeData
       }
-      console.warn('[GraphOperations] Graph not found after retries:', updatedGraph.id);
-      return null;
     };
 
-    // Use async/await to handle the graph update
-    (async () => {
-      const existingGraph = await findGraph();
-      if (!existingGraph) {
-        return;
-      }
+    console.log('[GraphModify] Merged graph:', {
+      id: mergedGraph.id,
+      nodeDataKeys: Object.keys(mergedGraph.nodeData),
+      chatLengths: Object.entries(mergedGraph.nodeData).map(([id, data]) => ({
+        id,
+        chatLength: data.chat?.length
+      }))
+    });
 
-      // Continue with graph update...
-      // Validate all nodes have required data
-      const hasInvalidNodes = updatedGraph.nodes.some(node => 
-        !node?.id || !node?.data?.label || !node?.position?.x || !node?.position?.y
-      );
+    // Update graphs array
+    setGraphs(prevGraphs => 
+      prevGraphs.map(g => g.id === mergedGraph.id ? mergedGraph : g)
+    );
 
-      if (hasInvalidNodes) {
-        console.error('[GraphOperations] Invalid node data in update:', 
-          updatedGraph.nodes.map(n => ({
-            id: n?.id,
-            hasData: !!n?.data,
-            hasLabel: !!n?.data?.label,
-            hasPosition: !!(n?.position?.x && n?.position?.y)
-          }))
-        );
-        return;
-      }
-
-      // Merge nodeData from existing graph
-      const mergedNodeData = { ...existingGraph.nodeData };
-      
-      // Add any new nodeData
-      updatedGraph.nodes.forEach(node => {
-        if (!mergedNodeData[node.id]) {
-          mergedNodeData[node.id] = {
-            chat: [],
-            notes: '',
-            quiz: [],
-            isLoadingDefinition: true
-          };
-        }
-      });
-
-      // Create merged graph
-      const mergedGraph = {
-        ...updatedGraph,
-        nodeData: mergedNodeData
-      };
-
-      // Update graphs array first
-      setGraphs(prevGraphs => {
-        const currentGraphs = Array.isArray(prevGraphs) ? prevGraphs : [];
-        return currentGraphs.map(g => 
-          g.id === mergedGraph.id ? mergedGraph : g
-        );
-      });
-
-      // Then update active graph if it matches
-      setActiveGraph(prevGraph => {
-        if (prevGraph?.id !== mergedGraph.id) return prevGraph;
-        return mergedGraph;
-      });
-    })().catch(error => {
-      console.error('[GraphOperations] Error updating graph:', error);
+    // Update active graph if needed
+    setActiveGraph(prevGraph => {
+      if (prevGraph?.id !== mergedGraph.id) return prevGraph;
+      return mergedGraph;
     });
   }, [graphs, setGraphs, setActiveGraph]);
 

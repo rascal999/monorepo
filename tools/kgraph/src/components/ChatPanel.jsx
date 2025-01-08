@@ -1,155 +1,51 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 
-function ChatPanel({ messages: propMessages, isLoading, nodeId, nodeLabel, nodeData, onSendMessage, onWordClick, updateNodeData }) {
+function ChatPanel({ messages: propMessages, isLoading, nodeId, nodeLabel, nodeData, onSendMessage, onWordClick }) {
   const chatEndRef = useRef(null);
-  const chatContainerRef = useRef(null);
-  const restoredRef = useRef(false);
-  const [prevNodeId, setPrevNodeId] = useState(nodeId);
   const [localMessages, setLocalMessages] = useState([]);
-  const [streamingMessage, setStreamingMessage] = useState(null);
   
-  // Calculate initial scroll position
-  const initialScrollTop = nodeData?.chatScrollPosition ?? 0;
-
-  // Update scroll position handler
-  const updatePosition = useCallback(() => {
-    if (!chatContainerRef.current || !nodeId) return;
-    updateNodeData(nodeId, 'chatScrollPosition', chatContainerRef.current.scrollTop);
-  }, [nodeId, updateNodeData]);
-
-  // Handle scroll events with throttling and mouseleave
-  useEffect(() => {
-    if (!chatContainerRef.current) return;
-
-    let lastUpdate = 0;
-    let scrollTimeout;
-    const THROTTLE_MS = 150; // Throttle to ~6 updates per second
-
-    const handleScroll = () => {
-      const now = Date.now();
-      
-      // Clear any pending scroll end timeout
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
-
-      // Set new scroll end timeout
-      scrollTimeout = setTimeout(updatePosition, 100);
-
-      // Skip if within throttle window
-      if (now - lastUpdate < THROTTLE_MS) return;
-
-      lastUpdate = now;
-      updatePosition();
-    };
-
-    // Save position when mouse leaves the chat container
-    const handleMouseLeave = () => {
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
-      updatePosition();
-    };
-
-    const container = chatContainerRef.current;
-    container.addEventListener('scroll', handleScroll, { passive: true });
-    container.addEventListener('mouseleave', handleMouseLeave);
-    
-    return () => {
-      container.removeEventListener('scroll', handleScroll);
-      container.removeEventListener('mouseleave', handleMouseLeave);
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
-    };
-  }, [updatePosition]);
-
   // Handle node switching and message updates
   useEffect(() => {
-    // Handle node switching
-    if (nodeId !== prevNodeId) {
-      // Save scroll position of previous node before switching
-      if (prevNodeId && chatContainerRef.current) {
-        updateNodeData(prevNodeId, 'chatScrollPosition', chatContainerRef.current.scrollTop);
-      }
-      
-      setPrevNodeId(nodeId);
-      setStreamingMessage(null);
-      restoredRef.current = false;
-    }
+    console.log('[ChatPanel] Node data:', {
+      nodeId,
+      hasChat: Boolean(nodeData?.chat),
+      chatLength: nodeData?.chat?.length,
+      messages: nodeData?.chat?.map(m => ({
+        role: m.role,
+        contentLength: m.content?.length,
+        preview: m.content?.substring(0, 50)
+      }))
+    });
 
-    // Update local messages from nodeData
-    if (nodeData?.chat) {
+    // Validate and update messages
+    if (nodeData?.chat && Array.isArray(nodeData.chat)) {
+      console.log('[ChatPanel] Setting valid messages:', nodeData.chat.length);
       setLocalMessages(nodeData.chat);
     } else {
+      console.log('[ChatPanel] No valid messages, clearing');
       setLocalMessages([]);
     }
-  }, [nodeId, prevNodeId, nodeData?.chat, updateNodeData]);
+  }, [nodeId, nodeData?.chat]); // Only update when chat data changes
 
-  // Handle message sending with streaming
+  // Handle message sending
   const handleSendMessage = async (content) => {
     const userMessage = { role: 'user', content };
     setLocalMessages(prev => [...prev, userMessage]);
     
-    // Scroll to bottom after sending user message
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    
-    // Create placeholder for streaming response
-    setStreamingMessage({ role: 'assistant', content: '' });
-    
-    // Call onSendMessage with streaming callback
-    await onSendMessage(content, (update) => {
-      if (update.success) {
-        setStreamingMessage(update.message);
-      }
-    });
-    
-    // Store current scroll position
-    const scrollPosition = chatContainerRef.current?.scrollTop;
-    
-    // Add final message to localMessages before clearing streaming
-    if (streamingMessage) {
-      setLocalMessages(prev => [...prev, streamingMessage]);
+    try {
+      await onSendMessage(content);
+    } catch (error) {
+      console.error('[ChatPanel] Error sending message:', error);
     }
-    
-    // Clear streaming message in next frame after localMessages is updated
-    requestAnimationFrame(() => {
-      setStreamingMessage(null);
-      
-      // Restore scroll position after all updates
-      if (chatContainerRef.current && scrollPosition !== undefined) {
-        chatContainerRef.current.scrollTop = scrollPosition;
-      }
-    });
   };
-
-  // Combine regular messages with streaming message if present
-  const allMessages = streamingMessage 
-    ? [...localMessages, streamingMessage]
-    : localMessages;
-    
-  const hasMessages = allMessages.length > 0;
-  const isLoadingDefinition = Boolean(nodeData?.isLoadingDefinition);
-  // Show loading only if we're loading and don't have any messages yet
-  const showLoading = isLoadingDefinition;
 
   return (
     <div className="relative flex flex-col h-full">
-      <div 
-        ref={(el) => {
-          if (el && !restoredRef.current) {
-            chatContainerRef.current = el;
-            el.scrollTop = initialScrollTop;
-            restoredRef.current = true;
-          }
-        }}
-        className="flex-1 overflow-auto"
-        style={{ scrollBehavior: 'instant' }}
-      >
+      <div className="flex-1 overflow-auto">
         <div className="p-4 pb-20 space-y-4">
-          {allMessages.map((message, index) => (
+          {localMessages.map((message, index) => (
             <ChatMessage 
               key={index} 
               message={message} 
@@ -157,16 +53,6 @@ function ChatPanel({ messages: propMessages, isLoading, nodeId, nodeLabel, nodeD
               nodeId={nodeId}
             />
           ))}
-          {showLoading && (
-            <div className="p-3 rounded-lg bg-[var(--node-bg)] flex items-center gap-3">
-              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              {allMessages.length === 0 ? (
-                <div>Fetching definition for "{nodeLabel}"...</div>
-              ) : (
-                <div>Thinking...</div>
-              )}
-            </div>
-          )}
           <div ref={chatEndRef} />
         </div>
       </div>

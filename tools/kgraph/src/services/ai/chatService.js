@@ -4,11 +4,15 @@ import { aiSettingsService } from './settingsService';
 class ChatService {
   constructor() {
     this.systemPrompt = `You are a knowledgeable assistant helping to define concepts and explain their relationships.`;
-    this.definitionPrompt = `Define {term} in the context of {context}. Start with one concise summary sentence in **bold**. Then provide more detailed explanation. Use markdown for clarity (*italic*, bullet points). No conversational phrases. No parentheses around terms. Total response must be under 120 words.`;
+    this.definitionPrompt = `Define {term} in the context of {context}. Start with a bold summary sentence. Then add 2-3 bullet points with key details. Keep it simple and clear.`;
   }
 
   async getDefinition(term, context = '') {
-    console.log('ChatService: Getting definition for:', { term, context });
+    console.log('ChatService: Getting definition for:', { 
+      term, 
+      context,
+      prompt: this.definitionPrompt.replace('{term}', term).replace('{context}', context)
+    });
     
     const messages = [
       { 
@@ -26,13 +30,20 @@ class ChatService {
         messages, 
         aiSettingsService.getModel()
       );
-      console.log('ChatService: Definition received');
+      console.log('ChatService: Definition received:', {
+        success: true,
+        content: response.content
+      });
       return {
         success: true,
         message: { role: 'assistant', content: response.content, isDefinition: true }
       };
     } catch (error) {
-      console.error('ChatService: Error getting definition:', error);
+      console.error('ChatService: Error getting definition:', {
+        error: error.message,
+        term,
+        context
+      });
       return {
         success: false,
         error: error.message || 'Failed to get definition'

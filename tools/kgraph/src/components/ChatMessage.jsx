@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 // Helper function to process text nodes
@@ -77,9 +77,41 @@ const processTextNode = (node, handleWordClick, selectedWords) => {
 
 function ChatMessage({ message, onWordClick, nodeId }) {
   const [selectedWords, setSelectedWords] = useState([]);
+  const [isValid, setIsValid] = useState(false);
+
+  // Validate message on mount and update
+  useEffect(() => {
+    const valid = Boolean(
+      message?.content && 
+      typeof message.content === 'string' && 
+      message.content.trim().length > 0
+    );
+
+    console.log('[ChatMessage] Validating message:', {
+      role: message?.role,
+      contentLength: message?.content?.length,
+      contentType: typeof message?.content,
+      isValid: valid,
+      nodeId
+    });
+
+    setIsValid(valid);
+  }, [message, nodeId]);
+
+  if (!isValid) {
+    console.warn('[ChatMessage] Invalid message:', {
+      hasMessage: Boolean(message),
+      hasContent: Boolean(message?.content),
+      contentType: typeof message?.content
+    });
+    return null;
+  }
 
   const handleWordClick = (word, event) => {
-    if (!nodeId) return;
+    if (!nodeId) {
+      console.warn('[ChatMessage] No nodeId provided for word click');
+      return;
+    }
     
     // Remove parentheses and trailing punctuation, preserving content inside
     const cleanWord = word.replace(/\((.*?)\)/g, '$1').replace(/[.,!?:]$/g, '');

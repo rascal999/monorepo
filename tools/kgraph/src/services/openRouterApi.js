@@ -47,11 +47,9 @@ export async function fetchModels() {
 }
 
 export async function fetchChatCompletion(messages, model = 'openai/gpt-4-turbo', onStream) {
-  console.log('Fetching chat completion with messages:', messages);
-  
-  validateApiKey();
-
   try {
+    console.log('Fetching chat completion with messages:', messages);
+    validateApiKey();
     const requestBody = {
       model,
       messages,
@@ -72,7 +70,12 @@ export async function fetchChatCompletion(messages, model = 'openai/gpt-4-turbo'
 
     if (!response.ok) {
       const data = await response.json();
-      console.error('API error:', data);
+      console.error('API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        data,
+        messages
+      });
       throw new Error(data.error?.message || `API request failed with status ${response.status}`);
     }
 
@@ -137,8 +140,13 @@ export async function fetchChatCompletion(messages, model = 'openai/gpt-4-turbo'
       return data.choices[0].message;
     }
   } catch (error) {
-    console.error('Error in fetchChatCompletion:', error);
-    console.error('Stack trace:', error.stack);
-    throw error;
+    console.error('Error in fetchChatCompletion:', {
+      error: error.message,
+      type: error.name,
+      stack: error.stack,
+      messages,
+      model
+    });
+    throw new Error(`Chat completion failed: ${error.message}`);
   }
 }

@@ -44,8 +44,6 @@ function NodePanel({
       <div className="flex-1 overflow-auto">
         {activeTab === 'chat' && (
           <ChatPanel
-            messages={nodeData?.chat}
-            isLoading={nodeData?.isLoadingDefinition}
             nodeId={node.id}
             nodeLabel={node.data.label}
             nodeData={nodeData}
@@ -54,7 +52,6 @@ function NodePanel({
               if (!handleWordClick) return;
               handleWordClick(node, words);
             }}
-            updateNodeData={onUpdateData}
           />
         )}
 

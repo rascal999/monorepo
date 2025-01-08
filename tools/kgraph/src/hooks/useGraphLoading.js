@@ -1,9 +1,10 @@
 export function useGraphLoading(setGraphs, setActiveGraph) {
   const setNodeLoading = (graphId, nodeId, isLoading) => {
-    console.log('[GraphOperations] Setting node loading state:', {
+    console.log('[GraphLoading] Setting node loading state:', {
       graphId,
       nodeId,
-      isLoading
+      isLoading,
+      timestamp: Date.now()
     });
 
     const createUpdatedGraph = (graph) => {
@@ -15,11 +16,34 @@ export function useGraphLoading(setGraphs, setActiveGraph) {
           : node
       );
 
-      return {
+      console.log('[GraphLoading] Current node state:', {
+        nodeId,
+        currentNodeData: graph.nodeData[nodeId],
+        currentNodeState: graph.nodes.find(n => n.id === nodeId)?.data
+      });
+
+      // Update both node.data and nodeData
+      const updatedNodeData = {
+        ...graph.nodeData,
+        [nodeId]: {
+          ...graph.nodeData[nodeId],
+          isLoadingDefinition: isLoading
+        }
+      };
+
+      const updatedGraph = {
         ...graph,
         nodes: updatedNodes,
-        nodeData: graph.nodeData
+        nodeData: updatedNodeData
       };
+
+      console.log('[GraphLoading] Updated node state:', {
+        nodeId,
+        updatedNodeData: updatedNodeData[nodeId],
+        updatedNodeState: updatedNodes.find(n => n.id === nodeId)?.data
+      });
+
+      return updatedGraph;
     };
 
     // Update graphs array

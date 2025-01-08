@@ -6,6 +6,7 @@ import { useGraphClear } from './useGraphClear';
 import { useGraphIO } from './useGraphIO';
 
 export function useGraphState() {
+  // Get persistence state
   const {
     graphs,
     setGraphs,
@@ -14,19 +15,27 @@ export function useGraphState() {
     clearData: clearPersistentData
   } = useGraphPersistence();
 
+  // Track initialization
+  const initializedRef = useRef(false);
+
+  // Debug current state
+  useEffect(() => {
+    console.log('[GraphState] State updated:', {
+      graphCount: graphs.length,
+      activeGraphId: activeGraph?.id,
+      activeNodeCount: activeGraph?.nodes?.length,
+      isInitialized: initializedRef.current
+    });
+
+    // Mark as initialized once we have an active graph
+    if (activeGraph && !initializedRef.current) {
+      initializedRef.current = true;
+      console.log('[GraphState] Initialized with graph:', activeGraph.id);
+    }
+  }, [graphs, activeGraph]);
+
   // Get operations with validation
   const operations = useGraphOperations(graphs, setGraphs, setActiveGraph);
-
-  // Validate operations
-  useEffect(() => {
-    if (!operations || typeof operations.updateGraph !== 'function') {
-      console.error('[GraphState] Invalid operations:', {
-        hasOperations: !!operations,
-        updateGraphType: typeof operations?.updateGraph,
-        availableOperations: operations ? Object.keys(operations) : []
-      });
-    }
-  }, [operations]);
 
   // Get throttled update function
   const updateGraph = useGraphUpdate(operations?.updateGraph);
@@ -37,31 +46,57 @@ export function useGraphState() {
   // Get import/export functionality
   const { exportGraph, importGraph } = useGraphIO(graphs, setGraphs, setActiveGraph);
 
+  // Extract operations with validation
   const {
-    createGraph = () => {
-      console.error('[GraphState] createGraph called but not available');
+    createGraph = (title) => {
+      console.error('[GraphState] createGraph not available');
+      return null;
     },
-    deleteGraph = () => {
-      console.error('[GraphState] deleteGraph called but not available');
+    deleteGraph = (graphId) => {
+      console.error('[GraphState] deleteGraph not available');
+      return false;
     },
-    setNodeLoading = () => {
-      console.error('[GraphState] setNodeLoading called but not available');
+    setNodeLoading = (nodeId, isLoading) => {
+      console.error('[GraphState] setNodeLoading not available');
     }
   } = operations || {};
 
-  // Prevent unnecessary graph recreation
+  // Sync graph updates with initialization check
   useEffect(() => {
-    if (activeGraph && graphs.length > 0) {
-      const currentGraph = graphs.find(g => g.id === activeGraph.id);
-      if (currentGraph && JSON.stringify(currentGraph) !== JSON.stringify(activeGraph)) {
-        setGraphs(prevGraphs => 
-          prevGraphs.map(g => g.id === activeGraph.id ? activeGraph : g)
-        );
-      }
-    }
-  }, [activeGraph, graphs]);
+    if (!activeGraph) return;
 
-  const result = {
+    console.log('[GraphState] Syncing graph:', {
+      id: activeGraph.id,
+      nodeCount: activeGraph.nodes.length,
+      dataCount: Object.keys(activeGraph.nodeData).length,
+      isInitialized: initializedRef.current
+    });
+
+    // Only update graphs if initialized or this is initial graph
+    if (initializedRef.current || graphs.length === 0) {
+      setGraphs(prevGraphs => {
+        const currentGraph = prevGraphs.find(g => g.id === activeGraph.id);
+        if (!currentGraph) {
+          console.log('[GraphState] Adding new graph');
+          return [...prevGraphs, activeGraph];
+        }
+        if (JSON.stringify(currentGraph) !== JSON.stringify(activeGraph)) {
+          console.log('[GraphState] Updating existing graph');
+          return prevGraphs.map(g => g.id === activeGraph.id ? activeGraph : g);
+        }
+        return prevGraphs;
+      });
+    }
+  }, [activeGraph, graphs.length, setGraphs]);
+
+  // Prevent state reset on unmount
+  useEffect(() => {
+    return () => {
+      console.log('[GraphState] Cleanup - preserving state');
+    };
+  }, []);
+
+  return {
     graphs,
     activeGraph,
     setActiveGraph,
@@ -73,6 +108,4 @@ export function useGraphState() {
     exportGraph,
     importGraph
   };
-
-  return result;
 }
