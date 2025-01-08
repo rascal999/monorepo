@@ -96,10 +96,7 @@ const CytoscapeGraph: React.FC<CytoscapeGraphProps> = ({
         }));
       }, 100); // Wait for 100ms of no viewport changes before updating state
 
-      // Only update node selection if we're not currently dragging
-      if (!cy.nodes(':grabbed').length) {
-        onNodeSelection();
-      }
+      // Viewport changes should not affect selection
     });
 
     // Double click to create node

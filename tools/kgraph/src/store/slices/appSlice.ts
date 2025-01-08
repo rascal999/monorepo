@@ -25,11 +25,20 @@ const appSlice = createSlice({
   initialState,
   reducers: {
     rehydrateComplete: (state, action: PayloadAction<AppState>) => {
-      return {
+      const newState = {
         ...state,
         ...action.payload,
         loading: { graphId: null, status: false }
       };
+      
+      // Restore selected node based on lastFocusedNodeId
+      if (newState.currentGraph?.lastFocusedNodeId) {
+        newState.selectedNode = newState.currentGraph.nodes.find(
+          (n: Node) => n.id === newState.currentGraph?.lastFocusedNodeId
+        ) || null;
+      }
+      
+      return newState;
     },
     restoreState: (state, action: PayloadAction<Partial<AppState>>) => {
       if (action.payload.graphs) {
@@ -322,11 +331,20 @@ const appSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(REHYDRATE, (state, action: any) => {
       if (action.payload && action.key === 'kgraph') {
-        return {
+        const newState = {
           ...state,
           ...action.payload,
           loading: { graphId: null, status: false }
         };
+        
+        // Ensure selectedNode is properly restored based on lastFocusedNodeId
+        if (newState.currentGraph?.lastFocusedNodeId) {
+          newState.selectedNode = newState.currentGraph.nodes.find(
+            (n: Node) => n.id === newState.currentGraph?.lastFocusedNodeId
+          ) || null;
+        }
+        
+        return newState;
       }
       return state;
     });
