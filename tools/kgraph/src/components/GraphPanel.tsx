@@ -1,15 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import cytoscape from 'cytoscape';
 import { useAppDispatch, useAppSelector } from '../store';
-import { 
-  createNode, 
-  selectNode, 
-  moveNode, 
-  connectNodes,
-  updateGraphViewport,
-  setError 
-} from '../store/slices/appSlice';
-import { ActionTypes } from '../store/types';
+import { updateGraphViewport } from '../store/slices/appSlice';
+import GraphToolbar from './graph/GraphToolbar';
+import CytoscapeGraph from './graph/CytoscapeGraph';
+import GraphEventHandlers from './graph/GraphEventHandlers';
 
 const defaultViewport = { zoom: 1, position: { x: 0, y: 0 } };
 
@@ -24,161 +19,27 @@ const GraphPanel: React.FC = () => {
   const selectedNode = useAppSelector(state => state.app.selectedNode);
   const viewport = useAppSelector(state => state.app.currentGraph?.viewport ?? defaultViewport);
 
-  const handleImport = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const data = JSON.parse(e.target?.result as string);
-          dispatch({ type: ActionTypes.IMPORT_GRAPH, payload: { data } });
-        } catch (error) {
-          dispatch(setError('Invalid graph file'));
-        }
-      };
-      reader.readAsText(file);
-    };
-    input.click();
-  };
-
-  const handleExport = () => {
-    if (!currentGraph) return;
-    dispatch({ type: ActionTypes.EXPORT_GRAPH });
-  };
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    isInitializing.current = true;
-
-    // Initialize Cytoscape
-    const cy = cytoscape({
-      container: containerRef.current,
-      minZoom: 0.1,
-      maxZoom: 3,
-      style: [
-        {
-          selector: 'node',
-          style: {
-            'background-color': '#666',
-            'label': 'data(label)',
-            'text-valign': 'center',
-            'text-halign': 'center',
-            'width': 30,
-            'height': 30
-          }
-        },
-        {
-          selector: 'edge',
-          style: {
-            'width': 2,
-            'line-color': '#ccc',
-            'target-arrow-color': '#ccc',
-            'target-arrow-shape': 'triangle',
-            'curve-style': 'bezier',
-            'label': 'data(label)'
-          }
-        },
-        {
-          selector: ':selected',
-          style: {
-            'background-color': '#007bff',
-            'line-color': '#007bff', 
-            'target-arrow-color': '#007bff'
-          }
-        }
-      ],
-      layout: {
-        name: 'grid'
-      }
-    });
-
-    // Event handlers
-    cy.on('tap', 'node', (evt) => {
-      const node = evt.target;
-      dispatch(selectNode(node.id()));
-    });
-
-    cy.on('dragfree', 'node', (evt) => {
-      const node = evt.target;
-      const position = node.position();
-      dispatch(moveNode({ id: node.id(), position }));
-    });
-
-    // Track last focused node
-    cy.on('mouseover', 'node', (evt) => {
-      const node = evt.target;
-      if (!selectedNode || selectedNode.id !== node.id()) {
-        dispatch(selectNode(node.id()));
-      }
-    });
-
-    // Double click to create node
-    let doubleClickTimer: NodeJS.Timeout;
-    cy.on('tap', (evt) => {
-      if (evt.target === cy) {
-        if (doubleClickTimer) {
-          // Double click - create node
-          clearTimeout(doubleClickTimer);
-          doubleClickTimer = undefined!;
-          // Calculate viewport center
-          const containerWidth = containerRef.current?.clientWidth || 900;
-          const containerHeight = containerRef.current?.clientHeight || 600;
-          const position = {
-            x: containerWidth / 2,
-            y: containerHeight / 2
-          };
-          dispatch(createNode({ 
-            label: 'New Node', 
-            position
-          }));
-        } else {
-          // Single click - start timer
-          doubleClickTimer = setTimeout(() => {
-            doubleClickTimer = undefined!;
-          }, 250);
-        }
-      }
-    });
-
-    // Track viewport changes
-    cy.on('viewport', () => {
-      if (!isInitializing.current) {
-        dispatch(updateGraphViewport({
-          zoom: cy.zoom(),
-          position: {
-            x: -cy.pan().x,
-            y: -cy.pan().y
-          }
-        }));
-      }
-    });
-
-    cyRef.current = cy;
-
-    // Set initial viewport
-    cy.zoom(viewport.zoom);
-    cy.pan({ x: -viewport.position.x, y: -viewport.position.y });
+  // Helper function to update node selection
+  const updateNodeSelection = () => {
+    if (!cyRef.current || !selectedNode) return;
     
-    isInitializing.current = false;
-
-    return () => {
-      cyRef.current?.destroy();
-    };
-  }, [dispatch]);
+    // Remove selection from all nodes
+    cyRef.current.$('.selected').removeClass('selected');
+    
+    // Add selection to the selected node
+    const node = cyRef.current.$(`node[id="${selectedNode.id}"]`);
+    if (node.length > 0) {
+      node.addClass('selected');
+    }
+  };
 
   // Update graph data when currentGraph changes
-  useEffect(() => {
+  React.useEffect(() => {
     if (!cyRef.current || !currentGraph) return;
 
     isInitializing.current = true;
     
-    // Always clear existing elements
+    // Clear existing elements
     cyRef.current.elements().remove();
     
     // Add nodes
@@ -214,13 +75,6 @@ const GraphPanel: React.FC = () => {
       const centerX = containerWidth / 2;
       const centerY = containerHeight / 2;
       
-      // Update node position in Redux state
-      dispatch(moveNode({
-        id: currentGraph.nodes[0].id,
-        position: { x: centerX, y: centerY }
-      }));
-
-      // Set initial viewport
       cyRef.current.zoom(0.75);
       cyRef.current.center();
     } else {
@@ -231,67 +85,35 @@ const GraphPanel: React.FC = () => {
         y: -currentGraph.viewport.position.y 
       });
     }
-
-    // Select the last focused node or first node
-    const nodeToSelect = currentGraph.lastFocusedNodeId 
-      ? currentGraph.nodes.find(n => n.id === currentGraph.lastFocusedNodeId)
-      : currentGraph.nodes[0];
-    
-    if (nodeToSelect) {
-      dispatch(selectNode(nodeToSelect.id));
-    }
     
     isInitializing.current = false;
-  }, [currentGraph, dispatch]);
+  }, [currentGraph]);
 
   // Update selected node
-  useEffect(() => {
+  React.useEffect(() => {
     if (!cyRef.current) return;
-    
-    cyRef.current.$('node:selected').unselect();
-    if (selectedNode) {
-      cyRef.current.$(`node[id="${selectedNode.id}"]`).select();
-    }
+    updateNodeSelection();
   }, [selectedNode]);
 
   return (
     <div className="graph-panel">
-      <div className="toolbar">
-        <button 
-          className="button button-secondary"
-          onClick={() => {
-            if (cyRef.current) {
-              isInitializing.current = true;
-              cyRef.current.fit();
-              const newViewport = {
-                zoom: cyRef.current.zoom(),
-                position: {
-                  x: -cyRef.current.pan().x,
-                  y: -cyRef.current.pan().y
-                }
-              };
-              dispatch(updateGraphViewport(newViewport));
-              isInitializing.current = false;
-            }
-          }}
-        >
-          Reset View
-        </button>
-        <button
-          className="button button-secondary"
-          onClick={handleImport}
-        >
-          Import
-        </button>
-        <button
-          className="button button-secondary"
-          onClick={handleExport}
-          disabled={!currentGraph}
-        >
-          Export
-        </button>
+      <GraphToolbar
+        currentGraph={currentGraph}
+        cyRef={cyRef}
+        isInitializing={isInitializing}
+        onViewportUpdate={(viewport) => dispatch(updateGraphViewport(viewport))}
+      />
+      <div ref={containerRef} className="cytoscape-container">
+        <CytoscapeGraph
+          containerRef={containerRef}
+          cyRef={cyRef}
+          isInitializing={isInitializing}
+          viewport={viewport}
+          selectedNode={selectedNode}
+          onNodeSelection={updateNodeSelection}
+        />
+        <GraphEventHandlers cyRef={cyRef} />
       </div>
-      <div ref={containerRef} className="cytoscape-container" />
     </div>
   );
 };
