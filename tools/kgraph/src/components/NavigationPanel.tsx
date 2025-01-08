@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
-import { createGraph, deleteGraph, clearAll, createNode, setTheme, setLoading, loadGraph } from '../store/slices/appSlice';
-import { Theme } from '../store/types';
+import { createGraph, deleteGraph, clearAll, loadGraph } from '../store/slices/graphSlice';
+import { setTheme } from '../store/slices/uiSlice';
+import type { Theme } from '../store/types';
 
 const NavigationPanel: React.FC = () => {
   const dispatch = useAppDispatch();
-  const graphs = useAppSelector(state => {
-    console.log('NavigationPanel: Current state:', state);
-    return state.app.graphs;
-  });
-  const currentGraph = useAppSelector(state => state.app.currentGraph);
-  const currentTheme = useAppSelector(state => state.app.theme);
-  const loading = useAppSelector(state => state.app.loading);
+  const graphs = useAppSelector(state => state.graph.graphs);
+  const currentGraph = useAppSelector(state => state.graph.currentGraph);
+  const currentTheme = useAppSelector(state => state.ui.theme);
+  const loading = useAppSelector(state => state.ui.loading);
   const [newGraphTitle, setNewGraphTitle] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [showConfirmClear, setShowConfirmClear] = useState(false);
@@ -20,11 +18,6 @@ const NavigationPanel: React.FC = () => {
   const handleCreateGraph = () => {
     if (newGraphTitle.trim()) {
       dispatch(createGraph({ title: newGraphTitle.trim() }));
-      // Create first node with same title as graph
-      dispatch(createNode({
-        label: newGraphTitle.trim(),
-        position: { x: 0, y: 0 }
-      }));
       setNewGraphTitle('');
     }
   };

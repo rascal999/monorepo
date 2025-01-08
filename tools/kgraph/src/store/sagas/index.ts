@@ -1,10 +1,24 @@
-import { all, call, put, select, takeLatest, delay } from 'redux-saga/effects';
-import { ActionTypes, AppState, Graph } from '../types';
+import { all, call, put, select, takeLatest } from 'redux-saga/effects';
+import { graphUpdateSaga } from './graphUpdateSaga';
+import { chatUpdateSaga } from './chatUpdateSaga';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { setError, clearError, clearLoading, loadGraphSuccess, restoreState, addMessage, setLoading } from '../slices/appSlice';
+import { loadGraphSuccess, restoreState, addNode } from '../slices/graphSlice';
+import { addMessage } from '../slices/chatSlice';
+import { setError, clearError, setLoading, clearLoading } from '../slices/uiSlice';
+import type { Graph } from '../types';
 
 // Selectors
-const getState = (state: { app: AppState }) => state.app;
+const getState = (state: { 
+  graph: { graphs: Graph[]; currentGraph: Graph | null }; 
+  node: { selectedNode: any }; 
+  ui: { error: string | null; loading: any }; 
+}) => ({
+  graphs: state.graph.graphs,
+  currentGraph: state.graph.currentGraph,
+  selectedNode: state.node.selectedNode,
+  error: state.ui.error,
+  loading: state.ui.loading
+});
 
 // Local Storage
 function* saveToLocalStorage(): Generator {
@@ -12,7 +26,6 @@ function* saveToLocalStorage(): Generator {
     const state = yield select(getState);
     yield call([localStorage, 'setItem'], 'kgraph', JSON.stringify({
       graphs: state.graphs,
-      viewport: state.viewport,
       currentGraph: state.currentGraph
     }));
   } catch (error) {
@@ -29,6 +42,47 @@ function* loadFromLocalStorage(): Generator {
     }
   } catch (error) {
     yield put(setError('Failed to load from localStorage'));
+  }
+}
+
+// Handle graph creation with initial node
+function* handleGraphCreation(action: PayloadAction<{ title: string; id: string }>): Generator {
+  try {
+    const { id: graphId, title } = action.payload;
+    const nodeId = Date.now().toString();
+    
+    // Create initial node
+    const node = {
+      id: nodeId,
+      label: title,
+      position: { x: 0, y: 0 },
+      properties: { chatHistory: [] }
+    };
+    
+    // Add node to graph
+    yield put(addNode({ graphId, node }));
+    
+    // Create initial chat message
+    const content = `You are a knowledgeable assistant. Please provide a clear and concise definition (1-2 sentences) of: ${title}`;
+    
+    // Add user message
+    yield put(addMessage({
+      nodeId,
+      role: 'user',
+      content
+    }));
+    
+    // Send to OpenRouter
+    yield put({
+      type: 'chat/sendMessage',
+      payload: {
+        nodeId,
+        content
+      }
+    });
+  } catch (error: any) {
+    console.error('Error in handleGraphCreation:', error);
+    yield put(setError(error.message || 'Failed to create graph'));
   }
 }
 
@@ -82,33 +136,14 @@ function* handleSendMessage(action: PayloadAction<{ nodeId: string; content: str
     console.log('Received response from OpenRouter:', data);
     const aiResponse = data.choices[0]?.message?.content || 'No response from AI';
 
-    yield put(addMessage({ nodeId: action.payload.nodeId, role: 'assistant', content: aiResponse }));
+    yield put(addMessage({
+      nodeId: action.payload.nodeId,
+      role: 'assistant',
+      content: aiResponse
+    }));
   } catch (error: any) {
     console.error('Error in handleSendMessage:', error);
     yield put(setError(error.message || 'Failed to send message'));
-  }
-}
-
-// Handle node creation
-function* handleNodeCreation(action: PayloadAction<{ label: string; position: { x: number; y: number } }>): Generator {
-  try {
-    console.log('Node creation detected:', action.payload.label);
-    const state = yield select(getState);
-    const currentNode = state.currentGraph?.nodes.find((n: any) => n.label === action.payload.label);
-    if (currentNode) {
-      const message = {
-        nodeId: currentNode.id,
-        role: 'user' as const,
-        content: `You are a knowledgeable assistant. Please provide a clear and concise definition (1-2 sentences) of: ${action.payload.label}`
-      };
-      console.log('Adding message to chat:', message);
-      yield put(addMessage(message));
-      console.log('Dispatching message to OpenRouter:', message);
-      yield put({ type: 'app/sendMessage', payload: message });
-    }
-  } catch (error: any) {
-    console.error('Error in handleNodeCreation:', error);
-    yield put(setError(error.message || 'Failed to process node creation'));
   }
 }
 
@@ -122,7 +157,7 @@ function* handleLoadGraph(action: PayloadAction<string>): Generator {
     const state = yield select(getState);
     console.log('Saga: Current state:', state);
     
-    const graph = state.graphs.find((g: any) => g.id === action.payload);
+    const graph = state.graphs.find((g: Graph) => g.id === action.payload);
     console.log('Saga: Found graph:', graph);
     
     if (graph) {
@@ -140,41 +175,6 @@ function* handleLoadGraph(action: PayloadAction<string>): Generator {
   }
 }
 
-function* handleImportGraph(action: PayloadAction<{ data: Graph }>): Generator {
-  try {
-    yield put(clearError());
-    const { data } = action.payload;
-    if (!data.nodes || !data.edges) {
-      throw new Error('Invalid graph data');
-    }
-    yield put({ type: 'IMPORT_GRAPH_SUCCESS', payload: data });
-    yield call(saveToLocalStorage);
-  } catch (error) {
-    yield put(setError('Failed to import graph'));
-  }
-}
-
-function* handleExportGraph(): Generator {
-  try {
-    yield put(clearError());
-    const state = yield select(getState);
-    if (!state.currentGraph) {
-      throw new Error('No graph selected');
-    }
-    const dataStr = JSON.stringify(state.currentGraph);
-    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-    
-    const link = document.createElement('a');
-    link.setAttribute('href', dataUri);
-    link.setAttribute('download', `${state.currentGraph.title}.json`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  } catch (error) {
-    yield put(setError('Failed to export graph'));
-  }
-}
-
 // State Change Handlers
 function* handleStateChange(): Generator {
   yield call(saveToLocalStorage);
@@ -189,36 +189,30 @@ export default function* rootSaga(): Generator {
       call(loadFromLocalStorage),
       
       // Graph Loading
-      takeLatest('app/loadGraph', handleLoadGraph),
+      takeLatest('graph/loadGraph', handleLoadGraph),
       
-      // Graph Operations
-      takeLatest(ActionTypes.IMPORT_GRAPH, handleImportGraph),
-      takeLatest(ActionTypes.EXPORT_GRAPH, handleExportGraph),
+      // Graph Creation
+      takeLatest('graph/createGraph', handleGraphCreation),
       
       // State Changes
       takeLatest([
-        ActionTypes.CREATE_GRAPH,
-        ActionTypes.DELETE_GRAPH,
-        ActionTypes.CLEAR_ALL,
-        ActionTypes.CREATE_NODE,
-        ActionTypes.EDIT_NODE,
-        ActionTypes.MOVE_NODE,
-        ActionTypes.CONNECT_NODE,
-        ActionTypes.DELETE_NODE,
-        ActionTypes.UPDATE_VIEWPORT,
-        'app/loadGraphSuccess'
+        'graph/deleteGraph',
+        'graph/clearAll',
+        'graph/addNode',
+        'graph/updateGraphViewport',
+        'graph/loadGraphSuccess',
+        'node/editNode',
+        'node/moveNode',
+        'node/connectNodes',
+        'node/deleteNode'
       ], handleStateChange),
       
-      // Node Creation and Chat - Make sure these are handled before state changes
-      takeLatest('app/createNode', function* (action: PayloadAction<{ label: string; position: { x: number; y: number } }>) {
-        console.log('createNode action caught in root saga:', action);
-        yield call(handleNodeCreation, action);
-      }),
-      takeLatest('app/sendMessage', function* (action: PayloadAction<{ nodeId: string; content: string }>) {
-        console.log('sendMessage action caught in root saga:', action);
-        yield call(handleSendMessage, action);
-        console.log('sendMessage saga completed');
-      })
+      // Chat
+      takeLatest('chat/sendMessage', handleSendMessage),
+      
+      // Graph and Chat Updates
+      call(graphUpdateSaga),
+      call(chatUpdateSaga)
     ]);
     console.log('Root saga setup complete');
   } catch (error) {

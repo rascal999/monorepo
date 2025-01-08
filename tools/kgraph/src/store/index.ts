@@ -2,16 +2,19 @@ import { configureStore, Middleware } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
 import { persistStore, persistReducer, REHYDRATE } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import appReducer, { rehydrateComplete } from './slices/appSlice';
+import graphReducer, { rehydrateComplete } from './slices/graphSlice';
+import nodeReducer from './slices/nodeSlice';
+import chatReducer from './slices/chatSlice';
+import uiReducer from './slices/uiSlice';
 import rootSaga from './sagas';
 
-const persistConfig = {
+const graphPersistConfig = {
   key: 'kgraph',
   storage,
-  whitelist: ['graphs', 'viewport', 'currentGraph', 'chatSession'] // Persist these parts of state
+  whitelist: ['graphs', 'currentGraph'] // Persist graph-related state
 };
 
-const persistedReducer = persistReducer(persistConfig, appReducer);
+const persistedGraphReducer = persistReducer(graphPersistConfig, graphReducer);
 const sagaMiddleware = createSagaMiddleware();
 
 // Create rehydration middleware
@@ -25,7 +28,10 @@ const rehydrationMiddleware: Middleware = store => next => action => {
 
 export const store = configureStore({
   reducer: {
-    app: persistedReducer
+    graph: persistedGraphReducer,
+    node: nodeReducer,
+    chat: chatReducer,
+    ui: uiReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

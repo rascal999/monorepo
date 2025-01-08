@@ -1,17 +1,15 @@
 import React, { useState, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
-import { 
-  editNode, 
-  addMessage,
-  updatePanelWidth
-} from '../store/slices/appSlice';
+import { editNode } from '../store/slices/nodeSlice';
+import { addMessage } from '../store/slices/chatSlice';
+import { updatePanelWidth } from '../store/slices/uiSlice';
 
 type Tab = 'properties' | 'chat';
 
 const NodePropertiesPanel: React.FC = () => {
   const dispatch = useAppDispatch();
-  const selectedNode = useAppSelector(state => state.app.selectedNode);
-  const panelWidth = useAppSelector(state => state.app.panelWidth);
+  const selectedNode = useAppSelector(state => state.node.selectedNode);
+  const panelWidth = useAppSelector(state => state.ui.panelWidth);
   const [activeTab, setActiveTab] = useState<Tab>('chat');
   const [chatInput, setChatInput] = useState('');
   const [isResizing, setIsResizing] = useState(false);
@@ -65,6 +63,7 @@ const NodePropertiesPanel: React.FC = () => {
     if (!selectedNode) return;
     
     const newKey = `property${Object.keys(selectedNode.properties).length + 1}`;
+    
     dispatch(editNode({
       id: selectedNode.id,
       changes: {
@@ -79,7 +78,7 @@ const NodePropertiesPanel: React.FC = () => {
   // Handle chat message send
   const handleSendMessage = () => {
     if (!chatInput.trim() || !selectedNode) return;
-
+    
     dispatch(addMessage({
       nodeId: selectedNode.id,
       role: 'user',
@@ -136,10 +135,12 @@ const NodePropertiesPanel: React.FC = () => {
               <input
                 type="text"
                 value={selectedNode.label}
-                onChange={(e) => dispatch(editNode({
-                  id: selectedNode.id,
-                  changes: { label: e.target.value }
-                }))}
+                onChange={(e) => {
+                  dispatch(editNode({
+                    id: selectedNode.id,
+                    changes: { label: e.target.value }
+                  }));
+                }}
               />
             </div>
 
@@ -168,7 +169,7 @@ const NodePropertiesPanel: React.FC = () => {
         ) : (
           <div className="chat-content">
             <div className="chat-messages">
-              {selectedNode.properties.chatHistory?.map((message, index) => (
+              {selectedNode.properties.chatHistory?.map((message: any, index: number) => (
                 <div
                   key={index}
                   className={`chat-message ${message.role}`}
