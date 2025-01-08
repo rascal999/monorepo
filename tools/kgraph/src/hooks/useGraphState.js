@@ -87,8 +87,22 @@ export function useGraphState() {
 
   // Update ref when global callback changes
   useEffect(() => {
-    handleGetDefinitionRef.current = globalHandleGetDefinition;
-  }, []);
+    if (globalHandleGetDefinition) {
+      handleGetDefinitionRef.current = globalHandleGetDefinition;
+    }
+  }, [globalHandleGetDefinition]);
+
+  // Prevent unnecessary graph recreation
+  useEffect(() => {
+    if (activeGraph && graphs.length > 0) {
+      const currentGraph = graphs.find(g => g.id === activeGraph.id);
+      if (currentGraph && JSON.stringify(currentGraph) !== JSON.stringify(activeGraph)) {
+        setGraphs(prevGraphs => 
+          prevGraphs.map(g => g.id === activeGraph.id ? activeGraph : g)
+        );
+      }
+    }
+  }, [activeGraph, graphs]);
 
   const clearData = () => {
     // Clear all viewport data

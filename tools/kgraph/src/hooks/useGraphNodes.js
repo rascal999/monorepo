@@ -58,7 +58,7 @@ export function useGraphNodes(graph, isDragging, draggedNodeId) {
         if (node.id === graph.lastSelectedNodeId) {
           classes.push('selected');
         }
-        if (node.data?.isLoading) {
+        if (node.data?.isLoadingDefinition) {
           classes.push('loading');
         }
 
