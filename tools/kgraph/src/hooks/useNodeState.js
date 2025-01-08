@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNodeSelection } from './useNodeSelection';
 import { useNodeCreation } from './useNodeCreation';
 import { useNodeData } from './useNodeData';
@@ -25,7 +25,6 @@ const useNodePosition = (activeGraph, updateGraph) => {
 
 export function useNodeState(activeGraph, updateGraph, setNodeLoading, graphs) {
   const { selectedNode, setSelectedNode, handleNodeClick: handleNodeClickBase } = useNodeSelection(activeGraph, updateGraph, graphs);
-
   const { addNode } = useNodeCreation(activeGraph, updateGraph);
   const { updateNodeData } = useNodeData(activeGraph, updateGraph, setNodeLoading);
 
@@ -33,11 +32,10 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading, graphs) {
   const [lastUserSelectedNodeId, setLastUserSelectedNodeId] = useState(null);
 
   // Create wrapper for updateNodeData that includes lastUserSelectedNodeId
-  const updateNodeDataWithSelection = (nodeId, tabName, data, isDefinitionUpdate = false) => {
-    // Only pass lastUserSelectedNodeId if it's not null/undefined and different from nodeId
+  const updateNodeDataWithSelection = useCallback((nodeId, tabName, data, isDefinitionUpdate = false) => {
     const selectionId = lastUserSelectedNodeId && lastUserSelectedNodeId !== nodeId ? lastUserSelectedNodeId : null;
     updateNodeData(nodeId, tabName, data, isDefinitionUpdate, selectionId);
-  };
+  }, [lastUserSelectedNodeId, updateNodeData]);
 
   // Pass updateNodeDataWithSelection and activeGraph to useNodeDefinitions
   const { handleGetDefinition, handleSendMessage } = useNodeDefinitions(
@@ -55,7 +53,6 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading, graphs) {
     if (typeof updateNodePosition !== 'function') {
       console.error('updateNodePosition is not a function:', {
         type: typeof updateNodePosition,
-        value: updateNodePosition,
         hasActiveGraph: !!activeGraph,
         hasUpdateGraph: !!updateGraph
       });
@@ -65,12 +62,51 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading, graphs) {
   // Manage tab state
   const [activeTab, setActiveTab] = useState('chat');
 
-  // Create nodeInteraction instance
+  // Batch definition requests
+  const pendingDefinitionsRef = useRef(new Set());
+  const definitionTimeoutRef = useRef(null);
+  const DEFINITION_BATCH_DELAY = 50;
+
+  // Process definition requests in batches
+  const processPendingDefinitions = useCallback(() => {
+    if (!activeGraph || pendingDefinitionsRef.current.size === 0) return;
+
+    const pendingIds = Array.from(pendingDefinitionsRef.current);
+    pendingDefinitionsRef.current.clear();
+
+    pendingIds.forEach(nodeId => {
+      const node = activeGraph.nodes.find(n => n.id === nodeId);
+      if (node) {
+        handleGetDefinition(node);
+      }
+    });
+  }, [activeGraph, handleGetDefinition]);
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (definitionTimeoutRef.current) {
+        clearTimeout(definitionTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const nodeInteraction = useNodeInteraction((sourceNode, term) => {
     const nodeId = addNode(sourceNode, term);
+    
     if (nodeId?.includes('-')) {
-      handleGetDefinition({ id: nodeId });
+      // Queue definition request
+      pendingDefinitionsRef.current.add(nodeId);
+
+      // Clear existing timeout
+      if (definitionTimeoutRef.current) {
+        clearTimeout(definitionTimeoutRef.current);
+      }
+
+      // Process batch after delay
+      definitionTimeoutRef.current = setTimeout(processPendingDefinitions, DEFINITION_BATCH_DELAY);
     }
+
     return nodeId;
   });
 
