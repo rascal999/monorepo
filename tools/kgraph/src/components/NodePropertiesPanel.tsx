@@ -230,14 +230,16 @@ const NodePropertiesPanel: React.FC = () => {
                   key={index}
                   className={`chat-message ${message.role}`}
                 >
-                  {message.content.split(/\s+/).map((word, wordIndex) => (
-                    <span
-                      key={wordIndex}
-                      className="clickable-word"
-                      onClick={() => handleWordClick(word)}
-                    >
-                      {word}
-                    </span>
+                  {message.content.split(/\s+/).map((word, wordIndex, words) => (
+                    <React.Fragment key={wordIndex}>
+                      <span
+                        className="clickable-word"
+                        onClick={() => handleWordClick(word)}
+                      >
+                        {word}
+                      </span>
+                      {wordIndex < words.length - 1 ? ' ' : ''}
+                    </React.Fragment>
                   ))}
                 </div>
               ))}
