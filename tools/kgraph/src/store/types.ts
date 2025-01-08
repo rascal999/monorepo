@@ -24,12 +24,15 @@ export interface Graph {
   edges: Edge[];
 }
 
+export type Theme = 'light' | 'dark';
+
 export interface AppState {
   viewport: Viewport;
   graphs: Graph[];
   currentGraph: Graph | null;
   selectedNode: Node | null;
   error: string | null;
+  theme: Theme;
   chatSession: {
     isActive: boolean;
     messages: Array<{
@@ -70,6 +73,9 @@ export enum ActionTypes {
   // Error Actions
   SET_ERROR = 'SET_ERROR',
   CLEAR_ERROR = 'CLEAR_ERROR',
+  
+  // Theme Actions
+  SET_THEME = 'SET_THEME',
   
   // Viewport Actions
   UPDATE_VIEWPORT = 'UPDATE_VIEWPORT'

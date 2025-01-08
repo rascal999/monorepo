@@ -1,0 +1,97 @@
+Dark Theme Technical Implementation:
+
+1. CSS Variables Structure:
+```css
+:root {
+  /* Base theme variables */
+  --theme-transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  
+  /* Light theme (default) */
+  --primary-color: #1a73e8;
+  --secondary-color: #5f6368;
+  --background-color: #ffffff;
+  --panel-background: #f8f9fa;
+  --border-color: #dadce0;
+  --error-color: #d93025;
+  --text-primary: #202124;
+  --text-secondary: #5f6368;
+}
+
+[data-theme="dark"] {
+  --primary-color: #3b8eea;
+  --secondary-color: #a0a0a0;
+  --background-color: #121212;
+  --panel-background: #1e1e1e;
+  --border-color: #2d2d2d;
+  --error-color: #cf6679;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+}
+```
+
+2. Theme Toggle Implementation:
+```typescript
+// Add to appSlice.ts
+interface AppState {
+  theme: 'light' | 'dark';
+  // ... existing state
+}
+
+// Add action
+setTheme: (state, action: PayloadAction<'light' | 'dark'>) => {
+  state.theme = action.payload;
+  document.documentElement.setAttribute('data-theme', action.payload);
+}
+
+// Add to App.tsx initialization
+useEffect(() => {
+  // Check system preference
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  dispatch(setTheme(prefersDark ? 'dark' : 'light'));
+}, []);
+```
+
+3. Component-Specific Updates:
+
+a) Graph Panel:
+- Adjust cytoscape graph styles for dark theme visibility
+- Update toolbar button styles
+- Ensure graph edges and nodes have sufficient contrast
+
+b) Navigation Panel:
+- Update list item hover states
+- Adjust button backgrounds
+- Ensure active/selected states are visible
+
+c) Node Properties Panel:
+- Style form inputs for dark backgrounds
+- Update tab indicators
+- Adjust scrollbar colors
+
+4. Performance Considerations:
+- Use CSS transforms for animations
+- Implement theme transition only on theme-sensitive properties
+- Avoid layout shifts during theme changes
+
+5. Testing Requirements:
+- Visual regression tests for both themes
+- Accessibility testing (contrast ratios)
+- Cross-browser compatibility
+- System preference detection
+- Theme persistence across sessions
+
+6. Browser Support:
+- Modern browsers (last 2 versions)
+- CSS Variables (IE11 not supported)
+- prefers-color-scheme media query
+
+7. Implementation Steps:
+1. Add theme variables to index.css
+2. Update App.tsx and appSlice.ts for theme management
+3. Test system preference detection
+4. Update component styles
+5. Add theme toggle UI
+6. Test accessibility
+7. Add theme persistence
+
+Would you like me to proceed with the implementation?

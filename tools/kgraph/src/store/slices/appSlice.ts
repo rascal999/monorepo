@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AppState, Node, Graph, Viewport, ActionTypes } from '../types';
+import { AppState, Node, Graph, Viewport, ActionTypes, Theme } from '../types';
 
 const initialState: AppState = {
   viewport: {
@@ -10,6 +10,7 @@ const initialState: AppState = {
   currentGraph: null,
   selectedNode: null,
   error: null,
+  theme: 'light',
   chatSession: {
     isActive: false,
     messages: []
@@ -136,6 +137,12 @@ const appSlice = createSlice({
       state.error = null;
     },
 
+    // Theme Actions
+    setTheme: (state, action: PayloadAction<Theme>) => {
+      state.theme = action.payload;
+      document.documentElement.setAttribute('data-theme', action.payload);
+    },
+
     // Viewport Actions
     updateViewport: (state, action: PayloadAction<Partial<Viewport>>) => {
       state.viewport = { ...state.viewport, ...action.payload };
@@ -160,6 +167,7 @@ export const {
   addMessage,
   setError,
   clearError,
+  setTheme,
   updateViewport
 } = appSlice.actions;
 
