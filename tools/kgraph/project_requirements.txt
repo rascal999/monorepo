@@ -1,86 +1,32 @@
-# KGraph Web App Requirements
+kgraph
 
-## Core Features
-1. Create a React web application using Vite as the build tool
-2. Implement Cytoscape for node graph visualization
-3. Create a left panel for graph selection
-4. Support multiple node graphs
-5. Persist viewport state for each graph
-6. Support node interactions (click, drag, etc.)
-7. Support dark mode styling
-8. Smart node selection
-   - Prioritize nodes with existing chat data
-   - Fall back to last selected node
-   - Default to first node if needed
-   - Preserve selection state during graph transitions
+Knowledge graph with AI.
 
-## Technical Requirements
-1. Project Setup
-   - Use React 18+
-   - Use Cytoscape.js with react-cytoscapejs
-   - Use Vite for development and building
-   - Implement proper project structure (components, hooks, etc.)
+General:
+* Use state machine
+* Localstorage to store state
+- Viewport state
+- Graph state, including node properties and node positions
 
-2. Layout Requirements
-   - Left panel for graph selection
-   - Main area for Cytoscape graph display
-   - Responsive design
+Navigation panel (left panel):
+* Search graphs
+* Create new graphs
+* Delete graphs
+* List graphs
+* Open graphs
+* Clear all data button
+* Settings button
 
-3. Graph Requirements
-   - Support multiple distinct node graphs
-   - Each graph should have unique nodes and edges
-   - Implement proper node and edge styling
-   - Support basic interactions (pan, zoom, drag)
-   - Force-directed layout using D3-force
+Graph panel (centre panel):
+* Cytoscape graphs
+* When new graph created, first node is title of new graph
+* Last focused node is selected
+* Import / export buttons
 
-4. State Management
-   - ✓ Persist viewport state for each graph
-   - ✓ Maintain separate viewport settings per graph
-   - ✓ Handle graph switching without losing state
+Node properties panel (right panel):
+* Node properties panel
+* Chat tab (AI stream chat, OpenRouter)
 
-5. Data Structure
-   - Define clear node and edge data structures
-   - Support proper data organization and separation
-   - Handle node loading states
-   - Support graph export/import functionality
-     * Export graphs as JSON files
-     * Import graphs from JSON files
-     * Validate imported graph data structure
-     * Preserve node positions and relationships
-     * Include viewport settings in export
-     * Preserve last selected node state
-     * Auto-select initial node on import if no last selection
-
-## Implementation Details
-1. Components
-   - App (main container)
-   - GraphPanel (Cytoscape container)
-   - Custom hooks for graph state management
-   - Utility functions for viewport management
-
-2. Features
-   - Graph switching functionality
-   - Viewport persistence
-   - Proper error handling
-   - Loading states
-   - Dark mode support
-
-3. Data
-   - Graph data management
-   - Viewport state storage
-   - Graph selection state
-   - OpenRouter API logging for debugging and monitoring
-   - Chat message management with auto-scrolling
-     * Auto-scroll only when user sends a message
-     * Smooth scrolling behavior for better UX
-     * Manual scrolling for received messages
-     * Maintain scroll position when streaming completes
-     * Proper spacing to prevent input overlay
-     * Smooth transition between streaming and final states
-
-## Migration Notes
-- Migrated from ReactFlow to Cytoscape.js
-- Updated node/edge data structures to match Cytoscape format
-- Implemented custom styling using Cytoscape's stylesheet
-- Adapted force layout to work with Cytoscape's API
-- Updated viewport management for Cytoscape compatibility
+Chat tab (tab in node properties panel):
+* Tab in node properties panel
+* Words in chat tab

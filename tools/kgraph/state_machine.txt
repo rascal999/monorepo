@@ -1,0 +1,188 @@
+Knowledge Graph State Machine Structure
+
+Global Context:
+- viewport: Viewport state and settings
+- graphs: Array of saved graphs
+- currentGraph: Currently open graph data
+- selectedNode: Currently selected node
+- error: Error message if any
+
+States and Transitions:
+
+1. app_idle
+   Entry: Initialize app state
+   Transitions:
+   - OPEN_GRAPH → graph_open
+   - CREATE_GRAPH → graph_creating
+   - DELETE_GRAPH → graph_deleting
+   - CLEAR_ALL → clearing_data
+   - OPEN_SETTINGS → settings_open
+
+2. graph_creating
+   Entry: Initialize new graph
+   Transitions:
+   - SAVE → graph_open
+   - CANCEL → app_idle
+   - ERROR → error
+
+3. graph_open
+   Entry: Load graph data
+   States:
+   
+   a. node_idle
+      Entry: Clears selection and error
+      Transitions:
+      - CREATE_NODE → node_creating
+      - SELECT_NODE → node_selected
+      - IMPORT → importing
+      - EXPORT → exporting
+      - CLOSE_GRAPH → app_idle
+
+   b. node_creating
+      Entry: Logs context
+      Transitions:
+      - POSITION_SET → creating_node (with valid position)
+      - POSITION_SET → error (with invalid position)
+      - CANCEL → node_idle
+      - ERROR → error
+
+   c. creating_node
+      Entry: Creates node and logs context
+      Exit: Logs context
+      Transitions:
+      - SUCCESS → node_idle
+      - ERROR → error
+
+   d. node_selected
+      Entry: Logs context
+      Transitions:
+      - EDIT → node_editing
+      - MOVE → node_moving
+      - CONNECT → node_connecting
+      - DELETE → node_deleting
+      - CHAT → chat_active
+      - DESELECT → node_idle
+      - ERROR → error
+
+   e. node_editing
+      Entry: Logs context
+      Transitions:
+      - SAVE → node_selected
+      - CANCEL → node_selected
+      - ERROR → error
+
+   f. node_moving
+      Entry: Logs context
+      Transitions:
+      - POSITION_SET → node_selected (with valid position)
+      - POSITION_SET → error (with invalid position)
+      - CANCEL → node_selected
+      - ERROR → error
+
+   g. node_connecting
+      Entry: Logs context
+      Transitions:
+      - TARGET_SELECTED → node_selected
+      - CANCEL → node_selected
+      - ERROR → error
+
+   h. node_deleting
+      Entry: Logs context
+      Transitions:
+      - CONFIRM → node_idle
+      - CANCEL → node_selected
+      - ERROR → error
+
+   i. chat_active
+      Entry: Initialize chat session
+      Transitions:
+      - SEND_MESSAGE → chat_processing
+      - CLOSE → node_selected
+      - ERROR → error
+
+   j. chat_processing
+      Entry: Send message to AI
+      Transitions:
+      - MESSAGE_RECEIVED → chat_active
+      - ERROR → error
+
+4. importing
+   Entry: Parse import data
+   Transitions:
+   - SUCCESS → graph_open
+   - ERROR → error
+
+5. exporting
+   Entry: Prepare graph data
+   Transitions:
+   - SUCCESS → graph_open
+   - ERROR → error
+
+6. graph_deleting
+   Entry: Confirm deletion
+   Transitions:
+   - CONFIRM → app_idle
+   - CANCEL → app_idle
+   - ERROR → error
+
+7. clearing_data
+   Entry: Confirm data clear
+   Transitions:
+   - CONFIRM → app_idle
+   - CANCEL → app_idle
+   - ERROR → error
+
+8. settings_open
+   Entry: Load settings
+   Transitions:
+   - SAVE → app_idle
+   - CANCEL → app_idle
+   - ERROR → error
+
+9. error
+   Entry: Logs context and sets error
+   Transitions:
+   - RETRY → Previous State
+   - CLEAR → app_idle
+
+Actions:
+1. clearSelection
+   - Resets selectedNode to null
+
+2. clearError
+   - Resets error to null
+
+3. initNodeData
+   - Sets node data from event
+
+4. setNodeData
+   - Updates node data from event
+
+5. setError
+   - Sets error message from event
+
+6. saveToLocalStorage
+   - Persists current state to localStorage
+
+7. loadFromLocalStorage
+   - Loads state from localStorage
+
+8. initChatSession
+   - Initializes AI chat session
+
+9. processAIResponse
+   - Handles AI message processing
+
+Guards:
+- Position validation for POSITION_SET events
+  - Checks if x and y coordinates are valid numbers
+  - Prevents invalid position transitions
+- Graph validation for import/export
+  - Validates graph data structure
+- Storage quota check
+  - Ensures localStorage limits aren't exceeded
+
+State Entry Behaviors:
+- All states log context on entry
+- States that modify data trigger saveToLocalStorage
+- Error state executes setError action
