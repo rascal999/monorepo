@@ -18,6 +18,7 @@ const GraphPanel: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<cytoscape.Core | null>(null);
   const isInitializing = useRef(false);
+  const isFirstNode = useRef(false);
   
   const currentGraph = useAppSelector(state => state.app.currentGraph);
   const selectedNode = useAppSelector(state => state.app.selectedNode);
@@ -58,6 +59,8 @@ const GraphPanel: React.FC = () => {
     // Initialize Cytoscape
     const cy = cytoscape({
       container: containerRef.current,
+      minZoom: 0.1,
+      maxZoom: 3,
       style: [
         {
           selector: 'node',
@@ -123,10 +126,16 @@ const GraphPanel: React.FC = () => {
           // Double click - create node
           clearTimeout(doubleClickTimer);
           doubleClickTimer = undefined!;
-          const position = evt.position;
+          // Calculate viewport center
+          const containerWidth = containerRef.current?.clientWidth || 900;
+          const containerHeight = containerRef.current?.clientHeight || 600;
+          const position = {
+            x: containerWidth / 2,
+            y: containerHeight / 2
+          };
           dispatch(createNode({ 
             label: 'New Node', 
-            position 
+            position
           }));
         } else {
           // Single click - start timer
@@ -165,58 +174,66 @@ const GraphPanel: React.FC = () => {
 
   // Update graph data when currentGraph changes
   useEffect(() => {
-    if (!cyRef.current) return;
+    if (!cyRef.current || !currentGraph) return;
 
     isInitializing.current = true;
     
     // Always clear existing elements
     cyRef.current.elements().remove();
     
-    // Only add new elements if we have a currentGraph
-    if (currentGraph) {
-    
-      // Add nodes
-      currentGraph.nodes.forEach(node => {
-        cyRef.current!.add({
-          group: 'nodes',
-          data: { 
-            id: node.id,
-            label: node.label
-          },
-          position: node.position
-        });
+    // Add nodes
+    currentGraph.nodes.forEach(node => {
+      cyRef.current!.add({
+        group: 'nodes',
+        data: { 
+          id: node.id,
+          label: node.label
+        },
+        position: node.position
       });
+    });
 
-      // Add edges
-      currentGraph.edges.forEach(edge => {
-        cyRef.current!.add({
-          group: 'edges',
-          data: {
-            id: edge.id,
-            source: edge.source,
-            target: edge.target,
-            label: edge.label
-          }
-        });
+    // Add edges
+    currentGraph.edges.forEach(edge => {
+      cyRef.current!.add({
+        group: 'edges',
+        data: {
+          id: edge.id,
+          source: edge.source,
+          target: edge.target,
+          label: edge.label
+        }
       });
+    });
 
-      // Restore viewport
+    // If this is a new graph (only has one node), center it
+    if (currentGraph.nodes.length === 1 && !isFirstNode.current) {
+      isFirstNode.current = true;
+      const containerWidth = containerRef.current?.clientWidth || 900;
+      const containerHeight = containerRef.current?.clientHeight || 600;
+      const centerX = containerWidth / 2;
+      const centerY = containerHeight / 2;
+      
+      // Update node position in Redux state
+      dispatch(moveNode({
+        id: currentGraph.nodes[0].id,
+        position: { x: centerX, y: centerY }
+      }));
+
+      // Set initial viewport
+      cyRef.current.zoom(0.75);
+      cyRef.current.center();
+    } else {
+      // Restore saved viewport state
       cyRef.current.zoom(currentGraph.viewport.zoom);
       cyRef.current.pan({ 
         x: -currentGraph.viewport.position.x, 
         y: -currentGraph.viewport.position.y 
       });
-    } else {
-      // Reset to default viewport when no graph is selected
-      cyRef.current.zoom(defaultViewport.zoom);
-      cyRef.current.pan({ 
-        x: -defaultViewport.position.x, 
-        y: -defaultViewport.position.y 
-      });
     }
     
     isInitializing.current = false;
-  }, [currentGraph]);
+  }, [currentGraph, dispatch]);
 
   // Update selected node
   useEffect(() => {
