@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { type FC } from 'react';
 import { useAppDispatch } from '../../store';
 import { setError } from '../../store/slices/uiSlice';
-import { ActionTypes } from '../../store/types';
+import { ActionTypes, Graph, Viewport } from '../../store/types';
+import cytoscape from 'cytoscape';
 
 interface GraphToolbarProps {
-  currentGraph: any;
-  cyRef: React.MutableRefObject<any>;
+  currentGraph: Graph | null;
+  cyRef: React.RefObject<cytoscape.Core | null>;
   isInitializing: React.MutableRefObject<boolean>;
-  onViewportUpdate: (viewport: { zoom: number; position: { x: number; y: number } }) => void;
+  onViewportUpdate: (viewport: Viewport) => void;
 }
 
-const GraphToolbar: React.FC<GraphToolbarProps> = ({ 
+const GraphToolbar: FC<GraphToolbarProps> = ({ 
   currentGraph, 
   cyRef, 
   isInitializing, 

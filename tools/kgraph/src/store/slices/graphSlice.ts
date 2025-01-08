@@ -129,6 +129,31 @@ const graphSlice = createSlice({
         }
       }
     },
+    addEdge: (state, action: PayloadAction<{
+      source: string;
+      target: string;
+      label?: string;
+      graphId: string;
+    }>) => {
+      // Find the graph in the graphs array
+      const graphIndex = state.graphs.findIndex(g => g.id === action.payload.graphId);
+      if (graphIndex === -1) {
+        console.warn('graphSlice: Graph not found in graphs array');
+        return;
+      }
+
+      // Add edge to graph
+      const edge = {
+        id: `${action.payload.source}-${action.payload.target}`,
+        source: action.payload.source,
+        target: action.payload.target,
+        label: action.payload.label
+      };
+      state.graphs[graphIndex].edges.push(edge);
+
+      // Update currentGraph reference
+      state.currentGraph = state.graphs[graphIndex];
+    },
     deleteGraph: (state, action: PayloadAction<string>) => {
       state.graphs = state.graphs.filter(g => g.id !== action.payload);
       if (state.currentGraph?.id === action.payload) {
@@ -190,7 +215,8 @@ const graphSlice = createSlice({
         ...action.payload.changes,
         properties: {
           ...currentNode.properties,
-          ...(action.payload.changes.properties || {})
+          ...(action.payload.changes.properties || {}),
+          chatHistory: action.payload.changes.properties?.chatHistory || currentNode.properties.chatHistory
         }
       };
 
@@ -236,7 +262,8 @@ export const {
   clearAll,
   updateGraphViewport,
   addNode,
-  updateNodeInGraph
+  updateNodeInGraph,
+  addEdge
 } = graphSlice.actions;
 
 export default graphSlice.reducer;

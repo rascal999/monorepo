@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
-import { editNode } from '../store/slices/nodeSlice';
+import { editNode, createWordNode } from '../store/slices/nodeSlice';
 import { addMessage } from '../store/slices/chatSlice';
 import { updatePanelWidth } from '../store/slices/uiSlice';
 import type { Node } from '../store/types';
@@ -20,6 +20,10 @@ const NodePropertiesPanel: React.FC = () => {
       if (!node) return null;
       return node;
     }, [])
+  );
+
+  const currentGraph = useAppSelector(
+    React.useCallback((state) => state.graph.currentGraph, [])
   );
 
   // Track chat history separately to force re-render on changes
@@ -112,6 +116,38 @@ const NodePropertiesPanel: React.FC = () => {
     setActiveTab(tab);
   };
 
+  // Handle word click
+  const handleWordClick = (word: string) => {
+    if (!selectedNode || !currentGraph) {
+      console.warn('Cannot create word node: No selected node or current graph', {
+        selectedNode: !!selectedNode,
+        currentGraph: !!currentGraph
+      });
+      return;
+    }
+    
+    // Calculate position for new node relative to parent
+    const offset = 150; // pixels
+    const angle = (Math.PI * 2 * Math.random()); // random angle
+    const newPosition = {
+      x: selectedNode.position.x + offset * Math.cos(angle),
+      y: selectedNode.position.y + offset * Math.sin(angle)
+    };
+    
+    console.log('Creating word node', {
+      word,
+      parentNodeId: selectedNode.id,
+      graphId: currentGraph.id
+    });
+    
+    dispatch(createWordNode({
+      parentNodeId: selectedNode.id,
+      word: word,
+      position: newPosition,
+      graphId: currentGraph.id // graphId is now required
+    }));
+  };
+
   if (!selectedNode) {
     return (
       <div className="node-properties-panel" style={{ width: panelWidth }}>
@@ -194,7 +230,15 @@ const NodePropertiesPanel: React.FC = () => {
                   key={index}
                   className={`chat-message ${message.role}`}
                 >
-                  {message.content}
+                  {message.content.split(/\s+/).map((word, wordIndex) => (
+                    <span
+                      key={wordIndex}
+                      className="clickable-word"
+                      onClick={() => handleWordClick(word)}
+                    >
+                      {word}
+                    </span>
+                  ))}
                 </div>
               ))}
             </div>

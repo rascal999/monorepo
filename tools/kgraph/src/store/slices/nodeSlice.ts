@@ -201,6 +201,50 @@ const nodeSlice = createSlice({
     },
     deselectNode: (state) => {
       state.selectedNode = null;
+    },
+    createWordNode: {
+      reducer: (state, action: PayloadAction<{
+        parentNodeId: string;
+        word: string;
+        position: { x: number; y: number };
+        nodeId: string;
+      }>) => {
+        const newNode: Node = {
+          id: action.payload.nodeId,
+          label: action.payload.word,
+          position: action.payload.position,
+          properties: {
+            chatHistory: []
+          }
+        };
+        
+        // Set as selected node
+        state.selectedNode = newNode;
+        
+        console.log('nodeSlice: Created word node', {
+          nodeId: newNode.id,
+          label: newNode.label,
+          parentNodeId: action.payload.parentNodeId
+        });
+      },
+      prepare: (params: {
+        parentNodeId: string;
+        word: string;
+        position: { x: number; y: number };
+        graphId: string;  // Make graphId required
+      }) => {
+        const nodeId = Date.now().toString();
+        return {
+          payload: {
+            ...params,
+            nodeId
+          },
+          meta: {
+            updateGraph: true,
+            createConnection: true // Signal that we need to create a connection to parent
+          }
+        };
+      }
     }
   }
 });
@@ -213,7 +257,8 @@ export const {
   connectNodes,
   deleteNode,
   deselectNode,
-  updateNodeChatHistory
+  updateNodeChatHistory,
+  createWordNode
 } = nodeSlice.actions;
 
 export default nodeSlice.reducer;
