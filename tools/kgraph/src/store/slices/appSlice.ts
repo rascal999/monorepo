@@ -10,6 +10,7 @@ const initialState: AppState = {
   graphs: [],
   currentGraph: null,
   selectedNode: null,
+  draggingNodeId: null,
   error: null,
   theme: 'light',
   loading: {
@@ -99,6 +100,7 @@ const appSlice = createSlice({
       state.graphs = [];
       state.currentGraph = null;
       state.selectedNode = null;
+      state.draggingNodeId = null;
       state.error = null;
     },
 
@@ -129,6 +131,11 @@ const appSlice = createSlice({
       }
     },
     selectNode: (state, action: PayloadAction<string>) => {
+      // Don't change selection if we're dragging
+      if (state.draggingNodeId !== null) {
+        return;
+      }
+      
       if (state.currentGraph) {
         const node = state.currentGraph.nodes.find(n => n.id === action.payload);
         state.selectedNode = node || null;
@@ -142,6 +149,12 @@ const appSlice = createSlice({
           }
         }
       }
+    },
+    startDrag: (state, action: PayloadAction<string>) => {
+      state.draggingNodeId = action.payload;
+    },
+    endDrag: (state) => {
+      state.draggingNodeId = null;
     },
     editNode: (state, action: PayloadAction<{ id: string; changes: Partial<Node> }>) => {
       if (state.currentGraph) {
@@ -247,6 +260,11 @@ const appSlice = createSlice({
               content: action.payload.content
             });
           }
+
+          // Update selected node if this is the selected node and we're not dragging
+          if (state.selectedNode?.id === node.id && state.draggingNodeId === null) {
+            state.selectedNode = node;
+          }
         }
       }
     },
@@ -273,10 +291,16 @@ const appSlice = createSlice({
     // Graph Viewport Actions
     updateGraphViewport: (state, action: PayloadAction<Partial<Viewport>>) => {
       if (state.currentGraph) {
+        // Store current selection state
+        const currentSelectedNode = state.selectedNode;
+        const currentLastFocusedNodeId = state.currentGraph.lastFocusedNodeId;
+        
+        // Update viewport
         state.currentGraph.viewport = { 
           ...state.currentGraph.viewport, 
           ...action.payload 
         };
+        
         // Update viewport in graphs array too
         const graphInArray = state.graphs.find(g => g.id === state.currentGraph!.id);
         if (graphInArray) {
@@ -284,6 +308,13 @@ const appSlice = createSlice({
             ...graphInArray.viewport, 
             ...action.payload 
           };
+        }
+
+        // Restore selection state
+        state.selectedNode = currentSelectedNode;
+        state.currentGraph.lastFocusedNodeId = currentLastFocusedNodeId;
+        if (graphInArray) {
+          graphInArray.lastFocusedNodeId = currentLastFocusedNodeId;
         }
       }
     }
@@ -313,6 +344,8 @@ export const {
   selectNode,
   editNode,
   moveNode,
+  startDrag,
+  endDrag,
   connectNodes,
   deleteNode,
   deselectNode,

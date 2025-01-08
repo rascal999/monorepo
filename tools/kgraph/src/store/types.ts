@@ -38,6 +38,7 @@ export interface AppState {
   graphs: Graph[];
   currentGraph: Graph | null;
   selectedNode: Node | null;
+  draggingNodeId: string | null;
   error: string | null;
   theme: Theme;
   loading: {
@@ -62,6 +63,8 @@ export enum ActionTypes {
   SELECT_NODE = 'SELECT_NODE',
   EDIT_NODE = 'EDIT_NODE',
   MOVE_NODE = 'MOVE_NODE',
+  START_DRAG = 'START_DRAG',
+  END_DRAG = 'END_DRAG',
   CONNECT_NODE = 'CONNECT_NODE',
   DELETE_NODE = 'DELETE_NODE',
   DESELECT_NODE = 'DESELECT_NODE',

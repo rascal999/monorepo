@@ -72,6 +72,7 @@ States and Transitions:
       - CHAT → chat_active (loads node's chat history)
       - SELECT_NODE → node_selected (when different node selected)
       - DESELECT → node_idle
+      - VIEWPORT_CHANGE → node_selected (viewport changes do not affect selection)
       - ERROR → error
 
    e. node_editing
