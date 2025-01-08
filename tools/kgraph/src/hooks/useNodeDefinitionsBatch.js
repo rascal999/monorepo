@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { aiService } from '../services/ai';
+import { chatService } from '../services/ai/chatService';
+import { requestService } from '../services/ai/requestService';
 
 export function useNodeDefinitionsBatch(activeGraph, onUpdateData) {
   // Track nodes being initialized
@@ -31,7 +32,7 @@ export function useNodeDefinitionsBatch(activeGraph, onUpdateData) {
       // Clear initializing state and pending requests
       setInitializingNodes(new Set());
       manuallyInitializedRef.current.clear();
-      aiService.clearStaleRequests();
+      requestService.clearStaleRequests();
 
       // If previous graph exists, clean up its state
       if (prevGraphId && activeGraph?.nodeData) {
@@ -49,7 +50,7 @@ export function useNodeDefinitionsBatch(activeGraph, onUpdateData) {
 
       setPrevGraphId(currentGraphId);
     }
-  }, [activeGraph?.id]);
+  }, [activeGraph?.id, onUpdateData, prevGraphId]);
 
   // Process new nodes that need definitions in batches
   useEffect(() => {
@@ -74,13 +75,6 @@ export function useNodeDefinitionsBatch(activeGraph, onUpdateData) {
 
         // Skip if node was manually initialized
         if (manuallyInitializedRef.current.has(nodeId)) {
-          return false;
-        }
-
-        // Skip if node was just created (less than 1 second old)
-        const nodeTimestamp = parseInt(nodeId);
-        if (!isNaN(nodeTimestamp) && Date.now() - nodeTimestamp < 1000) {
-          manuallyInitializedRef.current.add(nodeId);
           return false;
         }
 
@@ -120,59 +114,41 @@ export function useNodeDefinitionsBatch(activeGraph, onUpdateData) {
       for (const node of nodesToProcessNow) {
         if (!activeGraph?.nodeData[node.id]) continue;
         try {
-          await new Promise((resolve, reject) => {
-            console.log('useNodeDefinitionsBatch: Fetching definition for node:', {
-              id: node.id,
-              label: node.data.label
-            });
-
-            aiService.queueDefinitionRequest(
-              node.data.label,
-              activeGraph.title,
-              (result) => {
-                try {
-                  // Skip if node no longer exists
-                  if (!activeGraph?.nodeData[node.id]) {
-                    console.log('useNodeDefinitionsBatch: Node no longer exists:', node.id);
-                    resolve();
-                    return;
-                  }
-
-                  // Update chat data - loading state will be cleared by useNodeData
-                  if (result.success && result.message) {
-                    const formattedMessage = {
-                      role: result.message.role || 'assistant',
-                      content: result.message.content || ''
-                    };
-                    onUpdateData(node.id, null, {
-                      chat: [formattedMessage],
-                      isLoadingDefinition: false
-                    }, true);
-                  } else {
-                    console.error('useNodeDefinitionsBatch: Definition request failed:', result.error);
-                    onUpdateData(node.id, null, {
-                      chat: [{
-                        role: 'assistant',
-                        content: 'Error fetching definition. Please check your API key and try again.'
-                      }],
-                      isLoadingDefinition: false
-                    }, true);
-                  }
-                  resolve();
-                } catch (error) {
-                  console.error('useNodeDefinitionsBatch: Error updating node data:', error);
-                  reject(error);
-                } finally {
-                  // Always clean up initializing state
-                  setInitializingNodes(prev => {
-                    const next = new Set(prev);
-                    next.delete(node.id);
-                    return next;
-                  });
-                }
-              }
-            );
+          console.log('useNodeDefinitionsBatch: Fetching definition for node:', {
+            id: node.id,
+            label: node.data.label
           });
+
+          // Get definition using chatService
+          const result = await chatService.getDefinition(
+            node.data.label,
+            activeGraph.title
+          );
+
+          // Skip if node no longer exists
+          if (!activeGraph?.nodeData[node.id]) {
+            console.log('useNodeDefinitionsBatch: Node no longer exists:', node.id);
+            continue;
+          }
+
+          try {
+            // Update chat data - loading state will be cleared by useNodeData
+            if (result.success && result.message) {
+              onUpdateData(node.id, null, {
+                chat: [result.message],
+                isLoadingDefinition: false
+              }, true);
+            } else {
+              throw new Error(result.error || 'Definition request failed');
+            }
+          } finally {
+            // Always clean up initializing state
+            setInitializingNodes(prev => {
+              const next = new Set(prev);
+              next.delete(node.id);
+              return next;
+            });
+          }
         } catch (error) {
           console.error('useNodeDefinitionsBatch: Error processing node:', error);
           // Ensure loading state is cleared and error message is shown
@@ -210,7 +186,7 @@ export function useNodeDefinitionsBatch(activeGraph, onUpdateData) {
         });
       });
     });
-  }, [activeGraph?.id, activeGraph?.nodes?.length]); // Re-run when graph changes or nodes are added
+  }, [activeGraph, onUpdateData, initializingNodes]); // Re-run when graph or onUpdateData changes
 
   return {
     initializingNodes

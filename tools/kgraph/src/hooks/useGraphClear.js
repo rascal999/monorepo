@@ -13,11 +13,6 @@ export function useGraphClear(setGraphs, setActiveGraph, clearPersistentData) {
     setGraphs([]);
     setActiveGraph(null);
 
-    // Reset global callback
-    if (typeof window !== 'undefined') {
-      window.handleGetDefinition = null;
-    }
-
     return null;
   };
 

@@ -1,71 +1,10 @@
-import { useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useNodeDefinitionsBatch } from './useNodeDefinitionsBatch';
-import { useNodeDefinitionHandler } from './useNodeDefinitionHandler';
+import { chatService } from '../services/ai/chatService';
 
 export function useNodeDefinitions(activeGraph, onUpdateData) {
-  // Use both hooks to maintain functionality
-  const { initializingNodes: batchInitializingNodes } = useNodeDefinitionsBatch(activeGraph, onUpdateData);
-  const { initializingNodes: handlerInitializingNodes, handleGetDefinition: baseHandleGetDefinition } = useNodeDefinitionHandler(activeGraph, onUpdateData);
-
-  // Clear loading states when graph changes
-  useEffect(() => {
-    if (!activeGraph?.nodeData) return;
-
-    console.log('useNodeDefinitions: Checking for stuck loading states');
-    // Find any nodes stuck in loading state
-    Object.entries(activeGraph.nodeData)
-      .filter(([_, data]) => data.isLoadingDefinition)
-      .forEach(([nodeId]) => {
-        console.log('useNodeDefinitions: Clearing stuck loading state for node:', nodeId);
-        // Clear loading state and ensure chat array exists
-        onUpdateData(nodeId, null, {
-          chat: activeGraph.nodeData[nodeId]?.chat || [],
-          isLoadingDefinition: false
-        });
-      });
-  }, [activeGraph?.id]);
-
-  // Combine initializing nodes from both hooks
-  const initializingNodes = new Set([
-    ...Array.from(batchInitializingNodes),
-    ...Array.from(handlerInitializingNodes)
-  ]);
-
-  // Create handleGetDefinition that coordinates with useNodeState
-  const handleGetDefinition = useCallback(async (node) => {
-    if (!node?.id || !activeGraph) {
-      console.error('useNodeDefinitions: Invalid node or missing graph:', {
-        hasNode: !!node,
-        hasId: !!node?.id,
-        hasGraph: !!activeGraph
-      });
-      return;
-    }
-
-    console.log('useNodeDefinitions: Starting definition fetch:', {
-      nodeId: node.id,
-      label: node.data?.label,
-      graphId: activeGraph.id
-    });
-
-    try {
-      // Initialize loading state
-      onUpdateData(node.id, null, {
-        chat: [],
-        isLoadingDefinition: true
-      });
-
-      // Wait for state to update
-      await new Promise(resolve => setTimeout(resolve, 0));
-
-      // Let baseHandleGetDefinition handle the request
-      await baseHandleGetDefinition(node);
-    } catch (error) {
-      // Log error but let parent handle state updates
-      console.error('useNodeDefinitions: Error in definition handler:', error);
-      throw error;
-    }
-  }, [activeGraph, baseHandleGetDefinition, onUpdateData]);
+  // Use batch hook for automatic definition fetching
+  const { initializingNodes } = useNodeDefinitionsBatch(activeGraph, onUpdateData);
 
   // Create handleSendMessage for chat interactions
   const handleSendMessage = useCallback(async (nodeId, content, onStream) => {
@@ -83,17 +22,39 @@ export function useNodeDefinitions(activeGraph, onUpdateData) {
     });
 
     try {
-      // Implementation would go here
-      console.log('useNodeDefinitions: Chat message sent successfully');
+      // Get current chat messages
+      const currentChat = activeGraph.nodeData[nodeId]?.chat || [];
+      
+      // Add user message
+      const userMessage = { role: 'user', content };
+      const messages = [...currentChat, userMessage];
+
+      // Get response from chatService
+      const result = await chatService.getChatResponse(
+        messages,
+        activeGraph.title,
+        onStream,
+        false // Not a definition request
+      );
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to get chat response');
+      }
+
+      // Update chat with response
+      if (!onStream) {
+        onUpdateData(nodeId, null, {
+          chat: [...messages, result.message]
+        });
+      }
     } catch (error) {
       console.error('useNodeDefinitions: Error sending chat message:', error);
       throw error;
     }
-  }, [activeGraph]);
+  }, [activeGraph, onUpdateData]);
 
   return {
     initializingNodes,
-    handleGetDefinition,
     handleSendMessage
   };
 }

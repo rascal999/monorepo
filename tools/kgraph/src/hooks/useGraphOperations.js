@@ -1,7 +1,7 @@
 import { useGraphCRUD } from './useGraphCRUD';
 import { useGraphIO } from './useGraphIO';
 
-export function useGraphOperations(graphs, setGraphs, setActiveGraph, handleGetDefinition) {
+export function useGraphOperations(graphs, setGraphs, setActiveGraph) {
   const {
     createGraph,
     updateGraph,

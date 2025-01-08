@@ -1,6 +1,5 @@
 import { aiSettingsService } from './settingsService';
 import { requestService } from './requestService';
-import { definitionService } from './definitionService';
 import { chatService } from './chatService';
 import { sourceService } from './sourceService';
 
@@ -8,7 +7,6 @@ class AIService {
   constructor() {
     this.settings = aiSettingsService;
     this.request = requestService;
-    this.definition = definitionService;
     this.chat = chatService;
     this.source = sourceService;
   }
@@ -25,11 +23,7 @@ class AIService {
 
   // Definition operations
   getDefinitions(terms, context = '') {
-    return this.definition.getDefinitions(terms, context);
-  }
-
-  queueDefinitionRequest(term, context, callback) {
-    return this.definition.queueDefinitionRequest(term, context, callback);
+    return Promise.all(terms.map(term => this.chat.getDefinition(term, context)));
   }
 
   // Chat operations

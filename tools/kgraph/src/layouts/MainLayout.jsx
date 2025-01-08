@@ -21,7 +21,6 @@ export function MainLayout({
   activeTab,
   setActiveTab,
   nodeInteraction,
-  handleGetDefinition,
   handleSendMessage
 }) {
   // Validate onNodePositionChange is a function
@@ -76,7 +75,6 @@ export function MainLayout({
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             nodeInteraction={nodeInteraction}
-            handleGetDefinition={handleGetDefinition}
             handleSendMessage={handleSendMessage}
           />
         </Panel>
