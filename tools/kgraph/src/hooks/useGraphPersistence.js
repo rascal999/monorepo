@@ -50,14 +50,34 @@ export function useGraphPersistence() {
     }
   });
 
-  // Setup persistence
+  // Debug state changes
   useEffect(() => {
+    console.log('[GraphPersistence] Graphs updated:', {
+      count: graphs.length,
+      ids: graphs.map(g => g.id)
+    });
     localStorage.setItem('kgraph-graphs', JSON.stringify(graphs));
   }, [graphs]);
 
   useEffect(() => {
+    console.log('[GraphPersistence] Active graph changed:', {
+      id: activeGraph?.id,
+      nodeCount: activeGraph?.nodes?.length,
+      nodeDataCount: Object.keys(activeGraph?.nodeData || {}).length
+    });
+
     if (activeGraph) {
       localStorage.setItem('kgraph-last-graph', activeGraph.id.toString());
+      
+      // Ensure active graph is in sync with graphs array
+      setGraphs(prevGraphs => {
+        const currentGraph = prevGraphs.find(g => g.id === activeGraph.id);
+        if (currentGraph && JSON.stringify(currentGraph) !== JSON.stringify(activeGraph)) {
+          console.log('[GraphPersistence] Syncing active graph with graphs array');
+          return prevGraphs.map(g => g.id === activeGraph.id ? activeGraph : g);
+        }
+        return prevGraphs;
+      });
     } else {
       localStorage.removeItem('kgraph-last-graph');
     }
