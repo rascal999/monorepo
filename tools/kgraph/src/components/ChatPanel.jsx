@@ -128,8 +128,10 @@ function ChatPanel({ messages: propMessages, isLoading, nodeId, nodeLabel, nodeD
     
   const hasMessages = allMessages.length > 0;
   const isLoadingDefinition = Boolean(nodeData?.isLoadingDefinition);
+  // Show loading only if we're loading and don't have any messages yet
   const showLoading = isLoadingDefinition && !hasMessages;
-  const showButton = !nodeData?.chat?.length && !showLoading && nodeId;
+  // Show button only if we don't have chat data and aren't loading
+  const showButton = !nodeData?.chat?.length && !isLoadingDefinition && nodeId;
 
   return (
     <div className="relative flex flex-col h-full">

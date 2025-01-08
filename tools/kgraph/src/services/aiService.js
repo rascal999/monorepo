@@ -94,8 +94,8 @@ class AIService {
 
   // Queue a definition request for immediate processing
   queueDefinitionRequest(term, context, callback) {
-    // Generate unique request ID using term, context and timestamp
-    const requestId = `${term}-${context}-${Date.now()}`;
+    // Generate unique request ID using just term and context to prevent duplicates
+    const requestId = `${term}-${context}`;
     
     console.log('AIService: Processing request:', {
       requestId,
@@ -106,25 +106,34 @@ class AIService {
 
     // Process request immediately
     const processRequest = async () => {
-      if (!this.activeRequests.has(requestId)) {
-        this.activeRequests.add(requestId);
-        
-        try {
-          const results = await this.getDefinitions([term], context);
-          if (results && results[0]) {
-            callback(results[0]);
-          } else {
-            throw new Error('No definition result received');
-          }
-        } catch (error) {
-          console.error('AIService: Processing error:', error);
-          callback({
-            success: false,
-            error: error.message || 'Failed to fetch definition'
-          });
-        } finally {
-          this.activeRequests.delete(requestId);
+      // Skip if request is already in progress
+      if (this.activeRequests.has(requestId)) {
+        console.log('AIService: Skipping duplicate request:', requestId);
+        // Return a failed result to clear loading state
+        callback({
+          success: false,
+          error: 'Duplicate request skipped'
+        });
+        return;
+      }
+
+      this.activeRequests.add(requestId);
+      
+      try {
+        const results = await this.getDefinitions([term], context);
+        if (results && results[0]) {
+          callback(results[0]);
+        } else {
+          throw new Error('No definition result received');
         }
+      } catch (error) {
+        console.error('AIService: Processing error:', error);
+        callback({
+          success: false,
+          error: error.message || 'Failed to fetch definition'
+        });
+      } finally {
+        this.activeRequests.delete(requestId);
       }
     };
 

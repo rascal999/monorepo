@@ -95,16 +95,20 @@ export function useNodeState(activeGraph, updateGraph, setNodeLoading, graphs) {
     const nodeId = addNode(sourceNode, term);
     
     if (nodeId?.includes('-')) {
-      // Queue definition request
-      pendingDefinitionsRef.current.add(nodeId);
+      // Only queue if node doesn't already have chat data
+      const nodeData = activeGraph?.nodeData[nodeId];
+      if (!nodeData?.chat?.length) {
+        // Queue definition request
+        pendingDefinitionsRef.current.add(nodeId);
 
-      // Clear existing timeout
-      if (definitionTimeoutRef.current) {
-        clearTimeout(definitionTimeoutRef.current);
+        // Clear existing timeout
+        if (definitionTimeoutRef.current) {
+          clearTimeout(definitionTimeoutRef.current);
+        }
+
+        // Process batch after delay
+        definitionTimeoutRef.current = setTimeout(processPendingDefinitions, DEFINITION_BATCH_DELAY);
       }
-
-      // Process batch after delay
-      definitionTimeoutRef.current = setTimeout(processPendingDefinitions, DEFINITION_BATCH_DELAY);
     }
 
     return nodeId;
