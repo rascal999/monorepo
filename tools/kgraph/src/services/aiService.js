@@ -4,7 +4,7 @@ class AIService {
   constructor() {
     this.batchQueue = new Map(); // Map of term -> array of callbacks
     this.batchTimeout = null;
-    this.BATCH_DELAY = 250; // Reduced delay to improve responsiveness
+    this.BATCH_DELAY = 50; // Minimal delay to prevent race conditions
     this.activeRequests = new Set(); // Track active requests to prevent duplicates
 
     // Load model settings
@@ -92,77 +92,44 @@ class AIService {
     }
   }
 
-  // Queue a definition request for batch processing
+  // Queue a definition request for immediate processing
   queueDefinitionRequest(term, context, callback) {
-    // Generate unique request ID using term and context
-    const requestId = `${term}-${context}`;
+    // Generate unique request ID using term, context and timestamp
+    const requestId = `${term}-${context}-${Date.now()}`;
     
-    // Skip if exact request is already being processed
-    if (this.activeRequests.has(requestId)) {
-      console.log('AIService: Request already in progress:', { term, context });
-      return;
-    }
-
-    console.log('AIService: Queueing request:', {
+    console.log('AIService: Processing request:', {
       requestId,
       term,
       context,
-      activeRequests: [...this.activeRequests],
-      queueSize: this.batchQueue.size
+      activeRequests: [...this.activeRequests]
     });
 
-    // Add to queue with unique ID
-    if (!this.batchQueue.has(requestId)) {
-      this.batchQueue.set(requestId, { term, callbacks: [] });
-    }
-    this.batchQueue.get(requestId).callbacks.push({ context, callback });
-    this.activeRequests.add(requestId);
-
-    // Clear existing timeout
-    if (this.batchTimeout) {
-      clearTimeout(this.batchTimeout);
-    }
-
-    // Set new timeout to process batch
-    this.batchTimeout = setTimeout(async () => {
-      const currentBatch = new Map(this.batchQueue);
-      this.batchQueue = new Map(); // Clear queue
-
-      if (currentBatch.size > 0) {
-        console.log('AIService: Processing batch of', currentBatch.size, 'requests');
-        const requests = Array.from(currentBatch.values());
-        const terms = requests.map(r => r.term);
-        const context = requests[0].callbacks[0].context; // Use context from first request
+    // Process request immediately
+    const processRequest = async () => {
+      if (!this.activeRequests.has(requestId)) {
+        this.activeRequests.add(requestId);
         
         try {
-          const results = await this.getDefinitions(terms, context);
-          
-          // Process results
-          Array.from(currentBatch.entries()).forEach(([requestId, request], index) => {
-            const result = results[index];
-            
-            // Call all callbacks for this request
-            request.callbacks.forEach(({ callback }) => {
-              callback(result);
-            });
-            
-            this.activeRequests.delete(requestId);
-          });
+          const results = await this.getDefinitions([term], context);
+          if (results && results[0]) {
+            callback(results[0]);
+          } else {
+            throw new Error('No definition result received');
+          }
         } catch (error) {
-          console.error('AIService: Batch processing error:', error);
-          // Handle error for all requests in batch
-          Array.from(currentBatch.entries()).forEach(([requestId, request]) => {
-            request.callbacks.forEach(({ callback }) => {
-              callback({
-                success: false,
-                error: error.message || 'Failed to fetch definition'
-              });
-            });
-            this.activeRequests.delete(requestId);
+          console.error('AIService: Processing error:', error);
+          callback({
+            success: false,
+            error: error.message || 'Failed to fetch definition'
           });
+        } finally {
+          this.activeRequests.delete(requestId);
         }
       }
-    }, this.BATCH_DELAY);
+    };
+
+    // Add small delay to allow for state updates
+    setTimeout(processRequest, this.BATCH_DELAY);
   }
 
   async getChatResponse(messages, context = '', onStream) {

@@ -38,8 +38,19 @@ export function useNodeCreation(activeGraph, updateGraph) {
       return null;
     }
 
-    // Create new node
-    const newNodeId = Date.now().toString();
+    // Create new node with unique identifier
+    const newNodeId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    // Debounce node creation
+    const debounceTimeout = 100; // 100ms debounce
+    const lastCreation = activeGraph.nodes.find(n => 
+      n.id.startsWith(sourceNode.id)
+    )?.id?.split('-')[0];
+    
+    if (lastCreation && Date.now() - parseInt(lastCreation) < debounceTimeout) {
+      console.log('Debouncing node creation');
+      return null;
+    }
+
     console.log('Creating node with ID:', newNodeId);
 
     // Calculate number of existing child nodes
@@ -120,24 +131,30 @@ export function useNodeCreation(activeGraph, updateGraph) {
       return null;
     }
 
-    // Update graph with complete data
+    // Create complete node data first
+    const nodeData = {
+      chat: [],
+      notes: '',
+      quiz: [],
+      isLoadingDefinition: true
+    };
+
+    // Create edge data
+    const newEdge = {
+      id: edgeId,
+      source: sourceNode.id,
+      target: newNodeId,
+      data: {} // Ensure edge has data object
+    };
+
+    // Create complete graph update
     const updatedGraph = {
       ...activeGraph,
       nodes: [...activeGraph.nodes, newNode],
-      edges: [...activeGraph.edges, {
-        id: edgeId,
-        source: sourceNode.id,
-        target: newNodeId,
-        data: {} // Ensure edge has data object
-      }],
+      edges: [...activeGraph.edges, newEdge],
       nodeData: {
         ...activeGraph.nodeData,
-        [newNodeId]: {
-          chat: [],
-          notes: '',
-          quiz: [],
-          isLoadingDefinition: true
-        }
+        [newNodeId]: nodeData
       }
     };
 
@@ -148,7 +165,8 @@ export function useNodeCreation(activeGraph, updateGraph) {
         id: n.id,
         hasData: !!n.data,
         hasLabel: !!n.data?.label,
-        label: n.data?.label
+        label: n.data?.label,
+        hasNodeData: !!updatedGraph.nodeData[n.id]
       })),
       allEdges: updatedGraph.edges.map(e => ({
         id: e.id,
@@ -158,6 +176,7 @@ export function useNodeCreation(activeGraph, updateGraph) {
       }))
     });
 
+    // Update graph and return node ID
     updateGraph(updatedGraph);
     return newNodeId;
   };
