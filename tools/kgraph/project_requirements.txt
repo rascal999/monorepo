@@ -3,7 +3,7 @@ kgraph
 Knowledge graph with AI.
 
 General:
-* Use state machine
+* Use state machine (Redux)
 * Localstorage to store state
 - Viewport state
 - Graph state, including node properties and node positions
