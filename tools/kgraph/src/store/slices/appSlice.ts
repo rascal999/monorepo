@@ -7,10 +7,6 @@ import { REHYDRATE } from 'redux-persist';
 export const loadGraph = createAction<string>('app/loadGraph');
 
 const initialState: AppState = {
-  viewport: {
-    zoom: 1,
-    position: { x: 0, y: 0 }
-  },
   graphs: [],
   currentGraph: null,
   selectedNode: null,
@@ -37,9 +33,6 @@ const appSlice = createSlice({
     restoreState: (state, action: PayloadAction<Partial<AppState>>) => {
       if (action.payload.graphs) {
         state.graphs = action.payload.graphs;
-      }
-      if (action.payload.viewport) {
-        state.viewport = action.payload.viewport;
       }
       if (action.payload.currentGraph) {
         state.currentGraph = action.payload.currentGraph;
@@ -74,7 +67,11 @@ const appSlice = createSlice({
         id: Date.now().toString(),
         title: action.payload.title,
         nodes: [],
-        edges: []
+        edges: [],
+        viewport: {
+          zoom: 1,
+          position: { x: 0, y: 0 }
+        }
       };
       state.graphs.push(newGraph);
       state.currentGraph = newGraph;
@@ -233,14 +230,27 @@ const appSlice = createSlice({
       document.documentElement.setAttribute('data-theme', action.payload);
     },
 
-    // Viewport Actions
-    updateViewport: (state, action: PayloadAction<Partial<Viewport>>) => {
-      state.viewport = { ...state.viewport, ...action.payload };
-    },
-
     // Panel Actions
     updatePanelWidth: (state, action: PayloadAction<number>) => {
       state.panelWidth = action.payload;
+    },
+
+    // Graph Viewport Actions
+    updateGraphViewport: (state, action: PayloadAction<Partial<Viewport>>) => {
+      if (state.currentGraph) {
+        state.currentGraph.viewport = { 
+          ...state.currentGraph.viewport, 
+          ...action.payload 
+        };
+        // Update viewport in graphs array too
+        const graphInArray = state.graphs.find(g => g.id === state.currentGraph!.id);
+        if (graphInArray) {
+          graphInArray.viewport = { 
+            ...graphInArray.viewport, 
+            ...action.payload 
+          };
+        }
+      }
     }
   },
   extraReducers: (builder) => {
@@ -275,10 +285,10 @@ export const {
   setError,
   clearError,
   setTheme,
-  updateViewport,
   setLoading,
   clearLoading,
-  updatePanelWidth
+  updatePanelWidth,
+  updateGraphViewport
 } = appSlice.actions;
 
 export default appSlice.reducer;
