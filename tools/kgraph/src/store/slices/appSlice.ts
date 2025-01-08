@@ -112,7 +112,12 @@ const appSlice = createSlice({
           position: action.payload.position,
           properties: {}
         };
+        // Add node to both currentGraph and the graph in graphs array
         state.currentGraph.nodes.push(newNode);
+        const graphInArray = state.graphs.find(g => g.id === state.currentGraph!.id);
+        if (graphInArray) {
+          graphInArray.nodes.push(newNode);
+        }
         state.selectedNode = newNode;
       }
     },
@@ -124,8 +129,14 @@ const appSlice = createSlice({
     editNode: (state, action: PayloadAction<{ id: string; changes: Partial<Node> }>) => {
       if (state.currentGraph) {
         const node = state.currentGraph.nodes.find(n => n.id === action.payload.id);
+        const graphInArray = state.graphs.find(g => g.id === state.currentGraph!.id);
+        const nodeInArray = graphInArray?.nodes.find(n => n.id === action.payload.id);
+        
         if (node) {
           Object.assign(node, action.payload.changes);
+          if (nodeInArray) {
+            Object.assign(nodeInArray, action.payload.changes);
+          }
           if (state.selectedNode?.id === node.id) {
             state.selectedNode = node;
           }
@@ -135,27 +146,50 @@ const appSlice = createSlice({
     moveNode: (state, action: PayloadAction<{ id: string; position: { x: number; y: number } }>) => {
       if (state.currentGraph) {
         const node = state.currentGraph.nodes.find(n => n.id === action.payload.id);
+        const graphInArray = state.graphs.find(g => g.id === state.currentGraph!.id);
+        const nodeInArray = graphInArray?.nodes.find(n => n.id === action.payload.id);
+        
         if (node) {
           node.position = action.payload.position;
+          if (nodeInArray) {
+            nodeInArray.position = action.payload.position;
+          }
         }
       }
     },
     connectNodes: (state, action: PayloadAction<{ source: string; target: string; label?: string }>) => {
       if (state.currentGraph) {
-        state.currentGraph.edges.push({
+        const newEdge = {
           id: Date.now().toString(),
           source: action.payload.source,
           target: action.payload.target,
           label: action.payload.label
-        });
+        };
+        state.currentGraph.edges.push(newEdge);
+        
+        const graphInArray = state.graphs.find(g => g.id === state.currentGraph!.id);
+        if (graphInArray) {
+          graphInArray.edges.push(newEdge);
+        }
       }
     },
     deleteNode: (state, action: PayloadAction<string>) => {
       if (state.currentGraph) {
+        // Update currentGraph
         state.currentGraph.nodes = state.currentGraph.nodes.filter(n => n.id !== action.payload);
         state.currentGraph.edges = state.currentGraph.edges.filter(
           e => e.source !== action.payload && e.target !== action.payload
         );
+        
+        // Update graph in graphs array
+        const graphInArray = state.graphs.find(g => g.id === state.currentGraph!.id);
+        if (graphInArray) {
+          graphInArray.nodes = graphInArray.nodes.filter(n => n.id !== action.payload);
+          graphInArray.edges = graphInArray.edges.filter(
+            e => e.source !== action.payload && e.target !== action.payload
+          );
+        }
+        
         if (state.selectedNode?.id === action.payload) {
           state.selectedNode = null;
         }
