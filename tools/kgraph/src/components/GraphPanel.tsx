@@ -165,43 +165,55 @@ const GraphPanel: React.FC = () => {
 
   // Update graph data when currentGraph changes
   useEffect(() => {
-    if (!cyRef.current || !currentGraph) return;
+    if (!cyRef.current) return;
 
     isInitializing.current = true;
     
+    // Always clear existing elements
     cyRef.current.elements().remove();
     
-    // Add nodes
-    currentGraph.nodes.forEach(node => {
-      cyRef.current!.add({
-        group: 'nodes',
-        data: { 
-          id: node.id,
-          label: node.label
-        },
-        position: node.position
+    // Only add new elements if we have a currentGraph
+    if (currentGraph) {
+    
+      // Add nodes
+      currentGraph.nodes.forEach(node => {
+        cyRef.current!.add({
+          group: 'nodes',
+          data: { 
+            id: node.id,
+            label: node.label
+          },
+          position: node.position
+        });
       });
-    });
 
-    // Add edges
-    currentGraph.edges.forEach(edge => {
-      cyRef.current!.add({
-        group: 'edges',
-        data: {
-          id: edge.id,
-          source: edge.source,
-          target: edge.target,
-          label: edge.label
-        }
+      // Add edges
+      currentGraph.edges.forEach(edge => {
+        cyRef.current!.add({
+          group: 'edges',
+          data: {
+            id: edge.id,
+            source: edge.source,
+            target: edge.target,
+            label: edge.label
+          }
+        });
       });
-    });
 
-    // Restore viewport
-    cyRef.current.zoom(currentGraph.viewport.zoom);
-    cyRef.current.pan({ 
-      x: -currentGraph.viewport.position.x, 
-      y: -currentGraph.viewport.position.y 
-    });
+      // Restore viewport
+      cyRef.current.zoom(currentGraph.viewport.zoom);
+      cyRef.current.pan({ 
+        x: -currentGraph.viewport.position.x, 
+        y: -currentGraph.viewport.position.y 
+      });
+    } else {
+      // Reset to default viewport when no graph is selected
+      cyRef.current.zoom(defaultViewport.zoom);
+      cyRef.current.pan({ 
+        x: -defaultViewport.position.x, 
+        y: -defaultViewport.position.y 
+      });
+    }
     
     isInitializing.current = false;
   }, [currentGraph]);
