@@ -8,7 +8,7 @@ import rootSaga from './sagas';
 const persistConfig = {
   key: 'kgraph',
   storage,
-  whitelist: ['graphs', 'viewport', 'currentGraph'] // Persist these parts of state
+  whitelist: ['graphs', 'viewport', 'currentGraph', 'chatSession'] // Persist these parts of state
 };
 
 const persistedReducer = persistReducer(persistConfig, appReducer);
