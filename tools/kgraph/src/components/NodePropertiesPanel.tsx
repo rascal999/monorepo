@@ -3,12 +3,32 @@ import { useAppDispatch, useAppSelector } from '../store';
 import { editNode } from '../store/slices/nodeSlice';
 import { addMessage } from '../store/slices/chatSlice';
 import { updatePanelWidth } from '../store/slices/uiSlice';
+import type { Node } from '../store/types';
+
+type ChatMessage = {
+  role: 'user' | 'assistant';
+  content: string;
+};
 
 type Tab = 'properties' | 'chat';
 
 const NodePropertiesPanel: React.FC = () => {
   const dispatch = useAppDispatch();
-  const selectedNode = useAppSelector(state => state.node.selectedNode);
+  const selectedNode = useAppSelector(
+    React.useCallback((state) => {
+      const node = state.node.selectedNode;
+      if (!node) return null;
+      return node;
+    }, [])
+  );
+
+  // Track chat history separately to force re-render on changes
+  const chatHistory = useAppSelector(
+    React.useCallback((state) => {
+      const node = state.node.selectedNode;
+      return node?.properties.chatHistory || [];
+    }, [])
+  );
   const panelWidth = useAppSelector(state => state.ui.panelWidth);
   const [activeTab, setActiveTab] = useState<Tab>('chat');
   const [chatInput, setChatInput] = useState('');
@@ -169,7 +189,7 @@ const NodePropertiesPanel: React.FC = () => {
         ) : (
           <div className="chat-content">
             <div className="chat-messages">
-              {selectedNode.properties.chatHistory?.map((message: any, index: number) => (
+              {chatHistory.map((message: ChatMessage, index: number) => (
                 <div
                   key={index}
                   className={`chat-message ${message.role}`}
