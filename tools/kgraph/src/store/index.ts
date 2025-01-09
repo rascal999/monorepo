@@ -15,7 +15,14 @@ const graphPersistConfig = {
   whitelist: ['graphs', 'currentGraph'] // Persist graph-related state
 };
 
+const nodePersistConfig = {
+  key: 'node',
+  storage,
+  whitelist: ['selectedNode'] // Persist selected node state
+};
+
 const persistedGraphReducer = persistReducer(graphPersistConfig, graphReducer);
+const persistedNodeReducer = persistReducer(nodePersistConfig, nodeReducer);
 const sagaMiddleware = createSagaMiddleware();
 
 // Create rehydration middleware
@@ -47,7 +54,7 @@ const rehydrationMiddleware: Middleware = store => next => action => {
 export const store = configureStore({
   reducer: {
     graph: persistedGraphReducer,
-    node: nodeReducer,
+    node: persistedNodeReducer,
     chat: chatReducer,
     ui: uiReducer
   },

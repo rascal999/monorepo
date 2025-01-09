@@ -3,6 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Graph, Node } from '../types';
 import { addNode, addEdge, updateNodePosition } from '../slices/graphSlice';
 import { addMessage } from '../slices/chatSlice';
+import { REHYDRATE } from 'redux-persist';
 import cytoscape from 'cytoscape';
 
 // Selector to get current graph
@@ -239,6 +240,57 @@ function* handleWordNodeCreationWithEdge(action: PayloadAction<{
   }
 }
 
+// Handle graph load success
+function* handleGraphLoadSuccess(action: PayloadAction<Graph>): Generator<any, void, any> {
+  const graph: Graph | null = yield select(getCurrentGraph);
+  if (!graph) return;
+
+  // Find node to focus (lastFocusedNodeId or first node)
+  let nodeToFocus: Node | null = null;
+  
+  if (graph.lastFocusedNodeId) {
+    nodeToFocus = graph.nodes.find((n: Node) => n.id === graph.lastFocusedNodeId) || null;
+  }
+  
+  if (!nodeToFocus && graph.nodes.length > 0) {
+    nodeToFocus = graph.nodes[0];
+  }
+
+  if (nodeToFocus) {
+    console.log('graphUpdateSaga: Focusing node on graph load', {
+      nodeId: nodeToFocus.id,
+      isLastFocused: nodeToFocus.id === graph.lastFocusedNodeId
+    });
+    
+    // Select the node
+    yield put({
+      type: 'node/selectNode',
+      payload: { node: nodeToFocus }
+    });
+  }
+}
+
+// Handle rehydration
+function* handleRehydrate(action: any): Generator<any, void, any> {
+  if (!action.payload || action.key !== 'kgraph' || !action.payload.currentGraph) return;
+  
+  const graph = action.payload.currentGraph;
+  if (!graph.lastFocusedNodeId) return;
+  
+  const node = graph.nodes.find((n: Node) => n.id === graph.lastFocusedNodeId);
+  if (!node) return;
+  
+  console.log('graphUpdateSaga: Restoring node selection on rehydrate', {
+    nodeId: node.id,
+    graphId: graph.id
+  });
+  
+  yield put({
+    type: 'node/selectNode',
+    payload: { node }
+  });
+}
+
 // Watch for node actions
 export function* graphUpdateSaga(): Generator<any, void, any> {
   yield all([
@@ -247,6 +299,8 @@ export function* graphUpdateSaga(): Generator<any, void, any> {
     takeEvery('node/moveNode', handleNodeMovement),
     takeEvery('node/editNode', handleNodeEdit),
     takeEvery('node/connectNodes', handleNodeConnection),
-    takeEvery('node/createWordNode', handleWordNodeCreationWithEdge)
+    takeEvery('node/createWordNode', handleWordNodeCreationWithEdge),
+    takeEvery('graph/loadGraphSuccess', handleGraphLoadSuccess),
+    takeEvery(REHYDRATE, handleRehydrate)
   ]);
 }
