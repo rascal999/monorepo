@@ -19,6 +19,7 @@ export const useCytoscape = (
       },
       userPanningEnabled: true,
       userZoomingEnabled: true,
+      wheelSensitivity: 0.2, // Reduced from default 1.0 for finer zoom control
       boxSelectionEnabled: false,
       autoungrabify: false,
       autounselectify: true
