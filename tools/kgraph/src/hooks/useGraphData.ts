@@ -1,8 +1,8 @@
 import { useEffect, RefObject, MutableRefObject } from 'react';
 import cytoscape from 'cytoscape';
 import { useAppDispatch } from '../store';
-import { selectNode, moveNode } from '../store/slices/nodeSlice';
-import { updateGraphViewport } from '../store/slices/graphSlice';
+import { selectNode } from '../store/slices/nodeSlice';
+import { updateGraphViewport, updateNodePosition } from '../store/slices/graphSlice';
 import type { Node, Graph } from '../store/types';
 
 export const useGraphData = (
@@ -98,8 +98,8 @@ export const useGraphData = (
       cy.on('dragfree', 'node', (event) => {
         if (!isInitializing.current) {
           const node = event.target;
-          dispatch(moveNode({
-            id: node.id(),
+          dispatch(updateNodePosition({
+            nodeId: node.id(),
             position: node.position()
           }));
         }
