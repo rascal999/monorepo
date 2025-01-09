@@ -38,8 +38,10 @@
 .clickable-word {
   cursor: pointer;
   transition: background-color 0.2s;
-  padding: 2px 4px;
-  border-radius: 4px;
+  border-radius: 2px;
+  margin: -1px;
+  padding: 1px;
+  display: inline-block;
 }
 
 /* Default highlight for assistant messages */
