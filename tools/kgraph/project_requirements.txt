@@ -16,6 +16,7 @@ General:
 * Localstorage to store state
 - Viewport state
 - Graph state, including node properties and node positions
+* Settings panel takes up 40% of viewport width and 80% of viewport height
 
 Navigation panel (left panel):
 * Search graphs

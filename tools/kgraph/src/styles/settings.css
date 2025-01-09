@@ -6,9 +6,10 @@
   background-color: var(--panel-background);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  width: 500px;
-  max-width: 90vw;
-  max-height: 90vh;
+  width: 40vw;
+  height: 80vh;
+  max-width: 40vw;
+  max-height: 80vh;
   overflow-y: auto;
   z-index: 1000;
 }
