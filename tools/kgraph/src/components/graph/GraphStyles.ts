@@ -15,29 +15,29 @@ type ColorOptions = {
 
 export const defaultColors: ColorOptions = {
   blue: {
-    gradient: '#E3F2FD #BBDEFB',
+    gradient: '#0D47A1',
     border: '#1976D2',
-    text: '#0D47A1'
+    text: '#FFFFFF'
   },
   green: {
-    gradient: '#E8F5E9 #C8E6C9',
+    gradient: '#1B5E20',
     border: '#388E3C',
-    text: '#1B5E20'
+    text: '#FFFFFF'
   },
   purple: {
-    gradient: '#F3E5F5 #E1BEE7',
+    gradient: '#4A148C',
     border: '#7B1FA2',
-    text: '#4A148C'
+    text: '#FFFFFF'
   },
   orange: {
-    gradient: '#FFF3E0 #FFE0B2',
+    gradient: '#E65100',
     border: '#F57C00',
-    text: '#E65100'
+    text: '#FFFFFF'
   },
   gray: {
-    gradient: '#F5F5F5 #E0E0E0',
+    gradient: '#212121',
     border: '#616161',
-    text: '#212121'
+    text: '#FFFFFF'
   }
 };
 
@@ -47,13 +47,9 @@ export const GraphStyles: cytoscape.Stylesheet[] = [
   {
     selector: 'node',
     style: {
-      'background-color': '#E3F2FD',
       'background-gradient-direction': 'to-bottom',
-      'background-gradient-stop-colors': '#F5F9FF #E3F2FD',
       'border-width': '2px',
-      'border-color': '#1976D2',
       'label': 'data(label)',
-      'color': '#0D47A1',
       'text-valign': 'center',
       'text-halign': 'center',
       'font-size': '14px',
@@ -65,25 +61,21 @@ export const GraphStyles: cytoscape.Stylesheet[] = [
       'padding': '16px',
       'text-wrap': 'wrap',
       'text-overflow-wrap': 'anywhere',
-      'border-radius': '6px'
+      'border-radius': '6px',
+      // Default blue theme
+      'background-color': '#0D47A1',
+      'background-gradient-stop-colors': '#0D47A1',
+      'border-color': '#1976D2',
+      'color': '#FFFFFF'
     } as cytoscape.Css.Node
   },
   {
-    selector: 'node[?properties][?properties.gradient]',
+    selector: 'node[?properties]',
     style: {
-      'background-gradient-stop-colors': 'data(properties.gradient)'
-    } as cytoscape.Css.Node
-  },
-  {
-    selector: 'node[?properties][?properties.border]',
-    style: {
-      'border-color': 'data(properties.border)'
-    } as cytoscape.Css.Node
-  },
-  {
-    selector: 'node[?properties][?properties.text]',
-    style: {
-      'color': 'data(properties.text)'
+      'background-color': 'data(properties.gradient)',
+      'background-gradient-stop-colors': 'data(properties.gradient)',
+      'border-color': 'data(properties.border)',
+      'color': '#FFFFFF'
     } as cytoscape.Css.Node
   },
   {
