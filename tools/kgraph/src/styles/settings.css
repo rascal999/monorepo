@@ -186,6 +186,33 @@
   background-color: var(--error-background);
 }
 
+.about-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--text-color);
+}
+
+.about-content p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.about-content a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.about-content a:hover {
+  text-decoration: underline;
+}
+
+.about-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .settings-overlay {
   position: fixed;
   top: 0;

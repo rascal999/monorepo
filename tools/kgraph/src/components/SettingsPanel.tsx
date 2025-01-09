@@ -29,18 +29,24 @@ const SettingsPanel: React.FC = () => {
     <div className="settings-panel">
       <div className="settings-header">
         <div className="settings-tabs">
-        <button 
-          className={`tab ${currentTab === 'general' ? 'active' : ''}`}
-          onClick={() => dispatch(setSettingsTab('general'))}
-        >
-          General
-        </button>
-        <button 
-          className={`tab ${currentTab === 'ai' ? 'active' : ''}`}
-          onClick={() => dispatch(setSettingsTab('ai'))}
-        >
-          AI
-        </button>
+          <button 
+            className={`tab ${currentTab === 'general' ? 'active' : ''}`}
+            onClick={() => dispatch(setSettingsTab('general'))}
+          >
+            General
+          </button>
+          <button 
+            className={`tab ${currentTab === 'ai' ? 'active' : ''}`}
+            onClick={() => dispatch(setSettingsTab('ai'))}
+          >
+            AI
+          </button>
+          <button 
+            className={`tab ${currentTab === 'about' ? 'active' : ''}`}
+            onClick={() => dispatch(setSettingsTab('about'))}
+          >
+            About
+          </button>
         </div>
         <button 
           className="close-button"
@@ -124,6 +130,24 @@ const SettingsPanel: React.FC = () => {
                     ))}
                 </div>
               )}
+            </div>
+          </div>
+        )}
+        {currentTab === 'about' && (
+          <div className="about-settings">
+            <div className="setting-group">
+              <h3>About kgraph</h3>
+              <div className="about-content">
+                <p>Created by <a href="https://github.com/rascal999" target="_blank" rel="noopener noreferrer">Aidan Marlin</a></p>
+                <div className="about-links">
+                  <a href="https://github.com/rascal999/monorepo/tree/main/tools/kgraph" target="_blank" rel="noopener noreferrer">
+                    View on GitHub
+                  </a>
+                  <a href="https://github.com/rascal999/monorepo/issues" target="_blank" rel="noopener noreferrer">
+                    Provide Feedback
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         )}
