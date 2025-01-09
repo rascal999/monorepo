@@ -74,15 +74,6 @@ function* loadFromLocalStorage(): Generator {
             payload: { node: nodeToSelect }
           });
           
-          // Trigger chat tab population
-          yield put({ 
-            type: 'chat/addMessage', 
-            payload: {
-              nodeId: nodeToSelect.id,
-              role: 'system',
-              content: 'Chat history loaded'
-            }
-          });
         }
       }
     }
@@ -237,15 +228,6 @@ function* handleLoadGraph(action: PayloadAction<string>): Generator {
           payload: { node: nodeToSelect }
         });
         
-        // Transition to chat_active state by triggering chat tab population
-        yield put({ 
-          type: 'chat/addMessage', 
-          payload: {
-            nodeId: nodeToSelect.id,
-            role: 'system',
-            content: 'Chat history loaded'
-          }
-        });
       }
     } else {
       console.log('Saga: Graph not found, dispatching error');

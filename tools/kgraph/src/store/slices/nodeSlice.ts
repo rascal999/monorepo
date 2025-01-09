@@ -34,13 +34,8 @@ const nodeSlice = createSlice({
           }
         };
         
-        // Set as selected node and ensure it's properly initialized
-        state.selectedNode = {
-          ...newNode,
-          properties: {
-            chatHistory: []
-          }
-        };
+        // Set as selected node
+        state.selectedNode = newNode;
         console.log('nodeSlice: Created and selected node', {
           nodeId: newNode.id,
           label: newNode.label

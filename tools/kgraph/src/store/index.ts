@@ -38,15 +38,6 @@ const rehydrationMiddleware: Middleware = store => next => action => {
           payload: { node: nodeToSelect }
         });
         
-        // Trigger chat tab population
-        store.dispatch({ 
-          type: 'chat/addMessage', 
-          payload: {
-            nodeId: nodeToSelect.id,
-            role: 'system',
-            content: 'Chat history loaded'
-          }
-        });
       }
     }
   }
