@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
 import { createGraph, deleteGraph, clearAll, loadGraph } from '../store/slices/graphSlice';
-import { setTheme } from '../store/slices/uiSlice';
-import type { Theme } from '../store/types';
+import { openSettings } from '../store/slices/uiSlice';
+import SettingsPanel from './SettingsPanel';
 
 const NavigationPanel: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -36,7 +36,7 @@ const NavigationPanel: React.FC = () => {
 
   const graphs = useAppSelector(state => state.graph.graphs);
   const currentGraph = useAppSelector(state => state.graph.currentGraph);
-  const currentTheme = useAppSelector(state => state.ui.theme);
+  const settingsOpen = useAppSelector(state => state.ui.settingsOpen);
   const loading = useAppSelector(state => state.ui.loading);
   const [newGraphTitle, setNewGraphTitle] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -80,7 +80,7 @@ const NavigationPanel: React.FC = () => {
           <div className="title-text">kgraph</div>
           <button 
             className="settings-button"
-            onClick={() => setShowSettings(!showSettings)}
+            onClick={() => dispatch(openSettings())}
           >
             ⋮
           </button>
@@ -169,36 +169,11 @@ const NavigationPanel: React.FC = () => {
           {showConfirmClear ? 'Confirm Clear All Data' : 'Clear All Data'}
         </button>
 
-        {showSettings && (
-          <div className="settings-panel" style={{ marginTop: '16px', padding: '16px', backgroundColor: 'var(--panel-background)' }}>
-            <h3 style={{ marginBottom: '16px' }}>Settings</h3>
-            <div className="input-group">
-              <label>Theme</label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button
-                  className={`button ${currentTheme === 'light' ? 'button-primary' : 'button-secondary'}`}
-                  onClick={() => dispatch(setTheme('light'))}
-                >
-                  Light
-                </button>
-                <button
-                  className={`button ${currentTheme === 'dark' ? 'button-primary' : 'button-secondary'}`}
-                  onClick={() => dispatch(setTheme('dark'))}
-                >
-                  Dark
-                </button>
-                <button
-                  className="button button-secondary"
-                  onClick={() => {
-                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    dispatch(setTheme(prefersDark ? 'dark' : 'light'));
-                  }}
-                >
-                  System
-                </button>
-              </div>
-            </div>
-          </div>
+        {settingsOpen && (
+          <>
+            <div className="settings-overlay" />
+            <SettingsPanel />
+          </>
         )}
       </div>
     </div>
