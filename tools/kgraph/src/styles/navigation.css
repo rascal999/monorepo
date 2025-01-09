@@ -60,6 +60,19 @@
   border-bottom: 1px solid var(--border-color);
 }
 
+.navigation-panel .header input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.navigation-panel .header .input-group {
+  margin-bottom: 8px;
+}
+
+.navigation-panel .header .input-group:last-child {
+  margin-bottom: 0;
+}
+
 .navigation-panel .graph-list {
   flex: 1;
   padding: 16px;
