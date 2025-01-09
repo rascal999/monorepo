@@ -8,6 +8,7 @@ import { useCytoscape } from '../hooks/useCytoscape';
 import { useNodeSelection } from '../hooks/useNodeSelection';
 import { useViewport } from '../hooks/useViewport';
 import { useGraphData } from '../hooks/useGraphData';
+import { useNodeContextMenu } from '../hooks/useNodeContextMenu';
 
 interface GraphToolbarProps {
   currentGraph: Graph | null;
@@ -40,8 +41,11 @@ const GraphPanel: FC<{}> = (): JSX.Element => {
     });
   }, [currentGraph]);
 
+  // Set up context menu
+  const handleContextMenu = useNodeContextMenu();
+
   // Initialize Cytoscape
-  useCytoscape(containerRef, cyRef);
+  useCytoscape(containerRef, cyRef, handleContextMenu);
 
   // Set up node selection handling
   useNodeSelection(cyRef, currentGraphRef, selectedNode);

@@ -1,10 +1,14 @@
 import { useEffect, RefObject, MutableRefObject } from 'react';
 import cytoscape from 'cytoscape';
 import { GraphStyles } from '../components/graph/GraphStyles';
+import { NodeSingular } from 'cytoscape';
+
+type ContextMenuHandler = (node: NodeSingular, event: MouseEvent) => void;
 
 export const useCytoscape = (
   containerRef: RefObject<HTMLDivElement>,
-  cyRef: MutableRefObject<cytoscape.Core | null>
+  cyRef: MutableRefObject<cytoscape.Core | null>,
+  onContextMenu?: ContextMenuHandler
 ) => {
   useEffect(() => {
     if (!containerRef.current) return;
@@ -19,7 +23,7 @@ export const useCytoscape = (
       },
       userPanningEnabled: true,
       userZoomingEnabled: true,
-      wheelSensitivity: 0.2, // Reduced from default 1.0 for finer zoom control
+      wheelSensitivity: 0.2,
       boxSelectionEnabled: false,
       autoungrabify: false,
       autounselectify: true
@@ -27,8 +31,16 @@ export const useCytoscape = (
 
     cyRef.current = cy;
 
+    // Add right-click handler for nodes
+    if (onContextMenu) {
+      cy.on('cxttap', 'node', (event) => {
+        const node = event.target;
+        onContextMenu(node, event.originalEvent as MouseEvent);
+      });
+    }
+
     return () => {
       cy.destroy();
     };
-  }, []);
+  }, [onContextMenu]);
 };
