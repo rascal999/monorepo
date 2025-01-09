@@ -1,0 +1,62 @@
+/* Node Context Menu */
+.node-context-menu {
+  position: fixed;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.node-context-menu .menu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 2px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.node-context-menu .menu-item:hover {
+  background-color: var(--panel-background);
+}
+
+.node-context-menu .menu-item.active {
+  background-color: var(--panel-background);
+}
+
+.node-context-menu .color-preview {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  border: 2px solid;
+}
+
+/* Color previews for each color option */
+.node-context-menu .color-preview.blue {
+  background: linear-gradient(to bottom, #E3F2FD, #BBDEFB);
+  border-color: #1976D2;
+}
+
+.node-context-menu .color-preview.green {
+  background: linear-gradient(to bottom, #E8F5E9, #C8E6C9);
+  border-color: #388E3C;
+}
+
+.node-context-menu .color-preview.purple {
+  background: linear-gradient(to bottom, #F3E5F5, #E1BEE7);
+  border-color: #7B1FA2;
+}
+
+.node-context-menu .color-preview.orange {
+  background: linear-gradient(to bottom, #FFF3E0, #FFE0B2);
+  border-color: #F57C00;
+}
+
+.node-context-menu .color-preview.gray {
+  background: linear-gradient(to bottom, #F5F5F5, #E0E0E0);
+  border-color: #616161;
+}

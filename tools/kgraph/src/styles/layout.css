@@ -1,0 +1,35 @@
+.app {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panels-container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+/* Common resize handle styles */
+.resize-handle {
+  position: absolute;
+  width: 16px;
+  cursor: col-resize;
+  background: transparent;
+  z-index: 10;
+  top: 0;
+  bottom: 0;
+}
+
+.resize-handle:hover {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    transparent 40%, 
+    var(--primary-color) 40%,
+    var(--primary-color) 60%,
+    transparent 60%
+  );
+  opacity: 0.3;
+}
