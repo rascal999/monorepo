@@ -203,7 +203,7 @@ function* handleWordNodeCreationWithEdge(action: PayloadAction<{
     yield new Promise(resolve => setTimeout(resolve, 100));
 
     // Create the prompt with graph context
-    const content = `You are a knowledgeable assistant. This is part of a knowledge graph titled "${graph.title}". Please provide a clear and concise definition (1-2 sentences) of: ${action.payload.word}`;
+    const content = `You are a knowledgeable assistant. This is part of a knowledge graph titled "${graph.title}". Please provide a clear and concise definition of: ${action.payload.word}`;
 
     // Add user message
     yield put(addMessage({
@@ -216,6 +216,9 @@ function* handleWordNodeCreationWithEdge(action: PayloadAction<{
       nodeId: action.payload.nodeId,
       word: action.payload.word
     });
+
+    // Start streaming state for definition request
+    yield put({ type: 'chat/startStreaming', payload: { nodeId: action.payload.nodeId } });
 
     // Trigger OpenRouter query
     yield put({
