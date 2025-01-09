@@ -28,16 +28,7 @@ const SettingsPanel: React.FC = () => {
   return (
     <div className="settings-panel">
       <div className="settings-header">
-        <h2>Settings</h2>
-        <button 
-          className="close-button"
-          onClick={() => dispatch(closeSettings())}
-        >
-          ×
-        </button>
-      </div>
-
-      <div className="settings-tabs">
+        <div className="settings-tabs">
         <button 
           className={`tab ${currentTab === 'general' ? 'active' : ''}`}
           onClick={() => dispatch(setSettingsTab('general'))}
@@ -49,6 +40,13 @@ const SettingsPanel: React.FC = () => {
           onClick={() => dispatch(setSettingsTab('ai'))}
         >
           AI
+        </button>
+        </div>
+        <button 
+          className="close-button"
+          onClick={() => dispatch(closeSettings())}
+        >
+          ×
         </button>
       </div>
 
