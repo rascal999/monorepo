@@ -246,7 +246,6 @@ const graphSlice = createSlice<GraphState, {
       nodeId: string;
       changes: Partial<Node>;
     }>) => {
-
       if (!state.currentGraph) {
         console.warn('graphSlice: No current graph');
         return;
@@ -272,8 +271,7 @@ const graphSlice = createSlice<GraphState, {
         ...action.payload.changes,
         properties: {
           ...currentNode.properties,
-          ...(action.payload.changes.properties || {}),
-          chatHistory: action.payload.changes.properties?.chatHistory || currentNode.properties.chatHistory
+          ...(action.payload.changes.properties || {})
         }
       };
 

@@ -1,19 +1,27 @@
+import { ColorOption } from '../components/graph/GraphStyles';
+
 export interface Viewport {
   zoom: number;
   position: { x: number; y: number };
+}
+
+export interface NodeProperties {
+  chatHistory?: Array<{
+    role: 'user' | 'assistant';
+    content: string;
+  }>;
+  gradient?: string;
+  border?: string;
+  text?: string;
+  color?: ColorOption;
+  [key: string]: any;
 }
 
 export interface Node {
   id: string;
   label: string;
   position: { x: number; y: number };
-  properties: {
-    chatHistory?: Array<{
-      role: 'user' | 'assistant';
-      content: string;
-    }>;
-    [key: string]: any;
-  };
+  properties: NodeProperties;
 }
 
 export interface Edge {
