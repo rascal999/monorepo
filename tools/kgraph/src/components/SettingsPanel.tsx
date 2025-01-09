@@ -1,20 +1,28 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
-import { setTheme, setAIModel, closeSettings, type AIModel } from '../store/slices/uiSlice';
+import { setTheme, setAIModel, closeSettings, setModelSearchQuery, fetchModelsStart } from '../store/slices/uiSlice';
 import type { Theme } from '../store/types';
 
 const SettingsPanel: React.FC = () => {
   const dispatch = useAppDispatch();
   const currentTheme = useAppSelector(state => state.ui.theme);
-  const currentModel = useAppSelector(state => state.ui.aiModel);
+  const selectedModel = useAppSelector(state => state.ui.selectedModel);
+  const aiModels = useAppSelector(state => state.ui.aiModels);
+  const searchQuery = useAppSelector(state => state.ui.modelSearchQuery);
   const currentTab = useAppSelector(state => state.ui.settingsTab);
+  const modelsLoading = useAppSelector(state => state.ui.modelsLoading);
+  const modelsError = useAppSelector(state => state.ui.modelsError);
+
+  useEffect(() => {
+    dispatch(fetchModelsStart());
+  }, [dispatch]);
 
   const handleThemeChange = (theme: Theme) => {
     dispatch(setTheme(theme));
   };
 
-  const handleModelChange = (model: AIModel) => {
-    dispatch(setAIModel(model));
+  const handleModelChange = (modelId: string) => {
+    dispatch(setAIModel(modelId));
   };
 
   return (
@@ -69,26 +77,45 @@ const SettingsPanel: React.FC = () => {
 
             <div className="setting-group">
               <h3>AI Model</h3>
-              <div className="model-buttons">
-                <button
-                  className={`button ${currentModel === 'gpt-3.5-turbo' ? 'button-primary' : 'button-secondary'}`}
-                  onClick={() => handleModelChange('gpt-3.5-turbo')}
-                >
-                  GPT-3.5 Turbo
-                </button>
-                <button
-                  className={`button ${currentModel === 'gpt-4' ? 'button-primary' : 'button-secondary'}`}
-                  onClick={() => handleModelChange('gpt-4')}
-                >
-                  GPT-4
-                </button>
-                <button
-                  className={`button ${currentModel === 'claude-2' ? 'button-primary' : 'button-secondary'}`}
-                  onClick={() => handleModelChange('claude-2')}
-                >
-                  Claude 2
-                </button>
+              <div className="model-search">
+                <input
+                  type="text"
+                  placeholder="Search models..."
+                  value={searchQuery}
+                  onChange={(e) => dispatch(setModelSearchQuery(e.target.value))}
+                  className="search-input"
+                />
               </div>
+              {modelsLoading ? (
+                <div className="model-loading">Loading available models...</div>
+              ) : modelsError ? (
+                <div className="model-error">Error: {modelsError}</div>
+              ) : (
+                <div className="model-list">
+                  {aiModels
+                    .filter(model => 
+                      model.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      model.provider.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                    .map(model => (
+                      <button
+                        key={model.id}
+                        className={`model-item ${selectedModel === model.id ? 'selected' : ''}`}
+                        onClick={() => handleModelChange(model.id)}
+                      >
+                        <div className="model-info">
+                          <span className="model-name">{model.name}</span>
+                          <span className="model-provider">{model.provider}</span>
+                        </div>
+                        {model.context_length && (
+                          <span className="model-context">
+                            {model.context_length.toLocaleString()} tokens
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                </div>
+              )}
             </div>
           </div>
         )}
