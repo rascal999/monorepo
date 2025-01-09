@@ -172,9 +172,9 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow: hidden;
   min-width: 300px;
   max-width: 800px;
+  height: 100%;
 }
 
 /* Resize handle */
@@ -219,7 +219,7 @@
 }
 
 .node-properties-panel .content {
-  flex: 1;
+  flex: 1 1 auto;
   width: 100%;
   box-sizing: border-box;
   display: flex;
@@ -229,11 +229,12 @@
 }
 
 .chat-content {
-  flex: 1;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   padding: 0;
+  position: relative;
 }
 
 .properties-content {
@@ -311,10 +312,10 @@ input:focus, textarea:focus {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  flex: 1;
+  flex: 1 1 auto;
   overflow-y: auto;
   padding: 16px;
-  margin-bottom: 64px; /* Space for chat input */
+  min-height: 0;
 }
 
 .chat-message {
@@ -358,6 +359,8 @@ input:focus, textarea:focus {
   position: sticky;
   bottom: 0;
   background-color: var(--panel-background);
+  flex-shrink: 0; /* Prevent input from shrinking */
+  z-index: 1; /* Ensure input stays above messages */
 }
 
 .chat-input input {

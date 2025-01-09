@@ -43,9 +43,7 @@ function* handleChatMessage(action: PayloadAction<{
   const changes = {
     properties: {
       ...node.properties,
-      chatHistory: message.role === 'user' && chatHistory.length === 0 
-        ? [message] // Keep first user message in history but don't display it
-        : [...chatHistory, message]
+      chatHistory: [...chatHistory, message]
     }
   };
 
