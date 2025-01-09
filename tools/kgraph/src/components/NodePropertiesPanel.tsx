@@ -225,7 +225,7 @@ const NodePropertiesPanel: React.FC = () => {
         ) : (
           <div className="chat-content">
             <div className="chat-messages">
-              {chatHistory.map((message: ChatMessage, index: number) => (
+              {chatHistory.slice(1).map((message: ChatMessage, index: number) => (
                 <div
                   key={index}
                   className={`chat-message ${message.role}`}
