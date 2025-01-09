@@ -21,6 +21,8 @@ General:
   - General tab: Theme settings
   - AI tab: Model selection and configuration
     * Selected model shown at top of list with subtle green background
+    * Remaining models sorted alphabetically by name
+    * Each model displays its context size in a concise format (e.g., 32k tokens)
   - About tab: Project information and links
 
 Navigation panel (left panel):
