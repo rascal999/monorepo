@@ -11,6 +11,9 @@ Global Context:
 - currentGraph: Currently open graph data
 - selectedNode: Currently selected node
 - error: Error message if any
+- ui:
+  * selectedModel: Currently selected AI model
+  * theme: Current theme setting
 
 States and Transitions:
 
@@ -161,19 +164,19 @@ States and Transitions:
 
 8. settings_open
    Entry: 
-   - Load settings
+   - Load settings from localStorage
    - Initialize with General tab
    States:
    
    a. general_tab
       Entry: Display theme and AI model settings
       Transitions:
-      - CHANGE_THEME → general_tab (updates theme)
-      - CHANGE_AI_MODEL → general_tab (updates AI model)
+      - CHANGE_THEME → general_tab (updates theme and persists to localStorage)
+      - CHANGE_AI_MODEL → general_tab (updates AI model and persists to localStorage)
       - CLOSE → app_idle
       - ERROR → error
 
-   Exit: Save settings to localStorage
+   Exit: Ensure settings are saved to localStorage
 
 9. error
    Entry: Logs context and sets error

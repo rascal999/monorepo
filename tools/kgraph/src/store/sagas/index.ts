@@ -12,13 +12,15 @@ import type { Graph, Node } from '../types';
 const getState = (state: { 
   graph: { graphs: Graph[]; currentGraph: Graph | null }; 
   node: { selectedNode: any }; 
-  ui: { error: string | null; loading: any }; 
+  ui: { error: string | null; loading: any; selectedModel: string; theme: string }; 
 }) => ({
   graphs: state.graph.graphs,
   currentGraph: state.graph.currentGraph,
   selectedNode: state.node.selectedNode,
   error: state.ui.error,
-  loading: state.ui.loading
+  loading: state.ui.loading,
+  selectedModel: state.ui.selectedModel,
+  theme: state.ui.theme
 });
 
 // Local Storage
@@ -27,7 +29,11 @@ function* saveToLocalStorage(): Generator {
     const state = yield select(getState);
     yield call([localStorage, 'setItem'], 'kgraph', JSON.stringify({
       graphs: state.graphs,
-      currentGraph: state.currentGraph
+      currentGraph: state.currentGraph,
+      ui: {
+        selectedModel: state.selectedModel,
+        theme: state.theme
+      }
     }));
   } catch (error) {
     yield put(setError('Failed to save to localStorage'));
@@ -39,7 +45,21 @@ function* loadFromLocalStorage(): Generator {
     const data = yield call([localStorage, 'getItem'], 'kgraph');
     if (data) {
       const parsed = JSON.parse(data);
-      yield put(restoreState(parsed));
+      // Restore graph state
+      yield put(restoreState({
+        graphs: parsed.graphs,
+        currentGraph: parsed.currentGraph
+      }));
+
+      // Restore UI state if it exists
+      if (parsed.ui) {
+        if (parsed.ui.selectedModel) {
+          yield put({ type: 'ui/setAIModel', payload: parsed.ui.selectedModel });
+        }
+        if (parsed.ui.theme) {
+          yield put({ type: 'ui/setTheme', payload: parsed.ui.theme });
+        }
+      }
 
       // After state restoration, select appropriate node if there's a current graph
       if (parsed.currentGraph) {
@@ -118,16 +138,18 @@ function* handleSendMessage(action: PayloadAction<{ nodeId: string; content: str
     yield put(clearError());
     console.log('Sending message to OpenRouter:', action.payload.content);
     
-    const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-    const model = import.meta.env.VITE_OPENROUTER_MODEL || 'mistralai/mistral-7b-instruct';
+    const apiState = yield select((state) => ({
+      apiKey: import.meta.env.VITE_OPENROUTER_API_KEY,
+      selectedModel: state.ui.selectedModel
+    }));
 
-    if (!apiKey) {
+    if (!apiState.apiKey) {
       throw new Error('OpenRouter API key not found. Please set VITE_OPENROUTER_API_KEY in .env');
     }
 
     // Get current graph and determine if this is not the first node
-    const state = yield select(getState);
-    const currentGraph = state.currentGraph;
+    const graphState = yield select(getState);
+    const currentGraph = graphState.currentGraph;
     const isNotFirstNode = currentGraph && currentGraph.nodes[0].id !== action.payload.nodeId;
     
     // Construct context message
@@ -140,12 +162,12 @@ function* handleSendMessage(action: PayloadAction<{ nodeId: string; content: str
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${apiState.apiKey}`,
         'HTTP-Referer': window.location.origin,
         'X-Title': 'Knowledge Graph AI',
       },
       body: JSON.stringify({
-        model: model,
+        model: apiState.selectedModel,
         messages: [
           {
             role: 'system',
@@ -268,7 +290,9 @@ export default function* rootSaga(): Generator {
         'node/moveNode',
         'node/connectNodes',
         'node/deleteNode',
-        'node/createWordNode'
+        'node/createWordNode',
+        'ui/setAIModel',
+        'ui/setTheme'
       ], handleStateChange),
       
       // Chat
