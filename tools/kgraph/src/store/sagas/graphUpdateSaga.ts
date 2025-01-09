@@ -5,6 +5,7 @@ import { addNode, addEdge, updateNodePosition } from '../slices/graphSlice';
 import { addMessage } from '../slices/chatSlice';
 import { REHYDRATE } from 'redux-persist';
 import cytoscape from 'cytoscape';
+import { defaultColors } from '../../components/graph/GraphStyles';
 
 // Selector to get current graph
 const getCurrentGraph = (state: { graph: { currentGraph: Graph | null } }) => state.graph.currentGraph;
@@ -43,6 +44,9 @@ function* handleNodeCreation(action: PayloadAction<{
   const graph: Graph | null = yield select(getCurrentGraph);
   if (!graph || graph.id !== action.payload.graphId) return;
 
+  // Get default color scheme
+  const scheme = defaultColors.blue;
+
   // Update graph visualization
   const cyElement = document.querySelector('.cytoscape-container');
   if (!cyElement) return;
@@ -54,7 +58,14 @@ function* handleNodeCreation(action: PayloadAction<{
     group: 'nodes',
     data: { 
       id: action.payload.nodeId,
-      label: action.payload.label
+      label: action.payload.label,
+      properties: {
+        chatHistory: [],
+        gradient: scheme.gradient,
+        border: scheme.border,
+        text: scheme.text,
+        color: 'blue'
+      }
     },
     position: action.payload.position
   });
@@ -104,8 +115,16 @@ function* handleNodeEdit(action: PayloadAction<{
   if (!cy) return;
 
   const node = cy.$(`node[id="${action.payload.id}"]`);
-  if (node.length > 0 && action.payload.changes.label) {
-    node.data('label', action.payload.changes.label);
+  if (node.length > 0) {
+    if (action.payload.changes.label) {
+      node.data('label', action.payload.changes.label);
+    }
+    if (action.payload.changes.properties) {
+      node.data('properties', {
+        ...node.data('properties'),
+        ...action.payload.changes.properties
+      });
+    }
   }
 }
 
@@ -168,6 +187,9 @@ function* handleWordNodeCreationWithEdge(action: PayloadAction<{
   });
 
   try {
+    // Get default color scheme
+    const scheme = defaultColors.blue;
+
     // Update graph state - visualization will be handled by React
     yield put(addNode({
       graphId: graph.id,
@@ -176,7 +198,11 @@ function* handleWordNodeCreationWithEdge(action: PayloadAction<{
         label: action.payload.word,
         position: action.payload.position,
         properties: {
-          chatHistory: []
+          chatHistory: [],
+          gradient: scheme.gradient,
+          border: scheme.border,
+          text: scheme.text,
+          color: 'blue'
         }
       }
     }));

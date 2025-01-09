@@ -2,8 +2,9 @@ import { useEffect, RefObject, MutableRefObject } from 'react';
 import cytoscape from 'cytoscape';
 import { useAppDispatch } from '../store';
 import { selectNode } from '../store/slices/nodeSlice';
-import { updateGraphViewport, updateNodePosition } from '../store/slices/graphSlice';
-import type { Node, Graph } from '../store/types';
+import { updateGraphViewport, updateNodePosition, updateNodeInGraph } from '../store/slices/graphSlice';
+import type { Node, Graph, NodeProperties } from '../store/types';
+import { defaultColors } from '../components/graph/GraphStyles';
 
 export const useGraphData = (
   cyRef: RefObject<cytoscape.Core | null>,
@@ -31,11 +32,35 @@ export const useGraphData = (
       // Add nodes
       currentGraph.nodes.forEach((node: Node) => {
         if (!cy) return;
+
+        // Initialize or update node properties
+        let properties = node.properties || {};
+        if (!properties.color || !properties.gradient || !properties.border || !properties.text) {
+          const scheme = defaultColors.blue;
+          properties = {
+            ...properties,
+            chatHistory: properties.chatHistory || [],
+            gradient: scheme.gradient,
+            border: scheme.border,
+            text: scheme.text,
+            color: 'blue'
+          };
+
+          // Update node in Redux store
+          dispatch(updateNodeInGraph({
+            nodeId: node.id,
+            changes: {
+              properties
+            }
+          }));
+        }
+
         cy.add({
           group: 'nodes',
           data: { 
             id: node.id,
-            label: node.label
+            label: node.label,
+            properties
           },
           position: { 
             x: node.position.x,
