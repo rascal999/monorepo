@@ -3,7 +3,6 @@ import type { Theme } from '../types';
 
 export interface UIState {
   theme: Theme;
-  panelWidth: number;
   loading: {
     graphId: string | null;
     status: boolean;
@@ -13,7 +12,6 @@ export interface UIState {
 
 const initialState: UIState = {
   theme: 'light',
-  panelWidth: 400,
   loading: {
     graphId: null,
     status: false
@@ -28,9 +26,6 @@ const uiSlice = createSlice({
     setTheme: (state, action: PayloadAction<Theme>) => {
       state.theme = action.payload;
       document.documentElement.setAttribute('data-theme', action.payload);
-    },
-    updatePanelWidth: (state, action: PayloadAction<number>) => {
-      state.panelWidth = action.payload;
     },
     setLoading: (state, action: PayloadAction<string>) => {
       state.loading = {
@@ -55,7 +50,6 @@ const uiSlice = createSlice({
 
 export const {
   setTheme,
-  updatePanelWidth,
   setLoading,
   clearLoading,
   setError,

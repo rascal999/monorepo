@@ -1,8 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
 import { editNode, createWordNode } from '../store/slices/nodeSlice';
 import { addMessage } from '../store/slices/chatSlice';
-import { updatePanelWidth } from '../store/slices/uiSlice';
 import type { Node } from '../store/types';
 
 type ChatMessage = {
@@ -33,39 +32,32 @@ const NodePropertiesPanel: React.FC = () => {
       return node?.properties.chatHistory || [];
     }, [])
   );
-  const panelWidth = useAppSelector(state => state.ui.panelWidth);
+  const [width, setWidth] = useState(400);
   const [activeTab, setActiveTab] = useState<Tab>('chat');
   const [chatInput, setChatInput] = useState('');
-  const [isResizing, setIsResizing] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    setIsResizing(true);
     e.preventDefault();
-  }, []);
+    const startX = e.pageX;
+    const startWidth = width;
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isResizing) return;
-    
-    const newWidth = window.innerWidth - e.clientX;
-    // Limit minimum and maximum width
-    const clampedWidth = Math.min(Math.max(newWidth, 300), 800);
-    dispatch(updatePanelWidth(clampedWidth));
-  }, [isResizing, dispatch]);
-
-  const handleMouseUp = useCallback(() => {
-    setIsResizing(false);
-  }, []);
-
-  React.useEffect(() => {
-    if (isResizing) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+    const handleMouseMove = (e: MouseEvent) => {
+      requestAnimationFrame(() => {
+        const diff = startX - e.pageX;
+        const newWidth = Math.min(Math.max(startWidth + diff, 300), 800);
+        setWidth(newWidth);
+      });
     };
-  }, [isResizing, handleMouseMove, handleMouseUp]);
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }, [width]);
 
   // Handle property changes
   const handlePropertyChange = (key: string, value: string) => {
@@ -150,11 +142,8 @@ const NodePropertiesPanel: React.FC = () => {
 
   if (!selectedNode) {
     return (
-      <div className="node-properties-panel" style={{ width: panelWidth }}>
-        <div 
-          className={`resize-handle ${isResizing ? 'resizing' : ''}`}
-          onMouseDown={handleMouseDown}
-        />
+      <div ref={panelRef} className="node-properties-panel" style={{ width }}>
+        <div className="resize-handle" onMouseDown={handleMouseDown} />
         <div className="content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <p style={{ color: 'var(--text-secondary)' }}>Select a node to view properties</p>
         </div>
@@ -163,11 +152,8 @@ const NodePropertiesPanel: React.FC = () => {
   }
 
   return (
-    <div className="node-properties-panel" style={{ width: panelWidth }}>
-      <div 
-        className={`resize-handle ${isResizing ? 'resizing' : ''}`}
-        onMouseDown={handleMouseDown}
-      />
+    <div ref={panelRef} className="node-properties-panel" style={{ width }}>
+      <div className="resize-handle" onMouseDown={handleMouseDown} />
       <div className="tabs">
         <button
           className={`tab ${activeTab === 'chat' ? 'active' : ''}`}
