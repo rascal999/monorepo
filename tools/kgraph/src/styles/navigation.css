@@ -1,0 +1,71 @@
+/* Navigation Panel (Left) */
+.navigation-panel {
+  flex: 0 0 auto;
+  width: 250px;
+  min-width: 150px;
+  max-width: 250px;
+  background-color: var(--panel-background);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  position: relative;
+}
+
+.nav-title {
+  padding: 16px;
+  font-size: 1.2em;
+  font-weight: bold;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.title-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title-text {
+  font-weight: bold;
+}
+
+.title-text::first-letter {
+  font-style: italic;
+  color: red;
+}
+
+.settings-button {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.2em;
+  padding: 0 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+}
+
+.settings-button:hover {
+  opacity: 1;
+}
+
+/* Navigation panel resize handle */
+.navigation-panel .resize-handle {
+  right: -8px;
+}
+
+.navigation-panel .header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.navigation-panel .graph-list {
+  flex: 1;
+  padding: 16px;
+}
+
+.navigation-panel .actions {
+  padding: 16px;
+  border-top: 1px solid var(--border-color);
+}

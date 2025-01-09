@@ -1,0 +1,50 @@
+/* Node Properties Panel (Right) */
+.node-properties-panel {
+  flex: 0 0 auto;
+  background-color: var(--panel-background);
+  border-left: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-width: 300px;
+  max-width: 800px;
+  height: 100%;
+}
+
+/* Properties panel resize handle */
+.node-properties-panel .resize-handle {
+  left: -8px;
+}
+
+.node-properties-panel .tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.node-properties-panel .tab {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  color: var(--text-secondary);
+  border-bottom: 2px solid transparent;
+}
+
+.node-properties-panel .tab.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.node-properties-panel .content {
+  flex: 1 1 auto;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.properties-content {
+  padding: 16px;
+  overflow-y: auto;
+}
