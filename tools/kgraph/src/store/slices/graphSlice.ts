@@ -20,11 +20,37 @@ const initialState: GraphState = {
   meta: {}
 };
 
-const graphSlice = createSlice({
+const graphSlice = createSlice<GraphState, {
+  rehydrateComplete: (state: GraphState, action: PayloadAction<GraphState>) => void;
+  restoreState: (state: GraphState, action: PayloadAction<Partial<GraphState>>) => void;
+  loadGraphSuccess: (state: GraphState, action: PayloadAction<Graph>) => void;
+  createGraph: {
+    reducer: (state: GraphState, action: PayloadAction<{ title: string; id: string }>) => void;
+    prepare: (params: { title: string }) => { payload: { title: string; id: string } };
+  };
+  addNode: (state: GraphState, action: PayloadAction<{ graphId: string; node: Node }>) => void;
+  addEdge: (state: GraphState, action: PayloadAction<{
+    source: string;
+    target: string;
+    label?: string;
+    graphId: string;
+  }>) => void;
+  deleteGraph: (state: GraphState, action: PayloadAction<string>) => void;
+  clearAll: (state: GraphState) => void;
+  updateGraphViewport: (state: GraphState, action: PayloadAction<Partial<Viewport>>) => void;
+  updateNodeInGraph: (state: GraphState, action: PayloadAction<{
+    nodeId: string;
+    changes: Partial<Node>;
+  }>) => void;
+  updateNodePosition: (state: GraphState, action: PayloadAction<{
+    nodeId: string;
+    position: { x: number; y: number };
+  }>) => void;
+}>({
   name: 'graph',
   initialState,
   reducers: {
-    rehydrateComplete: (state, action: PayloadAction<GraphState>) => {
+    rehydrateComplete: (state: GraphState, action: PayloadAction<GraphState>) => {
       // First restore graphs array
       state.graphs = action.payload.graphs || [];
       
@@ -44,7 +70,7 @@ const graphSlice = createSlice({
       // Restore meta
       state.meta = action.payload.meta || {};
     },
-    restoreState: (state, action: PayloadAction<Partial<GraphState>>) => {
+    restoreState: (state: GraphState, action: PayloadAction<Partial<GraphState>>) => {
       if (action.payload.graphs) {
         state.graphs = action.payload.graphs;
       }
@@ -60,7 +86,7 @@ const graphSlice = createSlice({
         }
       }
     },
-    loadGraphSuccess: (state, action: PayloadAction<Graph>) => {
+    loadGraphSuccess: (state: GraphState, action: PayloadAction<Graph>) => {
       // Find the graph in the graphs array
       const graphIndex = state.graphs.findIndex(g => g.id === action.payload.id);
       if (graphIndex === -1) {
@@ -72,7 +98,7 @@ const graphSlice = createSlice({
       state.currentGraph = state.graphs[graphIndex];
     },
     createGraph: {
-      reducer: (state, action: PayloadAction<{ title: string; id: string }>) => {
+      reducer: (state: GraphState, action: PayloadAction<{ title: string; id: string }>) => {
         // Initialize viewport with zoom, position will be set by Cytoscape's center()
         const initialViewport = {
           zoom: 0.75,
@@ -101,7 +127,7 @@ const graphSlice = createSlice({
         return { payload: { ...params, id } };
       }
     },
-    addNode: (state, action: PayloadAction<{ graphId: string; node: Node }>) => {
+    addNode: (state: GraphState, action: PayloadAction<{ graphId: string; node: Node }>) => {
       const { graphId, node } = action.payload;
       
       // Find the graph in the graphs array
@@ -129,7 +155,7 @@ const graphSlice = createSlice({
         }
       }
     },
-    addEdge: (state, action: PayloadAction<{
+    addEdge: (state: GraphState, action: PayloadAction<{
       source: string;
       target: string;
       label?: string;
@@ -154,17 +180,17 @@ const graphSlice = createSlice({
       // Update currentGraph reference
       state.currentGraph = state.graphs[graphIndex];
     },
-    deleteGraph: (state, action: PayloadAction<string>) => {
+    deleteGraph: (state: GraphState, action: PayloadAction<string>) => {
       state.graphs = state.graphs.filter(g => g.id !== action.payload);
       if (state.currentGraph?.id === action.payload) {
         state.currentGraph = null;
       }
     },
-    clearAll: (state) => {
+    clearAll: (state: GraphState) => {
       state.graphs = [];
       state.currentGraph = null;
     },
-    updateGraphViewport: (state, action: PayloadAction<Partial<Viewport>>) => {
+    updateGraphViewport: (state: GraphState, action: PayloadAction<Partial<Viewport>>) => {
       if (!state.currentGraph) {
         console.warn('graphSlice: No current graph');
         return;
@@ -186,10 +212,11 @@ const graphSlice = createSlice({
       // Update currentGraph reference
       state.currentGraph = state.graphs[graphIndex];
     },
-    updateNodeInGraph: (state, action: PayloadAction<{
+    updateNodeInGraph: (state: GraphState, action: PayloadAction<{
       nodeId: string;
       changes: Partial<Node>;
     }>) => {
+
       if (!state.currentGraph) {
         console.warn('graphSlice: No current graph');
         return;
@@ -222,6 +249,35 @@ const graphSlice = createSlice({
 
       // Update in graphs array
       state.graphs[graphIndex].nodes[nodeIndex] = updatedNode;
+      
+      // Update currentGraph reference to point to the updated graph
+      state.currentGraph = state.graphs[graphIndex];
+    },
+    updateNodePosition: (state: GraphState, action: PayloadAction<{
+      nodeId: string;
+      position: { x: number; y: number };
+    }>) => {
+      if (!state.currentGraph) {
+        console.warn('graphSlice: No current graph');
+        return;
+      }
+
+      // Find the graph in the graphs array first
+      const graphIndex = state.graphs.findIndex(g => g.id === state.currentGraph!.id);
+      if (graphIndex === -1) {
+        console.warn('graphSlice: Graph not found in graphs array');
+        return;
+      }
+
+      // Update node position in graphs array
+      const nodeIndex = state.graphs[graphIndex].nodes.findIndex(n => n.id === action.payload.nodeId);
+      if (nodeIndex === -1) {
+        console.warn('graphSlice: Node not found in graph');
+        return;
+      }
+
+      // Update position
+      state.graphs[graphIndex].nodes[nodeIndex].position = action.payload.position;
       
       // Update currentGraph reference to point to the updated graph
       state.currentGraph = state.graphs[graphIndex];
@@ -263,7 +319,8 @@ export const {
   updateGraphViewport,
   addNode,
   updateNodeInGraph,
-  addEdge
+  addEdge,
+  updateNodePosition
 } = graphSlice.actions;
 
 export default graphSlice.reducer;
