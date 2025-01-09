@@ -1,7 +1,7 @@
 import { useEffect, RefObject, MutableRefObject } from 'react';
 import cytoscape from 'cytoscape';
 import { useAppDispatch } from '../store';
-import { selectNode } from '../store/slices/nodeSlice';
+import { selectNode, moveNode } from '../store/slices/nodeSlice';
 import { updateGraphViewport } from '../store/slices/graphSlice';
 import type { Node, Graph } from '../store/types';
 
@@ -93,10 +93,25 @@ export const useGraphData = (
       }
       
       isInitializing.current = false;
+
+      // Set up node movement listener - fires when drag is complete
+      cy.on('dragfree', 'node', (event) => {
+        if (!isInitializing.current) {
+          const node = event.target;
+          dispatch(moveNode({
+            id: node.id(),
+            position: node.position()
+          }));
+        }
+      });
     };
 
     // Use a timeout to ensure Redux state is settled
     const timeoutId = setTimeout(updateGraph, 100);
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      // Clean up event listeners
+      cyRef.current?.removeListener('dragfree');
+    };
   }, [currentGraph]);
 };

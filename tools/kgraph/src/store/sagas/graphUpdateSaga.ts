@@ -1,7 +1,7 @@
 import { takeEvery, select, all, put, call } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Graph, Node } from '../types';
-import { addNode, addEdge } from '../slices/graphSlice';
+import { addNode, addEdge, updateNodePosition } from '../slices/graphSlice';
 import { addMessage } from '../slices/chatSlice';
 import cytoscape from 'cytoscape';
 
@@ -76,7 +76,14 @@ function* handleNodeMovement(action: PayloadAction<{
 
   const node = cy.$(`node[id="${action.payload.id}"]`);
   if (node.length > 0) {
+    // Update Cytoscape visualization
     node.position(action.payload.position);
+    
+    // Persist the position update in Redux store
+    yield put(updateNodePosition({
+      nodeId: action.payload.id,
+      position: action.payload.position
+    }));
   }
 }
 
