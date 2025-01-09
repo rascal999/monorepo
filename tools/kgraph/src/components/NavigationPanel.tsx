@@ -59,15 +59,13 @@ const NavigationPanel: React.FC = () => {
             value={newGraphTitle}
             onChange={(e) => setNewGraphTitle(e.target.value)}
             placeholder="New graph title..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleCreateGraph();
+              }
+            }}
           />
         </div>
-        <button 
-          className="button button-primary"
-          onClick={handleCreateGraph}
-          disabled={!newGraphTitle.trim()}
-        >
-          Create New Graph
-        </button>
       </div>
 
       <div className="graph-list">
@@ -100,7 +98,10 @@ const NavigationPanel: React.FC = () => {
               )}
             </span>
             <button
-              onClick={() => handleDeleteGraph(graph.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteGraph(graph.id);
+              }}
               style={{ padding: '4px 8px' }}
             >
               ×
