@@ -38,6 +38,8 @@
 .clickable-word {
   cursor: pointer;
   transition: background-color 0.2s;
+  padding: 2px 4px;
+  border-radius: 4px;
 }
 
 /* Default highlight for assistant messages */
@@ -48,6 +50,49 @@
 /* Light highlight for user messages */
 .chat-message.user .clickable-word:hover {
   background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Selected word styles */
+.clickable-word.selected {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.chat-message.user .clickable-word.selected {
+  background-color: white;
+  color: var(--primary-color);
+}
+
+/* Selected words counter */
+.selected-words-counter {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selected-words-counter button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.selected-words-counter button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .chat-input {

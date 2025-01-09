@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
 import { editNode, createWordNode } from '../store/slices/nodeSlice';
 import { addMessage } from '../store/slices/chatSlice';
+import { addSelectedWord, removeSelectedWord, clearSelectedWords } from '../store/slices/uiSlice';
 import type { Node } from '../store/types';
 
 type ChatMessage = {
@@ -25,13 +26,15 @@ const NodePropertiesPanel: React.FC = () => {
     React.useCallback((state) => state.graph.currentGraph, [])
   );
 
-  // Track chat history and streaming state
-  const { chatHistory, streaming } = useAppSelector(
+  // Track chat history, streaming state, and selected words
+  const { chatHistory, streaming, selectedWords } = useAppSelector(
     React.useCallback((state) => ({
       chatHistory: state.node.selectedNode?.properties.chatHistory || [],
-      streaming: state.chat.streaming
+      streaming: state.chat.streaming,
+      selectedWords: state.ui.selectedWords
     }), [])
   );
+
   const [width, setWidth] = useState(400);
   const [activeTab, setActiveTab] = useState<Tab>('chat');
   const [chatInput, setChatInput] = useState('');
@@ -109,15 +112,32 @@ const NodePropertiesPanel: React.FC = () => {
   };
 
   // Handle word click
-  const handleWordClick = (word: string) => {
+  const handleWordClick = (e: React.MouseEvent, word: string) => {
     if (!selectedNode || !currentGraph) {
-      console.warn('Cannot create word node: No selected node or current graph', {
+      console.warn('Cannot handle word click: No selected node or current graph', {
         selectedNode: !!selectedNode,
         currentGraph: !!currentGraph
       });
       return;
     }
-    
+
+    // Only handle control-click
+    if (!e.ctrlKey) return;
+
+    e.preventDefault();
+
+    // Toggle word selection
+    if (selectedWords.includes(word)) {
+      dispatch(removeSelectedWord(word));
+    } else {
+      dispatch(addSelectedWord(word));
+    }
+  };
+
+  // Handle creating node from selected words
+  const handleCreateWordNode = () => {
+    if (!selectedNode || !currentGraph || selectedWords.length === 0) return;
+
     // Calculate position for new node relative to parent
     const offset = 150; // pixels
     const angle = (Math.PI * 2 * Math.random()); // random angle
@@ -125,19 +145,25 @@ const NodePropertiesPanel: React.FC = () => {
       x: selectedNode.position.x + offset * Math.cos(angle),
       y: selectedNode.position.y + offset * Math.sin(angle)
     };
+
+    const combinedWord = selectedWords.join(' ');
     
-    console.log('Creating word node', {
-      word,
+    console.log('Creating word node from selected words', {
+      words: selectedWords,
+      combined: combinedWord,
       parentNodeId: selectedNode.id,
       graphId: currentGraph.id
     });
     
     dispatch(createWordNode({
       parentNodeId: selectedNode.id,
-      word: word,
+      word: combinedWord,
       position: newPosition,
-      graphId: currentGraph.id // graphId is now required
+      graphId: currentGraph.id
     }));
+
+    // Clear selected words after creating node
+    dispatch(clearSelectedWords());
   };
 
   if (!selectedNode) {
@@ -220,8 +246,8 @@ const NodePropertiesPanel: React.FC = () => {
                     {message.content.split(/\s+/).map((word, wordIndex, words) => (
                       <React.Fragment key={wordIndex}>
                         <span
-                          className="clickable-word"
-                          onClick={() => handleWordClick(word)}
+                          className={`clickable-word ${selectedWords.includes(word) ? 'selected' : ''}`}
+                          onClick={(e) => handleWordClick(e, word)}
                         >
                           {word}
                         </span>
@@ -234,7 +260,10 @@ const NodePropertiesPanel: React.FC = () => {
                   <div className="chat-message assistant streaming">
                     {streaming.currentResponse.split(/\s+/).map((word, wordIndex, words) => (
                       <React.Fragment key={wordIndex}>
-                        <span className="clickable-word">
+                        <span 
+                          className={`clickable-word ${selectedWords.includes(word) ? 'selected' : ''}`}
+                          onClick={(e) => handleWordClick(e, word)}
+                        >
                           {word}
                         </span>
                         {wordIndex < words.length - 1 ? ' ' : ''}
@@ -273,6 +302,15 @@ const NodePropertiesPanel: React.FC = () => {
           </>
         )}
       </div>
+
+      {/* Selected words counter */}
+      {selectedWords.length > 0 && (
+        <div className="selected-words-counter">
+          <span>{selectedWords.length} word{selectedWords.length !== 1 ? 's' : ''} selected</span>
+          <button onClick={handleCreateWordNode}>Create Node</button>
+          <button onClick={() => dispatch(clearSelectedWords())}>Clear</button>
+        </div>
+      )}
     </div>
   );
 };
