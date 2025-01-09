@@ -39,7 +39,11 @@ Graph panel (centre panel):
 * Node sizes automatically adjust to fit their text content with padding
 * When new graph created, first node is title of new graph
 * First node is centered once when graph is created, otherwise viewport state is restored
-* Last focused node is selected
+* Node focus behavior:
+  - Last focused node is persisted in graph state
+  - On graph load, restores focus to last focused node
+  - If no last focused node exists, focuses first node
+  - Focus state persists across page reloads
 * Import / export buttons
 
 Node properties panel (right panel):
