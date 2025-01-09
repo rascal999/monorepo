@@ -8,15 +8,58 @@ interface ChatMessage {
 }
 
 export interface ChatState {
-  // No local state needed as chat history is stored in node properties
+  streaming: {
+    nodeId: string | null;
+    inProgress: boolean;
+    error: string | null;
+    currentResponse: string;
+  };
 }
 
-const initialState: ChatState = {};
+const initialState: ChatState = {
+  streaming: {
+    nodeId: null,
+    inProgress: false,
+    error: null,
+    currentResponse: ''
+  }
+};
 
 const chatSlice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
+    startStreaming: (state, action: PayloadAction<{ nodeId: string }>) => {
+      state.streaming = {
+        nodeId: action.payload.nodeId,
+        inProgress: true,
+        error: null,
+        currentResponse: ''
+      };
+    },
+    appendStreamChunk: (state, action: PayloadAction<{
+      nodeId: string;
+      content: string;
+    }>) => {
+      if (state.streaming.nodeId === action.payload.nodeId) {
+        state.streaming.currentResponse += action.payload.content;
+      }
+    },
+    endStreaming: (state) => {
+      state.streaming = {
+        nodeId: null,
+        inProgress: false,
+        error: null,
+        currentResponse: ''
+      };
+    },
+    setStreamingError: (state, action: PayloadAction<string>) => {
+      state.streaming = {
+        ...state.streaming,
+        inProgress: false,
+        error: action.payload
+      };
+    },
     addMessage: {
       reducer: (state, action: PayloadAction<{
         nodeId: string;
@@ -42,7 +85,11 @@ const chatSlice = createSlice({
 });
 
 export const {
-  addMessage
+  addMessage,
+  startStreaming,
+  appendStreamChunk,
+  endStreaming,
+  setStreamingError
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

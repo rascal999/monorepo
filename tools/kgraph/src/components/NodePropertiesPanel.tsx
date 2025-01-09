@@ -25,12 +25,12 @@ const NodePropertiesPanel: React.FC = () => {
     React.useCallback((state) => state.graph.currentGraph, [])
   );
 
-  // Track chat history separately to force re-render on changes
-  const chatHistory = useAppSelector(
-    React.useCallback((state) => {
-      const node = state.node.selectedNode;
-      return node?.properties.chatHistory || [];
-    }, [])
+  // Track chat history and streaming state
+  const { chatHistory, streaming } = useAppSelector(
+    React.useCallback((state) => ({
+      chatHistory: state.node.selectedNode?.properties.chatHistory || [],
+      streaming: state.chat.streaming
+    }), [])
   );
   const [width, setWidth] = useState(400);
   const [activeTab, setActiveTab] = useState<Tab>('chat');
@@ -230,6 +230,24 @@ const NodePropertiesPanel: React.FC = () => {
                     ))}
                   </div>
                 ))}
+                {streaming.inProgress && streaming.nodeId === selectedNode?.id && (
+                  <div className="chat-message assistant streaming">
+                    {streaming.currentResponse.split(/\s+/).map((word, wordIndex, words) => (
+                      <React.Fragment key={wordIndex}>
+                        <span className="clickable-word">
+                          {word}
+                        </span>
+                        {wordIndex < words.length - 1 ? ' ' : ''}
+                      </React.Fragment>
+                    ))}
+                    <span className="streaming-cursor">▋</span>
+                  </div>
+                )}
+                {streaming.error && streaming.nodeId === selectedNode?.id && (
+                  <div className="chat-message error">
+                    Error: {streaming.error}
+                  </div>
+                )}
               </div>
             </div>
             <div className="chat-input">
@@ -247,9 +265,9 @@ const NodePropertiesPanel: React.FC = () => {
               <button
                 className="button button-primary"
                 onClick={handleSendMessage}
-                disabled={!chatInput.trim()}
+                disabled={!chatInput.trim() || streaming.inProgress}
               >
-                Send
+                {streaming.inProgress ? 'Thinking...' : 'Send'}
               </button>
             </div>
           </>

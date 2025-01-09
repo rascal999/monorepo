@@ -1,8 +1,11 @@
-import { takeEvery, select, put } from 'redux-saga/effects';
+import { takeEvery, select, put, call } from 'redux-saga/effects';
 import { updateNodeChatHistory } from '../slices/nodeSlice';
 import { updateNodeInGraph } from '../slices/graphSlice';
+import { startStreaming, appendStreamChunk, endStreaming, setStreamingError } from '../slices/chatSlice';
+import { streamChatCompletion } from '../../services/openRouterApi';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Graph, Node } from '../types';
+import { store } from '../index';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -12,12 +15,56 @@ interface ChatMessage {
 // Selector to get current graph
 const getCurrentGraph = (state: { graph: { currentGraph: Graph | null } }) => state.graph.currentGraph;
 
-// Handle chat message updates
+// Handle streaming chat completion
+function* handleChatCompletion(nodeId: string, messages: ChatMessage[]): Generator<any, void, any> {
+  const selectedModel = yield select((state) => state.ui.selectedModel);
+  if (!selectedModel) {
+    yield put(setStreamingError('No model selected'));
+    return;
+  }
+
+  yield put(startStreaming({ nodeId }));
+
+  let streamContent = '';
+  try {
+    yield call(streamChatCompletion, 
+      {
+        model: selectedModel.id,
+        messages,
+        temperature: 0.7,
+        max_tokens: 2000
+      },
+      (chunk: string) => {
+        streamContent += chunk;
+        // Only dispatch the chunk for UI feedback
+        store.dispatch(appendStreamChunk({ nodeId, content: chunk }));
+      },
+      (error: Error) => {
+        store.dispatch(setStreamingError(error.message));
+      },
+      () => {
+        // Update chat history with complete message when streaming is done
+        store.dispatch(updateNodeChatHistory({
+          nodeId,
+          message: {
+            role: 'assistant',
+            content: streamContent
+          }
+        }));
+        store.dispatch(endStreaming());
+      }
+    );
+  } catch (error) {
+    yield put(setStreamingError(error instanceof Error ? error.message : 'Unknown error'));
+  }
+}
+
+// Handle chat message
 function* handleChatMessage(action: PayloadAction<{
   nodeId: string;
   role: 'user' | 'assistant';
   content: string;
-}>) {
+}>): Generator<any, void, any> {
   console.log('chatUpdateSaga: Handling chat message', action.payload);
   const graph: Graph | null = yield select(getCurrentGraph);
   console.log('chatUpdateSaga: Current graph', graph);
@@ -58,9 +105,14 @@ function* handleChatMessage(action: PayloadAction<{
     nodeId: action.payload.nodeId,
     message
   }));
+
+  // If this is a user message, trigger AI response
+  if (action.payload.role === 'user') {
+    yield call(handleChatCompletion, action.payload.nodeId, [...chatHistory, message]);
+  }
 }
 
 // Watch for chat actions
-export function* chatUpdateSaga() {
+export function* chatUpdateSaga(): Generator<any, void, any> {
   yield takeEvery('chat/addMessage', handleChatMessage);
 }
