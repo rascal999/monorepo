@@ -22,6 +22,7 @@ export interface UIState {
   error: string | null;
   settingsOpen: boolean;
   settingsTab: 'general' | 'ai' | 'about';
+  selectedWords: string[];
 }
 
 const defaultModels: AIModel[] = [
@@ -43,7 +44,8 @@ const initialState: UIState = {
   },
   error: null,
   settingsOpen: false,
-  settingsTab: 'general'
+  settingsTab: 'general',
+  selectedWords: []
 };
 
 const uiSlice = createSlice({
@@ -102,6 +104,18 @@ const uiSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    addSelectedWord: (state, action: PayloadAction<string>) => {
+      // Only add if not already selected and limit to 5 words
+      if (!state.selectedWords.includes(action.payload) && state.selectedWords.length < 5) {
+        state.selectedWords.push(action.payload);
+      }
+    },
+    removeSelectedWord: (state, action: PayloadAction<string>) => {
+      state.selectedWords = state.selectedWords.filter(word => word !== action.payload);
+    },
+    clearSelectedWords: (state) => {
+      state.selectedWords = [];
     }
   }
 });
@@ -120,7 +134,10 @@ export const {
   setLoading,
   clearLoading,
   setError,
-  clearError
+  clearError,
+  addSelectedWord,
+  removeSelectedWord,
+  clearSelectedWords
 } = uiSlice.actions;
 
 export default uiSlice.reducer;
