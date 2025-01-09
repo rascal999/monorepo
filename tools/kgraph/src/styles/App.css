@@ -62,6 +62,44 @@
   position: relative; /* For resize handle positioning */
 }
 
+.nav-title {
+  padding: 16px;
+  font-size: 1.2em;
+  font-weight: bold;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.title-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title-text {
+  font-weight: bold;
+}
+
+.title-text::first-letter {
+  font-style: italic;
+  color: red;
+}
+
+.settings-button {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.2em;
+  padding: 0 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+}
+
+.settings-button:hover {
+  opacity: 1;
+}
+
 /* Navigation panel resize handle */
 .navigation-panel .resize-handle {
   position: absolute;

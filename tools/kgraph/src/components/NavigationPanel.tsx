@@ -75,6 +75,17 @@ const NavigationPanel: React.FC = () => {
       className="navigation-panel"
       style={{ width: `${width}px` }}
     >
+      <div className="nav-title">
+        <div className="title-container">
+          <div className="title-text">kgraph</div>
+          <button 
+            className="settings-button"
+            onClick={() => setShowSettings(!showSettings)}
+          >
+            ⋮
+          </button>
+        </div>
+      </div>
       <div 
         className="resize-handle"
         onMouseDown={(e) => {
@@ -156,13 +167,6 @@ const NavigationPanel: React.FC = () => {
           style={{ width: '100%', marginBottom: '8px' }}
         >
           {showConfirmClear ? 'Confirm Clear All Data' : 'Clear All Data'}
-        </button>
-        <button 
-          className="button button-secondary"
-          onClick={() => setShowSettings(!showSettings)}
-          style={{ width: '100%' }}
-        >
-          Settings
         </button>
 
         {showSettings && (
