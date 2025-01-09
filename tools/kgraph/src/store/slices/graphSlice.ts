@@ -62,6 +62,18 @@ const graphSlice = createSlice<GraphState, {
           state.currentGraph = null;
         } else {
           state.currentGraph = state.graphs[graphIndex];
+          
+          // If there's a lastFocusedNodeId, dispatch selectNode action
+          if (state.currentGraph.lastFocusedNodeId) {
+            const node = state.currentGraph.nodes.find(n => n.id === state.currentGraph!.lastFocusedNodeId);
+            if (node) {
+              // Dispatch will happen in saga
+              console.log('graphSlice: Restoring node selection on rehydrate', {
+                nodeId: node.id,
+                graphId: state.currentGraph.id
+              });
+            }
+          }
         }
       } else {
         state.currentGraph = null;
@@ -96,6 +108,24 @@ const graphSlice = createSlice<GraphState, {
       
       // Set currentGraph to reference the graph in the array
       state.currentGraph = state.graphs[graphIndex];
+
+      // Focus last focused node if it exists
+      if (state.currentGraph.lastFocusedNodeId) {
+        const node = state.currentGraph.nodes.find(n => n.id === state.currentGraph!.lastFocusedNodeId);
+        if (node) {
+          // Dispatch will happen in saga
+          console.log('graphSlice: Restoring focus to last focused node', {
+            nodeId: node.id,
+            graphId: state.currentGraph.id
+          });
+        }
+      } else if (state.currentGraph.nodes.length > 0) {
+        // If no last focused node but graph has nodes, focus first node
+        console.log('graphSlice: No last focused node, focusing first node', {
+          nodeId: state.currentGraph.nodes[0].id,
+          graphId: state.currentGraph.id
+        });
+      }
     },
     createGraph: {
       reducer: (state: GraphState, action: PayloadAction<{ title: string; id: string }>) => {
@@ -297,6 +327,18 @@ const graphSlice = createSlice<GraphState, {
             state.currentGraph = null;
           } else {
             state.currentGraph = state.graphs[graphIndex];
+            
+            // If there's a lastFocusedNodeId, dispatch selectNode action
+            if (state.currentGraph.lastFocusedNodeId) {
+              const node = state.currentGraph.nodes.find(n => n.id === state.currentGraph!.lastFocusedNodeId);
+              if (node) {
+                // Dispatch will happen in saga
+                console.log('graphSlice: Restoring node selection on rehydrate', {
+                  nodeId: node.id,
+                  graphId: state.currentGraph.id
+                });
+              }
+            }
           }
         } else {
           state.currentGraph = null;

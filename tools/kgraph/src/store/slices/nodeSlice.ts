@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { REHYDRATE } from 'redux-persist';
 import type { Node } from '../types';
 
 interface ChatMessage {
@@ -244,6 +245,17 @@ const nodeSlice = createSlice({
         };
       }
     }
+  },
+  extraReducers: (builder) => {
+    builder.addCase(REHYDRATE, (state, action: any) => {
+      // Handle node state rehydration
+      if (action.payload && action.key === 'node') {
+        state.selectedNode = action.payload.selectedNode;
+        console.log('nodeSlice: Restored selected node from persist', {
+          nodeId: action.payload.selectedNode?.id
+        });
+      }
+    });
   }
 });
 
