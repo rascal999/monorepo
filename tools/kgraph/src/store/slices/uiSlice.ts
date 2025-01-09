@@ -6,7 +6,6 @@ export interface AIModel {
   name: string;
   provider: string;
   context_length?: number;
-  popularity?: number;  // Higher number means more popular
 }
 
 export interface UIState {
