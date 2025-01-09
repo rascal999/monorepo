@@ -93,25 +93,6 @@ const nodeSlice = createSlice({
         };
       }
     },
-    moveNode: {
-      reducer: (state, action: PayloadAction<{
-        id: string;
-        position: { x: number; y: number };
-      }>) => {
-        // Update selected node position if it matches
-        if (state.selectedNode?.id === action.payload.id) {
-          state.selectedNode.position = action.payload.position;
-        }
-      },
-      prepare: (params: { id: string; position: { x: number; y: number } }) => {
-        return {
-          payload: params,
-          meta: {
-            updateGraph: true
-          }
-        };
-      }
-    },
     updateNodeChatHistory: {
       reducer: (state, action: PayloadAction<{
         nodeId: string;
@@ -263,7 +244,6 @@ export const {
   createNode,
   selectNode,
   editNode,
-  moveNode,
   connectNodes,
   deleteNode,
   deselectNode,
