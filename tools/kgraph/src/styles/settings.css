@@ -7,10 +7,11 @@
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   width: 40vw;
-  height: 80vh;
+  height: min(600px, 80vh);
   max-width: 40vw;
-  max-height: 80vh;
-  overflow-y: auto;
+  max-height: min(600px, 80vh);
+  display: flex;
+  flex-direction: column;
   z-index: 1000;
 }
 
@@ -57,6 +58,33 @@
 
 .settings-content {
   padding: 24px;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.general-settings,
+.about-settings {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-settings {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ai-settings .setting-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin-bottom: 0;
 }
 
 .setting-group {
@@ -120,10 +148,12 @@
 }
 
 .model-list {
-  max-height: 300px;
+  flex: 1;
   overflow-y: auto;
   border: 1px solid var(--border-color);
   border-radius: 4px;
+  min-height: 0;
+  margin-top: 12px;
 }
 
 .model-item {
@@ -221,4 +251,9 @@
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 999;
+}
+
+.k-highlight {
+  font-style: italic;
+  color: #ff0000;
 }

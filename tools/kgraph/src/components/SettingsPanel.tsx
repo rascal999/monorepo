@@ -154,7 +154,7 @@ const SettingsPanel: React.FC = () => {
         {currentTab === 'about' && (
           <div className="about-settings">
             <div className="setting-group">
-              <h3>About kgraph</h3>
+              <h3>About <span className="k-highlight">k</span>graph</h3>
               <div className="about-content">
                 <p>Created by <a href="https://github.com/rascal999" target="_blank" rel="noopener noreferrer">Aidan Marlin</a></p>
                 <div className="about-links">
