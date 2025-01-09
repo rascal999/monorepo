@@ -17,9 +17,10 @@ General:
 - Viewport state
 - Graph state, including node properties and node positions
 * Settings panel takes up 40% of viewport width and 80% of viewport height
-* Settings panel has two tabs:
+* Settings panel has three tabs:
   - General tab: Theme settings
   - AI tab: Model selection and configuration
+  - About tab: Project information and links
 
 Navigation panel (left panel):
 * Search graphs

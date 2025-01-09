@@ -21,7 +21,7 @@ export interface UIState {
   };
   error: string | null;
   settingsOpen: boolean;
-  settingsTab: 'general' | 'ai';
+  settingsTab: 'general' | 'ai' | 'about';
 }
 
 const defaultModels: AIModel[] = [
@@ -82,7 +82,7 @@ const uiSlice = createSlice({
     closeSettings: (state) => {
       state.settingsOpen = false;
     },
-    setSettingsTab: (state, action: PayloadAction<'general' | 'ai'>) => {
+    setSettingsTab: (state, action: PayloadAction<'general' | 'ai' | 'about'>) => {
       state.settingsTab = action.payload;
     },
     setLoading: (state, action: PayloadAction<string>) => {
