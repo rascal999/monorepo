@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
 import { createGraph, deleteGraph, clearAll, loadGraph } from '../store/slices/graphSlice';
 import { setTheme } from '../store/slices/uiSlice';
@@ -6,6 +6,34 @@ import type { Theme } from '../store/types';
 
 const NavigationPanel: React.FC = () => {
   const dispatch = useAppDispatch();
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [width, setWidth] = useState(250);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging && panelRef.current) {
+        const newWidth = e.clientX;
+        // Clamp width between min (150px) and max (250px)
+        setWidth(Math.min(Math.max(newWidth, 150), 250));
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging]);
+
   const graphs = useAppSelector(state => state.graph.graphs);
   const currentGraph = useAppSelector(state => state.graph.currentGraph);
   const currentTheme = useAppSelector(state => state.ui.theme);
@@ -42,7 +70,18 @@ const NavigationPanel: React.FC = () => {
   );
 
   return (
-    <div className="navigation-panel">
+    <div 
+      ref={panelRef}
+      className="navigation-panel"
+      style={{ width: `${width}px` }}
+    >
+      <div 
+        className="resize-handle"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
+      />
       <div className="header">
         <div className="input-group">
           <input
