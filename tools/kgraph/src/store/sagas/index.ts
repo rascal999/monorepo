@@ -1,6 +1,7 @@
 import { all, call, put, select, takeLatest } from 'redux-saga/effects';
 import { graphUpdateSaga } from './graphUpdateSaga';
 import { chatUpdateSaga } from './chatUpdateSaga';
+import { modelsSaga } from './modelsSaga';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { loadGraphSuccess, restoreState, addNode } from '../slices/graphSlice';
 import { addMessage } from '../slices/chatSlice';
@@ -275,7 +276,8 @@ export default function* rootSaga(): Generator {
       
       // Graph and Chat Updates
       call(graphUpdateSaga),
-      call(chatUpdateSaga)
+      call(chatUpdateSaga),
+      call(modelsSaga)
     ]);
     console.log('Root saga setup complete');
   } catch (error) {
