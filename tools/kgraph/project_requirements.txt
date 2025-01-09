@@ -20,6 +20,7 @@ General:
 * Settings panel has three tabs:
   - General tab: Theme settings
   - AI tab: Model selection and configuration
+    * Selected model shown at top of list with green border and checkmark
   - About tab: Project information and links
 
 Navigation panel (left panel):
