@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
-import { setTheme, setAIModel, closeSettings, setModelSearchQuery, fetchModelsStart } from '../store/slices/uiSlice';
+import { setTheme, setAIModel, closeSettings, setModelSearchQuery, fetchModelsStart, setSettingsTab } from '../store/slices/uiSlice';
 import type { Theme } from '../store/types';
 
 const SettingsPanel: React.FC = () => {
@@ -40,8 +40,15 @@ const SettingsPanel: React.FC = () => {
       <div className="settings-tabs">
         <button 
           className={`tab ${currentTab === 'general' ? 'active' : ''}`}
+          onClick={() => dispatch(setSettingsTab('general'))}
         >
           General
+        </button>
+        <button 
+          className={`tab ${currentTab === 'ai' ? 'active' : ''}`}
+          onClick={() => dispatch(setSettingsTab('ai'))}
+        >
+          AI
         </button>
       </div>
 
@@ -74,7 +81,10 @@ const SettingsPanel: React.FC = () => {
                 </button>
               </div>
             </div>
-
+          </div>
+        )}
+        {currentTab === 'ai' && (
+          <div className="ai-settings">
             <div className="setting-group">
               <h3>AI Model</h3>
               <div className="model-search">
