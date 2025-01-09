@@ -209,28 +209,29 @@ const NodePropertiesPanel: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="chat-content">
-            <div className="chat-messages">
-              {chatHistory.slice(1).map((message: ChatMessage, index: number) => (
-                <div
-                  key={index}
-                  className={`chat-message ${message.role}`}
-                >
-                  {message.content.split(/\s+/).map((word, wordIndex, words) => (
-                    <React.Fragment key={wordIndex}>
-                      <span
-                        className="clickable-word"
-                        onClick={() => handleWordClick(word)}
-                      >
-                        {word}
-                      </span>
-                      {wordIndex < words.length - 1 ? ' ' : ''}
-                    </React.Fragment>
-                  ))}
-                </div>
-              ))}
+          <>
+            <div className="chat-content">
+              <div className="chat-messages">
+                {chatHistory.slice(1).map((message: ChatMessage, index: number) => (
+                  <div
+                    key={index}
+                    className={`chat-message ${message.role}`}
+                  >
+                    {message.content.split(/\s+/).map((word, wordIndex, words) => (
+                      <React.Fragment key={wordIndex}>
+                        <span
+                          className="clickable-word"
+                          onClick={() => handleWordClick(word)}
+                        >
+                          {word}
+                        </span>
+                        {wordIndex < words.length - 1 ? ' ' : ''}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
-
             <div className="chat-input">
               <input
                 type="text"
@@ -251,7 +252,7 @@ const NodePropertiesPanel: React.FC = () => {
                 Send
               </button>
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>
