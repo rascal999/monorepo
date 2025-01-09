@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { REHYDRATE } from 'redux-persist';
-import type { Node } from '../types';
+import type { Node, NodeProperties } from '../types';
+import { defaultColors } from '../../components/graph/GraphStyles';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -26,13 +27,20 @@ const nodeSlice = createSlice({
         position: { x: number; y: number };
         nodeId: string;
       }>) => {
+        const scheme = defaultColors.blue;
+        const properties: NodeProperties = {
+          chatHistory: [],
+          gradient: scheme.gradient,
+          border: scheme.border,
+          text: scheme.text,
+          color: 'blue'
+        };
+
         const newNode: Node = {
           id: action.payload.nodeId,
           label: action.payload.label,
           position: action.payload.position,
-          properties: {
-            chatHistory: []
-          }
+          properties
         };
         
         // Set as selected node
@@ -53,7 +61,7 @@ const nodeSlice = createSlice({
             nodeId: Date.now().toString()
           },
           meta: {
-            updateGraph: true // Signal that this action should trigger a graph update
+            updateGraph: true
           }
         };
       }
@@ -80,7 +88,11 @@ const nodeSlice = createSlice({
         if (state.selectedNode?.id === action.payload.id) {
           state.selectedNode = {
             ...state.selectedNode,
-            ...action.payload.changes
+            ...action.payload.changes,
+            properties: {
+              ...state.selectedNode.properties,
+              ...(action.payload.changes.properties || {})
+            }
           };
         }
       },
@@ -189,13 +201,20 @@ const nodeSlice = createSlice({
         position: { x: number; y: number };
         nodeId: string;
       }>) => {
+        const scheme = defaultColors.blue;
+        const properties: NodeProperties = {
+          chatHistory: [],
+          gradient: scheme.gradient,
+          border: scheme.border,
+          text: scheme.text,
+          color: 'blue'
+        };
+
         const newNode: Node = {
           id: action.payload.nodeId,
           label: action.payload.word,
           position: action.payload.position,
-          properties: {
-            chatHistory: []
-          }
+          properties
         };
         
         // Set as selected node
@@ -211,7 +230,7 @@ const nodeSlice = createSlice({
         parentNodeId: string;
         word: string;
         position: { x: number; y: number };
-        graphId: string;  // Make graphId required
+        graphId: string;
       }) => {
         const nodeId = Date.now().toString();
         return {
@@ -221,7 +240,7 @@ const nodeSlice = createSlice({
           },
           meta: {
             updateGraph: true,
-            createConnection: true // Signal that we need to create a connection to parent
+            createConnection: true
           }
         };
       }
