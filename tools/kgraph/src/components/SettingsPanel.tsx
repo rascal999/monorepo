@@ -3,6 +3,16 @@ import { useAppDispatch, useAppSelector } from '../store';
 import { setTheme, setAIModel, closeSettings, setModelSearchQuery, fetchModelsStart, setSettingsTab } from '../store/slices/uiSlice';
 import type { Theme } from '../store/types';
 
+const formatTokenCount = (count: number): string => {
+  if (count >= 1000000) {
+    return `${(count / 1000000).toFixed(1)}M`;
+  }
+  if (count >= 1000) {
+    return `${Math.round(count / 1000)}k`;
+  }
+  return count.toString();
+};
+
 const SettingsPanel: React.FC = () => {
   const dispatch = useAppDispatch();
   const currentTheme = useAppSelector(state => state.ui.theme);
@@ -115,7 +125,9 @@ const SettingsPanel: React.FC = () => {
                       // Selected model goes first
                       if (a.id === selectedModel) return -1;
                       if (b.id === selectedModel) return 1;
-                      return 0;
+                      
+                      // Sort alphabetically by name
+                      return a.name.localeCompare(b.name);
                     })
                     .map(model => (
                       <button
@@ -129,7 +141,7 @@ const SettingsPanel: React.FC = () => {
                         </div>
                         {model.context_length && (
                           <span className="model-context">
-                            {model.context_length.toLocaleString()} tokens
+                            {formatTokenCount(model.context_length)} tokens
                           </span>
                         )}
                       </button>
