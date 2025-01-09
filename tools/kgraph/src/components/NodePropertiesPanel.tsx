@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
 import { editNode, createWordNode } from '../store/slices/nodeSlice';
 import { addMessage } from '../store/slices/chatSlice';
@@ -111,6 +111,30 @@ const NodePropertiesPanel: React.FC = () => {
     setActiveTab(tab);
   };
 
+  // Clean word to only include alphanumeric, space, underscore and hyphen
+  const cleanWord = useCallback((word: string) => {
+    return word.replace(/[^a-zA-Z0-9\s_-]/g, '').trim();
+  }, []);
+
+  // Create a node at a random offset from the parent node
+  const createNodeAtOffset = useCallback((word: string) => {
+    if (!selectedNode || !currentGraph) return;
+
+    const offset = 150; // pixels
+    const angle = (Math.PI * 2 * Math.random()); // random angle
+    const newPosition = {
+      x: selectedNode.position.x + offset * Math.cos(angle),
+      y: selectedNode.position.y + offset * Math.sin(angle)
+    };
+
+    dispatch(createWordNode({
+      parentNodeId: selectedNode.id,
+      word,
+      position: newPosition,
+      graphId: currentGraph.id
+    }));
+  }, [selectedNode, currentGraph, dispatch]);
+
   // Handle word click
   const handleWordClick = (e: React.MouseEvent, word: string) => {
     if (!selectedNode || !currentGraph) {
@@ -121,50 +145,33 @@ const NodePropertiesPanel: React.FC = () => {
       return;
     }
 
-    // Only handle control-click
-    if (!e.ctrlKey) return;
+    const cleanedWord = cleanWord(word);
+    if (!cleanedWord) return; // Skip if word is empty after cleaning
 
-    e.preventDefault();
-
-    // Toggle word selection
-    if (selectedWords.includes(word)) {
-      dispatch(removeSelectedWord(word));
+    if (e.ctrlKey) {
+      e.preventDefault();
+      // Toggle word selection for multi-word nodes
+      if (selectedWords.includes(cleanedWord)) {
+        dispatch(removeSelectedWord(cleanedWord));
+      } else {
+        dispatch(addSelectedWord(cleanedWord));
+      }
     } else {
-      dispatch(addSelectedWord(word));
+      // Create single word node immediately on regular click
+      createNodeAtOffset(cleanedWord);
     }
   };
 
-  // Handle creating node from selected words
-  const handleCreateWordNode = () => {
+  // Handle creating node from multiple selected words
+  const handleCreateWordNode = useCallback(() => {
     if (!selectedNode || !currentGraph || selectedWords.length === 0) return;
 
-    // Calculate position for new node relative to parent
-    const offset = 150; // pixels
-    const angle = (Math.PI * 2 * Math.random()); // random angle
-    const newPosition = {
-      x: selectedNode.position.x + offset * Math.cos(angle),
-      y: selectedNode.position.y + offset * Math.sin(angle)
-    };
-
-    const combinedWord = selectedWords.join(' ');
-    
-    console.log('Creating word node from selected words', {
-      words: selectedWords,
-      combined: combinedWord,
-      parentNodeId: selectedNode.id,
-      graphId: currentGraph.id
-    });
-    
-    dispatch(createWordNode({
-      parentNodeId: selectedNode.id,
-      word: combinedWord,
-      position: newPosition,
-      graphId: currentGraph.id
-    }));
+    const combinedWord = selectedWords.map(cleanWord).filter(Boolean).join(' ');
+    createNodeAtOffset(combinedWord);
 
     // Clear selected words after creating node
     dispatch(clearSelectedWords());
-  };
+  }, [selectedNode, currentGraph, selectedWords, cleanWord, createNodeAtOffset, dispatch]);
 
   if (!selectedNode) {
     return (
