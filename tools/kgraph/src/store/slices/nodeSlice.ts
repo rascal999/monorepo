@@ -142,12 +142,15 @@ const nodeSlice = createSlice({
         }
 
         const chatHistory = state.selectedNode.properties.chatHistory || [];
-        const newChatHistory = [...chatHistory, action.payload.message];
+        const newChatHistory = action.payload.message.role === 'user' && chatHistory.length === 0
+          ? [action.payload.message] // Keep first user message in history but don't display it
+          : [...chatHistory, action.payload.message];
 
         console.log('nodeSlice: Updating chat history', {
           oldLength: chatHistory.length,
           newLength: newChatHistory.length,
-          lastMessage: action.payload.message.role
+          lastMessage: action.payload.message.role,
+          isFirstUserMessage: action.payload.message.role === 'user' && chatHistory.length === 0
         });
 
         state.selectedNode = {
