@@ -25,7 +25,7 @@ export interface UIState {
 }
 
 const defaultModels: AIModel[] = [
-  { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', provider: 'OpenAI' },
+  { id: 'mistralai/mistral-7b-instruct', name: 'Mistral 7B Instruct', provider: 'Mistral AI' },
   { id: 'gpt-4', name: 'GPT-4', provider: 'OpenAI' },
   { id: 'claude-2', name: 'Claude 2', provider: 'Anthropic' }
 ];
@@ -33,7 +33,7 @@ const defaultModels: AIModel[] = [
 const initialState: UIState = {
   theme: 'light',
   aiModels: defaultModels,
-  selectedModel: 'gpt-3.5-turbo',
+  selectedModel: 'mistralai/mistral-7b-instruct',
   modelSearchQuery: '',
   modelsLoading: false,
   modelsError: null,

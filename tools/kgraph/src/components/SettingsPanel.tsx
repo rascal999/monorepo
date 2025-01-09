@@ -111,6 +111,12 @@ const SettingsPanel: React.FC = () => {
                       model.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                       model.provider.toLowerCase().includes(searchQuery.toLowerCase())
                     )
+                    .sort((a, b) => {
+                      // Selected model goes first
+                      if (a.id === selectedModel) return -1;
+                      if (b.id === selectedModel) return 1;
+                      return 0;
+                    })
                     .map(model => (
                       <button
                         key={model.id}

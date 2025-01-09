@@ -150,6 +150,20 @@
 
 .model-item.selected {
   background-color: var(--selected-background);
+  position: relative;
+  border: 1px solid rgba(34, 197, 94, 0.6);
+}
+
+.model-item.selected::after {
+  content: "✓";
+  position: absolute;
+  right: 12px;
+  color: #22c55e;
+  font-weight: bold;
+}
+
+.model-item.selected .model-context {
+  margin-right: 24px;
 }
 
 .model-info {
