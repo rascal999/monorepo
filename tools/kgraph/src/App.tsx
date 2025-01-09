@@ -5,6 +5,7 @@ import NavigationPanel from './components/NavigationPanel';
 import GraphPanel from './components/GraphPanel';
 import NodePropertiesPanel from './components/NodePropertiesPanel';
 import './styles/App.css';
+import './styles/settings.css';
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
