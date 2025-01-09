@@ -82,7 +82,7 @@ const NavigationPanel: React.FC = () => {
             className="settings-button"
             onClick={() => dispatch(openSettings())}
           >
-            ⋮
+            ⚙️
           </button>
         </div>
       </div>
