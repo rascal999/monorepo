@@ -100,7 +100,7 @@ function* handleGraphCreation(action: PayloadAction<{ title: string; id: string 
     yield put(addNode({ graphId, node }));
     
     // Create initial chat message with graph context
-    const content = `You are a knowledgeable assistant. This is part of a knowledge graph titled "${title}". Please provide a clear and concise definition (1-2 sentences) of: ${title}`;
+    const content = `You are a knowledgeable assistant. This is part of a knowledge graph titled "${title}". Please provide a clear and concise definition of: ${title}`;
     
     // Add user message
     yield put(addMessage({
@@ -108,6 +108,9 @@ function* handleGraphCreation(action: PayloadAction<{ title: string; id: string 
       role: 'user',
       content
     }));
+    
+    // Start streaming for initial message
+    yield put({ type: 'chat/startStreaming', payload: { nodeId } });
     
     // Send to OpenRouter
     yield put({
@@ -127,6 +130,8 @@ function* handleGraphCreation(action: PayloadAction<{ title: string; id: string 
 function* handleSendMessage(action: PayloadAction<{ nodeId: string; content: string }>): Generator {
   try {
     yield put(clearError());
+    // Start streaming state
+    yield put({ type: 'chat/startStreaming', payload: { nodeId: action.payload.nodeId } });
     console.log('Sending message to OpenRouter:', action.payload.content);
     
     const apiState = yield select((state) => ({
@@ -170,7 +175,7 @@ function* handleSendMessage(action: PayloadAction<{ nodeId: string; content: str
           }
         ],
         temperature: 0.7,
-        max_tokens: 150,
+        max_tokens: 2000,
         top_p: 1,
         frequency_penalty: 0,
         presence_penalty: 0
@@ -194,9 +199,14 @@ function* handleSendMessage(action: PayloadAction<{ nodeId: string; content: str
       role: 'assistant',
       content: aiResponse
     }));
+    
+    // End streaming state
+    yield put({ type: 'chat/endStreaming' });
   } catch (error: any) {
     console.error('Error in handleSendMessage:', error);
     yield put(setError(error.message || 'Failed to send message'));
+    // End streaming state on error
+    yield put({ type: 'chat/endStreaming' });
   }
 }
 
