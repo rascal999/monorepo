@@ -1,0 +1,102 @@
+# Postman to Pytest Converter
+## Project Purpose
+Create a Python tool that converts Postman collection JSON files into pytest test files.
+
+## Core Requirements
+1. Input Processing
+   - Accept Postman collection JSON file as input
+   - Validate JSON structure matches Postman collection schema
+   - Support Postman collection format v2.0 and above
+
+2. Test Generation
+   - Convert each Postman request into a pytest test function
+   - Generate appropriate test assertions based on Postman tests
+   - Create a test_cases.md file listing all tests per endpoint
+   - Maintain request headers, body, and parameters
+   - Support different HTTP methods (GET, POST, PUT, DELETE, etc.)
+   - Handle environment variables and test data
+   - Document expected responses and status codes for each test
+
+3. Authentication Support
+   - Support basic authentication
+   - Handle bearer token authentication
+   - Support API key authentication with different scopes
+   - Support custom authentication headers
+
+4. Variable Management
+   - Convert Postman environment variables to pytest fixtures
+   - Handle Postman variables in URLs, headers, and body
+   - Support dynamic variables and test data
+
+5. Proxy Support
+   - HTTP/HTTPS proxy configuration
+   - Support for proxy authentication
+   - Custom certificate handling
+   - Proxy bypass for specific hosts
+   - Support for different proxy configurations per environment
+
+## Technical Requirements
+1. Python Dependencies
+   - Python 3.8+
+   - pytest
+   - requests (for HTTP calls)
+   - json (for parsing Postman collections)
+   - typing (for type hints)
+   - pydantic (for JSON validation)
+
+2. Code Structure
+   - Modular design with separate concerns
+   - Clear class/function documentation
+   - Type hints for better code clarity
+   - Error handling for invalid inputs
+   - Logging for operation tracking
+   - Proxy configuration management
+
+3. Output Format
+   - Generate valid pytest files
+   - Create one test file per Postman collection
+   - Directory structure should mirror API URL paths (e.g., /api/v1/users -> tests/api/v1/users/test_users.py)
+   - Include necessary pytest fixtures
+   - Generate requirements.txt for dependencies
+
+## Testing Requirements
+1. Unit Tests
+   - Test JSON parsing functionality
+   - Test conversion logic
+   - Test fixture generation
+   - Test error handling
+
+2. Integration Tests
+   - End-to-end conversion tests
+   - Generated test execution validation
+   - Different Postman collection versions testing
+
+## Usage Requirements
+1. Command Line Interface
+   - Accept input file path argument
+   - Accept output directory argument
+   - Support optional configuration file
+   - Provide help and version information
+
+2. Error Handling
+   - Clear error messages for invalid JSON
+   - Validation errors for unsupported features
+   - Path and permission error handling
+
+## Documentation Requirements
+1. README.md
+   - Installation instructions
+   - Usage examples
+   - Configuration options
+   - Common troubleshooting
+
+2. Code Documentation
+   - Function/class docstrings
+   - Type hints
+   - Inline comments for complex logic
+
+## Future Considerations
+1. Support for Postman scripts (pre-request and tests)
+2. GUI interface for file selection
+3. Batch processing of multiple collections
+4. Custom template support for generated tests
