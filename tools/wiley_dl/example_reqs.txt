@@ -1,0 +1,17 @@
+GET /doi/pdfdirect/10.1111/jvim.17264?download=true HTTP/2
+Host: onlinelibrary.wiley.com
+Cookie: __cf_bm=4lhjIHFQ4VIyK0NHAyuU40iefZ1V4oqDPsXm73PPg_Y-1736680602-1.0.1.1-4PXy.B762cv9S4pnR_JGrHjdBu7X2STjWKV0mLfKUoLOOoLg1Sc.jlAcKDsb1lfq.rePpTJiL_jKT4fbq1LQnH4pPzhy9XlTb6q__e.1P9c; cf_clearance=NVZlR2jZ3JeMq0ZaMJknx7FdfuWUKigy1FzdOTxcJLc-1736680600-1.2.1.1-nJz8LrL4O7Mb._ufGwrILEh_lUDPiB0dd82vfNnRiH7rzAHX8TEar8kzktR6vZYkb.zkNzgAcCy4xsPfNHsd6.CbJNfmyuCLIC9Y4227m0r5csa2Kx1Xe6yN3tg1l_uZxHc5q5iYi8DGJ3zIetA.4WLBpiO89iJYUnjkKCclW_XHLuDfDevQ3c0eY3i2Aq.yOfyjkTP5qxGZYOmSzr5_Ph0xcoIdZyEqTVcpUkou_1iAAhsYjKRSObe6dpNCGzAgD5hPUCPz7nKCeYdfz7VjmUGxRgQWVeIiRLu_oam6yxbuOvUt5cAiFLo0vH7qj02w0ruPqWONi16TVZwZ0rev9A; MAID=2HzcGm54y4o5r/dcNc7mmw==; MACHINE_LAST_SEEN=2025-01-12T03%3A16%3A42.791-08%3A00; JSESSIONID=5CABEF21D183DC7E305D5281AC86AE5D
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Dnt: 1
+Sec-Gpc: 1
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+

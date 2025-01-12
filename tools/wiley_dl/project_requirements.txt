@@ -1,0 +1,96 @@
+# Wiley Download Script Requirements
+
+## Functional Requirements
+1. Create a Python script that performs HTTP requests to download PDFs from Wiley Online Library
+2. Allow users to specify:
+   - Base DOI prefix (e.g. jvim)
+   - Integer range for DOI suffix (e.g. 15531-15540)
+3. Match all required headers and cookies from example request
+
+## Technical Requirements
+1. Use Python's requests library for HTTP operations
+2. Handle command line arguments
+3. Implement proper error handling
+4. Follow the exact request structure from example_reqs.txt including:
+   - Headers
+   - Cookies
+   - User-Agent
+   - Accept types
+   - Security headers
+5. Automatic categorization of PDFs into medical specialties:
+   - Cardiology
+   - Neurology
+   - Pulmonology
+   - Endocrinology
+   - Gastroenterology
+   - Hepatology
+   - Haematology
+   - Immunology
+   - Nephrology
+   - Urology
+   - Oncology
+   
+   Categorization should be based on:
+   1. PDF filename/title if available
+   2. PDF content analysis:
+      - Extract text from first few pages
+      - Search for specialty keywords
+      - Consider frequency and context of keywords
+      - Handle PDFs that may match multiple specialties
+
+## PDF Processing
+1. Download PDF to temporary location
+2. Extract and analyze text content
+3. Determine appropriate specialty category
+4. Move to categorized directory
+5. Handle cases where categorization is ambiguous
+
+## Scripts
+
+### wiley_dl.py - PDF Downloader
+```bash
+# Single value
+./wiley_dl.py jvim 15531
+
+# Range of values
+./wiley_dl.py jvim 15531 15540
+
+# Specify output directory
+./wiley_dl.py jvim 15531 -o downloads/
+```
+
+### categorize_pdfs.py - PDF Categorizer
+```bash
+# Categorize PDFs in current directory
+./categorize_pdfs.py .
+
+# Categorize PDFs with separate output directory
+./categorize_pdfs.py downloads/ -o categorized/
+```
+
+## Workflow Example
+```bash
+# 1. Download PDFs
+./wiley_dl.py jvim 15531 15540 -o downloads/
+
+# 2. Categorize downloaded PDFs
+./categorize_pdfs.py downloads/ -o categorized/
+```
+
+## Categorization Keywords
+- Cardiology: heart, cardiac, cardiovascular, arrhythmia, myocardial
+- Neurology: brain, neural, nervous, seizure, neurological
+- Pulmonology: lung, respiratory, pulmonary, bronchial, airway
+- Endocrinology: hormone, thyroid, diabetes, endocrine, metabolic
+- Gastroenterology: stomach, intestinal, digestive, gastrointestinal, bowel
+- Hepatology: liver, hepatic, biliary, gallbladder
+- Haematology: blood, anemia, coagulation, platelet
+- Immunology: immune, allergy, autoimmune, lymphocyte
+- Nephrology: kidney, renal, urinary
+- Urology: bladder, prostate, urinary tract
+- Oncology: cancer, tumor, neoplasm, malignant
+
+## Notes
+- Base URL: onlinelibrary.wiley.com
+- Request Path: /doi/pdfdirect/{DOI}?download=true
+- Required headers and cookies must match example_reqs.txt
