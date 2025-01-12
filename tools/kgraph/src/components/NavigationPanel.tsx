@@ -141,18 +141,19 @@ const NavigationPanel: React.FC = () => {
               dispatch(loadGraph(graph.id));
             }}
           >
-            <span>
-              {graph.title}
-              {loading.status && loading.graphId === graph.id && (
-                <span style={{ marginLeft: '8px', fontSize: '12px' }}>Loading...</span>
-              )}
-            </span>
+            <div style={{ flex: 1 }}>
+              <div>{graph.title}</div>
+              <div style={{ fontSize: '11px', opacity: 0.7, marginTop: '2px' }}>
+                {new Date(parseInt(graph.id)).toLocaleDateString()} • {graph.nodes.length} nodes
+                {loading.status && loading.graphId === graph.id && ' • Loading...'}
+              </div>
+            </div>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleDeleteGraph(graph.id);
               }}
-              style={{ padding: '4px 8px' }}
+              style={{ padding: '4px 8px', alignSelf: 'flex-start' }}
             >
               ×
             </button>
