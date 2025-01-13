@@ -48,6 +48,7 @@ class TestGenerator:
 
     def _copy_files(self) -> None:
         """Copy required files to generated tests directory."""
+        logger.debug("Starting file copy operations")
         # Copy .env file
         env_file = Path(__file__).parent.parent.parent / '.env'
         if env_file.exists():
@@ -63,6 +64,7 @@ class TestGenerator:
 
     def _create_conftest(self) -> None:
         """Create conftest.py with shared fixtures."""
+        logger.debug("Creating conftest.py with shared fixtures")
         conftest_content = '''"""Shared pytest fixtures."""
 
 import os
@@ -135,6 +137,42 @@ def base_url():
 def client_id():
     """Get client ID from environment."""
     return os.getenv('CLIENT_ID', 'test-client-id')
+
+
+@pytest.fixture
+def resolve_variable(variable_registry):
+    """Resolve variables from registry based on their source."""
+    from faker import Faker
+    fake = Faker()
+    
+    def _resolve(var_name: str) -> str:
+        if var_name not in variable_registry:
+            # Try environment variable if not in registry
+            env_value = os.getenv(var_name)
+            if env_value:
+                return env_value
+            raise ValueError(f"Variable {var_name} not found in registry or environment")
+            
+        var_data = variable_registry[var_name]
+        source = var_data.get('source')
+        
+        if source == 'value':
+            return var_data.get('value', '')
+        elif source == 'random' and var_data.get('faker_method'):
+            faker_method = getattr(fake, var_data['faker_method'])
+            return str(faker_method())
+        elif source == 'fixture':
+            # Try environment variable first for fixture-type variables
+            env_value = os.getenv(var_name)
+            if env_value:
+                return env_value
+            # Fall back to fixture name
+            return var_data.get('value') or os.getenv(var_name.upper(), '')
+        else:
+            # Try environment variable as fallback
+            return os.getenv(var_name, f"{{{var_name}}}")
+    
+    return _resolve
 '''
         conftest_path = self.output_dir / 'conftest.py'
         conftest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -142,6 +180,7 @@ def client_id():
         logger.debug(f"Created conftest.py at: {conftest_path}")
 
     def _write_test_file(self, item: PostmanItem, file_path: Path, auth_config=None) -> None:
+        logger.debug(f"Writing test file for {item.name} to {file_path}")
         """Write a test file for a Postman request.
         
         Args:
@@ -149,13 +188,7 @@ def client_id():
             file_path: Path where the test file should be written
         """
         logger.debug(f"Writing test file for: {item.name}")
-        # Generate imports including auth-related ones if needed
-        imports = generate_imports()
-        if auth_config and self.auth_handler:
-            imports += self.auth_handler.generate_auth_fixture(auth_config)
-
         test_content = (
-            imports +
             generate_test_function(
                 item,
                 url_formatter=format_url,
@@ -169,6 +202,7 @@ def client_id():
         logger.debug(f"Successfully wrote test file: {file_path}")
 
     def _process_items(self, items: List[Union[PostmanItem, PostmanItemGroup]], auth_config=None) -> Dict[str, Variable]:
+        logger.debug(f"Processing {len(items)} items")
         """Process a list of Postman items recursively.
         
         Args:
@@ -184,6 +218,7 @@ def client_id():
                 
                 # Collect variables from this request
                 request_vars = collect_variables_from_request(item)
+                logger.debug(f"Collected {len(request_vars)} variables from request {item.name}")
                 all_variables.update(request_vars)
                 
             elif hasattr(item, 'item') and item.item:
@@ -194,6 +229,7 @@ def client_id():
         return all_variables
 
     def generate_tests(self, collection: PostmanCollection, auth_config=None) -> bool:
+        logger.info(f"Starting test generation for collection: {collection.info.name if hasattr(collection.info, 'name') else 'Unnamed'}")
         """Generate pytest test files from a Postman collection.
         
         Args:
@@ -216,11 +252,14 @@ def client_id():
                 logger.debug(f"Extracted auth config from collection: {auth_config}")
             
             # Process all items in the collection and collect variables
+            logger.info("Processing collection items and collecting variables")
             self.variables = self._process_items(collection.item, auth_config)
+            logger.debug(f"Collected total of {len(self.variables)} variables from collection")
             
             # Generate variable registry if it doesn't exist
             # Generate variable registry in tools/postman_to_pytest if it doesn't exist
             registry_path = self.project_root / 'variable_registry.json'
+            logger.info(f"Generating/updating variable registry at: {registry_path}")
             generate_variable_registry(
                 self.variables,
                 registry_path,
@@ -239,13 +278,15 @@ def client_id():
             if self.env_file:
                 env_path = self.output_dir / '.env'
                 if not env_path.exists():  # Only generate if .env wasn't copied
+                    logger.info(f"Generating new environment file at: {env_path}")
                     generate_env_file(self.variables, env_path)
                     logger.debug(f"Generated environment file: {env_path}")
             
-            logger.debug("Test generation completed successfully")
+            logger.info("Test generation completed successfully")
+            logger.debug(f"Generated tests directory structure at: {self.output_dir}")
             return True
         except Exception as e:
-            logger.error(f"Error during test generation: {str(e)}")
+            logger.error(f"Error during test generation: {str(e)}", exc_info=True)
             raise
 
 

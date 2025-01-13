@@ -15,6 +15,7 @@ dependencies = [
     "click>=8.0.0",
     "urllib3>=2.0.0",
     "python-dotenv>=1.0.0",
+    "Faker>=19.0.0",
 ]
 
 [project.scripts]

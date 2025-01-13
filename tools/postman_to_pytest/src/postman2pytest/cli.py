@@ -1,11 +1,19 @@
 """Command line interface for postman2pytest."""
 
+import logging
 import sys
 from pathlib import Path
 from typing import Optional
 
 import click
 from dotenv import load_dotenv
+
+# Configure root logger
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 from . import __version__
 from .parser import parse_collection
@@ -24,11 +32,17 @@ from .auth import AuthHandler
 )
 @click.option('--version', is_flag=True, help='Show version information')
 @click.option(
+    '--verbose',
+    '-v',
+    is_flag=True,
+    help='Enable verbose debug output',
+)
+@click.option(
     '--env-file/--no-env-file',
     default=True,
     help='Generate .env.example template file with environment variables (default: enabled)',
 )
-def main(input_file: Path, output: Path, version: bool, env_file: bool) -> None:
+def main(input_file: Path, output: Path, version: bool, env_file: bool, verbose: bool) -> None:
     """Convert Postman collection JSON files into pytest test files.
 
     Args:
@@ -41,17 +55,26 @@ def main(input_file: Path, output: Path, version: bool, env_file: bool) -> None:
         sys.exit(0)
 
     try:
+        # Configure logging level
+        log_level = logging.DEBUG if verbose else logging.INFO
+        logging.getLogger('postman2pytest').setLevel(log_level)
+        logger.debug("Debug logging enabled")
+        
         # Load environment variables
         load_dotenv()
+        logger.debug("Loaded environment variables")
 
         # Create output directory if it doesn't exist
         output.mkdir(parents=True, exist_ok=True)
+        logger.debug(f"Created output directory: {output}")
 
         # Parse the Postman collection
         click.echo(f"Parsing Postman collection: {input_file}")
+        logger.debug(f"Reading collection file: {input_file}")
         collection = parse_collection(input_file)
 
         # Initialize auth handler and extract configuration
+        logger.debug("Initializing authentication handler")
         auth_handler = AuthHandler()
         auth_config = None
         if collection.auth:
@@ -61,6 +84,7 @@ def main(input_file: Path, output: Path, version: bool, env_file: bool) -> None:
 
         # Generate test files
         click.echo(f"Generating pytest files in: {output}")
+        logger.debug("Initializing test generator")
         # Use tools/postman_to_pytest as project root
         project_root = Path(__file__).parent.parent.parent
         generator = TestGenerator(
@@ -95,9 +119,15 @@ def main(input_file: Path, output: Path, version: bool, env_file: bool) -> None:
                 click.echo(f"Generated environment file: {env_path}")
 
         click.echo("\nConversion completed successfully!")
+        logger.debug("Test generation process completed")
 
     except Exception as e:
+        logger.error(f"Error during conversion: {str(e)}", exc_info=True)
         click.echo(f"Error: {str(e)}", err=True)
+        if verbose:
+            click.echo("\nFull error details (run with --verbose to see these):", err=True)
+            import traceback
+            click.echo(traceback.format_exc(), err=True)
         sys.exit(1)
 
 
