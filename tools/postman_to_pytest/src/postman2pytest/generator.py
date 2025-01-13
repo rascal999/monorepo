@@ -1,6 +1,7 @@
 """Generator module for creating pytest files from Postman collections."""
 
 import logging
+import shutil
 from pathlib import Path
 from typing import Union, List, Dict, Optional
 
@@ -42,17 +43,23 @@ class TestGenerator:
         # Create conftest.py in output directory
         self._create_conftest()
         
-        # Copy project's .env file if it exists
-        self._copy_env_file()
+        # Copy required files
+        self._copy_files()
 
-    def _copy_env_file(self) -> None:
-        """Copy project's .env file to generated tests directory."""
-        # Use tools/postman_to_pytest/.env as source
+    def _copy_files(self) -> None:
+        """Copy required files to generated tests directory."""
+        # Copy .env file
         env_file = Path(__file__).parent.parent.parent / '.env'
         if env_file.exists():
             target_env = self.output_dir / '.env'
             target_env.write_text(env_file.read_text())
             logger.debug(f"Copied project .env file from {env_file} to: {target_env}")
+            
+        # Copy auth.py to generated tests
+        auth_file = Path(__file__).parent / 'auth.py'
+        target_auth = self.output_dir / 'auth.py'
+        target_auth.write_text(auth_file.read_text())
+        logger.debug(f"Copied auth.py to: {target_auth}")
 
     def _create_conftest(self) -> None:
         """Create conftest.py with shared fixtures."""
@@ -60,13 +67,19 @@ class TestGenerator:
 
 import os
 import json
+import logging
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 import pytest
 import requests
 from dotenv import load_dotenv
 from requests_oauthlib import OAuth2Session
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class TokenInfo:
@@ -76,127 +89,36 @@ class TokenInfo:
         self.expires_at = expires_at
 
 
-class AuthHandler:
-    """Handle authentication for test requests."""
-    
-    def __init__(self):
-        """Initialize AuthHandler with environment variables."""
-        load_dotenv()
-        self.token_file = Path(os.getenv('AUTH_TOKEN_FILE', '.oauth_token'))
-
-    def _get_cached_token(self) -> TokenInfo:
-        """Get cached OAuth token if valid."""
-        if not self.token_file.exists():
-            return None
-        
-        try:
-            data = json.loads(self.token_file.read_text())
-            token_info = TokenInfo(
-                access_token=data['access_token'],
-                expires_at=data['expires_at']
-            )
-            
-            # Check if token is expired (with 5 min buffer)
-            if token_info.expires_at > datetime.now().timestamp() + 300:
-                return token_info
-        except Exception:
-            return None
-        return None
-
-    def _save_token(self, token_info: TokenInfo):
-        """Save OAuth token to cache file."""
-        self.token_file.write_text(json.dumps({
-            'access_token': token_info.access_token,
-            'expires_at': token_info.expires_at
-        }))
-
-    def _get_oauth_token(self) -> str:
-        """Get OAuth token using basic auth credentials."""
-        # Check cache first
-        cached = self._get_cached_token()
-        if cached:
-            return cached.access_token
-
-        # Get new token
-        try:
-            username = os.getenv('BASIC_AUTH_USERNAME')
-            password = os.getenv('BASIC_AUTH_PASSWORD')
-            token_url = os.getenv('OAUTH_TOKEN_URL')
-            scope = os.getenv('OAUTH_SCOPE', '').split()
-            
-            if not all([username, password, token_url]):
-                return None
-
-            auth = (username, password)
-            oauth = OAuth2Session(scope=scope)
-            token = oauth.fetch_token(
-                token_url=token_url,
-                auth=auth,
-                username=username,
-                password=password
-            )
-
-            # Cache token
-            expires_at = datetime.now().timestamp() + float(token.get('expires_in', 3600))
-            token_info = TokenInfo(
-                access_token=token['access_token'],
-                expires_at=expires_at
-            )
-            self._save_token(token_info)
-            
-            return token['access_token']
-        except Exception:
-            return None
-
-    def create_session(self) -> requests.Session:
-        """Create a requests session with authentication."""
-        session = requests.Session()
-        
-        # Get OAuth token
-        token = self._get_oauth_token()
-        if token:
-            session.headers["Authorization"] = f"Bearer {token}"
-
-        # Add proxy configuration if specified
-        http_proxy = os.getenv('HTTP_PROXY')
-        https_proxy = os.getenv('HTTPS_PROXY')
-        if http_proxy or https_proxy:
-            session.proxies = {
-                'http': http_proxy,
-                'https': https_proxy
-            }
-            
-            # Add proxy authentication if specified
-            proxy_username = os.getenv('PROXY_USERNAME')
-            proxy_password = os.getenv('PROXY_PASSWORD')
-            if proxy_username and proxy_password:
-                session.proxy_auth = (proxy_username, proxy_password)
-
-        # Configure SSL verification
-        cert_path = os.getenv('CERT_PATH')
-        tls_verify = os.getenv('TLS_VERIFY', 'true').lower() == 'true'
-        
-        if cert_path:
-            session.verify = cert_path
-        elif not tls_verify:
-            session.verify = False
-
-        return session
+@pytest.fixture
+def variable_registry():
+    """Load and provide variable registry."""
+    try:
+        # Find generated_tests directory by looking for conftest.py
+        current = Path(__file__).parent
+        while current.name != 'generated_tests' and current.parent != current:
+            current = current.parent
+        if current.name == 'generated_tests':
+            registry_path = current / 'variable_registry.json'
+        else:
+            registry_path = Path(__file__).parent / 'variable_registry.json'
+        if registry_path.exists():
+            return json.loads(registry_path.read_text()).get('variables', {})
+    except Exception:
+        pass
+    return {}
 
 
 @pytest.fixture(scope='session')
 def auth_handler():
     """Create AuthHandler instance."""
     load_dotenv()
-    return AuthHandler()
-
-
-@pytest.fixture
-def session(auth_handler, base_url):
-    """Create an authenticated session."""
-    session = auth_handler.create_session()
-    session.base_url = base_url
-    return session
+    from auth import AuthHandler  # Import from local auth.py
+    handler = AuthHandler()
+    # Test OAuth token retrieval on startup
+    token = handler._get_oauth_token()
+    if not token:
+        logger.warning("Failed to obtain initial OAuth token")
+    return handler
 
 
 @pytest.fixture
@@ -287,6 +209,11 @@ def client_id():
         try:
             # Create output directory if it doesn't exist
             self.output_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Extract auth config from collection if not provided
+            if not auth_config and hasattr(collection, 'auth'):
+                auth_config = self.auth_handler.extract_auth_config(collection.auth)
+                logger.debug(f"Extracted auth config from collection: {auth_config}")
             
             # Process all items in the collection and collect variables
             self.variables = self._process_items(collection.item, auth_config)
