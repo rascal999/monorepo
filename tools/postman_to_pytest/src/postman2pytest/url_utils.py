@@ -12,11 +12,18 @@ def sanitize_name(name: str, preserve_case: bool = False) -> str:
         name: Name to sanitize
         preserve_case: If True, preserve original case, otherwise convert to lowercase
     """
+    # Handle Postman dynamic variables
+    if name.startswith('$random'):
+        # Remove $ prefix for Python identifiers
+        return name[1:]
+    
+    # Handle regular variables
     # Replace non-alphanumeric chars with underscore
     name = re.sub(r'\W+', '_', name)
     # Ensure name starts with letter
     if name[0].isdigit():
         name = f"test_{name}"
+    # Convert to lowercase unless preserve_case is True
     return name if preserve_case else name.lower()
 
 def extract_api_path(url: Union[str, 'RequestUrl']) -> List[str]:
@@ -54,11 +61,18 @@ def format_url(url: str, variables: set, sanitize_func=sanitize_name) -> str:
     """Format URL with proper scheme and variable substitution."""
     # Replace variables with format strings
     formatted_url = url
+    
+    # Handle base_url specially
+    if '{base_url}' in formatted_url or '{{base_url}}' in formatted_url:
+        formatted_url = formatted_url.replace('{base_url}', '').replace('{{base_url}}', '')
+    
+    # Handle other variables
     for var in variables:
-        formatted_url = formatted_url.replace(
-            f"{{{{{var}}}}}",
-            "{" + sanitize_func(var, preserve_case=True) + "}"
-        )
+        if var != 'base_url':  # Skip base_url as it's handled separately
+            formatted_url = formatted_url.replace(
+                f"{{{{{var}}}}}",
+                "{resolve_variable('" + var + "')}"
+            )
     
     # Extract URL parts
     parsed = urlparse(formatted_url)

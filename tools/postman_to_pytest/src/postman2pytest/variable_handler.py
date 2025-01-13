@@ -14,6 +14,7 @@ class VariableSource(Enum):
     FIXTURE = "fixture"    # Variables from pytest fixtures
     RESPONSE = "response"  # Variables extracted from HTTP responses
     COLLECTION = "collection"  # Variables from Postman collection
+    RANDOM = "random"      # Variables generated using Faker methods
 
 class VariableType(Enum):
     """Types of variables in Postman collections."""
@@ -89,10 +90,19 @@ def extract_variables(source: Union[str, Any], context: Optional[str] = None) ->
         Dictionary mapping variable names to Variable objects
     """
     if isinstance(source, str):
+        # First check for Postman dynamic variables (e.g., $randomFirstName)
+        variables = {}
+        for name in VariableRegistry.RANDOM_VAR_MAPPING.keys():
+            if name in source:
+                variables[name] = Variable(
+                    name=name,
+                    type=VariableType.BODY if context == 'body' else VariableType.UNKNOWN,
+                    description=f"Random {name[7:].lower()} using Faker"  # Remove '$random' prefix
+                )
+        
+        # Then check for regular variables in {{...}} syntax
         pattern = r'\{\{([^}]+)\}\}'
         matches = re.finditer(pattern, source)
-        
-        variables = {}
         for match in matches:
             # Keep original case from Postman collection
             name = match.group(1)
@@ -175,10 +185,16 @@ def replace_variables(text: str, variables: Dict[str, Variable], sanitize_func) 
     """
     result = text
     for var_name, var in variables.items():
-        result = result.replace(
-            f"{{{{{var_name}}}}}",  # Use original case from collection
-            "{" + sanitize_func(var_name) + "}"  # Keep original case
-        )
+        if var_name.startswith('$random'):  # Postman dynamic variable
+            result = result.replace(
+                var_name,  # Direct replacement without {{...}}
+                "{" + var_name[1:] + "}"  # Remove $ prefix for Python identifiers
+            )
+        else:  # Regular Postman variable
+            result = result.replace(
+                f"{{{{{var_name}}}}}",  # Use original case from collection
+                "{" + sanitize_func(var_name) + "}"  # Keep original case
+            )
     return result
 
 def collect_variables_from_request(item: 'PostmanItem') -> Dict[str, Variable]:
@@ -227,6 +243,7 @@ class RegistryVariable:
     value: Optional[str] = None
     description: Optional[str] = None
     response_pattern: Optional[Dict[str, str]] = None
+    faker_method: Optional[str] = None  # Faker method to use for random generation
 
 class VariableRegistry:
     """Manages variable registry for postman2pytest."""
@@ -236,18 +253,67 @@ class VariableRegistry:
         self.collection_name = collection_name
         self.collection_version = collection_version
 
+    # Map Postman random variables to Faker methods
+    RANDOM_VAR_MAPPING = {
+        "$randomFirstName": "first_name",
+        "$randomLastName": "last_name",
+        "$randomFullName": "name",
+        "$randomEmail": "email",
+        "$randomStreetAddress": "street_address",
+        "$randomStreetName": "street_name",
+        "$randomCity": "city",
+        "$randomCountryCode": "country_code",
+        "$randomCountry": "country",
+        "$randomPhoneNumber": "phone_number",
+        "$randomInt": "random_int",
+        "$randomUUID": "uuid4",
+        "$randomIP": "ipv4",
+        "$randomIPV6": "ipv6",
+        "$randomPassword": "password",
+        "$randomCompanyName": "company",
+        "$randomUrl": "url",
+        "$randomDomainName": "domain_name",
+        "$randomUserName": "user_name",
+        "$randomProtocol": "random_element",  # ['http', 'https', 'ftp', 'sftp']
+        "$randomPort": "port_number",
+        "$randomMACAddress": "mac_address",
+        "$randomGUID": "uuid4",
+        "$randomJobTitle": "job",
+        "$randomJobArea": "job",
+        "$randomJobType": "job",
+        "$randomDatetime": "datetime",
+        "$randomDate": "date",
+        "$randomTime": "time",
+        "$randomFileExt": "file_extension",
+        "$randomFileName": "file_name",
+        "$randomFilePath": "file_path",
+        "$randomMimeType": "mime_type",
+        "$randomImageUrl": "image_url",
+        "$randomWords": "words",
+        "$randomWord": "word",
+        "$randomSentence": "sentence",
+        "$randomParagraph": "paragraph",
+    }
+
     def add_variable(self, name: str, var_type: VariableType, default_value: Optional[str] = None,
                     description: Optional[str] = None) -> None:
         """Add variable to registry with appropriate source type."""
+        # Check if this is a random variable from Postman
+        if name in self.RANDOM_VAR_MAPPING:
+            source = VariableSource.RANDOM
+            fixture_name = None
+            faker_method = self.RANDOM_VAR_MAPPING[name]
         # Determine source type based on variable type and value
-        if var_type in [VariableType.AUTH, VariableType.DOMAIN] and default_value:
+        elif var_type in [VariableType.AUTH, VariableType.DOMAIN] and default_value:
             # Auth and domain variables with values are stored directly
             source = VariableSource.VALUE
             fixture_name = None
+            faker_method = None
         else:
             # Other variables default to fixture
             source = VariableSource.FIXTURE
             fixture_name = f"{name.lower()}_fixture"
+            faker_method = None
         
         # Create response pattern template if it's a response-type variable
         response_pattern = None
@@ -263,7 +329,8 @@ class VariableRegistry:
             fixture=fixture_name,
             value=default_value,
             description=description or f"Variable {name} ({var_type.value})",
-            response_pattern=response_pattern
+            response_pattern=response_pattern,
+            faker_method=faker_method
         )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -275,7 +342,8 @@ class VariableRegistry:
                     "fixture": var.fixture,
                     "value": var.value,
                     "description": var.description,
-                    "response_pattern": var.response_pattern
+                    "response_pattern": var.response_pattern,
+                    "faker_method": var.faker_method
                 }
                 for name, var in self.variables.items()
             },
@@ -288,7 +356,8 @@ class VariableRegistry:
                 "value": "Variables defined directly in registry",
                 "fixture": "Variables provided by pytest fixtures (default for new variables)",
                 "response": "Variables extracted from HTTP responses using regex",
-                "collection": "Variables defined in Postman collection"
+                "collection": "Variables defined in Postman collection",
+                "random": "Variables generated using Faker methods (see https://faker.readthedocs.io/en/master/providers.html for available methods)"
             }
         }
 
@@ -320,7 +389,8 @@ class VariableRegistry:
                     fixture=var_data.get("fixture"),
                     value=var_data.get("value"),
                     description=var_data.get("description"),
-                    response_pattern=var_data.get("response_pattern")
+                    response_pattern=var_data.get("response_pattern"),
+                    faker_method=var_data.get("faker_method")
                 )
             
             return registry

@@ -43,7 +43,9 @@ class AuthHandler:
 
     def _get_cached_token(self) -> Optional[TokenInfo]:
         """Get cached OAuth token if valid."""
+        logger.debug(f"Checking for cached token at: {self.token_file}")
         if not self.token_file.exists():
+            logger.debug("No token cache file found")
             return None
         
         try:
@@ -52,9 +54,11 @@ class AuthHandler:
             
             # Check if token is expired (with 5 min buffer)
             if token_info.expires_at > datetime.now().timestamp() + 300:
+                logger.debug("Found valid cached token")
                 return token_info
-        except Exception:
-            return None
+            logger.debug("Cached token is expired")
+        except Exception as e:
+            logger.debug(f"Error reading cached token: {str(e)}")
         return None
 
     def _save_token(self, token_info: TokenInfo):
@@ -66,9 +70,11 @@ class AuthHandler:
 
     def _get_oauth_token(self) -> Optional[str]:
         """Get OAuth token using basic auth credentials."""
+        logger.debug("Getting OAuth token")
         # Check cache first
         cached = self._get_cached_token()
         if cached:
+            logger.debug("Using cached token")
             return cached.access_token
 
         # Get new token
@@ -79,7 +85,10 @@ class AuthHandler:
             scope = os.getenv('OAUTH_SCOPE', '').split() if os.getenv('OAUTH_SCOPE') else []
             
             if not all([username, password, token_url]):
+                logger.debug("Missing required OAuth credentials")
                 return None
+            
+            logger.debug(f"Requesting new token from: {token_url}")
 
             # Get SSL verification setting
             verify = os.getenv('TLS_VERIFY', 'true').lower() == 'true'
@@ -101,6 +110,7 @@ class AuthHandler:
 
             # Cache token
             expires_at = datetime.now().timestamp() + float(token.get('expires_in', 3600))
+            logger.debug(f"Token expires at: {datetime.fromtimestamp(expires_at).isoformat()}")
             token_info = TokenInfo(
                 access_token=token['access_token'],
                 expires_at=expires_at
@@ -114,6 +124,7 @@ class AuthHandler:
 
     def create_session(self, auth_config: Optional[AuthConfig] = None) -> requests.Session:
         """Create a requests session with authentication."""
+        logger.debug("Creating authenticated session")
         session = requests.Session()
         
         if auth_config:
@@ -144,17 +155,11 @@ class AuthHandler:
 
         return session
 
-    def generate_auth_fixture(self, auth_config: AuthConfig) -> str:
+    def generate_auth_fixture(self, auth_config: AuthConfig) -> List[str]:
         """Generate pytest fixture for authentication."""
+        logger.debug(f"Generating auth fixtures for {auth_config.type} authentication")
         fixture_code = [
-            "import os",
-            "import logging",
-            "import pytest",
-            "import requests",
-            "from dotenv import load_dotenv",
-            "",
-            "logger = logging.getLogger(__name__)",
-            "",
+            "# Auth fixtures",
             "@pytest.fixture(scope='session')",
             "def auth_handler():",
             '    """Create AuthHandler instance."""',
@@ -181,10 +186,11 @@ class AuthHandler:
             "    return session",
         ]
 
-        return "\n".join(fixture_code)
+        return fixture_code
 
     def extract_auth_config(self, auth_data: Dict) -> Optional[AuthConfig]:
         """Extract authentication configuration from Postman auth data.
+        logger.debug("Extracting auth config from Postman data")
 
         Args:
             auth_data: Authentication data from Postman collection
@@ -196,6 +202,7 @@ class AuthHandler:
             return None
 
         auth_type = auth_data.get("type", "").lower()
+        logger.debug(f"Found auth type: {auth_type}")
         
         # Always use OAuth for basic auth or bearer token
         if auth_type in ("basic", "bearer", "oauth2"):
@@ -224,11 +231,13 @@ class AuthHandler:
             ) == "header"
             
             if key and value:
+                logger.debug(f"Found API key configuration: {key} ({in_header=})")
                 return AuthConfig(
                     type="apiKey",
                     key=key,
                     value=value,
                     in_header=in_header
                 )
+            logger.debug("Missing required API key configuration")
 
         return None

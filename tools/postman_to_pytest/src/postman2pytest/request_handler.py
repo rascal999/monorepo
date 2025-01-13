@@ -1,6 +1,10 @@
 """Request-specific test generation utilities."""
 
+import logging
 from typing import Dict, List, Optional, Tuple
+
+# Configure logging
+logger = logging.getLogger(__name__)
 from .url_utils import sanitize_name
 from .variable_handler import (
     Variable,
@@ -8,6 +12,7 @@ from .variable_handler import (
     extract_variables,
     collect_variables_from_request
 )
+
 
 def generate_request_params(
     item: 'PostmanItem',
@@ -31,80 +36,58 @@ def generate_request_params(
         - Set of variables found
         - List of fixture parameter names
     """
+    logger.debug(f"Generating request parameters for: {item.name}")
+    
     # Extract all variables from request
     variables = variable_extractor(item)
-    fixture_params = ['session']
-    fixture_names = set()
+    logger.debug(f"Extracted variables: {[f'{k}: {v.type.value}' for k, v in variables.items()]}")
+    
+    # Only need base_url and resolve_variable fixtures
+    fixture_params = ['base_url', 'resolve_variable']
     params = []
 
     # Handle URL variables
     url = item.request.url.raw if isinstance(item.request.url, str) else item.request.url.raw
-    url_vars = {name: var for name, var in variables.items() 
-                if var.type in (VariableType.DOMAIN, VariableType.PATH)}
+    logger.debug(f"Processing URL: {url}")
     
     # Format URL with proper domain/path handling
     formatted_url = url
     
     # Replace domain variables with base_url
-    domain_vars = {name: var for name, var in url_vars.items() 
-                  if var.type == VariableType.DOMAIN}
-    if domain_vars:
-        fixture_params.append('base_url')
-        fixture_names.add('base_url')
-        # Replace first domain variable with base_url
-        first_domain = next(iter(domain_vars))
-        formatted_url = formatted_url.replace(
-            f"{{{{{first_domain}}}}}",
-            "{base_url}"
-        )
-        # Remove other domain variables if any
-        for var_name in list(domain_vars.keys())[1:]:
-            formatted_url = formatted_url.replace(f"{{{{{var_name}}}}}", "")
+    if '{base_url}' in formatted_url or '{{base_url}}' in formatted_url:
+        formatted_url = formatted_url.replace('{base_url}', '').replace('{{base_url}}', '')
     
-    # Handle path variables
-    path_vars = {name: var for name, var in url_vars.items() 
-                if var.type == VariableType.PATH}
-    for var_name in path_vars:
-        fixture_name = sanitize_func(var_name.lower())
-        if fixture_name not in fixture_names:
-            fixture_params.append(fixture_name)
-            fixture_names.add(fixture_name)
-        formatted_url = formatted_url.replace(
-            f"{{{{{var_name}}}}}",
-            "{" + fixture_name + "}"
-        )
+    # Handle other URL variables
+    for var_name in variables:
+        if '{{' + var_name + '}}' in formatted_url and var_name != 'base_url':
+            formatted_url = formatted_url.replace(
+                '{{' + var_name + '}}',
+                "{resolve_variable('" + var_name + "')}"
+            )
     
     params.append(f'        url=urljoin(base_url, f"{formatted_url}"),')
 
     # Handle headers
     if item.request.header:
+        logger.debug("Processing request headers")
         headers = {h.key: h.value for h in item.request.header if not h.disabled}
         if headers:
-            # Get header variables
-            header_vars = {name: var for name, var in variables.items() 
-                         if var.type == VariableType.HEADER}
-            
-            # Add header variables to fixtures
-            for var_name in header_vars:
-                fixture_name = sanitize_func(var_name.lower())
-                if fixture_name not in fixture_names:
-                    fixture_params.append(fixture_name)
-                    fixture_names.add(fixture_name)
-            
             # Format header values
             formatted_headers = {}
             for key, value in headers.items():
                 formatted_value = value
-                for var_name in header_vars:
-                    formatted_value = formatted_value.replace(
-                        f"{{{{{var_name}}}}}",
-                        "{" + sanitize_func(var_name.lower()) + "}"
-                    )
-                formatted_headers[key] = f"f'{formatted_value}'"
+                for var_name in variables:
+                    if '{{' + var_name + '}}' in formatted_value:
+                        formatted_value = formatted_value.replace(
+                            '{{' + var_name + '}}',
+                            "{resolve_variable('" + var_name + "')}"
+                        )
+                formatted_headers[key] = f"{formatted_value}"
             
             params.append(f"        headers={format_dict_func(formatted_headers, indent_level=3)},")
 
     return params, variables, fixture_params
+
 
 def generate_request_body(
     item: 'PostmanItem',
@@ -126,44 +109,52 @@ def generate_request_body(
         - Set of variables found
         - List of fixture parameter names
     """
+    logger.debug(f"Generating request body for: {item.name}")
+    
     if not (item.request.body and item.request.body.raw):
+        logger.debug("No request body found")
         return None, {}, []
 
     import json
     try:
         # Try to parse as JSON
         body_data = json.loads(item.request.body.raw)
+        logger.debug("Successfully parsed request body as JSON")
         variables = variable_extractor(item)
-        body_vars = {name: var for name, var in variables.items() 
-                    if var.type == VariableType.BODY}
-        fixture_params = []
-        fixture_names = set()
 
-        # Add body variables to fixtures
-        for var_name in body_vars:
-            fixture_name = sanitize_func(var_name.lower())
-            if fixture_name not in fixture_names:
-                fixture_params.append(fixture_name)
-                fixture_names.add(fixture_name)
+        def format_value(value):
+            """Recursively format values, handling nested structures."""
+            if isinstance(value, dict):
+                return {k: format_value(v) for k, v in value.items()}
+            elif isinstance(value, list):
+                return [format_value(v) for v in value]
+            else:
+                formatted_v = str(value)
+                # Handle both {{var}} and $random formats
+                for var_name in variables:
+                    if '{{' + var_name + '}}' in formatted_v:
+                        formatted_v = formatted_v.replace(
+                            '{{' + var_name + '}}',
+                            "{resolve_variable('" + var_name + "')}"
+                        )
+                    elif var_name.startswith('$') and var_name in formatted_v:
+                        formatted_v = formatted_v.replace(
+                            var_name,
+                            "{resolve_variable('" + var_name + "')}"
+                        )
+                return formatted_v
 
         # Format body data
         if isinstance(body_data, dict):
-            formatted_data = {}
-            for k, v in body_data.items():
-                formatted_v = str(v)
-                for var_name in body_vars:
-                    formatted_v = formatted_v.replace(
-                        f"{{{{{var_name}}}}}",
-                        "{" + sanitize_func(var_name.lower()) + "}"
-                    )
-                formatted_data[k] = f"f'{formatted_v}'"
+            formatted_data = format_value(body_data)
             return (
                 f"        json={format_dict_func(formatted_data, indent_level=3)},",
-                body_vars,
-                fixture_params
+                variables,
+                []  # No fixture params needed since we use resolve_variable
             )
     except json.JSONDecodeError:
         # If not valid JSON, use raw string
+        logger.debug("Request body is not valid JSON, using raw string")
         return f"        data={repr(item.request.body.raw)},", {}, []
 
     return None, {}, []
