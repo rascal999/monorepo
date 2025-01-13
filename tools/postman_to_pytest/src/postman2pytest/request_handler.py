@@ -116,45 +116,57 @@ def generate_request_body(
         return None, {}, []
 
     import json
-    try:
-        # Try to parse as JSON
-        body_data = json.loads(item.request.body.raw)
-        logger.debug("Successfully parsed request body as JSON")
-        variables = variable_extractor(item)
 
-        def format_value(value):
-            """Recursively format values, handling nested structures."""
-            if isinstance(value, dict):
-                return {k: format_value(v) for k, v in value.items()}
-            elif isinstance(value, list):
-                return [format_value(v) for v in value]
-            else:
-                formatted_v = str(value)
-                # Handle both {{var}} and $random formats
-                for var_name in variables:
-                    if '{{' + var_name + '}}' in formatted_v:
-                        formatted_v = formatted_v.replace(
-                            '{{' + var_name + '}}',
-                            "{resolve_variable('" + var_name + "')}"
-                        )
-                    elif var_name.startswith('$') and var_name in formatted_v:
-                        formatted_v = formatted_v.replace(
-                            var_name,
-                            "{resolve_variable('" + var_name + "')}"
-                        )
-                return formatted_v
+    # Check if content is explicitly marked as JSON
+    is_json = False
+    if (hasattr(item.request.body, 'mode') and item.request.body.mode == 'raw' and
+        hasattr(item.request.body, 'options') and 
+        getattr(item.request.body.options, 'raw', {}).get('language') == 'json'):
+        is_json = True
+        logger.debug("Request body explicitly marked as JSON")
 
-        # Format body data
-        if isinstance(body_data, dict):
-            formatted_data = format_value(body_data)
-            return (
-                f"        json={format_dict_func(formatted_data, indent_level=3)},",
-                variables,
-                []  # No fixture params needed since we use resolve_variable
-            )
-    except json.JSONDecodeError:
-        # If not valid JSON, use raw string
-        logger.debug("Request body is not valid JSON, using raw string")
-        return f"        data={repr(item.request.body.raw)},", {}, []
+    # If not explicitly JSON, try to parse as JSON
+    if not is_json:
+        try:
+            json.loads(item.request.body.raw)
+            is_json = True
+            logger.debug("Successfully parsed request body as JSON")
+        except json.JSONDecodeError:
+            logger.debug("Request body is not valid JSON")
+
+    if is_json:
+        try:
+            body_data = json.loads(item.request.body.raw)
+            variables = variable_extractor(item)
+
+            def format_value(value):
+                """Recursively format values, handling nested structures."""
+                if isinstance(value, dict):
+                    return {k: format_value(v) for k, v in value.items()}
+                elif isinstance(value, list):
+                    return [format_value(v) for v in value]
+                else:
+                    formatted_v = str(value)
+                    # Handle variables in {{...}} format
+                    if '{{' in formatted_v and '}}' in formatted_v:
+                        # Extract variable name from {{...}}
+                        var_name = formatted_v.split('{{')[1].split('}}')[0]
+                        # For both $random and regular variables, use resolve_variable
+                        formatted_v = f"{{resolve_variable('{var_name}')}}"
+                    return formatted_v
+
+            # Format body data
+            if isinstance(body_data, dict):
+                formatted_data = format_value(body_data)
+                return (
+                    f"        json={format_dict_func(formatted_data, indent_level=3)},",
+                    variables,
+                    []  # No fixture params needed since we use resolve_variable
+                )
+            return None, {}, []
+        except json.JSONDecodeError:
+            # If not valid JSON, use raw string
+            logger.debug("Request body is not valid JSON, using raw string")
+            return f"        data={repr(item.request.body.raw)},", {}, []
 
     return None, {}, []

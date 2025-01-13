@@ -191,12 +191,22 @@ def generate_test_function(item: 'PostmanItem', url_formatter, sanitize_func, va
 
     # Add Content-Type for JSON if not present
     if item.request.body and item.request.body.raw:
-        try:
-            json.loads(item.request.body.raw)  # Test if body is valid JSON
-            if 'Content-Type' not in headers:
-                headers['Content-Type'] = 'application/json'
-        except json.JSONDecodeError:
-            pass  # Not JSON data, don't add Content-Type
+        is_json = False
+        # Check if mode is raw and options indicate JSON
+        if (hasattr(item.request.body, 'mode') and item.request.body.mode == 'raw' and
+            hasattr(item.request.body, 'options') and 
+            getattr(item.request.body.options, 'raw', {}).get('language') == 'json'):
+            is_json = True
+        # Fallback: try to parse as JSON
+        if not is_json:
+            try:
+                json.loads(item.request.body.raw)
+                is_json = True
+            except json.JSONDecodeError:
+                pass
+        
+        if is_json and 'Content-Type' not in headers:
+            headers['Content-Type'] = 'application/json'
 
     # Generate headers dictionary string
     header_lines = []
@@ -225,10 +235,13 @@ def generate_test_function(item: 'PostmanItem', url_formatter, sanitize_func, va
 
     # Add request body preparation if present
     if item.request.body and item.request.body.raw:
-        # Check request mode
+        # Check request mode and options
         mode = item.request.body.mode if hasattr(item.request.body, 'mode') else 'raw'
+        is_json = (mode == 'raw' and 
+                  hasattr(item.request.body, 'options') and 
+                  getattr(item.request.body.options, 'raw', {}).get('language') == 'json')
         
-        if mode == 'urlencoded':
+        if mode == 'urlencoded' and not is_json:
             # Handle form data
             form_data = {}
             pairs = item.request.body.raw.split('&')
@@ -253,10 +266,26 @@ def generate_test_function(item: 'PostmanItem', url_formatter, sanitize_func, va
         else:
             # Handle raw/JSON data
             test_lines.extend([
-                "        # Prepare request body",
-                "        request_body = json.loads('''",
+                "        # Load raw JSON body",
+                "        raw_body = json.loads('''",
                 f"{item.request.body.raw}",
                 "''')",
+                "",
+                "        # Process variables in the JSON structure",
+                "        def process_json_value(value):",
+                "            if isinstance(value, dict):",
+                "                return {k: process_json_value(v) for k, v in value.items()}",
+                "            elif isinstance(value, list):",
+                "                return [process_json_value(v) for v in value]",
+                "            elif isinstance(value, str):",
+                "                if '{{' in value and '}}' in value:",
+                "                    var_name = value.split('{{')[1].split('}}')[0]",
+                "                    return resolve_variable(var_name)",
+                "                return value",
+                "            return value",
+                "",
+                "        # Prepare request body with resolved variables",
+                "        request_body = process_json_value(raw_body)",
                 "",
             ])
             headers['Content-Type'] = 'application/json'
@@ -275,7 +304,11 @@ def generate_test_function(item: 'PostmanItem', url_formatter, sanitize_func, va
 
     # Add body to request if present
     if item.request.body and item.request.body.raw:
-        test_lines.append("            json=request_body," if "json=request_body" in "\n".join(test_lines) else "            data=request_body,")
+        # Use json parameter if Content-Type is application/json
+        if headers.get('Content-Type') == 'application/json':
+            test_lines.append("            json=request_body,")
+        else:
+            test_lines.append("            data=request_body,")
 
     # Add response assertion and logging
     test_lines.extend([
