@@ -95,7 +95,26 @@ class AuthHandler:
             cert_path = os.getenv('CERT_PATH')
             verify_arg = cert_path if cert_path else verify
 
-            # Use client credentials grant type
+            # Get proxy settings
+            http_proxy = os.getenv('HTTP_PROXY')
+            https_proxy = os.getenv('HTTPS_PROXY')
+            proxies = {
+                'http': http_proxy,
+                'https': https_proxy
+            } if http_proxy or https_proxy else None
+            logger.debug(f"Using proxy settings: {proxies}")
+
+            # Add proxy authentication if specified
+            proxy_username = os.getenv('PROXY_USERNAME')
+            proxy_password = os.getenv('PROXY_PASSWORD')
+            if proxy_username and proxy_password and proxies:
+                proxies = {
+                    'http': f'http://{proxy_username}:{proxy_password}@{http_proxy.split("://")[1]}' if http_proxy else None,
+                    'https': f'http://{proxy_username}:{proxy_password}@{https_proxy.split("://")[1]}' if https_proxy else None
+                }
+                logger.debug("Using proxy authentication")
+
+            # Use client credentials grant type with proxy settings
             response = requests.post(
                 token_url,
                 auth=(username, password),
@@ -103,7 +122,8 @@ class AuthHandler:
                     'grant_type': 'client_credentials',
                     'scope': ' '.join(scope) if scope else ''
                 },
-                verify=verify_arg
+                verify=verify_arg,
+                proxies=proxies
             )
             response.raise_for_status()
             token = response.json()
@@ -151,7 +171,10 @@ class AuthHandler:
             proxy_username = os.getenv('PROXY_USERNAME')
             proxy_password = os.getenv('PROXY_PASSWORD')
             if proxy_username and proxy_password:
-                session.proxy_auth = (proxy_username, proxy_password)
+                session.proxies = {
+                    'http': f'http://{proxy_username}:{proxy_password}@{http_proxy.split("://")[1]}' if http_proxy else None,
+                    'https': f'http://{proxy_username}:{proxy_password}@{https_proxy.split("://")[1]}' if https_proxy else None
+                }
 
         return session
 

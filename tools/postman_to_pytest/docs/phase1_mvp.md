@@ -96,6 +96,12 @@
   - Domain variables handled separately
   - Base URL from environment
   - Path variables from collection
+  - Response-based variables:
+    - Extract values from test responses using regex patterns
+    - Define source test and file for each response-based variable
+    - Automatically add test dependencies based on variable sources
+    - Centralized response logging in generated_tests root
+    - Test ordering through pytest-dependency plugin
 - Authentication fixtures
   - OAuth token acquisition
   - Token refresh handling
@@ -135,6 +141,7 @@
 ## Dependencies
 - Python 3.8+
 - pytest
+- pytest-dependency (for test ordering)
 - requests[socks]
 - requests-oauthlib
 - pydantic
