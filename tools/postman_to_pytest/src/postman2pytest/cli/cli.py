@@ -15,10 +15,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-from . import __version__
-from .parser import parse_collection
-from .generator import TestGenerator
-from .auth import AuthHandler
+from .. import __version__
+from ..core import parse_collection, TestGenerator
+from ..auth import AuthHandler
 
 
 @click.command()
@@ -86,7 +85,7 @@ def main(input_file: Path, output: Path, version: bool, env_file: bool, verbose:
         click.echo(f"Generating pytest files in: {output}")
         logger.debug("Initializing test generator")
         # Use tools/postman_to_pytest as project root
-        project_root = Path(__file__).parent.parent.parent
+        project_root = Path(__file__).parent.parent.parent.parent
         generator = TestGenerator(
             output, 
             auth_handler, 
@@ -96,10 +95,10 @@ def main(input_file: Path, output: Path, version: bool, env_file: bool, verbose:
         generator.generate_tests(collection, auth_config)
         
         # Report variable extraction results
-        if generator.variables:
-            click.echo(f"\nExtracted {len(generator.variables)} variables:")
+        if generator.variable_processor.variables:
+            click.echo(f"\nExtracted {len(generator.variable_processor.variables)} variables:")
             by_type = {}
-            for var in generator.variables.values():
+            for var in generator.variable_processor.variables.values():
                 if var.type not in by_type:
                     by_type[var.type] = []
                 by_type[var.type].append(var.name)
