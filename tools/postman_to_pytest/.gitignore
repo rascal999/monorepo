@@ -28,3 +28,4 @@ variable_registry.json
 
 # Log files
 *.log
+.oauth_token

@@ -1,9 +1,28 @@
 """Test content generation utilities."""
 
 import json
+import re
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 from .variable_handler import Variable, VariableType
+
+def parse_markdown_link(text: str) -> str:
+    """Extract the text part from a Markdown link.
+    
+    Args:
+        text: Text that may contain a Markdown link [text](url)
+        
+    Returns:
+        The text part if it's a Markdown link, otherwise the original text
+    """
+    if not text:
+        return "No description provided."
+        
+    # Match Markdown link pattern [text](url)
+    match = re.match(r'\[(.*?)\]\((.*?)\)', text.strip())
+    if match:
+        return match.group(1)  # Return just the text part
+    return text
 
 def format_dict(d: dict, indent_level: int = 2) -> str:
     """Format a dictionary as a Python literal with proper indentation."""
@@ -25,9 +44,16 @@ def generate_imports() -> str:
     return "\n".join([
         "import os",
         "import json",
+        "import logging",
         "from pathlib import Path",
         "import pytest",
+        "import requests",
         "from urllib.parse import urljoin",
+        "from auth import AuthHandler",  # Import from local auth.py",
+        "",
+        "# Configure logging",
+        "logger = logging.getLogger(__name__)",
+        "logger.setLevel(logging.INFO)",
         "",
         "",
     ])
@@ -51,13 +77,7 @@ def load_variable_registry() -> Dict[str, dict]:
     return {}
 
 def generate_variable_fixtures(variables: Dict[str, Variable], used_vars: Set[str], sanitize_func) -> str:
-    """Generate pytest fixtures for Postman variables.
-    
-    Args:
-        variables: Dictionary of all available variables
-        used_vars: Set of variable names that are actually used in the test
-        sanitize_func: Function to sanitize variable names
-    """
+    """Generate pytest fixtures for Postman variables."""
     fixtures = []
     
     # Only add registry fixture if we have variables that need it
@@ -123,16 +143,7 @@ def generate_variable_fixtures(variables: Dict[str, Variable], used_vars: Set[st
 from .request_handler import generate_request_params, generate_request_body
 
 def construct_url(url: str, variables: Dict[str, Variable], sanitize_func) -> Tuple[str, List[str]]:
-    """Construct URL with proper handling of domain and path variables.
-    
-    Args:
-        url: Raw URL with variables
-        variables: Dictionary of variables
-        sanitize_func: Function to sanitize variable names
-        
-    Returns:
-        Tuple of (formatted_url, fixture_params)
-    """
+    """Construct URL with proper handling of domain and path variables."""
     fixture_params = []
     result_url = url
     
@@ -212,26 +223,56 @@ def generate_test_function(item: 'PostmanItem', url_formatter, sanitize_func, va
             if var_name in variables:
                 used_vars.add(var_name)
 
-    # Add session to fixture params
+    # Add auth-related fixtures if auth_config is present
+    auth_fixtures = []
+    if auth_config and auth_config.type == "oauth":
+        auth_fixtures.extend([
+            "@pytest.fixture(scope='function')",
+            "def oauth_token(auth_handler):",
+            '    """Get OAuth token for request."""',
+            "    token = auth_handler._get_oauth_token()",
+            "    assert token, 'Failed to obtain OAuth token'",
+            "    return token",
+            "",
+            ""
+        ])
+        # Add Authorization header to request
+        params.append("        headers={'Authorization': f'Bearer {oauth_token}'},")
+
+    # Add auth to fixture params
     fixture_params.extend(body_fixtures)
-    if 'session' not in fixture_params:
-        fixture_params.insert(0, 'session')
+    if auth_config and auth_config.type == "oauth":
+        if 'oauth_token' not in fixture_params:
+            fixture_params.append('oauth_token')
 
     # Join parameters with newlines and proper indentation
     request_params = "\n".join(params)
 
     # Generate fixtures only for used variables
-    fixtures = generate_variable_fixtures(variables, used_vars, sanitize_func)
+    var_fixtures = generate_variable_fixtures(variables, used_vars, sanitize_func)
 
     # Generate the test function
     test_lines = [
-        fixtures,
+        var_fixtures,
+        "\n".join(auth_fixtures) if auth_fixtures else "",
         f"def test_{method}_{name}({', '.join(fixture_params)}):",
-        f'    """Test {item.name}."""',
-        f"    response = session.{method}(",
+        f'    """Test {item.name}.',
+        f"",
+        f"    {parse_markdown_link(item.request.description) if hasattr(item.request, 'description') and item.request.description else 'No description provided.'}",
+        f'    """',
+        f"    # Get SSL verification setting",
+        f"    verify = os.getenv('TLS_VERIFY', 'true').lower() == 'true'",
+        f"    cert_path = os.getenv('CERT_PATH')",
+        f"    verify_arg = cert_path if cert_path else verify",
+        f"",
+        f"    # Create session with SSL verification",
+        f"    with requests.Session() as session:",
+        f"        session.verify = verify_arg",
+        f"",
+        f"        response = session.{method}(",
         request_params.rstrip(','),  # Remove trailing comma from last parameter
-        "    )",
-        "    assert response.status_code == 200  # TODO: Update expected status code",
+        "        )",
+        "        assert response.status_code == 200  # TODO: Update expected status code",
         ""
     ]
 

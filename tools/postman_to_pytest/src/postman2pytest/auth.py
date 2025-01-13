@@ -1,10 +1,14 @@
 """Authentication handling for pytest test generation."""
 
 import os
-from pathlib import Path
-from typing import Dict, Optional
 import json
+import logging
+from pathlib import Path
+from typing import Dict, Optional, List
 from datetime import datetime, timedelta
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 import requests
 from dotenv import load_dotenv
@@ -20,7 +24,7 @@ class AuthConfig(BaseModel):
     value: Optional[str] = None
     in_header: bool = True
     token_url: Optional[str] = None
-    scope: Optional[str] = None
+    scope: Optional[List[str]] = None  # Changed to List[str] since OAuth scopes are a list
     expiry: Optional[int] = 3600
 
 class TokenInfo(BaseModel):
@@ -72,19 +76,28 @@ class AuthHandler:
             username = os.getenv('BASIC_AUTH_USERNAME')
             password = os.getenv('BASIC_AUTH_PASSWORD')
             token_url = os.getenv('OAUTH_TOKEN_URL')
-            scope = os.getenv('OAUTH_SCOPE', '').split()
+            scope = os.getenv('OAUTH_SCOPE', '').split() if os.getenv('OAUTH_SCOPE') else []
             
             if not all([username, password, token_url]):
                 return None
 
-            auth = (username, password)
-            oauth = OAuth2Session(scope=scope)
-            token = oauth.fetch_token(
-                token_url=token_url,
-                auth=auth,
-                username=username,
-                password=password
+            # Get SSL verification setting
+            verify = os.getenv('TLS_VERIFY', 'true').lower() == 'true'
+            cert_path = os.getenv('CERT_PATH')
+            verify_arg = cert_path if cert_path else verify
+
+            # Use client credentials grant type
+            response = requests.post(
+                token_url,
+                auth=(username, password),
+                data={
+                    'grant_type': 'client_credentials',
+                    'scope': ' '.join(scope) if scope else ''
+                },
+                verify=verify_arg
             )
+            response.raise_for_status()
+            token = response.json()
 
             # Cache token
             expires_at = datetime.now().timestamp() + float(token.get('expires_in', 3600))
@@ -95,7 +108,8 @@ class AuthHandler:
             self._save_token(token_info)
             
             return token['access_token']
-        except Exception:
+        except Exception as e:
+            logger.error(f"Failed to get OAuth token: {str(e)}")
             return None
 
     def create_session(self, auth_config: Optional[AuthConfig] = None) -> requests.Session:
@@ -134,47 +148,40 @@ class AuthHandler:
         """Generate pytest fixture for authentication."""
         fixture_code = [
             "import os",
+            "import logging",
+            "import pytest",
+            "import requests",
             "from dotenv import load_dotenv",
-            "from requests_oauthlib import OAuth2Session",
+            "",
+            "logger = logging.getLogger(__name__)",
             "",
             "@pytest.fixture(scope='session')",
             "def auth_handler():",
             '    """Create AuthHandler instance."""',
             "    load_dotenv()",
-            "    return AuthHandler()",
+            "    handler = AuthHandler()",
+            "    # Test OAuth token retrieval on startup",
+            "    token = handler._get_oauth_token()",
+            "    if not token:",
+            '        logger.warning("Failed to obtain initial OAuth token")',
+            "    return handler",
+            "",
+            "@pytest.fixture(scope='function')",
+            "def oauth_token(auth_handler):",
+            '    """Get OAuth token for request."""',
+            "    token = auth_handler._get_oauth_token()",
+            "    assert token, 'Failed to obtain OAuth token'",
+            "    return token",
             "",
             "@pytest.fixture",
-            "def session(auth_handler):",
-            '    """Create an authenticated session."""',
-            "    return auth_handler.create_session(AuthConfig(",
+            "def session(base_url):",
+            '    """Create a session with base URL."""',
+            "    session = requests.Session()",
+            "    session.base_url = base_url",
+            "    return session",
         ]
 
-        if auth_config.type == "oauth":
-            fixture_code.extend([
-                "        type='oauth',",
-                "        token_url=os.getenv('OAUTH_TOKEN_URL'),",
-                "        scope=os.getenv('OAUTH_SCOPE', '').split()",
-                "    ))"
-            ])
-        elif auth_config.type == "apiKey":
-            if auth_config.in_header:
-                fixture_code.extend([
-                    "        type='apiKey',",
-                    f"        key='{auth_config.key}',",
-                    "        value=os.getenv('API_KEY'),",
-                    "        in_header=True",
-                    "    ))"
-                ])
-            else:
-                fixture_code.extend([
-                    "        type='apiKey',",
-                    f"        key='{auth_config.key}',",
-                    "        value=os.getenv('API_KEY'),",
-                    "        in_header=False",
-                    "    ))"
-                ])
-
-        return "\n    ".join(fixture_code)
+        return "\n".join(fixture_code)
 
     def extract_auth_config(self, auth_data: Dict) -> Optional[AuthConfig]:
         """Extract authentication configuration from Postman auth data.
@@ -190,19 +197,14 @@ class AuthHandler:
 
         auth_type = auth_data.get("type", "").lower()
         
-        if auth_type == "basic":
-            # Basic auth indicates OAuth flow
-            username = next(
-                (item["value"] for item in auth_data.get("basic", [])
-                 if item["key"] == "username"),
-                None
+        # Always use OAuth for basic auth or bearer token
+        if auth_type in ("basic", "bearer", "oauth2"):
+            scope = os.getenv('OAUTH_SCOPE', '').split() if os.getenv('OAUTH_SCOPE') else None
+            return AuthConfig(
+                type="oauth",
+                token_url=os.getenv('OAUTH_TOKEN_URL'),
+                scope=scope
             )
-            if username:
-                return AuthConfig(
-                    type="oauth",
-                    token_url=os.getenv('OAUTH_TOKEN_URL'),
-                    scope=os.getenv('OAUTH_SCOPE', '').split()
-                )
         
         elif auth_type == "apikey":
             key = next(
