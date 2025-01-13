@@ -24,9 +24,24 @@ Create a Python tool that converts Postman collection JSON files into pytest tes
    - Support custom authentication headers
 
 4. Variable Management
+   - Extract variables from Postman collection
+   - Load variables from environment files
    - Convert Postman environment variables to pytest fixtures
    - Handle Postman variables in URLs, headers, and body
    - Support dynamic variables and test data
+   - Special handling for domain variables (e.g., env_url)
+   - Proper URL construction (domain vs path variables)
+   - Copy tools/postman_to_pytest/.env file to generated tests directory as .env
+   - Generate variable_registry.json in tools/postman_to_pytest/ from postman collection if it doesn't exist
+   - Copy variable_registry.json to generated_tests/ during test generation
+   - All variables default to fixture source type with placeholder regex patterns
+   - Support variable sources: file (.env), fixtures (default), HTTP responses, collection
+   - Track variable metadata including source, value, and extraction patterns
+   - Support multiple environments
+
+5. Future Variable Enhancements
+   - Support multiple environments
+   - Automatic environment file generation
 
 5. Proxy Support
    - HTTP/HTTPS proxy configuration
@@ -94,6 +109,15 @@ Create a Python tool that converts Postman collection JSON files into pytest tes
    - Function/class docstrings
    - Type hints
    - Inline comments for complex logic
+
+## Environment Configuration
+1. Environment Variables (.env)
+   - Authentication credentials (Basic, Bearer/API Key)
+   - Proxy configuration and authentication
+   - SSL/Certificate settings
+   - Environment selection and base URLs
+   - Test data configuration (path, format, timeout)
+   - Logging settings (level, file, format)
 
 ## Future Considerations
 1. Support for Postman scripts (pre-request and tests)

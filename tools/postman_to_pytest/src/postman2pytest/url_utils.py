@@ -5,14 +5,19 @@ from pathlib import Path
 from typing import List, Union
 from urllib.parse import urlparse
 
-def sanitize_name(name: str) -> str:
-    """Convert a name to a valid Python identifier."""
+def sanitize_name(name: str, preserve_case: bool = False) -> str:
+    """Convert a name to a valid Python identifier.
+    
+    Args:
+        name: Name to sanitize
+        preserve_case: If True, preserve original case, otherwise convert to lowercase
+    """
     # Replace non-alphanumeric chars with underscore
     name = re.sub(r'\W+', '_', name)
     # Ensure name starts with letter
     if name[0].isdigit():
         name = f"test_{name}"
-    return name.lower()
+    return name if preserve_case else name.lower()
 
 def extract_api_path(url: Union[str, 'RequestUrl']) -> List[str]:
     """Extract API path components from URL."""
@@ -52,7 +57,7 @@ def format_url(url: str, variables: set, sanitize_func=sanitize_name) -> str:
     for var in variables:
         formatted_url = formatted_url.replace(
             f"{{{{{var}}}}}",
-            "{" + sanitize_func(var.lower()) + "}"
+            "{" + sanitize_func(var, preserve_case=True) + "}"
         )
     
     # Extract URL parts

@@ -1,0 +1,50 @@
+{
+    "variables": {
+        "CLIENT_ID": {
+            "source": "value",
+            "value": "my_client_id",
+            "description": "Client ID defined directly in registry"
+        },
+        "API_KEY": {
+            "source": "value",
+            "value": "my_api_key",
+            "description": "API key defined directly in registry"
+        },
+        "DOC_ID": {
+            "source": "fixture",
+            "fixture": "doc_id_fixture",
+            "response_pattern": {
+                "regex": "\"doc_id\":\\s*\"([^\"]+)\"",
+                "group": 1,
+                "description": "Extracts doc_id from JSON response"
+            },
+            "description": "Document ID extracted from response"
+        },
+        "USER_ID": {
+            "source": "fixture",
+            "fixture": "user_id_fixture",
+            "description": "User ID generated for test case"
+        },
+        "TOKEN": {
+            "source": "fixture",
+            "fixture": "auth_token_fixture",
+            "description": "Authentication token from OAuth flow"
+        },
+        "BASE_URL": {
+            "source": "collection",
+            "value": "{{baseUrl}}",
+            "description": "Base URL from Postman collection"
+        }
+    },
+    "metadata": {
+        "generated_from": "example_collection.json",
+        "generated_at": "2024-01-01T00:00:00Z",
+        "postman_collection_version": "2.1.0"
+    },
+    "sources": {
+        "value": "Variables defined directly in registry",
+        "fixture": "Variables provided by pytest fixtures (default for new variables)",
+        "response": "Variables extracted from HTTP responses using regex",
+        "collection": "Variables defined in Postman collection"
+    }
+}
