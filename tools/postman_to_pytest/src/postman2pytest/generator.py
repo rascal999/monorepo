@@ -1,5 +1,6 @@
 """Generator module for creating pytest files from Postman collections."""
 
+import json
 import logging
 import shutil
 from pathlib import Path
@@ -80,7 +81,15 @@ from dotenv import load_dotenv
 from requests_oauthlib import OAuth2Session
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+log_path = Path(__file__).resolve().parent.parent / 'test_responses.log'  # Put log in generated_tests root
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_path),
+        logging.StreamHandler()  # Also log to console
+    ]
+)
 logger = logging.getLogger(__name__)
 
 
@@ -146,31 +155,76 @@ def resolve_variable(variable_registry):
     fake = Faker()
     
     def _resolve(var_name: str) -> str:
+        logger.debug(f"Resolving variable: {var_name}")
+        
         if var_name not in variable_registry:
             # Try environment variable if not in registry
             env_value = os.getenv(var_name)
             if env_value:
+                logger.debug(f"Found {var_name} in environment: {env_value}")
                 return env_value
             raise ValueError(f"Variable {var_name} not found in registry or environment")
             
         var_data = variable_registry[var_name]
         source = var_data.get('source')
+        logger.debug(f"Variable {var_name} has source type: {source}")
         
         if source == 'value':
-            return var_data.get('value', '')
+            value = var_data.get('value', '')
+            logger.debug(f"Using value source for {var_name}: {value}")
+            return value
         elif source == 'random' and var_data.get('faker_method'):
             faker_method = getattr(fake, var_data['faker_method'])
-            return str(faker_method())
+            value = str(faker_method())
+            logger.debug(f"Generated random value for {var_name}: {value}")
+            return value
         elif source == 'fixture':
             # Try environment variable first for fixture-type variables
             env_value = os.getenv(var_name)
             if env_value:
+                logger.debug(f"Found fixture {var_name} in environment: {env_value}")
                 return env_value
-            # Fall back to fixture name
-            return var_data.get('value') or os.getenv(var_name.upper(), '')
+                
+            # Check if we have a response pattern to extract value
+            response_pattern = var_data.get('response_pattern')
+            if response_pattern:
+                logger.debug(f"Attempting to extract {var_name} using pattern: {response_pattern['regex']}")
+                
+                # Log dependency info
+                if 'source_test' in response_pattern:
+                    source_test = response_pattern['source_test']
+                    source_file = response_pattern.get('source_file', 'unknown')
+                    logger.debug(f"Variable {var_name} depends on test {source_test} in {source_file}")
+                
+                # Search through pytest log for matching response data
+                log_path = Path(__file__).resolve().parent.parent / 'test_responses.log'  # Put log in generated_tests root
+                if log_path.exists():
+                    log_content = log_path.read_text()
+                    import re
+                    pattern = response_pattern['regex']
+                    matches = re.finditer(pattern, log_content)
+                    # Get the last match (most recent)
+                    match = None
+                    for match in matches:
+                        pass
+                    if match:
+                        value = match.group(int(response_pattern['group']))
+                        logger.debug(f"Extracted value for {var_name} from response: {value}")
+                        return value
+                    else:
+                        logger.debug(f"No match found for {var_name} in response data")
+                else:
+                    logger.debug(f"No test_responses.log found for response extraction")
+                        
+            # Fall back to value or env var
+            value = var_data.get('value') or os.getenv(var_name.upper(), '')
+            logger.debug(f"Using fallback value for {var_name}: {value}")
+            return value
         else:
             # Try environment variable as fallback
-            return os.getenv(var_name, f"{{{var_name}}}")
+            value = os.getenv(var_name, f"{{{var_name}}}")
+            logger.debug(f"Using environment fallback for {var_name}: {value}")
+            return value
     
     return _resolve
 '''
@@ -180,7 +234,6 @@ def resolve_variable(variable_registry):
         logger.debug(f"Created conftest.py at: {conftest_path}")
 
     def _write_test_file(self, item: PostmanItem, file_path: Path, auth_config=None) -> None:
-        logger.debug(f"Writing test file for {item.name} to {file_path}")
         """Write a test file for a Postman request.
         
         Args:
@@ -188,13 +241,31 @@ def resolve_variable(variable_registry):
             file_path: Path where the test file should be written
         """
         logger.debug(f"Writing test file for: {item.name}")
+        
+        # Load variable registry if it exists
+        registry_path = self.project_root / 'variable_registry.json'
+        variable_registry = {}
+        if registry_path.exists():
+            try:
+                variable_registry = json.loads(registry_path.read_text())
+            except Exception as e:
+                logger.warning(f"Failed to load variable registry: {e}")
+
+        # Extract version and client_id from file path
+        parts = file_path.relative_to(self.output_dir).parts
+        version = parts[0] if len(parts) > 0 else None
+        client_id = parts[1] if len(parts) > 1 else None
+
         test_content = (
             generate_test_function(
                 item,
                 url_formatter=format_url,
                 sanitize_func=sanitize_name,
                 variable_extractor=extract_variables,
-                auth_config=auth_config
+                variable_registry=variable_registry,
+                auth_config=auth_config,
+                version=version,
+                client_id=client_id
             )
         )
         file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -202,12 +273,12 @@ def resolve_variable(variable_registry):
         logger.debug(f"Successfully wrote test file: {file_path}")
 
     def _process_items(self, items: List[Union[PostmanItem, PostmanItemGroup]], auth_config=None) -> Dict[str, Variable]:
-        logger.debug(f"Processing {len(items)} items")
         """Process a list of Postman items recursively.
         
         Args:
             items: List of PostmanItem or PostmanItemGroup objects
         """
+        logger.debug(f"Processing {len(items)} items")
         all_variables = {}
         
         for item in items:
@@ -229,7 +300,6 @@ def resolve_variable(variable_registry):
         return all_variables
 
     def generate_tests(self, collection: PostmanCollection, auth_config=None) -> bool:
-        logger.info(f"Starting test generation for collection: {collection.info.name if hasattr(collection.info, 'name') else 'Unnamed'}")
         """Generate pytest test files from a Postman collection.
         
         Args:
@@ -241,6 +311,7 @@ def resolve_variable(variable_registry):
         Raises:
             Exception: If any error occurs during generation
         """
+        logger.info(f"Starting test generation for collection: {collection.info.name if hasattr(collection.info, 'name') else 'Unnamed'}")
         logger.debug(f"Starting test generation for collection with {len(collection.item)} items")
         try:
             # Create output directory if it doesn't exist

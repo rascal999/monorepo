@@ -38,6 +38,11 @@ Create a Python tool that converts Postman collection JSON files into pytest tes
    - Support variable sources: file (.env), fixtures (default), HTTP responses, collection
    - Track variable metadata including source, value, and extraction patterns
    - Support multiple environments
+   - Response-based variables with test dependencies:
+     * Extract values from test responses using regex patterns
+     * Define source test and file for each response-based variable
+     * Automatically add test dependencies based on variable sources
+     * Centralized response logging in generated_tests root
 
 5. Future Variable Enhancements
    - Support multiple environments
