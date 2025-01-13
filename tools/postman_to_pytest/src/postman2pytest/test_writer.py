@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
+
 # Configure logging
 logger = logging.getLogger(__name__)
 from .variable_handler import Variable, VariableType
@@ -46,13 +47,13 @@ def generate_imports() -> List[str]:
         "import json",
         "import logging",
         "from pathlib import Path",
-        "import pytest",
+        "import pytest  # pytest-dependency plugin will be auto-loaded",
         "import requests",
         "from urllib.parse import urljoin",
         "from auth import AuthHandler",
     ]
 
-def generate_test_function(item: 'PostmanItem', url_formatter, sanitize_func, variable_extractor, auth_config=None) -> str:
+def generate_test_function(item: 'PostmanItem', url_formatter, sanitize_func, variable_extractor, variable_registry: dict, auth_config=None, version: str = None, client_id: str = None) -> str:
     """Generate a pytest test function from a Postman request."""
     name = sanitize_func(item.name)
     method = item.request.method.lower()
@@ -90,7 +91,7 @@ def generate_test_function(item: 'PostmanItem', url_formatter, sanitize_func, va
         "",
         "# Configure logging",
         "logger = logging.getLogger(__name__)",
-        "logger.setLevel(logging.INFO)",
+        "logger.setLevel(logging.DEBUG)",
         "",
     ]
 
@@ -107,58 +108,193 @@ def generate_test_function(item: 'PostmanItem', url_formatter, sanitize_func, va
             "",
         ])
 
-    # Generate test function
+    # Add dependency markers
+    test_lines.append("@pytest.mark.dependency()")  # Base marker for this test
+
+    # Add dependencies for variables that come from responses
+    needed_deps = set()
+    for var_name in variables:
+        if var_name in variable_registry.get('variables', {}):
+            var_data = variable_registry['variables'][var_name]
+            if var_data.get('source') == 'fixture' and var_data.get('response_pattern'):
+                response_pattern = var_data['response_pattern']
+                if 'source_test' in response_pattern:
+                    needed_deps.add(response_pattern['source_test'])
+    
+    # Add dependency markers in sorted order
+    for dep in sorted(needed_deps):
+        # Extract module path from source_file in variable registry
+        var_data = None
+        for data in variable_registry.get('variables', {}).values():
+            if data and isinstance(data, dict):
+                response_pattern = data.get('response_pattern', {})
+                if response_pattern and isinstance(response_pattern, dict):
+                    if response_pattern.get('source_test') == dep:
+                        var_data = data
+                        break
+        
+        source_file = ''
+        if var_data and isinstance(var_data, dict):
+            response_pattern = var_data.get('response_pattern', {})
+            if response_pattern and isinstance(response_pattern, dict):
+                source_file = response_pattern.get('source_file', '')
+        if source_file:
+            # Convert path to module notation and prepend generated_tests
+            module_path = f"generated_tests"
+            if version:
+                module_path += f".{version}"
+            if client_id:
+                module_path += f".{client_id}"
+            module_path += f".{source_file.replace('/', '.').replace('.py', '')}"
+            test_lines.append(f"@pytest.mark.dependency(depends=['{module_path}::{dep}'])")
+        else:
+            test_lines.append(f"@pytest.mark.dependency(depends=['{dep}'])")
+
     test_lines.extend([
         f"def test_{method}_{name}({', '.join(fixture_params)}):",
         f'    """Test {item.name}.',
         "",
         f"    {parse_markdown_link(item.request.description) if hasattr(item.request, 'description') and item.request.description else 'No description provided.'}",
         '    """',
-        "    # Get SSL verification setting",
+        "    # Get request configuration",
         "    verify = os.getenv('TLS_VERIFY', 'true').lower() == 'true'",
         "    cert_path = os.getenv('CERT_PATH')",
         "    verify_arg = cert_path if cert_path else verify",
         "",
-        "    # Create session with SSL verification",
+        "    # Get proxy settings",
+        "    http_proxy = os.getenv('HTTP_PROXY')",
+        "    https_proxy = os.getenv('HTTPS_PROXY')",
+        "    proxies = {",
+        "        'http': http_proxy,",
+        "        'https': https_proxy",
+        "    } if http_proxy or https_proxy else None",
+        "    logger.debug(f'Using proxy settings: {proxies}')",
+        "",
+        "    # Create session with SSL verification and proxy",
         "    with requests.Session() as session:",
         "        session.verify = verify_arg",
+        "        logger.debug(f'SSL verification setting: verify_arg={verify_arg}, cert_path={cert_path}')",
         "",
-        "        response = session.post(",
-        f"            url=urljoin(base_url, f'{formatted_url}'),",
+        "        if proxies:",
+        "            session.proxies = proxies",
+        "            logger.debug('Applied proxy settings to session')",
+        "",
+        "        # Construct request URL",
+        f"        url = urljoin(base_url, f'{formatted_url}')",
     ])
 
-    # Add request body if present
+    # Extract headers from Postman request
+    headers = {}
+    if hasattr(item.request, 'header') and item.request.header:
+        for header in item.request.header:
+            headers[header.key] = header.value
+
+    # Add Content-Type for JSON if not present
     if item.request.body and item.request.body.raw:
         try:
-            body_data = json.loads(item.request.body.raw)
-            test_lines.append("            json={")
-            for key, value in body_data.items():
-                if isinstance(value, dict):
-                    test_lines.append(f"                '{key}': {{")
-                    for k, v in value.items():
-                        if isinstance(v, str) and ('{{' in v or '$random' in v):
-                            var_name = v.strip('{}')
-                            test_lines.append(f"                    '{k}': resolve_variable('{var_name}'),")
-                        else:
-                            test_lines.append(f"                    '{k}': '{v}',")
-                    test_lines.append("                },")
-                elif isinstance(value, str) and ('{{' in value or '$random' in value):
-                    var_name = value.strip('{}')
-                    test_lines.append(f"                '{key}': resolve_variable('{var_name}'),")
-                else:
-                    test_lines.append(f"                '{key}': '{value}',")
-            test_lines.append("            },")
+            json.loads(item.request.body.raw)  # Test if body is valid JSON
+            if 'Content-Type' not in headers:
+                headers['Content-Type'] = 'application/json'
         except json.JSONDecodeError:
-            test_lines.append(f"            data='{item.request.body.raw}',")
+            pass  # Not JSON data, don't add Content-Type
 
-    # Add auth header if needed
+    # Generate headers dictionary string
+    header_lines = []
+    for key, value in headers.items():
+        header_lines.append(f"            '{key}': '{value}',")
     if auth_config and auth_config.type == "oauth":
-        test_lines.append("            headers={'Authorization': f'Bearer {oauth_token}'},")
+        header_lines.append("            'Authorization': f'Bearer {oauth_token}',")
 
-    # Add response assertion
+    # Add headers initialization to test
+    if header_lines:
+        test_lines.extend([
+            "        # Initialize request headers",
+            "        headers = {",
+            *header_lines,
+            "        }",
+            "",
+        ])
+    else:
+        test_lines.extend([
+            "        # Initialize request headers",
+            "        headers = {}",
+            "        if 'oauth_token' in locals():",
+            "            headers['Authorization'] = f'Bearer {oauth_token}'",
+            "",
+        ])
+
+    # Add request body preparation if present
+    if item.request.body and item.request.body.raw:
+        # Check request mode
+        mode = item.request.body.mode if hasattr(item.request.body, 'mode') else 'raw'
+        
+        if mode == 'urlencoded':
+            # Handle form data
+            form_data = {}
+            pairs = item.request.body.raw.split('&')
+            for pair in pairs:
+                key, value = pair.split('=', 1)
+                if key in form_data:
+                    if not isinstance(form_data[key], list):
+                        form_data[key] = [form_data[key]]
+                    form_data[key].append(value)
+                else:
+                    form_data[key] = value
+
+            # Add form data preparation
+            test_lines.extend([
+                "        # Prepare form data",
+                "        request_body = {",
+                *[f"            '{k}': '{v}'," for k, v in form_data.items()],
+                "        }",
+                "",
+            ])
+            headers['Content-Type'] = 'application/x-www-form-urlencoded'
+        else:
+            # Handle raw/JSON data
+            test_lines.extend([
+                "        # Prepare request body",
+                "        request_body = json.loads('''",
+                f"{item.request.body.raw}",
+                "''')",
+                "",
+            ])
+            headers['Content-Type'] = 'application/json'
+
+    test_lines.extend([
+        f"        method = '{method}'  # Store HTTP method",
+        "",
+        "        logger.debug(f'Making {method.upper()} request to URL: {url}')",
+        "        logger.debug(f'Request headers: {headers}')",
+        "",
+        "        # Make request",
+        "        response = getattr(session, method)(",
+        "            url=url,",
+        "            headers=headers,",
+    ])
+
+    # Add body to request if present
+    if item.request.body and item.request.body.raw:
+        test_lines.append("            json=request_body," if "json=request_body" in "\n".join(test_lines) else "            data=request_body,")
+
+    # Add response assertion and logging
     test_lines.extend([
         "        )",
+        "        logger.debug(f'Response status code: {response.status_code}')",
+        "        logger.debug(f'Response headers: {dict(response.headers)}')",
+        "",
         "        assert response.status_code == 200  # TODO: Update expected status code",
+        "",
+        "        # Log response for variable extraction",
+        "        try:",
+        "            response_data = response.json()",
+        "            logger.debug(f'Response data for variable extraction: {json.dumps(response_data, indent=2)}')",
+        "            logger.debug(f'Response logged to {Path(__file__).resolve().parent.parent / \"test_responses.log\"}')",
+        "        except json.JSONDecodeError as e:",
+        "            logger.error(f'Failed to parse response as JSON: {e}')",
+        "            logger.debug(f'Raw response content: {response.text}')",
+        "        except Exception as e:",
+        "            logger.error(f'Unexpected error processing response: {e}')",
         "",
     ])
 
