@@ -22,8 +22,9 @@ build/
 .vscode/
 .idea/
 
-# Environment variables
+# Environment variables and configuration
 .env
+variable_registry.json
 
 # Log files
 *.log

@@ -35,13 +35,20 @@
   - Collection file reading
   - Schema validation
   - Error handling
+  - Variable extraction
+- Variable Management
+  - Extract variables from collection
+  - Handle variables through environment files
+  - Special handling for domain variables
+  - Proper URL construction (domain vs path)
 - Simple test file generation
   - Test function creation
   - Basic assertions
   - Request mapping
+  - Variable substitution
 - Basic request handling
   - HTTP method support
-  - URL construction
+  - URL construction (base URL + path)
   - Headers management
   - Request body formatting
   - Proxy configuration
@@ -71,6 +78,24 @@
 - Directory structure mirrors API paths (e.g., /api/v1/users -> tests/api/v1/users/)
 - Separate test files by HTTP verb with verb-first naming (e.g., test_get_users.py, test_post_users.py)
 - Files grouped by HTTP method for easier filtering and running specific types of tests
+- Environment variables handling
+  - Copy tools/postman_to_pytest/.env file to generated tests directory as .env
+  - Variable registry generation:
+    - Generate variable_registry.json in tools/postman_to_pytest/ from postman collection if it doesn't exist
+    - Copy variable_registry.json to generated_tests/ during test generation
+    - All variables default to fixture source type
+    - Include placeholder regex patterns for response extraction
+    - Example registry provided in docs/variable_registry.json.example
+  - Variable registry features:
+    - File-based variables from .env
+    - Fixture-based variables (default source type)
+    - Response-based variables with regex extraction
+    - Collection-based variables from Postman
+  - Track variable metadata and sources
+  - Support regex patterns for response extraction
+  - Domain variables handled separately
+  - Base URL from environment
+  - Path variables from collection
 - Authentication fixtures
   - OAuth token acquisition
   - Token refresh handling
@@ -92,6 +117,8 @@
 3. Basic assertions work correctly
 4. Bearer token authentication functions properly
 5. All essential HTTP methods are supported
+6. Variables are properly extracted and managed
+7. URLs are correctly constructed (domain + path)
 
 ## Testing Plan
 1. Unit Tests
@@ -126,7 +153,7 @@
 ## Next Steps
 After MVP completion, move to Phase 2:
 - Support additional authentication methods
-- Add advanced proxy support
 - Enhance test assertions
 - Support multiple OAuth flows
 - Add automatic OAuth configuration
+- Support for different environments
