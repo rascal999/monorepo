@@ -33,7 +33,7 @@ def test_generator(
     tmp_path: Path, fixture_generator: FixtureGenerator
 ) -> TestFileGenerator:
     """Create test file generator."""
-    return TestFileGenerator(str(tmp_path), fixture_generator)
+    return TestFileGenerator(str(tmp_path), fixture_generator, base_dir=str(tmp_path))
 
 
 def test_sanitize_name(test_generator: TestFileGenerator):
@@ -48,11 +48,19 @@ def test_sanitize_name(test_generator: TestFileGenerator):
     assert test_generator._sanitize_name("2FA Setup") == "test_2fa_setup"
 
 
+@pytest.fixture(autouse=True)
+def setup_env():
+    """Setup test environment variables."""
+    import os
+    os.environ["ENV_URL"] = "http://api.example.com"
+    yield
+    del os.environ["ENV_URL"]
+
 def test_format_request_details(test_generator: TestFileGenerator):
     """Test formatting request details as Python code."""
     request = {
         "method": "POST",
-        "url": {"raw": "http://api.example.com/users", "path": ["users"]},
+        "url": {"raw": "/users", "path": ["users"]},
         "header": [
             {"key": "Content-Type", "value": "application/json"},
             {"key": "Authorization", "value": "Bearer {{token}}"},
@@ -65,8 +73,8 @@ def test_format_request_details(test_generator: TestFileGenerator):
     # Verify method
     assert any('method = "POST"' in line for line in lines)
 
-    # Verify URL formatting
-    assert any('url = "http://api.example.com/users"' in line for line in lines)
+    # Verify URL formatting with ENV_URL
+    assert any('url = f"{ENV_URL}/users"' in line for line in lines)
 
     # Verify headers formatting
     headers_line = next(line for line in lines if "headers =" in line)
@@ -140,7 +148,7 @@ def test_directory_structure(test_generator: TestFileGenerator):
         "path": ["Users", "Management"],
         "request": {
             "method": "POST",
-            "url": {"raw": "http://api.example.com/users"},
+            "url": {"raw": "/users"},
             "body": {"mode": "raw", "raw": "{}"},
         },
     }
@@ -161,6 +169,90 @@ def test_directory_structure(test_generator: TestFileGenerator):
     assert test_path.read_text() == content
 
 
+def test_url_formatting_with_variables(test_generator: TestFileGenerator):
+    """Test URL formatting with empty segments and variable placeholders."""
+    # Test dictionary URL with empty segments and variables
+    request_dict = {
+        "method": "GET",
+        "url": {
+            "raw": "/v2.01//{{CLIENT_ID}}/users/{{USER_ID}}",
+            "path": ["v2.01", "", "{{CLIENT_ID}}", "users", "{{USER_ID}}"]
+        }
+    }
+    
+    lines = test_generator._format_request_details(request_dict)
+    url_line = next(line for line in lines if "url =" in line)
+    assert 'url = f"{ENV_URL}/v2.01/{{CLIENT_ID}}/users/{{USER_ID}}"' in url_line
+
+    # Test string URL with empty segments and variables
+    request_str = {
+        "method": "GET",
+        "url": "/v2.01//{{CLIENT_ID}}//users/{{USER_ID}}"
+    }
+    
+    lines = test_generator._format_request_details(request_str)
+    url_line = next(line for line in lines if "url =" in line)
+    assert 'url = f"{ENV_URL}/v2.01/{{CLIENT_ID}}/users/{{USER_ID}}"' in url_line
+
+
+def test_env_file_copying_with_env(tmp_path: Path):
+    """Test copying .env file to output directory when .env exists."""
+    # Create test .env file
+    env_content = "TEST_VAR=test_value"
+    (tmp_path / ".env").write_text(env_content)
+    
+    # Create test .env.sample file (should be ignored when .env exists)
+    (tmp_path / ".env.sample").write_text("TEST_VAR=sample_value")
+    
+    # Create output directory
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    
+    # Initialize generator with test paths
+    fixture_gen = FixtureGenerator()
+    generator = TestFileGenerator(str(output_dir), fixture_gen, base_dir=str(tmp_path))
+    
+    # Verify .env was copied to output
+    output_env = output_dir / ".env"
+    assert output_env.exists()
+    assert output_env.read_text() == env_content
+
+
+def test_env_file_copying_with_sample(tmp_path: Path):
+    """Test copying .env.sample as .env when no .env exists."""
+    # Create test .env.sample file
+    sample_content = "TEST_VAR=sample_value"
+    (tmp_path / ".env.sample").write_text(sample_content)
+    
+    # Create output directory
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    
+    # Initialize generator with test paths
+    fixture_gen = FixtureGenerator()
+    generator = TestFileGenerator(str(output_dir), fixture_gen, base_dir=str(tmp_path))
+    
+    # Verify .env.sample was copied as .env
+    output_env = output_dir / ".env"
+    assert output_env.exists()
+    assert output_env.read_text() == sample_content
+
+
+def test_env_file_copying_no_files(tmp_path: Path):
+    """Test behavior when neither .env nor .env.sample exist."""
+    # Create output directory
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    
+    # Initialize generator with test paths
+    fixture_gen = FixtureGenerator()
+    generator = TestFileGenerator(str(output_dir), fixture_gen, base_dir=str(tmp_path))
+    
+    # Verify no .env file was created
+    output_env = output_dir / ".env"
+    assert not output_env.exists()
+
+
 def test_dependency_ordering(test_generator: TestFileGenerator):
     """Test proper ordering of dependent tests."""
     # Main request
@@ -168,7 +260,7 @@ def test_dependency_ordering(test_generator: TestFileGenerator):
         "name": "Get User Details",
         "request": {
             "method": "GET",
-            "url": {"raw": "http://api.example.com/users/{{user_id}}"},
+            "url": {"raw": "/users/{{user_id}}"},
         },
     }
 
@@ -178,7 +270,7 @@ def test_dependency_ordering(test_generator: TestFileGenerator):
             "endpoint": "POST /auth/login",
             "request": {
                 "method": "POST",
-                "url": {"raw": "http://api.example.com/auth/login"},
+                "url": {"raw": "/auth/login"},
             },
             "sets": ["token"],
         },
@@ -186,7 +278,7 @@ def test_dependency_ordering(test_generator: TestFileGenerator):
             "endpoint": "POST /users",
             "request": {
                 "method": "POST",
-                "url": {"raw": "http://api.example.com/users"},
+                "url": {"raw": "/users"},
             },
             "sets": ["user_id"],
         },
