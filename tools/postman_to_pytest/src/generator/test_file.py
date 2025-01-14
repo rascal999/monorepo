@@ -4,6 +4,7 @@ Generator for pytest test files from Postman requests and dependencies.
 
 import os
 import json
+import shutil
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 from .fixtures import FixtureGenerator
@@ -16,16 +17,32 @@ class TestFileGenerator:
         output_dir: str,
         fixture_generator: FixtureGenerator,
         auth_manager: Optional[AuthManager] = None,
+        base_dir: Optional[str] = None,
     ):
         """Initialize test file generator.
 
         Args:
             output_dir: Directory to write test files to
             fixture_generator: FixtureGenerator instance for managing fixtures
+            auth_manager: Optional auth manager for OAuth configuration
+            base_dir: Optional base directory to look for .env files (defaults to current directory)
         """
         self.output_dir = Path(output_dir)
         self.fixture_generator = fixture_generator
         self.auth_manager = auth_manager
+        self.base_dir = Path(base_dir) if base_dir else Path('.')
+        self._copy_env_file()
+
+    def _copy_env_file(self):
+        """Copy .env file to output directory if it exists, or .env.sample if .env doesn't exist."""
+        src_env = self.base_dir / '.env'
+        src_env_sample = self.base_dir / '.env.sample'
+        dst_env = self.output_dir / '.env'
+
+        if src_env.exists():
+            shutil.copy2(src_env, dst_env)
+        elif src_env_sample.exists():
+            shutil.copy2(src_env_sample, dst_env)
 
     def _sanitize_name(self, name: str) -> str:
         """Convert request name to valid Python identifier.
@@ -72,9 +89,53 @@ class TestFileGenerator:
         # Format URL
         url = request.get("url", {})
         if isinstance(url, dict):
-            lines.append(f'{indent}url = "{url.get("raw", "")}"')
+            raw_url = url.get("raw", "")
+            # Don't prepend ENV_URL for absolute URLs
+            if raw_url.startswith(("http://", "https://")):
+                lines.append(f'{indent}url = "{raw_url}"')
+            else:
+                # For relative URLs, check if ENV_URL is already in the URL
+                if "{ENV_URL}" in raw_url or "{{ENV_URL}}" in raw_url:
+                    # Convert Postman's double curly braces to Python f-string format
+                    formatted_url = raw_url.replace("{{", "{").replace("}}", "}")
+                    lines.append(f'{indent}url = f"{formatted_url}"')
+                else:
+                    # Handle URL segments while preserving variables
+                    url_segments = raw_url.split('/')
+                    # Filter out empty segments but keep variable placeholders
+                    filtered_segments = [seg for seg in url_segments if seg or '{' in seg]
+                    # Remove any leading/trailing empty segments
+                    while filtered_segments and not filtered_segments[0]:
+                        filtered_segments.pop(0)
+                    while filtered_segments and not filtered_segments[-1]:
+                        filtered_segments.pop()
+                    raw_url = '/'.join(filtered_segments)
+                    # Prepend ENV_URL since it's not in the URL
+                    lines.append(f'{indent}url = f"{{ENV_URL}}/{raw_url}"')
         else:
-            lines.append(f'{indent}url = "{url}"')
+            # Same logic for string URLs
+            if str(url).startswith(("http://", "https://")):
+                lines.append(f'{indent}url = "{url}"')
+            else:
+                # For relative URLs, check if ENV_URL is already in the URL
+                url_str = str(url)
+                if "{ENV_URL}" in url_str or "{{ENV_URL}}" in url_str:
+                    # Convert Postman's double curly braces to Python f-string format
+                    formatted_url = url_str.replace("{{", "{").replace("}}", "}")
+                    lines.append(f'{indent}url = f"{formatted_url}"')
+                else:
+                    # Handle URL segments while preserving variables
+                    url_segments = url_str.split('/')
+                    # Filter out empty segments but keep variable placeholders
+                    filtered_segments = [seg for seg in url_segments if seg or '{' in seg]
+                    # Remove any leading/trailing empty segments
+                    while filtered_segments and not filtered_segments[0]:
+                        filtered_segments.pop(0)
+                    while filtered_segments and not filtered_segments[-1]:
+                        filtered_segments.pop()
+                    url_str = '/'.join(filtered_segments)
+                    # Prepend ENV_URL since it's not in the URL
+                    lines.append(f'{indent}url = f"{{ENV_URL}}/{url_str}"')
 
         # Format headers
         headers = {}
@@ -128,22 +189,37 @@ class TestFileGenerator:
         if "uses" not in request_details:
             request_details["uses"] = []
 
-        # Add variables to request's uses list
-        for var_name in variables.keys():
-            request_details["uses"].append((var_name, "dynamic"))
+        # Add only non-environment variables to request's uses list
+        for var_name, setters in variables.items():
+            # Check if variable is environment type in dependencies
+            if var_name in request_details.get("uses_variables", {}) and \
+               request_details["uses_variables"][var_name].get("type") != "environment":
+                request_details["uses"].append((var_name, "dynamic"))
 
-        # Initialize uses list for dependencies
+        # Initialize uses list for dependencies, excluding environment variables
         for dep in dependencies:
             if "uses" not in dep:
                 dep["uses"] = []
-                # Add variables this dependency sets
+                # Add only non-environment variables this dependency sets
                 for var in dep.get("sets", []):
-                    dep["uses"].append((var, "dynamic"))
+                    if var in dep.get("uses_variables", {}) and \
+                       dep["uses_variables"][var].get("type") != "environment":
+                        dep["uses"].append((var, "dynamic"))
 
         lines = [
             "import pytest",
             "import requests",
+            "import base64",
+            "import os",
             "from typing import Dict, Any",
+            "from dotenv import load_dotenv",
+            "",
+            "# Load environment variables",
+            "load_dotenv()",
+            "",
+            "# Environment configuration",
+            "ENV_URL = os.getenv('ENV_URL')",
+            "TLS_VERIFY = os.getenv('TLS_VERIFY', 'true').lower() == 'true'",
             "",
             "# Auth configuration",
             "AUTH_TOKEN_URL = None",
@@ -156,24 +232,25 @@ class TestFileGenerator:
             "    from requests_oauthlib import OAuth2Session",
             "    from oauthlib.oauth2 import BackendApplicationClient",
             "",
+            "    # Allow insecure transport for testing",
+            "    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'",
+            "",
             "    # Create session with OAuth2",
             "    client = BackendApplicationClient(client_id=BASIC_AUTH_USERNAME)",
             "    session = OAuth2Session(client=client)",
             "",
-            "    # Get token using client credentials grant",
-            "    import base64",
-            "    # Create basic auth header",
-            "    auth_header = base64.b64encode(",
-            "        f'{BASIC_AUTH_USERNAME}:{BASIC_AUTH_PASSWORD}'.encode()",
-            "    ).decode('utf-8')",
+            "    # Create Basic auth header for token request",
+            "    auth_str = f'{BASIC_AUTH_USERNAME}:{BASIC_AUTH_PASSWORD}'",
+            "    auth_bytes = auth_str.encode('ascii')",
+            "    auth_header = base64.b64encode(auth_bytes).decode('ascii')",
             "",
-            "    # Get token with basic auth",
+            "    # Get token using client credentials grant",
             "    token = session.fetch_token(",
             "        token_url=AUTH_TOKEN_URL,",
+            "        client_id=BASIC_AUTH_USERNAME,",
+            "        client_secret=BASIC_AUTH_PASSWORD,",
             "        headers={'Authorization': f'Basic {auth_header}'},",
-            "        auth=None,  # Disable default auth to use headers",
-            "        client_id=None,  # Not needed with basic auth header",
-            "        client_secret=None,  # Not needed with basic auth header",
+            "        verify=TLS_VERIFY",
             "    )",
             "",
             "    return session",
@@ -210,7 +287,8 @@ class TestFileGenerator:
                     "        method=method,",
                     "        url=url,",
                     "        headers=headers,",
-                    "        data=data",
+                    "        data=data,",
+                    "        verify=TLS_VERIFY",
                     "    )",
                     "    assert response.status_code == 200",
                 ]
@@ -259,7 +337,8 @@ class TestFileGenerator:
                 "        method=method,",
                 "        url=url,",
                 "        headers=headers,",
-                "        data=data",
+                "        data=data,",
+                "        verify=TLS_VERIFY",
                 "    )",
                 "    assert response.status_code == 200",
             ]
