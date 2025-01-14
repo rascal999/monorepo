@@ -1,0 +1,169 @@
+# Postman Dependency Graph Generator
+
+## Project Purpose
+Create a tool that analyzes Postman collections to generate a visual dependency graph showing relationships between API endpoints based on variable usage and data flow.
+
+## Core Requirements
+
+1. Collection Analysis
+   - Parse Postman collection JSON files
+   - Extract all endpoints (URLs and methods)
+   - Identify variables used in each request:
+     * URL parameters
+     * Headers
+     * Request body
+     * Query parameters
+   - Analyze test scripts for:
+     * Variable extractions from responses
+     * Environment variable updates
+     * Data storage for subsequent requests
+
+2. Dependency Detection
+   - Track variable sources and consumers
+   - Identify request dependencies:
+     * Direct dependencies (request B uses variables from request A)
+     * Indirect dependencies (transitive relationships)
+     * Authentication token dependencies
+     * Environment variable dependencies
+   - Map data flow between requests:
+     * Response data extraction
+     * Variable passing patterns
+     * State dependencies
+
+3. Graph Generation
+   - Create directed graph representation:
+     * Nodes: API endpoints
+     * Edges: Dependencies between endpoints
+     * Edge labels: Variable names and types
+   - Include metadata:
+     * HTTP methods
+     * Variable types (response, environment, etc.)
+     * Authentication requirements
+   - Support different output formats:
+     * DOT format for Graphviz
+     * JSON for web visualization
+     * Mermaid markdown
+     * PlantUML
+
+4. Visualization Features
+   - Color coding:
+     * Different HTTP methods
+     * Authentication requirements
+     * Variable types
+   - Edge styling:
+     * Dependency types
+     * Data flow direction
+     * Critical path highlighting
+   - Node information:
+     * Endpoint URL
+     * HTTP method
+     * Variables used/produced
+   - Subgraph grouping:
+     * By folder structure
+     * By domain/service
+     * By authentication scope
+
+5. Analysis Output
+   - Summary statistics:
+     * Total endpoints
+     * Dependencies per endpoint
+     * Circular dependencies
+     * Isolated endpoints
+   - Detailed reports:
+     * Variable usage matrix
+     * Dependency chains
+     * Authentication flows
+     * Critical paths
+   - Warning detection:
+     * Circular dependencies
+     * Missing variable sources
+     * Orphaned endpoints
+     * Complex dependency chains
+
+## Technical Requirements
+
+1. Input Processing
+   - Support Postman collection v2.0+
+   - Handle multiple collection files
+   - Process environment files
+   - Variable scope resolution
+
+2. Output Generation
+   - Multiple format support
+   - Configurable styling
+   - Interactive graph options
+   - Export capabilities
+
+3. Performance
+   - Efficient graph algorithms
+   - Large collection handling
+   - Memory optimization
+   - Caching support
+
+4. Code Structure
+   - Modular design
+   - Clear separation of concerns:
+     * Collection parsing
+     * Dependency analysis
+     * Graph generation
+     * Visualization
+   - Extensible architecture
+   - Well-documented interfaces
+
+## Usage Requirements
+
+1. Command Line Interface
+   - Input collection path
+   - Output format selection
+   - Styling options
+   - Analysis depth control
+   - Filter capabilities
+
+2. Configuration Options
+   - Graph styling
+   - Output formats
+   - Analysis depth
+   - Grouping preferences
+   - Filter criteria
+
+3. Error Handling
+   - Invalid collection format
+   - Missing dependencies
+   - Circular reference detection
+   - Resource limitations
+
+## Documentation Requirements
+
+1. User Guide
+   - Installation instructions
+   - Usage examples
+   - Configuration options
+   - Output format details
+   - Troubleshooting guide
+
+2. Technical Documentation
+   - Architecture overview
+   - API documentation
+   - Graph algorithm details
+   - Extension points
+   - Performance considerations
+
+## Future Considerations
+
+1. Integration Features
+   - CI/CD pipeline integration
+   - API documentation generation
+   - Test coverage analysis
+   - Change impact analysis
+
+2. Advanced Analysis
+   - Request timing dependencies
+   - Data transformation tracking
+   - Security dependency analysis
+   - Performance bottleneck detection
+
+3. Interactive Features
+   - Web-based visualization
+   - Real-time graph updates
+   - Dependency path exploration
+   - Impact analysis simulation
