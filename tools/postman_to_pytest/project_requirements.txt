@@ -1,60 +1,60 @@
-# Postman to Pytest Converter
+# Postman to Pytest Generator
+
 ## Project Purpose
-Create a Python tool that converts Postman collection JSON files into pytest test files.
+Create a tool that generates pytest files for Postman collection endpoints, maintaining proper test ordering based on variable dependencies.
 
 ## Core Requirements
+
 1. Input Processing
-   - Accept Postman collection JSON file as input
-   - Validate JSON structure matches Postman collection schema
-   - Support Postman collection format v2.0 and above
+   - Parse dependency YAML files (output from postman_dependency_graph)
+   - Handle endpoint selection via CLI
+   - Support folder exclusion options
+   - Process variable dependencies
 
 2. Test Generation
-   - Convert each Postman request into a pytest test function
-   - Generate appropriate test assertions based on Postman tests
-   - Create a test_cases.md file listing all tests per endpoint
-   - Maintain request headers, body, and parameters
-   - Support different HTTP methods (GET, POST, PUT, DELETE, etc.)
-   - Handle environment variables and test data
-   - Document expected responses and status codes for each test
+   - Create pytest files with proper test ordering
+   - Generate fixtures for shared variables
+   - Handle environment variables
+   - Support dynamic data dependencies
+   - Maintain proper test isolation
 
-3. Authentication Support
-   - Support basic authentication
-   - Handle bearer token authentication
-   - Support API key authentication with different scopes
-   - Support custom authentication headers
+3. Variable Management
+   - Generate fixtures for variables set by dependencies
+   - Handle different variable types:
+     * Dynamic variables from other endpoints
+     * Environment variables
+     * Static variables
+   - Support variable scoping
+   - Clean up variables after tests
 
-4. Variable Management
-   - Extract variables from Postman collection
-   - Load variables from environment files
-   - Convert Postman environment variables to pytest fixtures
-   - Handle Postman variables in URLs, headers, and body
-   - Support dynamic variables and test data
-   - Special handling for domain variables (e.g., env_url)
-   - Proper URL construction (domain vs path variables)
-   - Copy tools/postman_to_pytest/.env file to generated tests directory as .env
-   - Generate variable_registry.json in tools/postman_to_pytest/ from postman collection if it doesn't exist
-   - Copy variable_registry.json to generated_tests/ during test generation
-   - All variables default to fixture source type with placeholder regex patterns
-   - Support variable sources: file (.env), fixtures (default), HTTP responses, collection
-   - Track variable metadata including source, value, and extraction patterns
-   - Support multiple environments
-   - Response-based variables with test dependencies:
-     * Extract values from test responses using regex patterns
-     * Define source test and file for each response-based variable
-     * Automatically add test dependencies based on variable sources
-     * Centralized response logging in generated_tests root
+4. Test Structure
+   - Generate setup fixtures
+   - Create test functions
+   - Handle dependencies through fixture dependencies
+   - Support test parameterization
+   - Include proper assertions
+   - Add docstrings and comments
 
-5. Future Variable Enhancements
-   - Support multiple environments
-   - Automatic environment file generation
+## Technical Requirements
 
-5. Proxy Support
-   - HTTP/HTTPS proxy configuration
-   - Support for proxy authentication
-   - Custom certificate handling
-   - Proxy bypass for specific hosts
-   - Support for different proxy configurations per environment
+1. Input Requirements
+   - YAML dependency file path
+   - Target endpoint
+   - Optional folder exclusions
+   - Output directory specification
 
+2. Output Structure
+   - Generated test file per endpoint
+   - Shared fixtures file
+   - Common utilities
+   - Configuration files
+
+3. Code Organization
+   - Modular design
+   - Clear separation of concerns:
+     * CLI handling
+     * Dependency analysis
+     * Test generation
 ## Technical Requirements
 1. Python Dependencies
    - Python 3.8+
