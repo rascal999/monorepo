@@ -1,0 +1,6 @@
+# YAML files
+*.yml
+*.yaml
+
+# Collections directory
+collections/
