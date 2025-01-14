@@ -44,6 +44,7 @@ generated_tests/
 
 # OAuth token file
 .oauth_token
+.test_token
 
 # Logs
 *.log
