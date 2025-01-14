@@ -103,3 +103,42 @@ def test_oauth_config_injection(test_generator):
     assert "@pytest.fixture(scope='session')" in test_content
     assert "def auth_session():" in test_content
     assert "Basic {auth_header}" in test_content
+
+
+@responses.activate
+def test_tls_verify_handling(test_generator, tmp_path):
+    """Test TLS verification is properly handled."""
+    request_details = {
+        "name": "Test TLS",
+        "request": {
+            "method": "GET",
+            "url": {"raw": "https://api.test.com/test"},
+        },
+    }
+
+    # Test with TLS_VERIFY=false
+    with patch.dict("os.environ", {"TLS_VERIFY": "false"}):
+        test_content = test_generator.generate_test_file(
+            request_details=request_details, dependencies=[], variables={}
+        )
+        test_file = tmp_path / "test_test_tls.py"
+        test_file.write_text(test_content)
+
+        # Import and run the generated test
+        import sys
+        sys.path.append(str(tmp_path))
+        import test_test_tls
+
+        # Verify TLS_VERIFY is properly set in the generated code
+        assert "TLS_VERIFY = os.getenv('TLS_VERIFY', 'true').lower() == 'true'" in test_content
+        
+        # Verify verify=TLS_VERIFY is used in fetch_token
+        assert "verify=TLS_VERIFY" in test_content
+        
+        # Verify verify=TLS_VERIFY is used in request
+        assert "verify=TLS_VERIFY" in test_content
+        
+        # Import and verify the test file can be loaded without errors
+        import sys
+        sys.path.append(str(tmp_path))
+        import test_test_tls

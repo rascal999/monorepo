@@ -26,7 +26,7 @@ def sample_collection() -> Dict[str, Any]:
                         "request": {
                             "method": "POST",
                             "url": {
-                                "raw": "http://api.example.com/auth/login",
+                                "raw": "/auth/login",
                                 "path": ["auth", "login"],
                             },
                             "body": {
@@ -45,7 +45,7 @@ def sample_collection() -> Dict[str, Any]:
                         "request": {
                             "method": "GET",
                             "url": {
-                                "raw": "http://api.example.com/users/{{user_id}}",
+                                "raw": "/users/{{user_id}}",
                                 "path": ["users", "{{user_id}}"],
                             },
                             "header": [
@@ -58,7 +58,7 @@ def sample_collection() -> Dict[str, Any]:
                         "request": {
                             "method": "POST",
                             "url": {
-                                "raw": "http://api.example.com/users",
+                                "raw": "/users",
                                 "path": ["users"],
                             },
                             "body": {

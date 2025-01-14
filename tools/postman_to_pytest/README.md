@@ -36,6 +36,17 @@ pip install -e .
 
 ### Basic Usage
 
+1. Create a `.env` file with your environment configuration:
+```bash
+# Environment Configuration
+ENV_URL=https://api.example.com
+# OAuth Configuration
+BASIC_AUTH_USERNAME=your_username
+BASIC_AUTH_PASSWORD=your_password
+OAUTH_TOKEN_URL=https://api.example.com/oauth/token
+```
+
+2. Run the converter:
 ```bash
 postman2pytest \
   --collection input.json \
@@ -163,12 +174,20 @@ Example generated test:
 ```python
 import pytest
 import requests
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Environment configuration
+ENV_URL = os.getenv('ENV_URL')
 
 @pytest.mark.dependency()
 def test_post_auth_login():
     """Test login endpoint to get auth token."""
     response = requests.post(
-        "http://api.example.com/auth/login",
+        f"{ENV_URL}/auth/login",
         json={"username": "test", "password": "password"}
     )
     assert response.status_code == 200
@@ -178,7 +197,7 @@ def test_post_auth_login():
 def test_get_user(token):
     """Test get user endpoint."""
     response = requests.get(
-        "http://api.example.com/users/123",
+        f"{ENV_URL}/users/123",
         headers={"Authorization": f"Bearer {token}"}
     )
     assert response.status_code == 200
@@ -226,6 +245,7 @@ postman-to-pytest/
 - Basic variable type support
 - No support for complex variable transformations
 - Manual test assertion configuration
+- OAuth2 requires HTTPS by default. For testing with HTTP, set OAUTHLIB_INSECURE_TRANSPORT=1
 
 ## Contributing
 
