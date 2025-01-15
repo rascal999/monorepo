@@ -36,7 +36,17 @@ pip install -e .
 
 ### Basic Usage
 
-1. Create a `.env` file with your environment configuration:
+1. Create a `.env` file in either:
+   - The project root directory (recommended)
+   - The current working directory
+   - Or use `.env.sample` as a template (will be copied as `.env`)
+
+Note: The tool will automatically:
+   - Create the output directory if it doesn't exist
+   - Copy your `.env` file (or `.env.sample`) to the output directory
+   - This ensures environment variables are available when running the generated tests
+
+Example `.env` configuration:
 ```bash
 # Environment Configuration
 ENV_URL=https://api.example.com
