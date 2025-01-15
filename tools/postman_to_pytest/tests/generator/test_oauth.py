@@ -26,12 +26,14 @@ def auth_manager():
 
 
 @pytest.fixture
-def test_generator(auth_manager):
+def test_generator(auth_manager, tmp_path):
     """Create TestFileGenerator with auth manager."""
+    output_dir = tmp_path / "generated_tests"
+    output_dir.mkdir(parents=True, exist_ok=True)
     return TestFileGenerator(
-        output_dir="generated_tests",
+        output_dir=str(output_dir),
         fixture_generator=FixtureGenerator(),
-        auth_manager=auth_manager,
+        auth_manager=auth_manager
     )
 
 
@@ -70,9 +72,9 @@ def test_oauth_authentication_flow(test_generator, tmp_path):
         session_instance.token = {"access_token": "test_token"}
         session_instance.request.return_value.status_code = 200
 
-        # Run the test
+        # Run the test with required fixtures
         test_func = getattr(test_view_a_user, "test_test_view_a_user")
-        test_func(session_instance)
+        test_func(session_instance, "https://api.test.com", True)
 
         # Verify API request
         assert session_instance.request.called
@@ -82,7 +84,7 @@ def test_oauth_authentication_flow(test_generator, tmp_path):
         assert request_args.kwargs["headers"]["Authorization"] == "Bearer test_token"
 
 
-def test_oauth_config_injection(test_generator):
+def test_oauth_config_injection(test_generator, tmp_path):
     """Test OAuth configuration is properly injected into test files."""
     request_details = {
         "name": "Test request",
@@ -94,15 +96,19 @@ def test_oauth_config_injection(test_generator):
         request_details=request_details, dependencies=[], variables={}
     )
 
-    # Verify OAuth configuration is present
-    assert 'AUTH_TOKEN_URL = "https://api.test.com/oauth/token"' in test_content
-    assert 'BASIC_AUTH_USERNAME = "test_client"' in test_content
-    assert 'BASIC_AUTH_PASSWORD = "test_secret"' in test_content
-
     # Verify auth_session fixture is included
     assert "@pytest.fixture(scope='session')" in test_content
-    assert "def auth_session():" in test_content
-    assert "Basic {auth_header}" in test_content
+    assert "def auth_session(tls_verify):" in test_content
+    assert "verify=tls_verify" in test_content
+    
+    # Read conftest.py to verify OAuth configuration
+    conftest_path = tmp_path / "generated_tests" / "conftest.py"
+    conftest_content = conftest_path.read_text()
+    
+    # Verify OAuth configuration in conftest.py
+    assert 'AUTH_TOKEN_URL = "https://api.test.com/oauth/token"' in conftest_content
+    assert 'BASIC_AUTH_USERNAME = "test_client"' in conftest_content
+    assert 'BASIC_AUTH_PASSWORD = "test_secret"' in conftest_content
 
 
 @responses.activate
@@ -129,14 +135,8 @@ def test_tls_verify_handling(test_generator, tmp_path):
         sys.path.append(str(tmp_path))
         import test_test_tls
 
-        # Verify TLS_VERIFY is properly set in the generated code
-        assert "TLS_VERIFY = os.getenv('TLS_VERIFY', 'true').lower() == 'true'" in test_content
-        
-        # Verify verify=TLS_VERIFY is used in fetch_token
-        assert "verify=TLS_VERIFY" in test_content
-        
-        # Verify verify=TLS_VERIFY is used in request
-        assert "verify=TLS_VERIFY" in test_content
+        # Verify tls_verify fixture is used in fetch_token and request
+        assert "verify=tls_verify" in test_content
         
         # Import and verify the test file can be loaded without errors
         import sys

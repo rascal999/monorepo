@@ -192,6 +192,13 @@
   * .env file for configuration
   * .env.sample for documentation
   * Secure credential handling
+  * Environment variables loaded by conftest.py
+  * Common variables provided as pytest fixtures:
+    - env_url: Base URL for API requests
+    - tls_verify: SSL verification setting
+  * Generated tests use fixtures instead of direct env var access
+  * Centralized environment configuration in conftest.py
+  * Easy override of environment settings through pytest fixtures
 
 ## Limitations
 - Single target endpoint per conversion (when using --target or --name)

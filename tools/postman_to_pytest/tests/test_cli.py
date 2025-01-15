@@ -125,6 +125,15 @@ def test_cli_basic(
 ):
     """Test basic CLI functionality."""
     output_dir = tmp_path / "generated_tests"
+    output_dir.mkdir(exist_ok=True)
+    
+    # Create a sample .env file
+    env_content = """
+    OAUTH_TOKEN_URL=https://auth.example.com/token
+    BASIC_AUTH_USERNAME=test_client
+    BASIC_AUTH_PASSWORD=test_secret
+    """
+    (output_dir / ".env").write_text(env_content.strip())
 
     result = runner.invoke(
         main,
@@ -153,6 +162,15 @@ def test_cli_target_endpoint(
 ):
     """Test CLI with target endpoint."""
     output_dir = tmp_path / "generated_tests"
+    output_dir.mkdir(exist_ok=True)
+    
+    # Create a sample .env file
+    env_content = """
+    OAUTH_TOKEN_URL=https://auth.example.com/token
+    BASIC_AUTH_USERNAME=test_client
+    BASIC_AUTH_PASSWORD=test_secret
+    """
+    (output_dir / ".env").write_text(env_content.strip())
 
     result = runner.invoke(
         main,
@@ -183,6 +201,15 @@ def test_cli_target_name(
 ):
     """Test CLI with target name."""
     output_dir = tmp_path / "generated_tests"
+    output_dir.mkdir(exist_ok=True)
+    
+    # Create a sample .env file
+    env_content = """
+    OAUTH_TOKEN_URL=https://auth.example.com/token
+    BASIC_AUTH_USERNAME=test_client
+    BASIC_AUTH_PASSWORD=test_secret
+    """
+    (output_dir / ".env").write_text(env_content.strip())
 
     result = runner.invoke(
         main,
@@ -211,6 +238,15 @@ def test_cli_folder_exclusions(
 ):
     """Test CLI with folder exclusions."""
     output_dir = tmp_path / "generated_tests"
+    output_dir.mkdir(exist_ok=True)
+    
+    # Create a sample .env file
+    env_content = """
+    OAUTH_TOKEN_URL=https://auth.example.com/token
+    BASIC_AUTH_USERNAME=test_client
+    BASIC_AUTH_PASSWORD=test_secret
+    """
+    (output_dir / ".env").write_text(env_content.strip())
 
     result = runner.invoke(
         main,
