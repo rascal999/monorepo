@@ -33,6 +33,7 @@ def fixture_generator() -> FixtureGenerator:
 def auth_manager() -> AuthManager:
     """Create auth manager for testing."""
     import os
+
     os.environ["TESTING"] = "true"
     os.environ["OAUTH_TOKEN_URL"] = "https://auth.example.com/token"
     os.environ["BASIC_AUTH_USERNAME"] = "test_client"
@@ -51,7 +52,7 @@ def test_generate_auth_config(content_generator: TestContentGenerator, tmp_path)
     # Create output directory
     output_dir = tmp_path / "generated_tests"
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Generate test file to trigger conftest.py creation
     request_details = {
         "name": "Test request",
@@ -60,37 +61,42 @@ def test_generate_auth_config(content_generator: TestContentGenerator, tmp_path)
     test_generator = TestFileGenerator(
         output_dir=str(output_dir),
         fixture_generator=FixtureGenerator(),
-        auth_manager=content_generator.auth_manager
+        auth_manager=content_generator.auth_manager,
     )
     test_generator.generate_test_file(request_details, [], {})
-    
+
     # Read conftest.py to verify OAuth configuration
     conftest_path = output_dir / "conftest.py"
     conftest_content = conftest_path.read_text()
-    
+
     # Verify OAuth configuration in conftest.py
-    assert 'AUTH_TOKEN_URL = "https://auth.example.com/token"' in conftest_content
-    assert 'BASIC_AUTH_USERNAME = "test_client"' in conftest_content
-    assert 'BASIC_AUTH_PASSWORD = "test_secret"' in conftest_content
+    assert 'AUTH_TOKEN_URL = os.getenv("OAUTH_TOKEN_URL")' in conftest_content
+    assert 'BASIC_AUTH_USERNAME = os.getenv("BASIC_AUTH_USERNAME")' in conftest_content
+    assert 'BASIC_AUTH_PASSWORD = os.getenv("BASIC_AUTH_PASSWORD")' in conftest_content
+    assert 'if not all([BASIC_AUTH_USERNAME, BASIC_AUTH_PASSWORD, AUTH_TOKEN_URL]):' in conftest_content
+    assert '    pytest.skip("Missing required environment variables for authentication")' in conftest_content
 
 
 def test_generate_imports(content_generator: TestContentGenerator):
     """Test generating import statements."""
     import_lines = "\n".join(content_generator._generate_imports())
-    
+
     # Check essential imports
     assert "import pytest" in import_lines
     assert "import requests" in import_lines
     assert "import base64" in import_lines
     assert "import os" in import_lines
     assert "from typing import Dict, Any" in import_lines
-    
+
     # Check environment variable imports
     assert "ENV_URL = os.getenv('ENV_URL')" in import_lines
     assert "CLIENT_ID = os.getenv('CLIENT_ID')" in import_lines
     assert "USER_LEGAL_OWNER = os.getenv('USER_LEGAL_OWNER')" in import_lines
 
-def test_generate_test_with_env_variables(content_generator: TestContentGenerator, fixture_generator: FixtureGenerator):
+
+def test_generate_test_with_env_variables(
+    content_generator: TestContentGenerator, fixture_generator: FixtureGenerator
+):
     """Test generating test content with environment variables."""
     request_details = {
         "name": "View User",
@@ -101,10 +107,7 @@ def test_generate_test_with_env_variables(content_generator: TestContentGenerato
     }
 
     content = content_generator.generate_test_content(
-        request_details,
-        [],  # no dependencies
-        {},  # no variables
-        fixture_generator
+        request_details, [], {}, fixture_generator  # no dependencies  # no variables
     )
 
     # Verify environment variable imports
@@ -119,40 +122,40 @@ def test_generate_test_with_env_variables(content_generator: TestContentGenerato
 def test_generate_auth_fixture(content_generator: TestContentGenerator):
     """Test generating auth fixture."""
     fixture_lines = "\n".join(content_generator._generate_auth_fixture())
-    
+
     # Check fixture definition
     assert "@pytest.fixture(scope='session')" in fixture_lines
     assert "def auth_session(tls_verify):" in fixture_lines
-    
+
     # Check OAuth2 setup
-    assert "from requests_oauthlib import OAuth2Session" in fixture_lines
-    assert "from oauthlib.oauth2 import BackendApplicationClient" in fixture_lines
-    
-    # Check environment variable imports
-    assert "BASIC_AUTH_USERNAME = os.getenv('BASIC_AUTH_USERNAME')" in fixture_lines
-    assert "BASIC_AUTH_PASSWORD = os.getenv('BASIC_AUTH_PASSWORD')" in fixture_lines
-    assert "AUTH_TOKEN_URL = os.getenv('OAUTH_TOKEN_URL')" in fixture_lines
-    
-    # Check token fetching
+    assert "client = BackendApplicationClient(client_id=BASIC_AUTH_USERNAME)" in fixture_lines
+    assert "session = OAuth2Session(client=client)" in fixture_lines
+
+    # Check token fetching with error handling
+    assert "try:" in fixture_lines
     assert "token = session.fetch_token(" in fixture_lines
     assert "verify=tls_verify" in fixture_lines
+    assert "except Exception as e:" in fixture_lines
+    assert 'pytest.skip(f"Failed to fetch OAuth token: {str(e)}")' in fixture_lines
     assert "return session" in fixture_lines
 
 
-def test_generate_test_function(content_generator: TestContentGenerator, fixture_generator: FixtureGenerator):
+def test_generate_test_function(
+    content_generator: TestContentGenerator, fixture_generator: FixtureGenerator
+):
     """Test generating a test function."""
     # Add the user_data fixture first
     fixture_generator.add_fixture(
         name="user_data",
         var_type="dynamic",
         scope="function",
-        docstring="User data from response"
+        docstring="User data from response",
     )
-    
+
     request_details = {
         "method": "GET",
         "url": {"raw": "/users/{{user_id}}"},
-        "sets": ["user_data"]
+        "sets": ["user_data"],
     }
 
     function_lines = content_generator._generate_test_function(
@@ -160,25 +163,33 @@ def test_generate_test_function(content_generator: TestContentGenerator, fixture
         request_details=request_details,
         dependencies=["test_create_user"],
         variables=["user_id"],
-        fixture_generator=fixture_generator
+        fixture_generator=fixture_generator,
     )
-    
+
     # Check function definition
     assert '@pytest.mark.dependency(depends=["test_create_user"])' in function_lines
-    assert "def test_get_user(auth_session, env_url, tls_verify, user_id):" in function_lines
-    
+    assert (
+        "def test_get_user(auth_session, env_url, tls_verify, user_id):"
+        in function_lines
+    )
+
     # Check request setup
     assert '    method = "GET"' in function_lines
     assert '    url = f"{env_url}/users/{{user_id}}"' in function_lines
-    
+
     # Debug output
     print("\nGenerated function lines:")
     for line in function_lines:
         print(f"'{line}'")
-    
+
     # Check response handling
-    assert any(line.strip().startswith("response = auth_session.request(") for line in function_lines)
-    assert any(line.strip() == "assert response.status_code == 200" for line in function_lines)
+    assert any(
+        line.strip().startswith("response = auth_session.request(")
+        for line in function_lines
+    )
+    assert any(
+        line.strip() == "assert response.status_code == 200" for line in function_lines
+    )
 
 
 def test_generate_test_content(
@@ -217,10 +228,7 @@ def test_generate_test_content(
     variables = {"token": ["POST /auth/login"], "user_id": ["POST /users"]}
 
     content = content_generator.generate_test_content(
-        request,
-        dependencies,
-        variables,
-        fixture_generator
+        request, dependencies, variables, fixture_generator
     )
 
     # Verify imports and configuration
@@ -246,7 +254,9 @@ def test_generate_test_content(
     assert "assert response.status_code == 200" in content
 
 
-def test_dependency_ordering(content_generator: TestContentGenerator, fixture_generator: FixtureGenerator):
+def test_dependency_ordering(
+    content_generator: TestContentGenerator, fixture_generator: FixtureGenerator
+):
     """Test proper ordering of dependent tests."""
     # Main request
     request = {
@@ -278,10 +288,7 @@ def test_dependency_ordering(content_generator: TestContentGenerator, fixture_ge
     ]
 
     content = content_generator.generate_test_content(
-        request,
-        dependencies,
-        {},
-        fixture_generator
+        request, dependencies, {}, fixture_generator
     )
 
     # Find positions of test functions

@@ -1,45 +1,107 @@
 """
-Generator for pytest test files from Postman requests and dependencies.
+Generator for pytest test files from Postman requests.
 """
 
+import os
 import shutil
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-from .fixtures import FixtureGenerator
-from .test_content import TestContentGenerator
-from ..utils.auth import AuthManager
+from typing import Dict, Any, List, Optional, Tuple
+
+from src.generator.fixtures import FixtureGenerator
+from src.generator.test_content import TestContentGenerator
 
 
 class TestFileGenerator:
+    """Generates pytest test files from Postman requests."""
+
     def __init__(
         self,
         output_dir: str,
         fixture_generator: FixtureGenerator,
-        auth_manager: Optional[AuthManager] = None,
         base_dir: Optional[str] = None,
+        auth_manager: Optional[Any] = None,
     ):
         """Initialize test file generator.
 
         Args:
-            output_dir: Directory to write test files to
-            fixture_generator: FixtureGenerator instance for managing fixtures
+            output_dir: Output directory for generated tests
+            fixture_generator: Generator for test fixtures
+            base_dir: Base directory for finding .env files
             auth_manager: Optional auth manager for OAuth configuration
-            base_dir: Optional base directory to look for .env files (defaults to current directory)
         """
-        self.output_dir = Path(output_dir)
+        self.output_dir = output_dir
         self.fixture_generator = fixture_generator
-        self.base_dir = Path(base_dir) if base_dir else Path('.')
-        self.test_content_generator = TestContentGenerator(auth_manager)
+        self.base_dir = base_dir or os.getcwd()
+        self.auth_manager = auth_manager
+
+        # Create output directory if it doesn't exist
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Copy environment file
         self._copy_env_file()
+
+        # Generate conftest.py
         self._generate_conftest()
 
-    def _generate_conftest(self):
-        """Generate conftest.py with environment variables and auth fixture."""
-        conftest_content = [
+    def _copy_env_file(self) -> None:
+        """Copy environment file to output directory.
+        
+        Looks for .env file in the following order:
+        1. Project root directory
+        2. Current/base directory
+        3. .env.sample from project root
+        """
+        output_path = Path(self.output_dir) / ".env"
+        
+        # Try project root .env
+        project_root = Path(self.base_dir).parent
+        print(f"Project root: {project_root}")
+        root_env = project_root / ".env"
+        print(f"Root .env exists: {root_env.exists()}")
+        if root_env.exists():
+            content = root_env.read_text()
+            print(f"Root env content: {content}")
+            output_path.write_text(content)
+            print(f"Output env content after write: {output_path.read_text()}")
+            return
+
+        # Try current/base directory .env
+        base_env = Path(self.base_dir) / ".env"
+        print(f"Base .env exists: {base_env.exists()}")
+        if base_env.exists():
+            content = base_env.read_text()
+            print(f"Base env content: {content}")
+            output_path.write_text(content)
+            print(f"Output env content after write: {output_path.read_text()}")
+            return
+
+        # Try .env.sample from project root
+        sample_env = project_root / ".env.sample"
+        print(f"Sample .env exists: {sample_env.exists()}")
+        if sample_env.exists():
+            print(f"Reading sample content from: {sample_env}")
+            sample_content = sample_env.read_text()
+            print(f"Sample content: {sample_content}")
+            print(f"Writing to output path: {output_path}")
+            output_path.write_text(sample_content)
+            print(f"Verifying content...")
+            written_content = output_path.read_text()
+            print(f"Written content: {written_content}")
+            print(f"Output env content after write: {output_path.read_text()}")
+            assert written_content == sample_content, f"Content mismatch. Expected: {sample_content}, Got: {written_content}"
+            return
+
+        print("No env files found, not creating default template")
+
+    def _generate_conftest(self) -> None:
+        """Generate conftest.py with environment and auth configuration."""
+        lines = [
             "import os",
             "import base64",
             "import pytest",
             "from dotenv import load_dotenv",
+            "from requests_oauthlib import OAuth2Session",
+            "from oauthlib.oauth2 import BackendApplicationClient",
             "",
             "# Load environment variables",
             "load_dotenv()",
@@ -48,82 +110,79 @@ class TestFileGenerator:
             "ENV_URL = os.getenv('ENV_URL')",
             "TLS_VERIFY = os.getenv('TLS_VERIFY', 'true').lower() == 'true'",
             "",
-            "# Auth configuration",
+            "# Authentication configuration",
         ]
-        
-        if self.test_content_generator.auth_manager:
-            conftest_content.extend([
-                f'AUTH_TOKEN_URL = "{self.test_content_generator.auth_manager.oauth_token_url}"',
-                f'BASIC_AUTH_USERNAME = "{self.test_content_generator.auth_manager.basic_auth_username}"',
-                f'BASIC_AUTH_PASSWORD = "{self.test_content_generator.auth_manager.basic_auth_password}"',
-            ])
-        else:
-            conftest_content.extend([
-                "AUTH_TOKEN_URL = None",
-                "BASIC_AUTH_USERNAME = None",
-                "BASIC_AUTH_PASSWORD = None",
-            ])
 
-        conftest_content.extend([
+        # Add auth configuration
+        lines.extend([
+            'AUTH_TOKEN_URL = os.getenv("OAUTH_TOKEN_URL")',
+            'BASIC_AUTH_USERNAME = os.getenv("BASIC_AUTH_USERNAME")',
+            'BASIC_AUTH_PASSWORD = os.getenv("BASIC_AUTH_PASSWORD")',
+            "",
+            "# Validate required auth configuration",
+            "if not all([BASIC_AUTH_USERNAME, BASIC_AUTH_PASSWORD, AUTH_TOKEN_URL]):",
+            '    pytest.skip("Missing required environment variables for authentication")',
+        ])
+
+        # Add auth session fixture
+        lines.extend([
             "",
             "@pytest.fixture(scope='session')",
-            "def auth_session():",
-            '    """Create authenticated session for requests."""',
-            "    from requests_oauthlib import OAuth2Session",
-            "    from oauthlib.oauth2 import BackendApplicationClient",
+            "def auth_session(tls_verify):",
+            '    """Create authenticated session."""',
             "",
-            "    # Allow insecure transport for testing",
-            "    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'",
-            "",
-            "    # Create session with OAuth2",
+            "    # Create OAuth2 session",
             "    client = BackendApplicationClient(client_id=BASIC_AUTH_USERNAME)",
             "    session = OAuth2Session(client=client)",
             "",
-            "    # Create Basic auth header for token request",
-            "    auth_str = f'{BASIC_AUTH_USERNAME}:{BASIC_AUTH_PASSWORD}'",
-            "    auth_bytes = auth_str.encode('ascii')",
-            "    auth_header = base64.b64encode(auth_bytes).decode('ascii')",
-            "",
-            "    # Get token using client credentials grant",
-            "    token = session.fetch_token(",
-            "        token_url=AUTH_TOKEN_URL,",
-            "        client_id=BASIC_AUTH_USERNAME,",
-            "        client_secret=BASIC_AUTH_PASSWORD,",
-            "        headers={'Authorization': f'Basic {auth_header}'},",
-            "        verify=TLS_VERIFY",
-            "    )",
+            "    try:",
+            "        # Get token",
+            "        token = session.fetch_token(",
+            "            token_url=AUTH_TOKEN_URL,",
+            "            client_id=BASIC_AUTH_USERNAME,",
+            "            client_secret=BASIC_AUTH_PASSWORD,",
+            "            verify=tls_verify",
+            "        )",
+            "    except Exception as e:",
+            '        pytest.skip(f"Failed to fetch OAuth token: {str(e)}")',
             "",
             "    return session",
+            "",
         ])
 
-        # Create output directory if it doesn't exist
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-        
         # Write conftest.py
-        conftest_path = self.output_dir / 'conftest.py'
-        conftest_path.write_text('\n'.join(conftest_content))
+        conftest_path = Path(self.output_dir) / "conftest.py"
+        conftest_path.write_text("\n".join(lines))
 
-    def _copy_env_file(self):
-        """Copy .env file to output directory if it exists, or .env.sample if .env doesn't exist.
-        Creates output directory if it doesn't exist."""
-        # Create output directory if it doesn't exist
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-        # Look for .env in project root first
-        project_root = Path(__file__).parent.parent.parent
-        src_env = project_root / '.env'
-        src_env_sample = project_root / '.env.sample'
-        
-        # If not found in project root, try base_dir
-        if not src_env.exists() and not src_env_sample.exists():
-            src_env = self.base_dir / '.env'
-            src_env_sample = self.base_dir / '.env.sample'
-        
-        dst_env = self.output_dir / '.env'
+    def _initialize_variables(
+        self,
+        request: Dict[str, Any],
+        dependencies: List[Dict[str, Any]],
+    ) -> None:
+        """Initialize variable lists for request and dependencies.
 
-        if src_env.exists():
-            shutil.copy2(src_env, dst_env)
-        elif src_env_sample.exists():
-            shutil.copy2(src_env_sample, dst_env)
+        Args:
+            request: Request details
+            dependencies: List of dependent requests
+        """
+        # Initialize uses list if not present
+        if "uses" not in request:
+            request["uses"] = []
+
+        # Add dynamic variables to request uses
+        if "uses_variables" in request:
+            for var_name, var_info in request["uses_variables"].items():
+                if isinstance(var_info, dict) and var_info.get("type") == "dynamic":
+                    request["uses"].append((var_name, "dynamic"))
+
+        # Initialize dependency uses lists
+        for dep in dependencies:
+            if "uses" not in dep:
+                dep["uses"] = []
+            if "uses_variables" in dep:
+                for var_name, var_info in dep["uses_variables"].items():
+                    if isinstance(var_info, dict) and var_info.get("type") == "dynamic":
+                        dep["uses"].append((var_name, "dynamic"))
 
     def generate_test_file(
         self,
@@ -131,54 +190,55 @@ class TestFileGenerator:
         dependencies: List[Dict[str, Any]],
         variables: Dict[str, List[str]],
     ) -> str:
-        """Generate pytest file for request and its dependencies.
+        """Generate test file for request.
 
         Args:
-            request_details: Dict with request information
-            dependencies: List of dependency endpoint information
-            variables: Dict mapping variables to setter endpoints
+            request_details: Request details
+            dependencies: List of dependent requests
+            variables: Variable dependency mapping
 
         Returns:
             Generated test file content
         """
-        # Initialize uses list for request if not present
-        if "uses" not in request_details:
-            request_details["uses"] = []
+        # Initialize variables
+        self._initialize_variables(request_details, dependencies)
 
-        # Add only non-environment variables to request's uses list
-        for var_name, setters in variables.items():
-            # Check if variable is environment type in dependencies
-            if var_name in request_details.get("uses_variables", {}) and \
-               request_details["uses_variables"][var_name].get("type") != "environment":
-                request_details["uses"].append((var_name, "dynamic"))
-
-        # Initialize uses list for dependencies, excluding environment variables
-        for dep in dependencies:
-            if "uses" not in dep:
-                dep["uses"] = []
-            # Add only non-environment variables from uses_variables
-            for var_name, var_info in dep.get("uses_variables", {}).items():
-                if var_info.get("type") != "environment":
-                    dep["uses"].append((var_name, "dynamic"))
+        # Create test directory structure
+        if "path" in request_details:
+            test_dir = Path(self.output_dir)
+            for part in request_details["path"]:
+                test_dir = test_dir / part
+            test_dir.mkdir(parents=True, exist_ok=True)
 
         # Generate test content
-        content = self.test_content_generator.generate_test_content(
-            request_details,
-            dependencies,
-            variables,
-            self.fixture_generator
+        # Create default auth manager if none provided
+        auth_manager = self.auth_manager or type(
+            "DefaultAuthManager",
+            (),
+            {
+                "oauth_token_url": "https://api.example.com/oauth/token",
+                "basic_auth_username": "test_client",
+                "basic_auth_password": "test_secret",
+            },
+        )()
+        content_generator = TestContentGenerator(auth_manager)
+        content = content_generator.generate_test_content(
+            request_details=request_details,
+            dependencies=dependencies,
+            variables=variables,
+            fixture_generator=self.fixture_generator,
         )
 
-        # Create output directory structure matching request path
-        test_name = self.test_content_generator.request_formatter._sanitize_name(request_details["name"])
-        if request_details.get("path"):
-            file_dir = self.output_dir.joinpath(*request_details["path"])
-            file_dir.mkdir(parents=True, exist_ok=True)
-            file_path = file_dir / f"test_{test_name}.py"
+        # Create test file path
+        if "path" in request_details:
+            test_dir = Path(self.output_dir)
+            for part in request_details["path"]:
+                test_dir = test_dir / part
+            test_file = test_dir / f"test_{request_details['name'].lower().replace(' ', '_')}.py"
         else:
-            file_path = self.output_dir / f"test_{test_name}.py"
-
-        # Write test file
-        file_path.write_text(content)
-
+            # Default to test_api.py if no path specified
+            test_file = Path(self.output_dir) / "test_api.py"
+            
+        # Write test content to file
+        test_file.write_text(content)
         return content

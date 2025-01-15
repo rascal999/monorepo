@@ -54,8 +54,11 @@ def test_auth_manager_init(mock_env):
 
 def test_get_proxy_dict(mock_env):
     """Test proxy dictionary generation."""
-    auth = AuthManager()
-    proxies = auth._get_proxy_dict()
+    # Temporarily remove TESTING flag to test proxy configuration
+    env_without_testing = {k: v for k, v in mock_env.items() if k != "TESTING"}
+    with patch.dict("os.environ", env_without_testing, clear=True):
+        auth = AuthManager()
+        proxies = auth._get_proxy_dict()
 
     expected_proxy = f"http://{mock_env['PROXY_USERNAME']}:{mock_env['PROXY_PASSWORD']}@proxy.test:8080"
     expected_https = f"https://{mock_env['PROXY_USERNAME']}:{mock_env['PROXY_PASSWORD']}@proxy.test:8080"
@@ -84,7 +87,7 @@ def test_token_file_operations(mock_env, token_exists):
     test_token = {"access_token": "test_token", "expires_in": 3600}
     mock_file = mock_open()
 
-    with patch.dict("os.environ", {"TESTING": "true"}, clear=True):
+    with patch.dict("os.environ", {**mock_env, "TESTING": "true"}):
         with patch("builtins.open", mock_file):
             with patch("os.path.exists", return_value=token_exists):
                 auth = AuthManager()
@@ -96,12 +99,12 @@ def test_token_file_operations(mock_env, token_exists):
                 )
 
                 # Test load token
-                with patch("json.load", return_value=test_token):
-                    loaded_token = auth._load_token()
-                    if token_exists:
-                        assert loaded_token == test_token
-                    else:
-                        assert loaded_token is None
+                mock_file.return_value.read.return_value = '{"access_token":"test_token","expires_in":3600}'
+                loaded_token = auth._load_token()
+                if token_exists:
+                    assert loaded_token == test_token
+                else:
+                    assert loaded_token is None
 
 
 @patch("src.utils.auth.OAuth2Session")

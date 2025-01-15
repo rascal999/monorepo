@@ -9,7 +9,7 @@ from src.generator.request_formatter import RequestFormatter
 def test_sanitize_name():
     """Test sanitizing names for Python identifiers."""
     formatter = RequestFormatter()
-    
+
     # Test basic conversion
     assert formatter._sanitize_name("Get User") == "test_get_user"
 
@@ -24,6 +24,7 @@ def test_sanitize_name():
 def setup_env():
     """Setup test environment variables."""
     import os
+
     os.environ["ENV_URL"] = "http://api.example.com"
     os.environ["CLIENT_ID"] = "test_client"
     os.environ["USER_LEGAL_OWNER"] = "test_user"
@@ -67,16 +68,16 @@ def test_format_request_details():
 def test_url_formatting_with_variables():
     """Test URL formatting with empty segments and variable placeholders."""
     formatter = RequestFormatter()
-    
+
     # Test dictionary URL with empty segments and variables
     request_dict = {
         "method": "GET",
         "url": {
             "raw": "/v2.01//{{CLIENT_ID}}/users/{{USER_LEGAL_OWNER}}",
-            "path": ["v2.01", "", "{{CLIENT_ID}}", "users", "{{USER_LEGAL_OWNER}}"]
-        }
+            "path": ["v2.01", "", "{{CLIENT_ID}}", "users", "{{USER_LEGAL_OWNER}}"],
+        },
     }
-    
+
     lines = formatter.format_request_details(request_dict)
     url_line = next(line for line in lines if "url =" in line)
     assert 'url = f"{env_url}/v2.01/{CLIENT_ID}/users/{USER_LEGAL_OWNER}"' in url_line
@@ -84,41 +85,43 @@ def test_url_formatting_with_variables():
     # Test string URL with empty segments and variables
     request_str = {
         "method": "GET",
-        "url": "/v2.01//{{CLIENT_ID}}//users/{{USER_LEGAL_OWNER}}"
+        "url": "/v2.01//{{CLIENT_ID}}//users/{{USER_LEGAL_OWNER}}",
     }
-    
+
     lines = formatter.format_request_details(request_str)
     url_line = next(line for line in lines if "url =" in line)
     assert 'url = f"{env_url}/v2.01/{CLIENT_ID}/users/{USER_LEGAL_OWNER}"' in url_line
 
+
 def test_url_formatting_with_env_url():
     """Test URL formatting with ENV_URL variable."""
     formatter = RequestFormatter()
-    
+
     # Test with ENV_URL in the raw URL
     request = {
         "method": "GET",
         "url": {
             "raw": "{{ENV_URL}}/v2.01/{{CLIENT_ID}}/users",
-        }
+        },
     }
-    
+
     lines = formatter.format_request_details(request)
     url_line = next(line for line in lines if "url =" in line)
     assert 'url = f"{env_url}/v2.01/{CLIENT_ID}/users"' in url_line
 
+
 def test_url_formatting_with_absolute_url():
     """Test URL formatting with absolute URLs."""
     formatter = RequestFormatter()
-    
+
     # Test with absolute URL
     request = {
         "method": "GET",
         "url": {
             "raw": "https://api.example.com/v2.01/{{CLIENT_ID}}/users",
-        }
+        },
     }
-    
+
     lines = formatter.format_request_details(request)
     url_line = next(line for line in lines if "url =" in line)
     assert 'url = "https://api.example.com/v2.01/{{CLIENT_ID}}/users"' in url_line

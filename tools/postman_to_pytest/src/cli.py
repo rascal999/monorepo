@@ -66,12 +66,11 @@ class PostmanToPytestGenerator:
         # Initialize parsers
         self.collection_parser = PostmanCollectionParser(
             collection_path=collection_path,
-            exclude_folders=self.exclude_collection_folders,
-            auth_manager=self.auth_manager,
+            exclude_folders=self.exclude_collection_folders
         )
         self.dependency_parser = DependencyGraphParser(
             dependency_file=self.dependencies_path,
-            exclude_folders=self.exclude_dependency_folders
+            exclude_folders=self.exclude_dependency_folders,
         )
 
     def _resolve_target(self) -> Optional[Dict[str, Any]]:
@@ -119,10 +118,9 @@ class PostmanToPytestGenerator:
         for request in requests:
             # Get dependencies for this request
             # Extract endpoint from request
-            method = request['request'].get('method', 'GET')
-            url = request['request'].get('url', {})
-            path = url.get('path', []) if isinstance(url, dict) else []
-            endpoint = f"{method} {'/'.join(path)}"
+            method = request["request"]["method"]
+            url = request["request"]["url"]["raw"]
+            endpoint = f"{method} {url}"
             dependencies = self.dependency_parser.get_endpoint_dependencies(endpoint)
 
             # Get variable dependencies
@@ -130,7 +128,9 @@ class PostmanToPytestGenerator:
 
             # Generate test file
             test_generator.generate_test_file(
-                request_details=request, dependencies=dependencies, variables=variables
+                request_details=request,
+                dependencies=dependencies,
+                variables=variables,
             )
 
         click.echo(f"Successfully generated test files in {self.output_dir}")

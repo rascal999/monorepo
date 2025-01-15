@@ -1,184 +1,126 @@
 """
 Parser for Postman collection JSON files.
-Extracts request details, folder structure, and test information.
 """
 
 import json
+from typing import Dict, Any, List, Optional
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-from ..utils.auth import AuthManager
 
 
 class PostmanCollectionParser:
-    def __init__(
-        self,
-        collection_path: str,
-        exclude_folders: Optional[List[str]] = None,
-        auth_manager: Optional[AuthManager] = None,
-    ):
-        """Initialize parser with collection file path and options.
+    """Parser for Postman collection JSON files."""
+
+    def __init__(self, collection_path: str, exclude_folders: Optional[List[str]] = None):
+        """Initialize collection parser.
 
         Args:
-            collection_path: Path to Postman collection JSON file
-            exclude_folders: Optional list of folder names to exclude
+            collection_path: Path to collection JSON file
+            exclude_folders: List of folders to exclude from parsing
         """
-        self.collection_path = collection_path
+        self.file_path = collection_path
         self.exclude_folders = exclude_folders or []
-        self.auth_manager = auth_manager
         self.collection = self._load_collection()
 
     def _load_collection(self) -> Dict[str, Any]:
-        """Load and validate Postman collection JSON file.
+        """Load and validate collection file.
 
         Returns:
-            Dict containing the parsed collection data
+            Parsed collection data
 
         Raises:
-            FileNotFoundError: If collection file doesn't exist
-            ValueError: If collection format is invalid
+            ValueError: If file is invalid or missing required data
         """
-        if not Path(self.collection_path).exists():
-            raise FileNotFoundError(
-                f"Collection file not found: {self.collection_path}"
-            )
+        try:
+            with open(self.file_path) as f:
+                data = json.load(f)
 
-        with open(self.collection_path) as f:
-            collection = json.load(f)
+            # Validate basic structure
+            if not isinstance(data, dict):
+                raise ValueError("Invalid collection format")
+            if "info" not in data or "item" not in data:
+                raise ValueError("Missing required collection fields")
 
-        # Validate basic collection structure
-        if "info" not in collection or "item" not in collection:
-            raise ValueError("Invalid Postman collection format")
+            return data
 
-        return collection
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON format: {str(e)}")
+        except FileNotFoundError as e:
+            raise ValueError(f"Collection file not found: {str(e)}")
+        except Exception as e:
+            raise ValueError(f"Error loading collection: {str(e)}")
 
-    def _should_exclude(self, folder_path: List[str]) -> bool:
-        """Check if folder path should be excluded.
+    def _normalize_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        """Normalize request data to handle variations in field names.
 
         Args:
-            folder_path: List of folder names forming path
+            request: Raw request data
 
         Returns:
-            True if path contains excluded folder, False otherwise
+            Normalized request data
         """
-        return any(folder in folder_path for folder in self.exclude_folders)
+        normalized = request.copy()
 
-    def _extract_request_details(self, request: Dict[str, Any]) -> Dict[str, Any]:
-        """Extract relevant details from request object.
+        # Normalize headers field
+        if "header" in request:
+            normalized["headers"] = request["header"]
+        elif "headers" in request:
+            normalized["headers"] = request["headers"]
+        else:
+            normalized["headers"] = []
+
+        return normalized
+
+    def _should_exclude(self, path: List[str]) -> bool:
+        """Check if path should be excluded.
 
         Args:
-            request: Request object from collection
+            path: Path components
 
         Returns:
-            Dict containing extracted request details
+            True if path should be excluded
         """
-        if not isinstance(request, dict):
-            return {}
-
-        details = {
-            "method": request.get("method", ""),
-            "url": request.get("url", {}),
-            "headers": self._merge_headers(request.get("header", [])),
-            "auth": self._get_auth_config(request.get("auth", {})),
-        }
-
-        # Extract URL components if present
-        if isinstance(details["url"], dict):
-            details["url"] = {
-                "raw": details["url"].get("raw", ""),
-                "path": details["url"].get("path", []),
-                "query": details["url"].get("query", []),
-                "variable": details["url"].get("variable", []),
-            }
-
-        # Handle request body if present
-        if "body" in request:
-            details["body"] = request["body"]
-
-        return details
-
-    def _merge_headers(self, headers: List[Dict[str, str]]) -> List[Dict[str, str]]:
-        """Merge request headers with auth headers.
-
-        Args:
-            headers: List of header dictionaries from request
-
-        Returns:
-            List of merged headers including auth headers
-        """
-        if not self.auth_manager:
-            return headers
-
-        # Convert auth headers to Postman format
-        auth_headers = [
-            {"key": k, "value": v} for k, v in self.auth_manager.get_headers().items()
-        ]
-
-        # Remove any existing auth headers with same keys
-        filtered_headers = [
-            h for h in headers if h.get("key") not in self.auth_manager.get_headers()
-        ]
-
-        return filtered_headers + auth_headers
-
-    def _get_auth_config(self, auth_config: Dict[str, Any]) -> Dict[str, Any]:
-        """Get authentication configuration.
-
-        Args:
-            auth_config: Authentication config from request
-
-        Returns:
-            Updated auth configuration with OAuth details
-        """
-        if not self.auth_manager:
-            return auth_config
-
-        # Add OAuth configuration
-        return {
-            "type": "oauth2",
-            "oauth2": {
-                "tokenUrl": self.auth_manager.oauth_token_url,
-                "scope": " ".join(self.auth_manager.oauth_scope),
-                "clientId": self.auth_manager.basic_auth_username,
-                "clientSecret": self.auth_manager.basic_auth_password,
-            },
-        }
+        return any(folder in path for folder in self.exclude_folders)
 
     def get_request_by_name(self, name: str) -> Optional[Dict[str, Any]]:
-        """Find request by its Postman name (folder path + name).
+        """Find request by name.
 
         Args:
-            name: Full request name (e.g. "User Management/Get User Details")
+            name: Request name (with optional folder path)
 
         Returns:
-            Dict with request details if found, None otherwise
+            Request details or None if not found
         """
+        # Split into folder path and request name
+        parts = name.split("/")
+        request_name = parts[-1]
+        folder_path = parts[:-1]
 
         def search_items(
             items: List[Dict[str, Any]], current_path: List[str]
         ) -> Optional[Dict[str, Any]]:
             for item in items:
-                # Skip if in excluded folder
-                if self._should_exclude(current_path):
+                # Skip excluded folders
+                if "item" in item and self._should_exclude(current_path + [item["name"]]):
                     continue
 
+                # Recurse into folders
                 if "item" in item:
-                    # This is a folder
-                    result = search_items(
-                        item["item"], current_path + [item.get("name", "")]
-                    )
+                    result = search_items(item["item"], current_path + [item["name"]])
                     if result:
                         return result
-                else:
-                    # This is a request
-                    full_name = "/".join(current_path + [item.get("name", "")])
-                    if full_name == name:
-                        return {
-                            "name": item.get("name", ""),
-                            "path": current_path,
-                            "request": self._extract_request_details(
-                                item.get("request", {})
-                            ),
-                        }
+
+                # Check request
+                if (
+                    "request" in item
+                    and item["name"] == request_name
+                    and (not folder_path or current_path == folder_path)
+                ):
+                    return {
+                        "name": item["name"],
+                        "path": current_path,
+                        "request": self._normalize_request(item["request"]),
+                    }
+
             return None
 
         return search_items(self.collection["item"], [])
@@ -189,75 +131,70 @@ class PostmanCollectionParser:
         """Find request by HTTP method and path.
 
         Args:
-            method: HTTP method (e.g. "GET", "POST")
-            path: Request path (e.g. "/api/users")
+            method: HTTP method
+            path: URL path
 
         Returns:
-            Dict with request details if found, None otherwise
+            Request details or None if not found
         """
 
         def search_items(
             items: List[Dict[str, Any]], current_path: List[str]
         ) -> Optional[Dict[str, Any]]:
             for item in items:
-                # Skip if in excluded folder
-                if self._should_exclude(current_path):
+                # Skip excluded folders
+                if "item" in item and self._should_exclude(current_path + [item["name"]]):
                     continue
 
+                # Recurse into folders
                 if "item" in item:
-                    # This is a folder
-                    result = search_items(
-                        item["item"], current_path + [item.get("name", "")]
-                    )
+                    result = search_items(item["item"], current_path + [item["name"]])
                     if result:
                         return result
-                else:
-                    # This is a request
-                    request = item.get("request", {})
-                    if request.get(
-                        "method", ""
-                    ).upper() == method.upper() and request.get("url", {}).get(
-                        "raw", ""
-                    ).endswith(
+
+                # Check request
+                if "request" in item:
+                    request = item["request"]
+                    if request["method"] == method and request["url"]["raw"].endswith(
                         path
                     ):
                         return {
-                            "name": item.get("name", ""),
+                            "name": item["name"],
                             "path": current_path,
-                            "request": self._extract_request_details(request),
+                            "request": self._normalize_request(request),
                         }
+
             return None
 
         return search_items(self.collection["item"], [])
 
     def get_all_requests(self) -> List[Dict[str, Any]]:
-        """Get all requests in collection (respecting exclusions).
+        """Get all requests in collection.
 
         Returns:
-            List of dicts containing request details
+            List of all request details
         """
         requests = []
 
-        def collect_items(items: List[Dict[str, Any]], current_path: List[str]):
+        def collect_requests(items: List[Dict[str, Any]], current_path: List[str]):
             for item in items:
-                # Skip if in excluded folder
-                if self._should_exclude(current_path):
+                # Skip excluded folders
+                if "item" in item and self._should_exclude(current_path + [item["name"]]):
                     continue
 
+                # Recurse into folders
                 if "item" in item:
-                    # This is a folder
-                    collect_items(item["item"], current_path + [item.get("name", "")])
-                else:
-                    # This is a request
+                    collect_requests(item["item"], current_path + [item["name"]])
+
+                # Add request
+                if "request" in item:
                     requests.append(
                         {
-                            "name": item.get("name", ""),
+                            "name": item["name"],
                             "path": current_path,
-                            "request": self._extract_request_details(
-                                item.get("request", {})
-                            ),
+                            "request": self._normalize_request(item["request"]),
                         }
                     )
 
-        collect_items(self.collection["item"], [])
+        collect_requests(self.collection["item"], [])
         return requests
