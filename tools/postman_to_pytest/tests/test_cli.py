@@ -37,8 +37,8 @@ def sample_collection(tmp_path: Path) -> Path:
                             "header": [],
                             "body": {
                                 "mode": "raw",
-                                "raw": "{\"username\": \"test\", \"password\": \"test\"}"
-                            }
+                                "raw": '{"username": "test", "password": "test"}',
+                            },
                         },
                     }
                 ],
@@ -70,18 +70,16 @@ def sample_collection(tmp_path: Path) -> Path:
                             "header": [
                                 {"key": "Authorization", "value": "Bearer {{token}}"}
                             ],
-                            "body": {
-                                "mode": "raw",
-                                "raw": "{\"name\": \"test\"}"
-                            }
+                            "body": {"mode": "raw", "raw": '{"name": "test"}'},
                         },
-                    }
+                    },
                 ],
-            }
+            },
         ],
     }
     collection_file = tmp_path / "collection.json"
     import json
+
     collection_file.write_text(json.dumps(collection))
     return collection_file
 
@@ -98,21 +96,19 @@ def sample_dependencies(tmp_path: Path) -> Path:
                         "user_id": {"type": "dynamic", "set_by": ["POST /users"]},
                     }
                 },
-                "POST /auth/login": {
-                    "sets_variables": ["token"],
-                    "uses_variables": {}
-                },
+                "POST /auth/login": {"sets_variables": ["token"], "uses_variables": {}},
                 "POST /users": {
                     "sets_variables": ["user_id"],
                     "uses_variables": {
                         "token": {"type": "dynamic", "set_by": ["POST /auth/login"]}
-                    }
-                }
+                    },
+                },
             }
         }
     }
     dependencies_file = tmp_path / "dependencies.yml"
     import yaml
+
     dependencies_file.write_text(yaml.dump(dependencies))
     return dependencies_file
 
@@ -126,7 +122,7 @@ def test_cli_basic(
     """Test basic CLI functionality."""
     output_dir = tmp_path / "generated_tests"
     output_dir.mkdir(exist_ok=True)
-    
+
     # Create a sample .env file
     env_content = """
     OAUTH_TOKEN_URL=https://auth.example.com/token
@@ -163,7 +159,7 @@ def test_cli_target_endpoint(
     """Test CLI with target endpoint."""
     output_dir = tmp_path / "generated_tests"
     output_dir.mkdir(exist_ok=True)
-    
+
     # Create a sample .env file
     env_content = """
     OAUTH_TOKEN_URL=https://auth.example.com/token
@@ -202,7 +198,7 @@ def test_cli_target_name(
     """Test CLI with target name."""
     output_dir = tmp_path / "generated_tests"
     output_dir.mkdir(exist_ok=True)
-    
+
     # Create a sample .env file
     env_content = """
     OAUTH_TOKEN_URL=https://auth.example.com/token
@@ -239,7 +235,7 @@ def test_cli_folder_exclusions(
     """Test CLI with folder exclusions."""
     output_dir = tmp_path / "generated_tests"
     output_dir.mkdir(exist_ok=True)
-    
+
     # Create a sample .env file
     env_content = """
     OAUTH_TOKEN_URL=https://auth.example.com/token

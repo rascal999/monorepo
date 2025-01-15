@@ -1,58 +1,56 @@
 """
-Generator for pytest test file content.
+Generator for pytest test content from Postman requests.
 """
 
-from typing import Dict, List, Any, Optional
-import base64
-from dotenv import load_dotenv
-from .request_formatter import RequestFormatter
+import re
+from typing import Dict, Any, List, Optional
+from src.utils.auth import AuthManager
+from src.generator.fixtures import FixtureGenerator
+from src.generator.request_formatter import RequestFormatter
 
 
 class TestContentGenerator:
-    def __init__(self, auth_manager: Optional[Any] = None):
+    """Generates pytest test content from Postman requests."""
+
+    def __init__(self, auth_manager: AuthManager):
         """Initialize test content generator.
 
         Args:
-            auth_manager: Optional auth manager for OAuth configuration
+            auth_manager: Authentication manager for handling auth configuration
         """
         self.auth_manager = auth_manager
         self.request_formatter = RequestFormatter()
 
-    def _generate_auth_fixture(self) -> List[str]:
-        """Generate OAuth authentication fixture.
+    def _format_test_name(self, endpoint: str, method: str = None) -> str:
+        """Format endpoint as test function name.
+
+        Args:
+            endpoint: Endpoint path or name
+            method: HTTP method (optional)
 
         Returns:
-            List of auth fixture lines
+            Formatted test function name
         """
-        return [
-            "from requests_oauthlib import OAuth2Session",
-            "from oauthlib.oauth2 import BackendApplicationClient",
-            "",
-            "# Import auth configuration",
-            "BASIC_AUTH_USERNAME = os.getenv('BASIC_AUTH_USERNAME')",
-            "BASIC_AUTH_PASSWORD = os.getenv('BASIC_AUTH_PASSWORD')",
-            "AUTH_TOKEN_URL = os.getenv('OAUTH_TOKEN_URL')",
-            "",
-            "@pytest.fixture(scope='session')",
-            "def auth_session(tls_verify):",
-            "    \"\"\"Get OAuth authentication token.\"\"\"",
-            "    client = BackendApplicationClient(client_id=BASIC_AUTH_USERNAME)",
-            "    session = OAuth2Session(client=client)",
-            "    token = session.fetch_token(",
-            "        token_url=AUTH_TOKEN_URL,",
-            "        client_id=BASIC_AUTH_USERNAME,",
-            "        client_secret=BASIC_AUTH_PASSWORD,",
-            "        verify=tls_verify",
-            "    )",
-            "    return session",
-            "",
-        ]
+        # Remove leading/trailing slashes and spaces
+        name = endpoint.strip("/ ")
+        # Replace slashes and spaces with underscores
+        name = name.replace("/", "_").replace(" ", "_").lower()
+        # Remove any {{var}} placeholders
+        name = re.sub(r"\{\{.*?\}\}", "", name)
+        # Clean up any double underscores
+        name = re.sub(r"_+", "_", name)
+        # Add method prefix if provided
+        if method:
+            name = f"{method.lower()}_{name}"
+            # Remove any double method prefixes
+            name = re.sub(r'(get|post|put|delete)_\1', r'\1', name)
+        return f"test_test_{name}"
 
     def _generate_imports(self) -> List[str]:
-        """Generate import statements.
+        """Generate required import statements.
 
         Returns:
-            List of import lines
+            List of import statements
         """
         return [
             "import pytest",
@@ -60,11 +58,50 @@ class TestContentGenerator:
             "import base64",
             "import os",
             "from typing import Dict, Any",
+            "from requests_oauthlib import OAuth2Session",
+            "from oauthlib.oauth2 import BackendApplicationClient",
             "",
-            "# Import environment variables",
+            "# Environment configuration",
             "ENV_URL = os.getenv('ENV_URL')",
             "CLIENT_ID = os.getenv('CLIENT_ID')",
             "USER_LEGAL_OWNER = os.getenv('USER_LEGAL_OWNER')",
+            "",
+            "# Authentication configuration",
+            'BASIC_AUTH_USERNAME = os.getenv("BASIC_AUTH_USERNAME")',
+            'BASIC_AUTH_PASSWORD = os.getenv("BASIC_AUTH_PASSWORD")',
+            'AUTH_TOKEN_URL = os.getenv("OAUTH_TOKEN_URL")',
+            "",
+            "# Validate required auth configuration",
+            "if not all([BASIC_AUTH_USERNAME, BASIC_AUTH_PASSWORD, AUTH_TOKEN_URL]):",
+            '    pytest.skip("Missing required environment variables for authentication")',
+            "",
+        ]
+
+    def _generate_auth_fixture(self) -> List[str]:
+        """Generate auth fixture configuration.
+
+        Returns:
+            List of lines for auth fixture
+        """
+        return [
+            "@pytest.fixture(scope='session')",
+            "def auth_session(tls_verify):",
+            '    """Create authenticated session."""',
+            "    client = BackendApplicationClient(client_id=BASIC_AUTH_USERNAME)",
+            "    session = OAuth2Session(client=client)",
+            "",
+            "    try:",
+            "        # Get token",
+            "        token = session.fetch_token(",
+            "            token_url=AUTH_TOKEN_URL,",
+            "            client_id=BASIC_AUTH_USERNAME,",
+            "            client_secret=BASIC_AUTH_PASSWORD,",
+            "            verify=tls_verify",
+            "        )",
+            "    except Exception as e:",
+            '        pytest.skip(f"Failed to fetch OAuth token: {str(e)}")',
+            "",
+            "    return session",
             "",
         ]
 
@@ -74,117 +111,111 @@ class TestContentGenerator:
         request_details: Dict[str, Any],
         dependencies: List[str],
         variables: List[str],
-        fixture_generator: Any,
+        fixture_generator: FixtureGenerator,
     ) -> List[str]:
         """Generate a test function.
 
         Args:
             name: Test function name
-            request_details: Request details dict
-            dependencies: List of dependency test names
+            request_details: Request details from Postman
+            dependencies: List of dependent test names
             variables: List of required variables
-            fixture_generator: Fixture generator instance
+            fixture_generator: Generator for test fixtures
 
         Returns:
-            List of test function lines
+            List of lines for test function
         """
-        lines = []
+        function_lines = []
 
-        # Add dependencies to test decorator
+        # Add dependency marker if needed
         if dependencies:
-            deps = [f'"{d}"' for d in dependencies]
-            dep_str = f'depends=[{", ".join(deps)}]'
-            lines.append(f"@pytest.mark.dependency({dep_str})")
+            deps_str = '", "'.join(dependencies)
+            function_lines.append(f'@pytest.mark.dependency(depends=["{deps_str}"])')
         else:
-            lines.append("@pytest.mark.dependency()")
+            function_lines.append('@pytest.mark.dependency()')
 
-        # Generate function definition with variables and fixtures
-        test_vars = ["auth_session", "env_url", "tls_verify"] + variables
-        lines.extend([
-            f"def {name}({', '.join(test_vars)}):",
-            f'    """Test {name}"""',
-        ])
+        # Function definition with fixtures
+        fixtures = ["auth_session", "env_url", "tls_verify"] + variables
+        fixtures_str = ", ".join(fixtures)
+        function_lines.append(f"def {name}({fixtures_str}):")
 
-        # Add request details
-        lines.extend(self.request_formatter.format_request_details(request_details))
+        # Function docstring
+        function_lines.append(
+            f'    """{request_details.get("name", "Test request")}."""'
+        )
 
-        # Add response handling
-        lines.extend([
-            "    # Add auth header",
-            "    headers['Authorization'] = f'Bearer {auth_session.token[\"access_token\"]}'",
-            "",
-            "    # Make request using auth session",
-            "    response = auth_session.request(",
-            "        method=method,",
-            "        url=url,",
-            "        headers=headers,",
-            "        data=data,",
-            "        verify=tls_verify",
-            "    )",
-            "    assert response.status_code == 200",
-        ])
+        # Format request details
+        request = request_details.get("request", request_details)
+        function_lines.extend(self.request_formatter.format_request_details(request))
 
-        # Set variables for next tests if this is a dependency
-        for var in request_details.get("sets", []):
-            lines.append(
-                f"    {fixture_generator.get_fixture_setup(var, 'response.json()')}"
-            )
+        # Handle response variables if needed
+        if "sets" in request_details:
+            function_lines.extend([
+                "",
+                "    # Extract response data",
+                "    response_data = response.json()",
+                "    return response_data",
+            ])
 
-        lines.extend(["", ""])
-        return lines
+        function_lines.append("")
+        return function_lines
 
     def generate_test_content(
         self,
         request_details: Dict[str, Any],
         dependencies: List[Dict[str, Any]],
         variables: Dict[str, List[str]],
-        fixture_generator: Any,
+        fixture_generator: FixtureGenerator,
     ) -> str:
         """Generate complete test file content.
 
         Args:
-            request_details: Dict with request information
-            dependencies: List of dependency endpoint information
-            variables: Dict mapping variables to setter endpoints
-            fixture_generator: Fixture generator instance
+            request_details: Main request details
+            dependencies: List of dependent requests
+            variables: Variable dependency mapping
+            fixture_generator: Generator for test fixtures
 
         Returns:
             Complete test file content
         """
-        lines = []
+        content_lines = []
 
-        # Add imports and auth config
-        lines.extend(self._generate_imports())
-        if self.auth_manager:
-            lines.extend(self._generate_auth_fixture())
+        # Add imports
+        content_lines.extend(self._generate_imports())
+        content_lines.extend(self._generate_auth_fixture())
 
-        # Generate test functions for dependencies
+        # Add dependent tests in order
+        processed_deps = []
         for dep in dependencies:
-            dep_name = self.request_formatter._sanitize_name(dep["endpoint"])
-            dep_vars = [v[0] for v in dep.get("uses", [])]
-            lines.extend(
+            method = dep.get("request", {}).get("method", "GET")
+            dep_name = self._format_test_name(dep["endpoint"], method)
+            dep_deps = [d for d in processed_deps]
+            content_lines.extend(
                 self._generate_test_function(
-                    f"test_{dep_name}",
-                    dep["request"],
-                    [],  # Dependencies are ordered, so each only depends on previous
-                    dep_vars,
-                    fixture_generator,
+                    name=dep_name,
+                    request_details=dep,
+                    dependencies=dep_deps,
+                    variables=[v for v in variables if dep.get("sets", []) and v in dep["sets"]],
+                    fixture_generator=fixture_generator,
                 )
             )
+            processed_deps.append(dep_name)
 
-        # Generate main test function
-        test_name = self.request_formatter._sanitize_name(request_details["name"])
-        test_vars = [v[0] for v in request_details.get("uses", [])]
-        dep_names = [f"test_{self.request_formatter._sanitize_name(d['endpoint'])}" for d in dependencies]
-        
-        lines.extend(
+        # Add main test
+        method = request_details.get("request", {}).get("method", "GET")
+        main_name = self._format_test_name(request_details["name"], method)
+        dep_names = [
+            self._format_test_name(dep["endpoint"], dep.get("request", {}).get("method", "GET"))
+            for dep in dependencies
+        ]
+        content_lines.extend(
             self._generate_test_function(
-                f"test_{test_name}",
-                request_details["request"],
-                dep_names,
-                test_vars,
-                fixture_generator,
+                name=main_name,
+                request_details=request_details,
+                dependencies=dep_names,
+                variables=list(variables.keys()),
+                fixture_generator=fixture_generator,
             )
         )
 
-        return "\n".join(lines)
+        return "\n".join(content_lines)

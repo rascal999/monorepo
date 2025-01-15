@@ -1,147 +1,144 @@
 """
-Formatter for Postman request details into Python code.
+Formatter for Postman request details.
 """
 
-import json
-from typing import Dict, Any, List
+import re
+from typing import Dict, Any, List, Union
 
 
 class RequestFormatter:
-    @staticmethod
-    def _sanitize_name(name: str) -> str:
-        """Convert request name to valid Python identifier.
+    """Formats Postman request details as Python code."""
+
+    def _sanitize_name(self, name: str) -> str:
+        """Sanitize name for use as Python identifier.
 
         Args:
-            name: Original request name
+            name: Name to sanitize
 
         Returns:
-            Sanitized name valid for Python
+            Sanitized name
         """
-        # Replace non-alphanumeric with underscore
-        sanitized = "".join(c if c.isalnum() else "_" for c in name).lower()
-
-        # Always prefix with test_
+        # Convert to lowercase and replace spaces with underscores
+        sanitized = name.lower().replace(" ", "_")
+        # Remove any non-alphanumeric characters
+        sanitized = re.sub(r"[^a-z0-9_]", "", sanitized)
+        # Prefix with test_ if not already
         if not sanitized.startswith("test_"):
-            sanitized = "test_" + sanitized
-
-        # Collapse multiple underscores
-        while "__" in sanitized:
-            sanitized = sanitized.replace("__", "_")
-
-        # Remove trailing underscore
-        sanitized = sanitized.rstrip("_")
-
+            sanitized = f"test_{sanitized}"
         return sanitized
 
-    @staticmethod
-    def format_request_details(request: Dict[str, Any], indent: str = "    ") -> List[str]:
-        """Format request details as Python code.
+    def _format_url(self, url: Union[str, Dict[str, Any]]) -> str:
+        """Format URL for use in test code.
 
         Args:
-            request: Request details dict
-            indent: Indentation string
+            url: Raw URL from request (string or dictionary)
 
         Returns:
-            List of code lines
+            Formatted URL string
+        """
+        # Extract raw URL from dictionary if needed
+        if isinstance(url, dict):
+            url = url["raw"]
+
+        # Handle absolute URLs
+        if url.startswith(("http://", "https://")):
+            # Keep absolute URLs as-is
+            return f'"{url}"'
+
+        # Remove leading slash if present
+        if url.startswith("/"):
+            url = url[1:]
+
+        # Remove any double slashes
+        url = re.sub(r"//+", "/", url)
+
+        # Replace {{ENV_URL}} with env_url if present
+        url = re.sub(r"\{\{ENV_URL\}\}/", "", url)
+
+        # Handle environment variables and other variables differently
+        # Convert environment variables to direct references
+        url = re.sub(r'\{\{(CLIENT_ID|USER_LEGAL_OWNER|ENV_URL)\}\}', r'{\1}', url)
+
+        return f'f"{{env_url}}/{url}"'
+
+    def format_request_details(self, request: Dict[str, Any]) -> List[str]:
+        """Format request details as Python code lines.
+
+        Args:
+            request: Request details from Postman
+
+        Returns:
+            List of Python code lines
         """
         lines = []
 
-        # Add method
-        lines.append(f'{indent}method = "{request.get("method", "GET")}"')
+        # Method
+        lines.append(f'    method = "{request["method"]}"')
 
-        # Format URL
-        url = request.get("url", {})
-        if isinstance(url, dict):
-            raw_url = url.get("raw", "")
-            # Don't prepend ENV_URL for absolute URLs
-            if raw_url.startswith(("http://", "https://")):
-                lines.append(f'{indent}url = "{raw_url}"')
-            else:
-                # For relative URLs, check if ENV_URL is already in the URL
-                if "{ENV_URL}" in raw_url or "{{ENV_URL}}" in raw_url:
-                    # Convert Postman's double curly braces to Python f-string format
-                    formatted_url = raw_url.replace("{{", "{").replace("}}", "}")
-                    # Replace Postman variables with Python variables
-                    formatted_url = formatted_url.replace("{ENV_URL}", "{env_url}")
-                    formatted_url = formatted_url.replace("{CLIENT_ID}", "{CLIENT_ID}")
-                    formatted_url = formatted_url.replace("{USER_LEGAL_OWNER}", "{USER_LEGAL_OWNER}")
-                    lines.append(f'{indent}url = f"{formatted_url}"')
-                else:
-                    # Handle URL segments while preserving variables
-                    url_segments = raw_url.split('/')
-                    # Filter out empty segments but keep variable placeholders
-                    filtered_segments = [seg for seg in url_segments if seg or '{' in seg]
-                    # Remove any leading/trailing empty segments
-                    while filtered_segments and not filtered_segments[0]:
-                        filtered_segments.pop(0)
-                    while filtered_segments and not filtered_segments[-1]:
-                        filtered_segments.pop()
-                    raw_url = '/'.join(filtered_segments)
-                    # Replace Postman variables with Python variables
-                    raw_url = raw_url.replace("{{CLIENT_ID}}", "{CLIENT_ID}")
-                    raw_url = raw_url.replace("{{USER_LEGAL_OWNER}}", "{USER_LEGAL_OWNER}")
-                    # Prepend ENV_URL since it's not in the URL
-                    lines.append(f'{indent}url = f"{{env_url}}/{raw_url}"')
-        else:
-            # Same logic for string URLs
-            if str(url).startswith(("http://", "https://")):
-                lines.append(f'{indent}url = "{url}"')
-            else:
-                # For relative URLs, check if ENV_URL is already in the URL
-                url_str = str(url)
-                if "{ENV_URL}" in url_str or "{{ENV_URL}}" in url_str:
-                    # Convert Postman's double curly braces to Python f-string format
-                    formatted_url = url_str.replace("{{", "{").replace("}}", "}")
-                    # Replace Postman variables with Python variables
-                    formatted_url = formatted_url.replace("{ENV_URL}", "{env_url}")
-                    formatted_url = formatted_url.replace("{CLIENT_ID}", "{CLIENT_ID}")
-                    formatted_url = formatted_url.replace("{USER_LEGAL_OWNER}", "{USER_LEGAL_OWNER}")
-                    lines.append(f'{indent}url = f"{formatted_url}"')
-                else:
-                    # Handle URL segments while preserving variables
-                    url_segments = url_str.split('/')
-                    # Filter out empty segments but keep variable placeholders
-                    filtered_segments = [seg for seg in url_segments if seg or '{' in seg]
-                    # Remove any leading/trailing empty segments
-                    while filtered_segments and not filtered_segments[0]:
-                        filtered_segments.pop(0)
-                    while filtered_segments and not filtered_segments[-1]:
-                        filtered_segments.pop()
-                    url_str = '/'.join(filtered_segments)
-                    # Replace Postman variables with Python variables
-                    url_str = url_str.replace("{{CLIENT_ID}}", "{CLIENT_ID}")
-                    url_str = url_str.replace("{{USER_LEGAL_OWNER}}", "{USER_LEGAL_OWNER}")
-                    # Prepend ENV_URL since it's not in the URL
-                    lines.append(f'{indent}url = f"{{env_url}}/{url_str}"')
+        # URL
+        url = request["url"]
+        lines.append(f"    url = {self._format_url(url)}")
 
-        # Format headers
+        # Headers
         headers = {}
-        for header in request.get("header", []):
-            headers[header["key"]] = header["value"]
-        lines.append(f"{indent}headers = {json.dumps(headers)}")
+        has_auth_header = False
+        if "header" in request or "headers" in request:
+            header_list = request.get("header", []) or request.get("headers", [])
+            for h in header_list:
+                # Keep original value with {{var}} placeholders
+                headers[h["key"]] = h["value"]
+                if h["key"].lower() == "authorization":
+                    has_auth_header = True
+        
+        # Add OAuth Authorization header only if no auth header exists
+        if not has_auth_header:
+            headers["Authorization"] = "Bearer {auth_session.token['access_token']}"
+        
+        if headers:
+            # Format headers preserving variable placeholders
+            header_str = "{"
+            for key, value in headers.items():
+                # Keep {{var}} placeholders intact
+                header_str += f'"{key}": "{value}", '
+            header_str = header_str.rstrip(", ") + "}"
+            lines.append(f"    headers = {header_str}")
 
-        # Format body
-        body = request.get("body", {})
-        if body and isinstance(body, dict):
+        # Body
+        if "body" in request:
+            body = request["body"]
             if body.get("mode") == "raw":
-                raw_data = body.get("raw", "")
-                if isinstance(raw_data, str):
-                    try:
-                        # Try to parse as JSON
-                        data = json.loads(raw_data)
-                        lines.append(f"{indent}data = {json.dumps(data)}")
-                    except json.JSONDecodeError:
-                        # Use raw string if not valid JSON
-                        lines.append(f"{indent}data = {repr(raw_data)}")
-            elif body.get("mode") == "urlencoded":
-                data = {p["key"]: p["value"] for p in body.get("urlencoded", [])}
-                lines.append(f"{indent}data = {json.dumps(data)}")
+                lines.append(f'    data = {body["raw"]}')
             elif body.get("mode") == "formdata":
-                data = {p["key"]: p["value"] for p in body.get("formdata", [])}
-                lines.append(f"{indent}data = {json.dumps(data)}")
-            else:
-                lines.append(f"{indent}data = None")
-        else:
-            lines.append(f"{indent}data = None")
+                form_data = {}
+                for param in body["formdata"]:
+                    form_data[param["key"]] = param["value"]
+                lines.append(f"    data = {form_data}")
+            elif body.get("mode") == "urlencoded":
+                url_data = {}
+                for param in body["urlencoded"]:
+                    url_data[param["key"]] = param["value"]
+                lines.append(f"    data = {url_data}")
+
+        # Request call
+        lines.extend([
+            "",
+            "    # Make request",
+            "    response = auth_session.request(",
+            "        method=method,",
+            "        url=url,",
+        ])
+
+        if "header" in request or "headers" in request:
+            lines.append("        headers=headers,")
+        if "body" in request:
+            lines.append("        data=data,")
+
+        lines.extend([
+            "        verify=tls_verify",
+            "    )",
+            "",
+            "    # Verify response",
+            "    assert response.status_code == 200",
+        ])
 
         return lines
