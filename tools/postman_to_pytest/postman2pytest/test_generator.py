@@ -127,53 +127,27 @@ class TestGenerator:
         # Sort requests by dependency order
         ordered_requests, cycles = resolver.resolve_order()
         
-        # Track which requests have been written
-        written_requests = set()
+        # Create base output directory
+        base_dir = create_test_directory(self.output_dir, ["all_mangopay_endpoints", "users"])
         
-        # Group requests by their dependencies
-        dependency_groups: Dict[str, List[PostmanRequest]] = {}
+        # Generate a test file for each request
         for request in ordered_requests:
-            deps = resolver.get_dependencies(request)
-            if deps:
-                # Use the first dependency's name as the key
-                key = deps[0].name
-                if key not in dependency_groups:
-                    dependency_groups[key] = []
-                # Add dependency first if not already in group
-                if deps[0] not in dependency_groups[key]:
-                    dependency_groups[key].append(deps[0])
-                # Then add the dependent request
-                dependency_groups[key].append(request)
-        
-        # Write files for dependency groups
-        for group_key, group_requests in dependency_groups.items():
-            # Get output path using the dependent test's name (last request in group)
-            output_path = os.path.join(
-                create_test_directory(self.output_dir, ["all_mangopay_endpoints", "users"]),
-                f"test_{sanitize_name(group_requests[-1].name)}.py"
-            )
-            
-            # Write all tests in the group
-            first = True
-            for request in group_requests:
-                if request not in written_requests:
-                    lines = self._generate_test_function(request, resolver)
-                    self._write_test_file(output_path, lines, 'w' if first else 'a')
-                    written_requests.add(request)
-                    first = False
-        
-        # Write files for standalone requests
-        for request in ordered_requests:
-            if request in written_requests:
-                continue
-                
             # Get output path using this request's name
             output_path = os.path.join(
-                create_test_directory(self.output_dir, ["all_mangopay_endpoints", "users"]),
+                base_dir,
                 f"test_{sanitize_name(request.name)}.py"
             )
             
-            # Write the test
+            # Get dependencies for this request
+            deps = resolver.get_dependencies(request)
+            
+            # Write dependencies first
+            first = True
+            for dep in deps:
+                lines = self._generate_test_function(dep, resolver)
+                self._write_test_file(output_path, lines, 'w' if first else 'a')
+                first = False
+            
+            # Then write this request's test
             lines = self._generate_test_function(request, resolver)
-            self._write_test_file(output_path, lines, 'w')
-            written_requests.add(request)
+            self._write_test_file(output_path, lines, 'w' if first else 'a')
