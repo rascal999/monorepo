@@ -1,7 +1,3 @@
-# Environment variables
-.env
-.env.swp
-
 # Python
 __pycache__/
 *.py[cod]
@@ -24,13 +20,11 @@ wheels/
 .installed.cfg
 *.egg
 
-# Coverage
-.coverage
-htmlcov/
-
 # Virtual Environment
-venv/
+.env
+.venv
 env/
+venv/
 ENV/
 
 # IDE
@@ -39,12 +33,10 @@ ENV/
 *.swp
 *.swo
 
-# Generated tests
+# Project specific
 generated_tests/
-
-# OAuth token file
-.oauth_token
-.test_token
+collections/*.json
+collections/*.yml
 
 # Logs
 *.log
