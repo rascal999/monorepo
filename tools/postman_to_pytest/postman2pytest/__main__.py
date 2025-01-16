@@ -3,6 +3,7 @@ Main entry point for the Postman to Pytest converter.
 """
 
 import sys
+import os
 import argparse
 from pathlib import Path
 from .parser import parse_postman_collection, parse_dependency_config
@@ -44,13 +45,17 @@ def main():
         # Resolve dependencies
         print("Resolving dependencies...")
         resolver = DependencyResolver(requests, config)
-        ordered_requests = resolver.resolve_order()
+        ordered_requests, cycles = resolver.resolve_order()
+        if cycles:
+            print("Warning: Found circular dependencies:")
+            for cycle in cycles:
+                print(" -> ".join(cycle))
         print(f"Resolved {len(ordered_requests)} requests in dependency order")
 
         # Generate test files
         print(f"Generating test files in: {args.output_dir}")
         generator = TestGenerator(args.output_dir)
-        generator.generate_test_files(requests, resolver)
+        generator.generate_test_files(ordered_requests, resolver)
         print("Generated test files in directory structure matching Postman collection")
 
         print("\nConversion completed successfully!")

@@ -1,10 +1,10 @@
 """
-Test for creating a natural user with payer category.
+Tests for creating a natural user with payer category.
 """
 import pytest
 
 
-@pytest.mark.dependency(name="create_natural_user_payer")
+@pytest.mark.dependency(name="test_create_natural_user_payer")
 def test_create_natural_user_payer(api_session, env_vars, faker_vars, dynamic_vars):
     """Test creating a natural user with payer category."""
     url = f"{env_vars['ENV_URL']}/v2.01/{env_vars['CLIENT_ID']}/users/natural"

@@ -1,76 +1,36 @@
 """
-Pytest configuration and fixtures.
+Main pytest configuration.
 """
-import os
 import pytest
-import requests
-import urllib3
-import warnings
-from faker import Faker
-from dotenv import load_dotenv
-
-# Filter out InsecureRequestWarning
-warnings.filterwarnings('ignore', category=urllib3.exceptions.InsecureRequestWarning)
+from postman2pytest.dynamic_vars import (
+    dynamic_vars,
+    pytest_runtest_call,
+    pytest_runtest_makereport
+)
+from postman2pytest.fixtures import (
+    env_vars,
+    faker_vars,
+    api_session
+)
 
 def pytest_configure(config):
     """Configure pytest."""
-    config.option.dependency_ignore_unknown = True
-
-# Load environment variables
-load_dotenv()
-
-@pytest.fixture(scope="session")
-def env_vars():
-    """Environment variables needed for tests."""
-    required_vars = ["ENV_URL", "BASIC_AUTH_USERNAME", "BASIC_AUTH_PASSWORD", "TLS_VERIFY"]
-    env_dict = {}
-    for var in required_vars:
-        value = os.getenv(var)
-        if not value:
-            raise ValueError(f"Required environment variable {var} is not set")
-        env_dict[var] = value
-    # Map BASIC_AUTH_USERNAME to CLIENT_ID for backward compatibility
-    env_dict["CLIENT_ID"] = env_dict["BASIC_AUTH_USERNAME"]
-    return env_dict
-
-@pytest.fixture(scope="session")
-def faker_vars():
-    """Faker variables for generating test data."""
-    fake = Faker()
-    return {
-        "$randomFirstName": fake.first_name(),
-        "$randomLastName": fake.last_name(),
-        "$randomEmail": fake.email(),
-        "$randomStreetAddress": fake.street_address(),
-        "$randomStreetName": fake.street_name(),
-        "$randomCompanyName": fake.company(),
-        "$randomInt": str(fake.random_int(min=1000, max=9999))
-    }
-
-@pytest.fixture(scope="session")
-def api_session(env_vars):
-    """Session with authentication for API requests."""
-    session = requests.Session()
-    # Set SSL verification based on TLS_VERIFY env var
-    verify = env_vars["TLS_VERIFY"].lower() == "true"
-    session.verify = verify
-    if not verify:
-        # Disable warnings for unverified HTTPS requests
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    # Use Basic Auth to get bearer token
-    auth_url = f"{env_vars['ENV_URL']}/v2.01/oauth/token"
-    response = session.post(
-        auth_url,
-        auth=(env_vars["BASIC_AUTH_USERNAME"], env_vars["BASIC_AUTH_PASSWORD"])
+    # Enable debug logging
+    config.option.verbose = True
+    # Register dependency marker
+    config.addinivalue_line(
+        "markers", "dependency(name=None, depends=[]): mark test dependencies"
     )
-    response.raise_for_status()
-    token = response.json()["access_token"]
-    session.headers["Authorization"] = f"Bearer {token}"
-    return session
 
-from collections import defaultdict
-
-@pytest.fixture(scope="session")
-def dynamic_vars():
-    """Store dynamic variables that are set during test execution."""
-    return defaultdict(lambda: None)
+# Import fixtures and hooks
+__all__ = [
+    # Dynamic variables
+    'dynamic_vars',
+    'pytest_runtest_call',
+    'pytest_runtest_makereport',
+    
+    # Test fixtures
+    'env_vars',
+    'faker_vars',
+    'api_session'
+]

@@ -1,5 +1,5 @@
 """
-Pytest configuration and fixtures.
+Test fixtures for API testing.
 """
 import os
 import pytest
@@ -12,44 +12,33 @@ from dotenv import load_dotenv
 # Filter out InsecureRequestWarning
 warnings.filterwarnings('ignore', category=urllib3.exceptions.InsecureRequestWarning)
 
-def pytest_configure(config):
-    """Configure pytest."""
-    config.option.dependency_ignore_unknown = True
-    print("\n=== Session Start ===")
-    print("Initializing dynamic vars store")
-
-def pytest_sessionfinish():
-    """Called after whole test run finished."""
-    print("\n=== Session End ===")
-    print("Final dynamic vars state:", _dynamic_vars_store._vars)
-
 # Load environment variables
 load_dotenv()
-
-def pytest_runtest_call(item):
-    """Called to execute the test item."""
-    print(f"\n=== Before running {item.name} ===")
-    print("Dynamic vars state:", _dynamic_vars_store._vars)
 
 @pytest.fixture(scope="session")
 def env_vars():
     """Environment variables needed for tests."""
+    print("\n=== Loading environment variables ===")
     required_vars = ["ENV_URL", "BASIC_AUTH_USERNAME", "BASIC_AUTH_PASSWORD", "TLS_VERIFY"]
     env_dict = {}
     for var in required_vars:
         value = os.getenv(var)
         if not value:
+            print(f"Missing required environment variable: {var}")
             raise ValueError(f"Required environment variable {var} is not set")
         env_dict[var] = value
+        print(f"Loaded {var}")
     # Map BASIC_AUTH_USERNAME to CLIENT_ID for backward compatibility
     env_dict["CLIENT_ID"] = env_dict["BASIC_AUTH_USERNAME"]
+    print("Environment variables loaded successfully")
     return env_dict
 
 @pytest.fixture(scope="session")
 def faker_vars():
     """Faker variables for generating test data."""
+    print("\n=== Generating faker variables ===")
     fake = Faker()
-    return {
+    vars_dict = {
         "$randomFirstName": fake.first_name(),
         "$randomLastName": fake.last_name(),
         "$randomEmail": fake.email(),
@@ -58,48 +47,37 @@ def faker_vars():
         "$randomCompanyName": fake.company(),
         "$randomInt": str(fake.random_int(min=1000, max=9999))
     }
+    print("Generated variables:", vars_dict)
+    return vars_dict
 
 @pytest.fixture(scope="session")
 def api_session(env_vars):
     """Session with authentication for API requests."""
+    print("\n=== Creating API session ===")
     session = requests.Session()
-    # Set SSL verification based on TLS_VERIFY env var
+    
+    # Configure SSL verification
     verify = env_vars["TLS_VERIFY"].lower() == "true"
     session.verify = verify
+    print(f"SSL verification: {verify}")
+    
     if not verify:
-        # Disable warnings for unverified HTTPS requests
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    # Use Basic Auth to get bearer token
+    
+    # Get bearer token
     auth_url = f"{env_vars['ENV_URL']}/v2.01/oauth/token"
-    response = session.post(
-        auth_url,
-        auth=(env_vars["BASIC_AUTH_USERNAME"], env_vars["BASIC_AUTH_PASSWORD"])
-    )
-    response.raise_for_status()
-    token = response.json()["access_token"]
-    session.headers["Authorization"] = f"Bearer {token}"
+    print(f"Getting bearer token from: {auth_url}")
+    try:
+        response = session.post(
+            auth_url,
+            auth=(env_vars["BASIC_AUTH_USERNAME"], env_vars["BASIC_AUTH_PASSWORD"])
+        )
+        response.raise_for_status()
+        token = response.json()["access_token"]
+        session.headers["Authorization"] = f"Bearer {token}"
+        print("Bearer token obtained successfully")
+    except Exception as e:
+        print(f"Failed to get bearer token: {e}")
+        raise
+    
     return session
-
-class DynamicVarsStore:
-    """Store for dynamic variables that persists across test runs."""
-    def __init__(self):
-        self._vars = {}
-
-    def __getitem__(self, key):
-        return self._vars[key]
-
-    def __setitem__(self, key, value):
-        self._vars[key] = value
-
-    def __contains__(self, key):
-        return key in self._vars
-
-    def __str__(self):
-        return str(self._vars)
-
-_dynamic_vars_store = DynamicVarsStore()
-
-@pytest.fixture(scope="session")
-def dynamic_vars():
-    """Store dynamic variables that are set during test execution."""
-    return _dynamic_vars_store

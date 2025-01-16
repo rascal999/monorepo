@@ -1,10 +1,10 @@
 """
-Test for creating a legal user with owner category.
+Tests for creating a legal user with owner category.
 """
 import pytest
 
 
-@pytest.mark.dependency(name="create_legal_user_owner")
+@pytest.mark.dependency(name="test_create_legal_user_owner")
 def test_create_legal_user_owner(api_session, env_vars, faker_vars, dynamic_vars):
     """Test creating a legal user with owner category."""
     url = f"{env_vars['ENV_URL']}/v2.01/{env_vars['CLIENT_ID']}/users/legal"
