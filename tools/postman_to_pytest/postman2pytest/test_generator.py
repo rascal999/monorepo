@@ -46,8 +46,13 @@ class TestGenerator:
             '',
         ])
 
-        # Add dependency marker
-        lines.append(f'@pytest.mark.dependency(name="{func_name}")')
+        # Add dependency markers
+        deps = resolver.get_dependencies(request)
+        if deps:
+            dep_names = [sanitize_name(dep.name) for dep in deps]
+            lines.append(f'@pytest.mark.dependency(name="{func_name}", depends={dep_names})')
+        else:
+            lines.append(f'@pytest.mark.dependency(name="{func_name}")')
         
         # Add function definition
         lines.append(f'def {func_name}(api_session, env_vars, faker_vars, dynamic_vars):')
@@ -73,7 +78,7 @@ class TestGenerator:
         # Add assertions
         if request.tests:
             for test in request.tests:
-                assertions = convert_test_script(test)
+                assertions = convert_test_script(test, request.name, request.url)
                 lines.extend(f'    {assertion}' for assertion in assertions)
         else:
             # Add default status code assertion if no specific tests

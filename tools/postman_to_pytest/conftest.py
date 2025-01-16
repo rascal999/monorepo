@@ -68,7 +68,9 @@ def api_session(env_vars):
     session.headers["Authorization"] = f"Bearer {token}"
     return session
 
+from collections import defaultdict
+
 @pytest.fixture(scope="session")
 def dynamic_vars():
     """Store dynamic variables that are set during test execution."""
-    return {}
+    return defaultdict(lambda: None)
