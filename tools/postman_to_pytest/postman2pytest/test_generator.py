@@ -107,8 +107,8 @@ class TestGenerator:
         else:
             filename = f"test_{sanitize_name(request.name)}.py"
         
-        # Always use all_mangopay_endpoints/users path
-        path_parts = ["all_mangopay_endpoints", "users"]
+        # Use the request's path from the collection structure
+        path_parts = request.path
         
         # Create path based on collection structure
         folder_path = create_test_directory(self.output_dir, path_parts)
@@ -127,14 +127,11 @@ class TestGenerator:
         # Sort requests by dependency order
         ordered_requests, cycles = resolver.resolve_order()
         
-        # Create base output directory
-        base_dir = create_test_directory(self.output_dir, ["all_mangopay_endpoints", "users"])
-        
         # Generate a test file for each request
         for request in ordered_requests:
-            # Get output path using this request's name
+            # Get output path using request's path and name
             output_path = os.path.join(
-                base_dir,
+                create_test_directory(self.output_dir, request.path),
                 f"test_{sanitize_name(request.name)}.py"
             )
             
