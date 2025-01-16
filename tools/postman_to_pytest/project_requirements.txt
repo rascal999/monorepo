@@ -48,4 +48,48 @@ Requirements:
    - pyyaml (for YAML parsing)
    - json (built-in, for JSON parsing)
 
-Status: Awaiting implementation
+Status: Implemented
+
+Implementation Details:
+1. Input Handling:
+   - Successfully parses Postman collection JSON files
+   - Processes YAML dependency configuration files
+   - Supports mgp-sample.json and mgp-sample.yml formats
+
+2. Dependency Graph:
+   - Implemented dependency resolution between tests
+   - Handles variable dependencies (environment and dynamic)
+   - Maintains correct test execution order
+
+3. Output Generation:
+   - Generates separate test files for each request
+   - Maintains Postman collection directory structure
+   - Creates proper __init__.py files for package structure
+   - Tests follow pytest conventions and best practices
+
+4. Core Features:
+   - Converts all HTTP methods (GET, POST, PUT, DELETE)
+   - Handles request headers, body, and parameters
+   - Processes environment variables
+   - Generates assertions from Postman tests
+   - Supports test dependencies via pytest.mark.dependency
+
+5. Project Structure:
+   - Organized modular code structure
+   - Clear separation of concerns:
+     * parser.py: Handles input file parsing
+     * resolver.py: Manages dependencies
+     * generator.py: Generates test files
+     * __main__.py: CLI interface
+
+6. Technical Implementation:
+   - Python-based solution
+   - Uses pytest framework
+   - Handles JSON and YAML parsing
+   - Generates valid Python test files
+   - Maintains code quality standards
+
+7. Dependencies:
+   - pytest
+   - pyyaml
+   - pytest-dependency

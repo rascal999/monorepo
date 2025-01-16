@@ -39,7 +39,6 @@ collections/*.json
 collections/*.yml
 example/mgp-sample.json
 example/mgp-sample.yml
-postman2pytest/
 
 # Logs
 *.log
