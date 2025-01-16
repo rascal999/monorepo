@@ -1,0 +1,61 @@
+"""
+Pytest configuration and fixtures.
+"""
+import os
+import pytest
+import requests
+from faker import Faker
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+@pytest.fixture(scope="session")
+def env_vars():
+    """Environment variables needed for tests."""
+    required_vars = ["ENV_URL", "BASIC_AUTH_USERNAME", "BASIC_AUTH_PASSWORD", "TLS_VERIFY"]
+    env_dict = {}
+    for var in required_vars:
+        value = os.getenv(var)
+        if not value:
+            raise ValueError(f"Required environment variable {var} is not set")
+        env_dict[var] = value
+    # Map BASIC_AUTH_USERNAME to CLIENT_ID for backward compatibility
+    env_dict["CLIENT_ID"] = env_dict["BASIC_AUTH_USERNAME"]
+    return env_dict
+
+@pytest.fixture(scope="session")
+def faker_vars():
+    """Faker variables for generating test data."""
+    fake = Faker()
+    return {
+        "$randomFirstName": fake.first_name(),
+        "$randomLastName": fake.last_name(),
+        "$randomEmail": fake.email(),
+        "$randomStreetAddress": fake.street_address(),
+        "$randomStreetName": fake.street_name(),
+        "$randomCompanyName": fake.company(),
+        "$randomInt": str(fake.random_int(min=1000, max=9999))
+    }
+
+@pytest.fixture(scope="session")
+def api_session(env_vars):
+    """Session with authentication for API requests."""
+    session = requests.Session()
+    # Set SSL verification based on TLS_VERIFY env var
+    session.verify = env_vars["TLS_VERIFY"].lower() == "true"
+    # Use Basic Auth to get bearer token
+    auth_url = f"{env_vars['ENV_URL']}/v2.01/oauth/token"
+    response = session.post(
+        auth_url,
+        auth=(env_vars["BASIC_AUTH_USERNAME"], env_vars["BASIC_AUTH_PASSWORD"])
+    )
+    response.raise_for_status()
+    token = response.json()["access_token"]
+    session.headers["Authorization"] = f"Bearer {token}"
+    return session
+
+@pytest.fixture(scope="session")
+def dynamic_vars():
+    """Store dynamic variables that are set during test execution."""
+    return {}
