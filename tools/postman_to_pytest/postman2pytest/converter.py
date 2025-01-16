@@ -2,8 +2,25 @@
 Converter module for transforming Postman elements to pytest code.
 """
 import re
+import os
 import json
 from typing import List, Dict, Any, Optional
+
+def _get_env_vars() -> set:
+    """Get environment variables from .env file."""
+    env_vars = set()
+    env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+    if os.path.exists(env_path):
+        with open(env_path) as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#'):
+                    key = line.split('=')[0].strip()
+                    env_vars.add(key)
+    return env_vars
+
+# Load environment variables once at module import
+ENV_VARS = _get_env_vars()
 
 def convert_test_script(script: Dict[str, Any], request_name: str, url: str) -> List[str]:
     """Convert Postman test script to pytest assertions."""
@@ -45,11 +62,10 @@ def process_url(url: str) -> str:
     """Process URL to use environment or dynamic variables."""
     def replace_var(match):
         var_name = match.group(1)
-        # List of known dynamic variables
-        dynamic_vars = ['USER_LEGAL_OWNER', 'USER_NATURAL_OWNER', 'USER_LEGAL_PAYER', 'USER_NATURAL_PAYER']
-        if var_name in dynamic_vars:
-            return f'{{dynamic_vars["{var_name}"]}}'
-        return f'{{env_vars["{var_name}"]}}'
+        # If variable is defined in .env, use env_vars, otherwise use dynamic_vars
+        if var_name in ENV_VARS:
+            return f'{{env_vars["{var_name}"]}}'
+        return f'{{dynamic_vars["{var_name}"]}}'
     
     # Replace variables with appropriate dict access
     url = re.sub(r'\{\{([^}]+)\}\}', replace_var, url)

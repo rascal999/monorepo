@@ -143,16 +143,44 @@ class TestGenerator:
                 f"test_{sanitize_name(request.name)}.py"
             )
             
-            # Get dependencies for this request
+            # Get all dependencies recursively
             deps = resolver.get_dependencies(request)
             
-            # Write dependencies first
+            # Create a dependency graph for topological sort
+            dep_graph = {req.test_name: set() for req in deps + [request]}
+            for req in deps + [request]:
+                req_deps = resolver.get_dependencies(req)
+                dep_graph[req.test_name].update(dep.test_name for dep in req_deps)
+            
+            # Perform topological sort
+            sorted_tests = []
+            visited = set()
+            temp_mark = set()
+            
+            def visit(test_name):
+                if test_name in temp_mark:
+                    return  # Skip cyclic dependencies
+                if test_name in visited:
+                    return
+                temp_mark.add(test_name)
+                for dep in dep_graph[test_name]:
+                    visit(dep)
+                temp_mark.remove(test_name)
+                visited.add(test_name)
+                sorted_tests.append(test_name)
+            
+            # Visit all nodes
+            for test_name in dep_graph:
+                if test_name not in visited:
+                    visit(test_name)
+            
+            # Map test names back to requests
+            test_map = {req.test_name: req for req in deps + [request]}
+            sorted_requests = [test_map[name] for name in sorted_tests]
+            
+            # Write tests in topological order
             first = True
-            for dep in deps:
-                lines = self._generate_test_function(dep, resolver)
+            for req in sorted_requests:
+                lines = self._generate_test_function(req, resolver)
                 self._write_test_file(output_path, lines, 'w' if first else 'a')
                 first = False
-            
-            # Then write this request's test
-            lines = self._generate_test_function(request, resolver)
-            self._write_test_file(output_path, lines, 'w' if first else 'a')
