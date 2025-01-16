@@ -44,7 +44,28 @@ class PostmanRequest:
         name = data.get('name', '')
         method = req_data.get('method', 'GET')
         url = req_data.get('url', {}).get('raw', '') if isinstance(req_data.get('url'), dict) else req_data.get('url', '')
-        body = req_data.get('body', {})
+        # Handle request body
+        body_data = req_data.get('body', {})
+        if isinstance(body_data, dict):
+            # If it's a dict with mode=raw, get the raw content
+            if body_data.get('mode') == 'raw':
+                raw_content = body_data.get('raw', '')
+                # Try to parse raw content as JSON if it's a string
+                if isinstance(raw_content, str):
+                    try:
+                        # Parse JSON and keep it as raw dict
+                        body = {'mode': 'raw', 'raw': json.loads(raw_content)}
+                    except json.JSONDecodeError:
+                        # If parsing fails, keep as string
+                        body = {'mode': 'raw', 'raw': raw_content}
+                else:
+                    # If raw content is already parsed, use it
+                    body = {'mode': 'raw', 'raw': raw_content}
+            else:
+                body = body_data
+        else:
+            # If it's not a dict, wrap it in the expected format
+            body = {'mode': 'raw', 'raw': body_data}
         headers = req_data.get('header', [])
 
         # Extract test scripts
