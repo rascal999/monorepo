@@ -4,7 +4,7 @@ Test for updating a legal user.
 import pytest
 
 
-@pytest.mark.dependency(depends=["generated_tests/all_mangopay_endpoints/users/test_create_legal_user_owner.py::test_create_legal_user_owner"])
+@pytest.mark.dependency(name="update_legal_user", depends=["create_legal_user_owner"])
 def test_update_legal_user(api_session, env_vars, faker_vars, dynamic_vars):
     """Test updating a legal user."""
     url = f"{env_vars['ENV_URL']}/v2.01/{env_vars['CLIENT_ID']}/users/legal/{dynamic_vars['USER_LEGAL_OWNER']}"
@@ -43,4 +43,3 @@ def test_update_legal_user(api_session, env_vars, faker_vars, dynamic_vars):
     
     response = api_session.put(url, json=body)
     assert response.status_code == 200
-    return response

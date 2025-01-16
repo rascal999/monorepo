@@ -34,12 +34,11 @@ ENV/
 *.swo
 
 # Project specific
-generated_tests/
+/generated_tests/
 collections/*.json
 collections/*.yml
 example/mgp-sample.json
 example/mgp-sample.yml
-example/generated_tests/
 postman2pytest/
 
 # Logs

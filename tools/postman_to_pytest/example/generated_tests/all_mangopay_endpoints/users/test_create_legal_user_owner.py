@@ -4,7 +4,7 @@ Test for creating a legal user with owner category.
 import pytest
 
 
-@pytest.mark.dependency()
+@pytest.mark.dependency(name="create_legal_user_owner")
 def test_create_legal_user_owner(api_session, env_vars, faker_vars, dynamic_vars):
     """Test creating a legal user with owner category."""
     url = f"{env_vars['ENV_URL']}/v2.01/{env_vars['CLIENT_ID']}/users/legal"
@@ -44,4 +44,3 @@ def test_create_legal_user_owner(api_session, env_vars, faker_vars, dynamic_vars
     response = api_session.post(url, json=body)
     assert response.status_code == 200
     dynamic_vars["USER_LEGAL_OWNER"] = response.json()["Id"]
-    return response

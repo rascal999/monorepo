@@ -4,7 +4,7 @@ Test for creating a natural user with payer category.
 import pytest
 
 
-@pytest.mark.dependency()
+@pytest.mark.dependency(name="create_natural_user_payer")
 def test_create_natural_user_payer(api_session, env_vars, faker_vars, dynamic_vars):
     """Test creating a natural user with payer category."""
     url = f"{env_vars['ENV_URL']}/v2.01/{env_vars['CLIENT_ID']}/users/natural"
@@ -29,4 +29,3 @@ def test_create_natural_user_payer(api_session, env_vars, faker_vars, dynamic_va
     response = api_session.post(url, json=body)
     assert response.status_code == 200
     dynamic_vars["USER_NATURAL_PAYER"] = response.json()["Id"]
-    return response

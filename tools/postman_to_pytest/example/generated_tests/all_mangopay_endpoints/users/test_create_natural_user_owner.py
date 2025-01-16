@@ -4,7 +4,7 @@ Test for creating a natural user with owner category.
 import pytest
 
 
-@pytest.mark.dependency()
+@pytest.mark.dependency(name="create_natural_user_owner")
 def test_create_natural_user_owner(api_session, env_vars, faker_vars, dynamic_vars):
     """Test creating a natural user with owner category."""
     url = f"{env_vars['ENV_URL']}/v2.01/{env_vars['CLIENT_ID']}/users/natural"
@@ -32,4 +32,3 @@ def test_create_natural_user_owner(api_session, env_vars, faker_vars, dynamic_va
     response = api_session.post(url, json=body)
     assert response.status_code == 200
     dynamic_vars["USER_NATURAL_OWNER"] = response.json()["Id"]
-    return response
