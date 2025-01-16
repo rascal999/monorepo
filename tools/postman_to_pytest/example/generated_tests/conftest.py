@@ -4,8 +4,17 @@ Pytest configuration and fixtures.
 import os
 import pytest
 import requests
+import urllib3
+import warnings
 from faker import Faker
 from dotenv import load_dotenv
+
+# Filter out InsecureRequestWarning
+warnings.filterwarnings('ignore', category=urllib3.exceptions.InsecureRequestWarning)
+
+def pytest_configure(config):
+    """Configure pytest."""
+    config.option.dependency_ignore_unknown = True
 
 # Load environment variables
 load_dotenv()
@@ -43,7 +52,11 @@ def api_session(env_vars):
     """Session with authentication for API requests."""
     session = requests.Session()
     # Set SSL verification based on TLS_VERIFY env var
-    session.verify = env_vars["TLS_VERIFY"].lower() == "true"
+    verify = env_vars["TLS_VERIFY"].lower() == "true"
+    session.verify = verify
+    if not verify:
+        # Disable warnings for unverified HTTPS requests
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     # Use Basic Auth to get bearer token
     auth_url = f"{env_vars['ENV_URL']}/v2.01/oauth/token"
     response = session.post(
