@@ -13,8 +13,8 @@ from typing import Optional, List, Dict, Any
 
 from .parser.collection import PostmanCollectionParser
 from .parser.dependency import DependencyGraphParser
-from .generator.fixtures import FixtureGenerator
-from .generator.test_file import TestFileGenerator
+from .generator.handlers.fixtures import FixtureGenerator
+from .generator.test import TestFileGenerator
 from .utils.validation import validate_inputs, validate_endpoint_format
 from .utils.auth import AuthManager
 
