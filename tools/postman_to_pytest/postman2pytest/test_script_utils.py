@@ -13,17 +13,24 @@ def convert_test_script(script: Dict[str, Any], request_name: str, url: str) -> 
     # Join all lines and normalize whitespace
     js_code = ' '.join(line.strip() for line in js_code if line.strip())
     
-    # Extract variable assignments from response.json()
     assertions = []
     
-    # Add status code assertion first
-    assertions.append('assert response.status_code == 200')
-    
-    # Handle variable assignment if present
-    if 'pm.environment.set' in js_code:
-        var_name = extract_var_name(js_code)
-        if var_name != "UNKNOWN_VAR":
-            assertions.append(f'dynamic_vars["{var_name}"] = response.json()["Id"]')
+    # Handle conditional variable assignment
+    if 'if (pm.response.code === 200)' in js_code or 'if (response.status_code === 200)' in js_code:
+        assertions.extend([
+            'assert response.status_code == 200',
+            'response_data = response.json()',
+            f'dynamic_vars["{extract_var_name(js_code)}"] = response_data["Id"]'
+        ])
+    # Handle direct variable assignment
+    elif 'pm.environment.set' in js_code:
+        assertions.extend([
+            'assert response.status_code == 200',
+            f'dynamic_vars["{extract_var_name(js_code)}"] = response.json()["Id"]'
+        ])
+    # Default case
+    else:
+        assertions.append('assert response.status_code == 200')
     
     return assertions
 
