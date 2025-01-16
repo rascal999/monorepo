@@ -6,11 +6,20 @@ import shutil
 from pathlib import Path
 
 def copy_env_file(base_dir: str, output_dir: str):
-    """Copy .env.sample to .env if it doesn't exist."""
-    src = os.path.join(base_dir, '.env.sample')
+    """Copy .env to output directory."""
+    src = os.path.join(base_dir, '.env')
     dst = os.path.join(output_dir, '.env')
-    if os.path.exists(src) and not os.path.exists(dst):
+    print(f"\n=== Copying .env file ===")
+    print(f"Source path: {src}")
+    print(f"Destination path: {dst}")
+    print(f"Source exists: {os.path.exists(src)}")
+    if os.path.exists(src):
+        print("Copying file...")
+        os.makedirs(output_dir, exist_ok=True)  # Ensure output directory exists
         shutil.copy2(src, dst)
+        print("File copied successfully")
+    else:
+        print("WARNING: Source .env file not found")
 
 def copy_conftest_file(base_dir: str, output_dir: str):
     """Copy conftest.py to output directory."""

@@ -19,15 +19,18 @@ load_dotenv()
 def env_vars():
     """Environment variables needed for tests."""
     print("\n=== Loading environment variables ===")
+    # Load all environment variables
+    env_dict = dict(os.environ)
+    print("Loaded all environment variables")
+    
+    # Validate required variables
     required_vars = ["ENV_URL", "BASIC_AUTH_USERNAME", "BASIC_AUTH_PASSWORD", "TLS_VERIFY"]
-    env_dict = {}
     for var in required_vars:
-        value = os.getenv(var)
-        if not value:
+        if var not in env_dict:
             print(f"Missing required environment variable: {var}")
             raise ValueError(f"Required environment variable {var} is not set")
-        env_dict[var] = value
-        print(f"Loaded {var}")
+        print(f"Validated {var}")
+    
     # Map BASIC_AUTH_USERNAME to CLIENT_ID for backward compatibility
     env_dict["CLIENT_ID"] = env_dict["BASIC_AUTH_USERNAME"]
     print("Environment variables loaded successfully")
@@ -41,6 +44,7 @@ def faker_vars():
     vars_dict = {
         "$randomFirstName": fake.first_name(),
         "$randomLastName": fake.last_name(),
+        "$randomFullName": f"{fake.first_name()} {fake.last_name()}",
         "$randomEmail": fake.email(),
         "$randomStreetAddress": fake.street_address(),
         "$randomStreetName": fake.street_name(),
