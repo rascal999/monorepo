@@ -43,19 +43,93 @@ The generated test files will be created in the `generated_tests` directory.
 
 ## Generated Tests
 
-The converter creates:
-- Pytest test files
-- Fixtures for shared resources
+The converter creates a directory structure that mirrors your Postman collection:
+
+```
+generated_tests/
+├── __init__.py
+├── conftest.py
+├── .env
+└── all_mangopay_endpoints/
+    ├── __init__.py
+    └── users/
+        ├── __init__.py
+        ├── test_create_natural_user_owner.py
+        ├── test_create_natural_user_payer.py
+        ├── test_create_legal_user_owner.py
+        ├── test_create_legal_user_payer.py
+        ├── test_update_natural_user_owner.py
+        ├── test_update_legal_user.py
+        ├── test_view_user.py
+        ├── test_view_user_emoney.py
+        └── test_list_users.py
+```
+
+Each test file contains:
+- Clear docstrings describing the test purpose
+- Proper pytest fixtures for session management
 - Environment variable handling
-- Request session management
+- Dynamic variable management
+- Dependency markers for test ordering
+
+## Test Dependencies
+
+Tests use `pytest-dependency` to maintain proper execution order:
+
+```python
+@pytest.mark.dependency(name="test_create_natural_user_owner")
+def test_create_natural_user_owner(api_session, env_vars, faker_vars, dynamic_vars):
+    """Test creating a natural user with owner category."""
+    ...
+```
+
+Dependencies are automatically handled based on:
+- Variable usage (tests that set variables other tests need)
+- Explicit dependencies defined in the YAML configuration
+- API endpoint relationships
+
+## Environment Setup
+
+1. Copy the `.env.sample` template to create your `.env` file:
+```bash
+cp .env.sample .env
+```
+
+2. Update the `.env` file with your values. The file includes configuration for:
+   - Custom variables (e.g., CLIENT_ID)
+   - OAuth authentication flow
+   - Proxy configuration
+   - SSL/TLS settings
+   - Environment selection
+   - Logging preferences
+
+See `.env.sample` for the complete list of available configuration options and their descriptions.
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
 ## Example
 
-Input files:
-- `mgp-sample.json`: Mangopay API collection
-- `mgp-sample.yml`: Dependency configuration
+Using the example Mangopay API collection:
 
-Generated output in `generated_tests/`:
-- Test files following Pytest conventions
-- Organized by endpoint categories
-- Maintains dependencies between tests
+1. Input files:
+   - `example/mgp-sample.json`: Mangopay API collection with user endpoints
+   - `example/mgp-sample.yml`: Dependencies between user operations
+
+2. Generate tests:
+```bash
+python -m postman2pytest example/mgp-sample.json example/mgp-sample.yml --output-dir example/generated_tests
+```
+
+3. Run tests:
+```bash
+pytest example/generated_tests -v
+```
+
+The generated tests will:
+- Follow the same structure as the Postman collection
+- Maintain dependencies between operations (e.g., create user before update)
+- Handle environment variables and dynamic data
+- Include proper assertions from Postman tests
