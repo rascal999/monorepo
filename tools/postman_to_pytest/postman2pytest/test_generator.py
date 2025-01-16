@@ -91,10 +91,21 @@ class TestGenerator:
 
         return lines
 
-    def _get_output_path(self, request: PostmanRequest, primary_request: PostmanRequest) -> str:
+    def _get_output_path(self, request: PostmanRequest, primary_request: PostmanRequest, resolver: DependencyResolver) -> str:
         """Get the output path for a test file based on request path."""
-        # Use the primary request's name for the filename
-        filename = f"test_{sanitize_name(primary_request.name)}.py"
+        # Get dependencies and dependents
+        deps = resolver.get_dependencies(request)
+        dependents = resolver.get_dependents(request)
+        
+        # If this request has dependents, use its own name
+        if dependents:
+            filename = f"test_{sanitize_name(request.name)}.py"
+        # If this request has dependencies, use the first dependency's name
+        elif deps:
+            filename = f"test_{sanitize_name(deps[0].name)}.py"
+        # Otherwise use this request's name
+        else:
+            filename = f"test_{sanitize_name(request.name)}.py"
         
         # Always use all_mangopay_endpoints/users path
         path_parts = ["all_mangopay_endpoints", "users"]
@@ -113,57 +124,56 @@ class TestGenerator:
 
     def generate_test_files(self, requests: List[PostmanRequest], resolver: DependencyResolver):
         """Generate pytest test files for a collection of requests."""
+        # Sort requests by dependency order
+        ordered_requests, cycles = resolver.resolve_order()
+        
         # Track which requests have been written
         written_requests = set()
         
-        # Group requests by their variable dependencies
-        request_groups: Dict[str, Set[PostmanRequest]] = {}
-        for request in requests:
-            # Find related requests based on variable dependencies
-            related_ids = find_related_requests(request.endpoint_id, resolver.config.endpoints)
-            
-            # Find the primary request (the one that sets variables)
-            primary_id = get_primary_request(request.endpoint_id, resolver.config.endpoints)
-            if not primary_id:
-                primary_id = request.endpoint_id
-            
-            # Add all related requests to the group
-            if primary_id not in request_groups:
-                request_groups[primary_id] = set()
-            request_groups[primary_id].add(request)
-            for related_id in related_ids:
-                for req in requests:
-                    if req.endpoint_id == related_id:
-                        request_groups[primary_id].add(req)
-                        break
+        # Group requests by their dependencies
+        dependency_groups: Dict[str, List[PostmanRequest]] = {}
+        for request in ordered_requests:
+            deps = resolver.get_dependencies(request)
+            if deps:
+                # Use the first dependency's name as the key
+                key = deps[0].name
+                if key not in dependency_groups:
+                    dependency_groups[key] = []
+                # Add dependency first if not already in group
+                if deps[0] not in dependency_groups[key]:
+                    dependency_groups[key].append(deps[0])
+                # Then add the dependent request
+                dependency_groups[key].append(request)
         
-        # Generate test files for each group
-        for primary_id, group_requests in request_groups.items():
-            if not any(req in written_requests for req in group_requests):
-                # Find the primary request object
-                primary_request = None
-                for req in requests:
-                    if req.endpoint_id == primary_id:
-                        primary_request = req
-                        break
-                if not primary_request:
-                    primary_request = next(iter(group_requests))
+        # Write files for dependency groups
+        for group_key, group_requests in dependency_groups.items():
+            # Get output path using the dependent test's name (last request in group)
+            output_path = os.path.join(
+                create_test_directory(self.output_dir, ["all_mangopay_endpoints", "users"]),
+                f"test_{sanitize_name(group_requests[-1].name)}.py"
+            )
+            
+            # Write all tests in the group
+            first = True
+            for request in group_requests:
+                if request not in written_requests:
+                    lines = self._generate_test_function(request, resolver)
+                    self._write_test_file(output_path, lines, 'w' if first else 'a')
+                    written_requests.add(request)
+                    first = False
+        
+        # Write files for standalone requests
+        for request in ordered_requests:
+            if request in written_requests:
+                continue
                 
-                # Sort requests by dependency order
-                ordered_group = []
-                for req in requests:  # Use original order from collection
-                    if req in group_requests:
-                        ordered_group.append(req)
-                
-                if ordered_group:
-                    # Get output path based on the primary request
-                    output_path = self._get_output_path(ordered_group[0], primary_request)
-                    
-                    # Generate and write all tests in the group
-                    first = True
-                    for request in ordered_group:
-                        if request not in written_requests:
-                            lines = self._generate_test_function(request, resolver)
-                            self._write_test_file(output_path, lines, 'w' if first else 'a')
-                            written_requests.add(request)
-                            first = False
+            # Get output path using this request's name
+            output_path = os.path.join(
+                create_test_directory(self.output_dir, ["all_mangopay_endpoints", "users"]),
+                f"test_{sanitize_name(request.name)}.py"
+            )
+            
+            # Write the test
+            lines = self._generate_test_function(request, resolver)
+            self._write_test_file(output_path, lines, 'w')
+            written_requests.add(request)
