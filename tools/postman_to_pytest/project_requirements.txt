@@ -15,6 +15,10 @@ Requirements:
    - Parse dependency relationships between tests from YAML
    - Use dependency information to order test generation
    - Support test dependencies and execution flow
+   - Handle circular dependencies:
+     * Detect circular dependencies between tests
+     * Skip generating tests involved in circular dependencies
+     * Log warning messages about skipped tests
 
 3. Output:
    - Generate Pytest test files
@@ -27,6 +31,10 @@ Requirements:
    - Process request headers, body, and parameters
    - Support environment variables and test scripts
    - Generate assertions based on Postman tests
+   - Handle test dependencies:
+     * Skip tests when dependencies are not available
+     * Enforce dependency order when running test suites
+     * Properly handle dynamic variables between dependent tests
 
 5. Project Structure:
    /tools/postman_to_pytest/
@@ -60,6 +68,10 @@ Implementation Details:
    - Implemented dependency resolution between tests
    - Handles variable dependencies (environment and dynamic)
    - Maintains correct test execution order
+   - Handles circular dependencies:
+     * Successfully detects circular dependencies
+     * Skips test generation for endpoints in cycles
+     * Provides clear warning messages about skipped tests
 
 3. Output Generation:
    - Generates separate test files for each request

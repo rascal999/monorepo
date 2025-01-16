@@ -5,6 +5,7 @@ Parser module for handling Postman collections and dependency configurations.
 import json
 import yaml
 from typing import Dict, List, Any, Optional
+from .name_utils import sanitize_name
 
 class PostmanRequest:
     """Represents a Postman request with its test scripts and variables."""
@@ -23,7 +24,15 @@ class PostmanRequest:
     @property
     def endpoint_id(self) -> str:
         """Generate a unique identifier for this endpoint."""
-        return f"{self.method} {'/'.join(self.path)}"
+        # Format matches YAML config: "METHOD Collection/Folder/Name"
+        # Join all path components including the name
+        full_path = self.path + [self.name]
+        return f"{self.method} {'/'.join(full_path)}"
+
+    @property
+    def test_name(self) -> str:
+        """Generate the test function name."""
+        return f"test_{sanitize_name(self.name)}"
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any], path: List[str]) -> Optional['PostmanRequest']:
@@ -48,7 +57,7 @@ class PostmanRequest:
         description = data.get('description', '')
         
         request = cls(name, method, url, body, headers, tests, description)
-        request.path = path + [name]
+        request.path = path  # Store the full path from collection
         return request
 
 class DependencyConfig:
@@ -58,12 +67,32 @@ class DependencyConfig:
 
     def get_dependencies(self, endpoint_id: str) -> Dict[str, Any]:
         """Get dependency information for an endpoint."""
-        return self.endpoints.get(endpoint_id, {})
+        # Try exact match first
+        deps = self.endpoints.get(endpoint_id, {})
+        if deps:
+            return deps
+            
+        # Try without method prefix
+        if ' ' in endpoint_id:
+            _, path = endpoint_id.split(' ', 1)
+            return self.endpoints.get(path, {})
+        return {}
 
-    def get_variable_dependencies(self, endpoint_id: str) -> Dict[str, Dict[str, str]]:
+    def get_variable_dependencies(self, endpoint_id: str) -> Dict[str, Dict[str, Any]]:
         """Get variables used by an endpoint and their sources."""
         deps = self.get_dependencies(endpoint_id)
-        return deps.get('uses_variables', {})
+        var_deps = deps.get('uses_variables', {})
+        
+        # Normalize dependency names in set_by lists
+        for var_info in var_deps.values():
+            if var_info.get('type') == 'dynamic' and 'set_by' in var_info:
+                # Extract just the name part from the full path
+                var_info['set_by'] = [
+                    dep.split('/')[-1]
+                    for dep in var_info['set_by']
+                ]
+        
+        return var_deps
 
     def get_set_variables(self, endpoint_id: str) -> List[str]:
         """Get variables set by an endpoint."""

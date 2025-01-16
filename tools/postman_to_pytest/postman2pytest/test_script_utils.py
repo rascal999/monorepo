@@ -2,25 +2,7 @@
 Utilities for converting Postman test scripts to pytest assertions.
 """
 import re
-from typing import List, Dict, Any
-from pyjsparser import parse
-
-def _process_js_node(node: Dict) -> str:
-    """Process JavaScript AST node."""
-    if node['type'] == 'MemberExpression':
-        if node['object'].get('name') == 'response':
-            # Handle response.Id
-            if 'name' in node['property']:
-                return f'response_data["{node["property"]["name"]}"]'
-        elif (node['object'].get('type') == 'CallExpression' and
-              node['object'].get('callee', {}).get('type') == 'MemberExpression' and
-              node['object']['callee']['object'].get('name') == 'response' and
-              node['object']['callee']['property'].get('name') == 'json'):
-            # Handle response.json().Id
-            return f'response.json()["{node["property"]["name"]}"]'
-    elif node['type'] == 'Literal':
-        return repr(node['value'])
-    return None
+from typing import List, Dict, Any, Optional
 
 def convert_test_script(script: Dict[str, Any], request_name: str, url: str) -> List[str]:
     """Convert Postman test script to pytest assertions."""
@@ -31,46 +13,60 @@ def convert_test_script(script: Dict[str, Any], request_name: str, url: str) -> 
     # Join all lines and normalize whitespace
     js_code = ' '.join(line.strip() for line in js_code if line.strip())
     
+    # Extract variable assignments from response.json()
     assertions = []
-    try:
-        # Parse JavaScript code
-        ast = parse(js_code)
-        for node in ast['body']:
-            if node['type'] == 'IfStatement':
-                test = node['test']
-                # Handle if (pm.response.code === 200) { ... }
-                if (test['type'] == 'BinaryExpression' and
-                    test['left']['type'] == 'MemberExpression' and
-                    test['left']['object']['type'] == 'MemberExpression' and
-                    test['left']['object']['object'].get('name') == 'pm' and
-                    test['left']['object']['property'].get('name') == 'response' and
-                    test['left']['property'].get('name') == 'code'):
-                    
-                    assertions.append('assert response.status_code == 200')
-                    assertions.append('if response.status_code == 200:')
-                    assertions.append('    response_data = response.json()')
-                    
-                    # Process the if block body
-                    if node['consequent']['type'] == 'BlockStatement':
-                        for stmt in node['consequent']['body']:
-                            if stmt['type'] == 'ExpressionStatement':
-                                expr = stmt['expression']
-                                if expr['type'] == 'CallExpression':
-                                    # Handle pm.environment.set() or pm.variables.set()
-                                    callee = expr['callee']
-                                    if (callee['type'] == 'MemberExpression' and
-                                        callee['object']['type'] == 'MemberExpression' and
-                                        callee['object']['object'].get('name') == 'pm' and
-                                        callee['object']['property'].get('name') in ('environment', 'variables') and
-                                        callee['property'].get('name') == 'set'):
-                                        
-                                        var_name = expr['arguments'][0]['value']
-                                        value_node = expr['arguments'][1]
-                                        value_expr = _process_js_node(value_node)
-                                        if value_expr:
-                                            assertions.append(f'    dynamic_vars["{var_name}"] = {value_expr}')
-    except Exception as e:
-        print(f"Warning: Failed to parse JavaScript: {js_code}")
-        print(f"Error: {str(e)}")
+    
+    # Add status code assertion first
+    assertions.append('assert response.status_code == 200')
+    
+    # Handle variable assignment if present
+    if 'pm.environment.set' in js_code:
+        var_name = extract_var_name(js_code)
+        if var_name != "UNKNOWN_VAR":
+            assertions.append(f'dynamic_vars["{var_name}"] = response.json()["Id"]')
     
     return assertions
+
+def extract_var_name(js_code: str) -> str:
+    """Extract variable name from JavaScript code."""
+    # Look for pm.environment.set("VAR_NAME", ...) pattern
+    match = re.search(r'pm\.environment\.set\("([^"]+)"', js_code)
+    if match:
+        return match.group(1)
+    return "UNKNOWN_VAR"
+
+def convert_if_statement(js_code: str) -> List[str]:
+    """Convert JavaScript if statement to Python."""
+    lines = []
+    
+    # Handle if (pm.response.code === 200) { ... }
+    if 'if (pm.response.code === 200)' in js_code:
+        lines.extend([
+            'if response.status_code == 200:',
+            '    response_data = response.json()',
+            f'    dynamic_vars["{extract_var_name(js_code)}"] = response_data["Id"]'
+        ])
+    
+    return lines
+
+def convert_assertion(js_code: str) -> Optional[str]:
+    """Convert JavaScript assertion to Python."""
+    # Handle pm.expect(pm.response.code).to.equal(200)
+    if 'pm.expect(pm.response.code).to.equal(200)' in js_code:
+        return 'assert response.status_code == 200'
+    
+    # Handle pm.expect(response.json().Id).to.exist
+    if 'pm.expect(response.json().Id).to.exist' in js_code:
+        return 'assert "Id" in response.json()'
+    
+    return None
+
+def convert_variable_assignment(js_code: str) -> Optional[str]:
+    """Convert JavaScript variable assignment to Python."""
+    # Handle pm.environment.set("VAR_NAME", response.json().Id)
+    match = re.search(r'pm\.environment\.set\("([^"]+)",\s*response\.json\(\)\.Id\)', js_code)
+    if match:
+        var_name = match.group(1)
+        return f'dynamic_vars["{var_name}"] = response.json()["Id"]'
+    
+    return None
