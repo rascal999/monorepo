@@ -141,9 +141,18 @@ class DependencyResolver:
         return order + standalone, cycles
 
     def get_dependencies(self, request: PostmanRequest) -> List[PostmanRequest]:
-        """Get the direct dependencies for a specific request."""
-        deps = self.dependency_graph.get(request.test_name, set())
-        return [self.test_name_map[dep] for dep in deps]
+        """Get all dependencies (direct and transitive) for a specific request."""
+        all_deps = set()
+        
+        def get_deps_recursive(test_name: str):
+            deps = self.dependency_graph.get(test_name, set())
+            for dep in deps:
+                if dep not in all_deps:
+                    all_deps.add(dep)
+                    get_deps_recursive(dep)
+        
+        get_deps_recursive(request.test_name)
+        return [self.test_name_map[dep] for dep in all_deps]
         
     def get_related_tests(self, request: PostmanRequest) -> List[PostmanRequest]:
         """Get all tests that share variables with this request."""
