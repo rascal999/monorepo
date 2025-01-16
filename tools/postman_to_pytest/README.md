@@ -1,270 +1,61 @@
-# Postman to Pytest Generator
+# Postman to Pytest Converter
 
-Convert Postman collections to pytest files with proper test dependencies and variable management.
+A tool to convert Postman collections to Pytest test cases, with support for dependency-based test ordering.
 
 ## Features
 
-- Convert Postman collections to pytest test files
-- Maintain test dependencies and execution order
-- Handle variable sharing between tests via fixtures
-- Support both static and dynamic variables
-- Mirror Postman collection folder structure
-- Exclude specific folders from collection or dependencies
-- Target specific endpoints by method/path or Postman name
+- Converts Postman collections (JSON) to Pytest test cases
+- Supports dependency graph configuration (YAML)
+- Handles environment variables and dynamic variables
+- Maintains test order based on dependencies
+- Converts Postman test scripts to Pytest assertions
 
 ## Installation
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd postman-to-pytest
-
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/macOS
-# or
-.\venv\Scripts\activate  # Windows
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Install in development mode
-pip install -e .
 ```
 
 ## Usage
 
-### Basic Usage
-
-1. Create a `.env` file in either:
-   - The project root directory (recommended)
-   - The current working directory
-   - Or use `.env.sample` as a template (will be copied as `.env`)
-
-Note: The tool will automatically:
-   - Create the output directory if it doesn't exist
-   - Copy your `.env` file (or `.env.sample`) to the output directory
-   - This ensures environment variables are available when running the generated tests
-
-Example `.env` configuration:
-```bash
-# Environment Configuration
-ENV_URL=https://api.example.com
-# OAuth Configuration
-BASIC_AUTH_USERNAME=your_username
-BASIC_AUTH_PASSWORD=your_password
-OAUTH_TOKEN_URL=https://api.example.com/oauth/token
-```
-
-2. Run the converter:
-```bash
-postman2pytest \
-  --collection input.json \
-  --dependencies input.yml \
-  --output generated_tests
-```
-
-### Target Specific Endpoint
-
-By HTTP method and path:
-```bash
-postman2pytest \
-  --collection input.json \
-  --dependencies input.yml \
-  --output generated_tests \
-  --target "GET /api/users/{{user_id}}"
-```
-
-By Postman folder/test name:
-```bash
-postman2pytest \
-  --collection input.json \
-  --dependencies input.yml \
-  --output generated_tests \
-  --name "Users/Get User"
-```
-
-### Exclude Folders
+1. Place your Postman collection JSON file in the project directory
+2. Create a YAML file defining the dependencies between endpoints
+3. Run the converter:
 
 ```bash
-postman2pytest \
-  --collection input.json \
-  --dependencies input.yml \
-  --output generated_tests \
-  --exclude-collection-folder auth \
-  --exclude-dependency-folder tutorials
+python -m postman2pytest <collection_file.json> <dependencies.yml>
 ```
+
+The generated test files will be created in the `generated_tests` directory.
 
 ## Input Files
 
 ### Postman Collection (JSON)
+- API endpoint definitions
+- Request methods, headers, and bodies
+- Test scripts and environment variables
+- Authentication configuration
 
-The tool accepts Postman Collection v2.1 format. Example:
+### Dependency Graph (YAML)
+- Endpoint dependencies
+- Variable usage and relationships
+- Test execution order requirements
 
-```json
-{
-    "info": {
-        "name": "Sample API Collection",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-    },
-    "item": [
-        {
-            "name": "Users",
-            "item": [
-                {
-                    "name": "Get User",
-                    "request": {
-                        "method": "GET",
-                        "url": {
-                            "raw": "http://api.example.com/users/{{user_id}}",
-                            "path": ["users", "{{user_id}}"]
-                        },
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}"
-                            }
-                        ]
-                    }
-                }
-            ]
-        }
-    ]
-}
-```
+## Generated Tests
 
-### Dependencies (YAML)
+The converter creates:
+- Pytest test files
+- Fixtures for shared resources
+- Environment variable handling
+- Request session management
 
-The dependency graph defines variable relationships and test ordering. Example:
+## Example
 
-```yaml
-postman_collection_dependencies:
-  endpoints:
-    "GET /users/{{user_id}}":
-      uses_variables:
-        token:
-          type: dynamic
-          set_by:
-            - "POST /auth/login"
-        user_id:
-          type: dynamic
-          set_by:
-            - "POST /users"
+Input files:
+- `mgp-sample.json`: Mangopay API collection
+- `mgp-sample.yml`: Dependency configuration
 
-  variables:
-    token:
-      type: dynamic
-      scope: function
-      description: "Authentication token from login"
-      cleanup: true
-```
-
-## Output Structure
-
-Generated tests mirror the Postman collection structure:
-
-```
-generated_tests/
-├── Auth/
-│   └── test_login.py
-└── Users/
-    ├── test_create_user.py
-    ├── test_get_user.py
-    └── test_update_user.py
-```
-
-Generated test files include:
-- Proper test dependencies using pytest-dependency
-- Fixtures for variable sharing
-- Variable cleanup after tests
-- Clear docstrings and comments
-
-Example generated test:
-
-```python
-import pytest
-import requests
-import os
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
-
-# Environment configuration
-ENV_URL = os.getenv('ENV_URL')
-
-@pytest.mark.dependency()
-def test_post_auth_login():
-    """Test login endpoint to get auth token."""
-    response = requests.post(
-        f"{ENV_URL}/auth/login",
-        json={"username": "test", "password": "password"}
-    )
-    assert response.status_code == 200
-    return response.json()["token"]
-
-@pytest.mark.dependency(depends=["test_post_auth_login"])
-def test_get_user(token):
-    """Test get user endpoint."""
-    response = requests.get(
-        f"{ENV_URL}/users/123",
-        headers={"Authorization": f"Bearer {token}"}
-    )
-    assert response.status_code == 200
-```
-
-## Development
-
-### Running Tests
-
-```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=src
-
-# Run specific test file
-pytest tests/test_cli.py
-```
-
-### Project Structure
-
-```
-postman-to-pytest/
-├── src/
-│   ├── parser/          # Input file parsing
-│   ├── generator/       # Test file generation
-│   └── utils/          # Utility functions
-├── tests/              # Test files
-└── examples/           # Example input files
-```
-
-## Dependencies
-
-- Python 3.8+
-- pytest
-- pytest-dependency
-- pyyaml
-- click
-- requests
-
-## Limitations
-
-- Single target endpoint per conversion (when using --target or --name)
-- Basic variable type support
-- No support for complex variable transformations
-- Manual test assertion configuration
-- OAuth2 requires HTTPS by default. For testing with HTTP, set OAUTHLIB_INSECURE_TRANSPORT=1
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests
-5. Submit a pull request
-
-## License
-
-MIT License
+Generated output in `generated_tests/`:
+- Test files following Pytest conventions
+- Organized by endpoint categories
+- Maintains dependencies between tests
