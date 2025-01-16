@@ -37,6 +37,10 @@ ENV/
 generated_tests/
 collections/*.json
 collections/*.yml
+example/mgp-sample.json
+example/mgp-sample.yml
+example/generated_tests/
+postman2pytest/
 
 # Logs
 *.log
