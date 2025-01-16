@@ -14,10 +14,10 @@ from .file_utils import (
 )
 from .converter import (
     convert_test_script,
-    convert_request_body,
     get_request_description,
     process_url,
 )
+from .body_utils import convert_request_body
 from .name_utils import sanitize_name
 from .dependency_utils import find_related_requests, get_primary_request
 
@@ -29,9 +29,17 @@ class TestGenerator:
         os.makedirs(output_dir, exist_ok=True)
         
         # Copy required files and create directory structure
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        copy_env_file(base_dir, output_dir)
-        copy_conftest_file(base_dir, output_dir)
+        current_file = os.path.abspath(__file__)  # /path/to/monorepo/tools/postman_to_pytest/postman2pytest/test_generator.py
+        package_dir = os.path.dirname(current_file)  # /path/to/monorepo/tools/postman_to_pytest/postman2pytest
+        project_dir = os.path.dirname(package_dir)  # /path/to/monorepo/tools/postman_to_pytest
+        
+        print(f"\n=== Directory paths ===")
+        print(f"Current file: {current_file}")
+        print(f"Package dir: {package_dir}")
+        print(f"Project dir: {project_dir}")
+        
+        copy_env_file(project_dir, output_dir)
+        copy_conftest_file(project_dir, output_dir)
         create_directory_structure(output_dir)
 
     def _generate_test_function(self, request: PostmanRequest, resolver: DependencyResolver) -> List[str]:

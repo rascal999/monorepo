@@ -29,64 +29,6 @@ def convert_test_script(script: Dict[str, Any], request_name: str, url: str) -> 
     
     return assertions
 
-def convert_request_body(body: Dict[str, Any]) -> Optional[str]:
-    """Convert Postman request body to pytest code."""
-    if not body or 'raw' not in body:
-        return None
-        
-    try:
-        # Parse raw JSON
-        raw_json = body['raw']
-        
-        # Remove comments
-        raw_json = re.sub(r'\s*//.*$', '', raw_json, flags=re.MULTILINE)
-        
-        # Parse into Python dict
-        data = json.loads(raw_json)
-        
-        # Process the dictionary to handle variables
-        def process_value(value):
-            if isinstance(value, str):
-                # Handle faker variables
-                if value.startswith('{{$'):
-                    var_name = value[2:-2]  # Remove {{ and }}
-                    return f'faker_vars["{var_name}"]'
-                # Handle other variables
-                if value.startswith('{{') and value.endswith('}}'):
-                    var_name = value[2:-2]  # Remove {{ and }}
-                    return f'env_vars["{var_name}"]'
-            return value
-
-        def process_dict(d):
-            return {k: process_value(v) if isinstance(v, str) else process_dict(v) if isinstance(v, dict) else v 
-                   for k, v in d.items()}
-        
-        # Process the body dictionary
-        processed_body = process_dict(data)
-        
-        # Format as Python code with proper indentation
-        body_lines = ['    body = {']
-        for key, value in processed_body.items():
-            if isinstance(value, dict):
-                body_lines.append(f'        "{key}": {{')
-                for k, v in value.items():
-                    if isinstance(v, str) and not v.startswith('faker_vars') and not v.startswith('env_vars'):
-                        body_lines.append(f'            "{k}": "{v}",')
-                    else:
-                        body_lines.append(f'            "{k}": {v},')
-                body_lines.append('        },')
-            elif isinstance(value, str) and not value.startswith('faker_vars') and not value.startswith('env_vars'):
-                body_lines.append(f'        "{key}": "{value}",')
-            else:
-                body_lines.append(f'        "{key}": {value},')
-        body_lines.append('    }')
-        
-        return '\n'.join(body_lines)
-        
-    except json.JSONDecodeError:
-        print(f"Warning: Failed to parse request body JSON: {raw_json}")
-        return None
-
 def get_request_description(request_name: str, description: Optional[str] = None) -> str:
     """Get the description for a request."""
     if description:
