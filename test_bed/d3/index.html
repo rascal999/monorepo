@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Force-Directed Graph</title>
+  <link rel="stylesheet" href="/src/styles/index.css">
+</head>
+<body>
+  <div class="container">
+    <div id="nav-panel" class="panel">
+      <div class="panel-content">
+        <h3>Navigation</h3>
+      </div>
+    </div>
+    <div id="nav-resizer" class="resizer"></div>
+    
+    <div id="graph-container">
+      <div id="graph"></div>
+    </div>
+    
+    <div id="details-resizer" class="resizer"></div>
+    <div id="details-panel" class="panel">
+      <div class="tabs">
+        <button class="tab-button active" data-tab="properties">Properties</button>
+        <button class="tab-button" data-tab="chat">Chat</button>
+      </div>
+      <div id="properties-tab" class="tab-panel active">
+        <div id="node-details"></div>
+      </div>
+      <div id="chat-tab" class="tab-panel">
+        <div id="chat-history"></div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/src/index.js"></script>
+</body>
+</html>
