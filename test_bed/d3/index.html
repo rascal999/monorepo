@@ -5,10 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Force-Directed Graph</title>
   <link rel="stylesheet" href="/src/styles/index.css">
+  <script>
+    // Set initial panel sizes from localStorage before any content loads
+    const defaultSizes = { navPanel: 250, detailsPanel: 300 };
+    const panelSizes = JSON.parse(localStorage.getItem('panelSizes')) || defaultSizes;
+    document.documentElement.style.setProperty('--nav-panel-width', `${panelSizes.navPanel}px`);
+    document.documentElement.style.setProperty('--details-panel-width', `${panelSizes.detailsPanel}px`);
+  </script>
 </head>
 <body>
   <div class="container">
-    <div id="nav-panel" class="panel">
+    <div id="nav-panel" class="panel" style="width: var(--nav-panel-width)">
       <div class="panel-content">
         <h3>Navigation</h3>
       </div>
@@ -20,15 +27,15 @@
     </div>
     
     <div id="details-resizer" class="resizer"></div>
-    <div id="details-panel" class="panel">
+    <div id="details-panel" class="panel" style="width: var(--details-panel-width)">
       <div class="tabs">
-        <button class="tab-button active" data-tab="properties">Properties</button>
-        <button class="tab-button" data-tab="chat">Chat</button>
+        <button class="tab-button active" data-tab="chat">Chat</button>
+        <button class="tab-button" data-tab="properties">Properties</button>
       </div>
-      <div id="properties-tab" class="tab-panel active">
+      <div id="properties-tab" class="tab-panel">
         <div id="node-details"></div>
       </div>
-      <div id="chat-tab" class="tab-panel">
+      <div id="chat-tab" class="tab-panel active">
         <div id="chat-history"></div>
       </div>
     </div>
