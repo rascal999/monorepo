@@ -1,3 +1,7 @@
+import { addNode, getSelectedNode, setSelectedNode } from '../data.js';
+import { updateGraph } from '../graph/index.js';
+import { displayNodeDetails } from '../panel.js';
+
 // Initialize chat history from localStorage or use default
 let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || {};
 let currentNodeId = null;
@@ -61,8 +65,34 @@ function createChatContainer() {
   }
 }
 
+function handleWordClick(word) {
+  const selectedNode = getSelectedNode();
+  if (!selectedNode) {
+    console.log('No node selected');
+    return;
+  }
+
+  // Create new node with the clicked word
+  const newNode = addNode(word);
+  
+  // Select the new node
+  setSelectedNode(newNode);
+  displayNodeDetails(newNode);
+  
+  // Update graph visualization
+  updateGraph();
+}
+
+function wrapWordsInClickableSpans(message) {
+  return message.split(/\s+/).map(word => 
+    `<span class="clickable-word" onclick="window.handleWordClick('${word.replace(/'/g, "\\'")}')">${word}</span>`
+  ).join(' ');
+}
+
 export function initializeChatInput() {
   createChatContainer();
+  // Make handleWordClick available globally for onclick handlers
+  window.handleWordClick = handleWordClick;
 }
 
 export function displayChat(nodeId, scrollToBottom = false) {
@@ -73,7 +103,7 @@ export function displayChat(nodeId, scrollToBottom = false) {
   const nodeChats = chatHistory[nodeId] || [];
   chatDiv.innerHTML = nodeChats.map(msg => `
     <div class="chat-message">
-      ${msg}
+      ${wrapWordsInClickableSpans(msg)}
     </div>
   `).join('') || '<div class="detail-item">No chat history</div>';
 

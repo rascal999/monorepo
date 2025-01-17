@@ -1,4 +1,4 @@
-import { initializeTabs } from './panel/tabs.js';
+import { initializeTabs, switchTab } from './panel/tabs.js';
 import { displayNodeProperties } from './panel/properties.js';
 import { displayChat, initializeChatInput } from './panel/chat.js';
 
@@ -14,24 +14,22 @@ export function initializePanels() {
   // Initialize tabs
   initializeTabs();
 
-  // Initialize panel sizes
-  document.getElementById('nav-panel').style.width = `${panelSizes.navPanel}px`;
-  document.getElementById('details-panel').style.width = `${panelSizes.detailsPanel}px`;
-
   initializeResizer(
     document.getElementById('nav-resizer'),
     document.getElementById('nav-panel'),
-    'navPanel'
+    'navPanel',
+    '--nav-panel-width'
   );
 
   initializeResizer(
     document.getElementById('details-resizer'),
     document.getElementById('details-panel'),
-    'detailsPanel'
+    'detailsPanel',
+    '--details-panel-width'
   );
 }
 
-function initializeResizer(resizer, panel, storageKey) {
+function initializeResizer(resizer, panel, storageKey, cssVar) {
   let x = 0;
   let panelWidth = 0;
 
@@ -47,7 +45,9 @@ function initializeResizer(resizer, panel, storageKey) {
     const newWidth = Math.min(Math.max(panelWidth + (panel.id === 'nav-panel' ? dx : -dx), 
       panel.id === 'nav-panel' ? 150 : 200), 
       panel.id === 'nav-panel' ? 400 : 500);
-    panel.style.width = `${newWidth}px`;
+    
+    // Update CSS variable
+    document.documentElement.style.setProperty(cssVar, `${newWidth}px`);
   }
 
   function mouseUpHandler() {
@@ -64,6 +64,8 @@ function initializeResizer(resizer, panel, storageKey) {
 export function displayNodeDetails(node) {
   displayNodeProperties(node);
   displayChat(node.id);
+  // Switch to chat tab by default
+  switchTab('chat');
 }
 
 // Re-export chat functionality

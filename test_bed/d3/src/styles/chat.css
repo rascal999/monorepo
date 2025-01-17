@@ -20,6 +20,20 @@
   box-shadow: 0 1px 3px var(--detail-item-shadow);
 }
 
+/* Clickable words in chat messages */
+.clickable-word {
+  cursor: pointer;
+  padding: 2px 4px;
+  margin: 0 -4px;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+.clickable-word:hover {
+  background: var(--node-color);
+  color: white;
+}
+
 /* Chat input area */
 .chat-input {
   position: absolute;
