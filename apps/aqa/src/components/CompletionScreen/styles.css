@@ -1,0 +1,167 @@
+.completion-screen {
+  text-align: center;
+  padding: 40px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.completion-screen h1 {
+  color: #333;
+  margin-bottom: 40px;
+}
+
+.score-container {
+  margin-bottom: 40px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.score-value {
+  font-size: 4rem;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.score-details {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.time-stats {
+  font-size: 1.1rem;
+  color: #666;
+  padding-top: 10px;
+  border-top: 1px solid #dee2e6;
+}
+
+.answers-review {
+  margin-top: 40px;
+  text-align: left;
+}
+
+.answers-review h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.answer-review-item {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.answer-review-item h3 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.question-text {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.answer-details {
+  margin: 15px 0;
+}
+
+.user-answer {
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-answer.correct {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.user-answer.incorrect {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.answer-time {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.correct-answer {
+  padding: 10px;
+  background-color: #d4edda;
+  color: #155724;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.explanation {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.explanation strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.explanation p {
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.completion-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.restart-button,
+.select-new-button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.restart-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.restart-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+.select-new-button {
+  background-color: #6c757d;
+  color: white;
+}
+
+.select-new-button:hover {
+  background-color: #545b62;
+  transform: translateY(-1px);
+}

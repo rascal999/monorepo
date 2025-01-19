@@ -1,0 +1,87 @@
+.navigation-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.nav-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  background-color: white;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+  position: relative;
+}
+
+.nav-dot:hover {
+  border-color: #2196F3;
+  color: #2196F3;
+}
+
+.nav-dot.active {
+  background-color: #2196F3;
+  border-color: #2196F3;
+  color: white;
+}
+
+.nav-dot.correct {
+  border-color: #4CAF50;
+  color: #4CAF50;
+  background-color: #e8f5e9;
+}
+
+.nav-dot.correct.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.nav-dot.incorrect {
+  border-color: #f44336;
+  color: #f44336;
+  background-color: #ffebee;
+}
+
+.nav-dot.incorrect.active {
+  background-color: #f44336;
+  color: white;
+}
+
+.nav-dot.marked {
+  box-shadow: 0 0 0 2px #ffd700;
+}
+
+.mark-indicator {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  color: #ffd700;
+  font-size: 12px;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Hover tooltips */
+.nav-dot:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  margin-bottom: 5px;
+  pointer-events: none;
+  z-index: 1000;
+}

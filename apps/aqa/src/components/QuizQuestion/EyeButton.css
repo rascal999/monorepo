@@ -1,0 +1,25 @@
+.eye-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  color: #666;
+  min-width: 40px;
+}
+
+.eye-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.eye-button.hidden {
+  color: #999;
+}
+
+.eye-icon {
+  font-size: 1.1rem;
+}
