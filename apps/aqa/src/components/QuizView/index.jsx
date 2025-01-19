@@ -3,12 +3,7 @@ import QuizQuestion from '../QuizQuestion';
 import ProgressBar from '../ProgressBar';
 import NavigationDots from '../NavigationDots';
 import NavigationButtons from '../NavigationButtons';
-import NavigationPanel from '../NavigationPanel';
-import HamburgerMenu from '../HamburgerMenu';
-
 const QuizView = ({
-  isPanelOpen,
-  setIsPanelOpen,
   currentQuestion,
   totalQuestions,
   markedQuestions,
@@ -50,15 +45,6 @@ const QuizView = ({
 
   return (
     <div className="app-container">
-      <HamburgerMenu onClick={() => setIsPanelOpen(true)} />
-      <NavigationPanel
-        isOpen={isPanelOpen}
-        onClose={() => setIsPanelOpen(false)}
-        currentQuestion={currentQuestion}
-        totalQuestions={totalQuestions}
-        markedQuestions={markedQuestions}
-        onNavigate={handleNavigate}
-      />
       <div className="quiz-container">
         <h1>{quiz.title}</h1>
         
@@ -94,6 +80,8 @@ const QuizView = ({
           isFirstQuestion={currentQuestion === 0}
           isLastQuestion={currentQuestion === totalQuestions - 1}
           onFinish={() => setCompleted(true)}
+          answers={answers}
+          totalQuestions={totalQuestions}
         />
       </div>
     </div>
