@@ -1,7 +1,7 @@
 // OpenRouter API configuration
 export const API_CONFIG = {
   url: 'https://api.openrouter.ai/api/v1/chat/completions',
-  model: 'anthropic/claude-2',
+  model: 'openai/gpt-4',
   temperature: 0.3,
   maxTokens: 4000,
   headers: {
