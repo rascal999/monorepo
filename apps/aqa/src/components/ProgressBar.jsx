@@ -1,6 +1,6 @@
 import './ProgressBar.css';
 
-function ProgressBar({ currentQuestion, totalQuestions }) {
+function ProgressBar({ currentQuestion, totalQuestions, title }) {
   const progress = ((currentQuestion + 1) / totalQuestions) * 100;
 
   return (
@@ -9,7 +9,7 @@ function ProgressBar({ currentQuestion, totalQuestions }) {
         <div className="progress-fill" style={{ width: `${progress}%` }}></div>
       </div>
       <div className="progress-text">
-        Question {currentQuestion + 1} of {totalQuestions}
+        {title && <span className="quiz-title">{title}</span>} - Question {currentQuestion + 1} of {totalQuestions}
       </div>
     </div>
   );

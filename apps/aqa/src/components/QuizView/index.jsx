@@ -46,11 +46,10 @@ const QuizView = ({
   return (
     <div className="app-container">
       <div className="quiz-container">
-        <h1>{quiz.title}</h1>
-        
         <ProgressBar
           currentQuestion={currentQuestion}
           totalQuestions={totalQuestions}
+          title={quiz.title}
         />
 
         <NavigationDots
@@ -72,6 +71,7 @@ const QuizView = ({
           onAnswer={handleAnswer}
           isMarked={isMarked}
           onToggleMark={toggleMarkQuestion}
+          quizTitle={quiz.title}
         />
 
         <NavigationButtons
