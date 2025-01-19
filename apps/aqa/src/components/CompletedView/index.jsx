@@ -1,11 +1,7 @@
 import React from 'react';
-import CompletionScreen from '../CompletionScreen';
-import NavigationPanel from '../NavigationPanel';
-import HamburgerMenu from '../HamburgerMenu';
+import CompletionScreen from '../CompletionScreen/index.jsx';
 
 const CompletedView = ({
-  isPanelOpen,
-  setIsPanelOpen,
   currentQuestion,
   totalQuestions,
   markedQuestions,
@@ -19,15 +15,6 @@ const CompletedView = ({
 }) => {
   return (
     <div className="app-container">
-      <HamburgerMenu onClick={() => setIsPanelOpen(true)} />
-      <NavigationPanel
-        isOpen={isPanelOpen}
-        onClose={() => setIsPanelOpen(false)}
-        currentQuestion={currentQuestion}
-        totalQuestions={totalQuestions}
-        markedQuestions={markedQuestions}
-        onNavigate={handleNavigate}
-      />
       <div className="quiz-container">
         <CompletionScreen
           score={score}

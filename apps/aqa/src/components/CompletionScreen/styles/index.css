@@ -1,0 +1,59 @@
+.completion-screen {
+  text-align: center;
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  overflow-y: auto;
+}
+
+.completion-header {
+  margin-bottom: 30px;
+}
+
+.completion-header h1 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 2.5rem;
+}
+
+.completion-subtitle {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.completion-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.restart-button,
+.select-new-button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.restart-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.restart-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+.select-new-button {
+  background-color: #6c757d;
+  color: white;
+}
+
+.select-new-button:hover {
+  background-color: #545b62;
+  transform: translateY(-1px);
+}
