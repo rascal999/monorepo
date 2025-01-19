@@ -1,5 +1,7 @@
 import React from 'react';
-import './styles.css';
+import './styles/index.css';
+import './styles/score.css';
+import './styles/answers.css';
 
 const formatTime = (ms) => {
   const seconds = Math.floor(ms / 1000);
@@ -26,7 +28,10 @@ const CompletionScreen = ({
 
   return (
     <div className="completion-screen">
-      <h1>Quiz Completed!</h1>
+      <div className="completion-header">
+        <h1>Quiz Completed!</h1>
+        <p className="completion-subtitle">Here's your detailed quiz performance:</p>
+      </div>
       
       <div className="score-container">
         <div className="score">
@@ -36,12 +41,32 @@ const CompletionScreen = ({
           </span>
         </div>
         <div className="time-stats">
+          <h3>Time Statistics</h3>
           <p>Average time per question: {formatTime(averageAnswerTime)}</p>
+          <p>Total questions answered: {userAnswers.filter(a => a !== null).length}</p>
+        </div>
+      </div>
+
+      <div className="summary-stats">
+        <h2>Detailed Statistics</h2>
+        <div className="stats-grid">
+          <div className="stat-item">
+            <span className="stat-label">Correct Answers:</span>
+            <span className="stat-value">{score}</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">Incorrect Answers:</span>
+            <span className="stat-value">{totalQuestions - score}</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">Accuracy:</span>
+            <span className="stat-value">{percentage}%</span>
+          </div>
         </div>
       </div>
 
       <div className="answers-review">
-        <h2>Review Your Answers</h2>
+        <h2>Question-by-Question Review</h2>
         {sortedAnswers.map((userAnswer, index) => {
           const question = quiz.questions.find(q => q.id === userAnswer.questionId);
 
