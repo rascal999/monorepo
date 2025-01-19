@@ -12,6 +12,25 @@
   margin: 0;
   flex: 1;
   padding-right: 20px;
+  text-decoration: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.question:hover {
+  color: #2196F3;
+}
+
+.search-icon {
+  font-size: 1rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.question:hover .search-icon {
+  opacity: 1;
 }
 
 .control-button {

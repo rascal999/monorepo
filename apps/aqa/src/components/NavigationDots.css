@@ -1,16 +1,16 @@
 .navigation-dots {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-bottom: 30px;
+  gap: 6px;
+  margin-bottom: 15px;
   flex-wrap: wrap;
 }
 
 .nav-dot {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  border: 2px solid #ddd;
+  border: 1.5px solid #ddd;
   background-color: white;
   color: #666;
   display: flex;
@@ -18,7 +18,7 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   position: relative;
 }
 

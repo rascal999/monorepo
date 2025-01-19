@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { getQuizzes, generateQuiz } from '../../api/client';
+import React, { useEffect, useState, useRef } from 'react';
+import { getQuizzes, generateQuiz, generateQuizFromFile, deleteQuiz } from '../../api/client';
 import GeneratingQuizView from '../GeneratingQuizView';
-import './styles.css';
+import SearchBar from './SearchBar';
+import QuizList from './QuizList';
+import styles from './QuizSelection.module.css';
 
 const QuizSelection = ({ onSelectQuiz }) => {
   const [quizzes, setQuizzes] = useState([]);
@@ -9,6 +11,7 @@ const QuizSelection = ({ onSelectQuiz }) => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [generating, setGenerating] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const fetchQuizzes = async () => {
@@ -47,18 +50,45 @@ const QuizSelection = ({ onSelectQuiz }) => {
     }
   };
 
+  const handleDeleteQuiz = async (quizId) => {
+    try {
+      await deleteQuiz(quizId);
+      setQuizzes(quizzes.filter(quiz => quiz.id !== quizId));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        setGenerating(true);
+        const { id } = await generateQuizFromFile(file);
+        const data = await getQuizzes();
+        setQuizzes(data);
+        onSelectQuiz(id);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setGenerating(false);
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   if (loading) {
     return (
-      <div className="quiz-selection">
-        <h1>Loading quizzes...</h1>
+      <div className={styles.container}>
+        <h1 className={styles.title}>Loading quizzes...</h1>
       </div>
     );
   }
 
   if (generating) {
     return (
-      <div className="quiz-selection">
-        <h1>Select a Quiz</h1>
+      <div className={styles.container}>
+        <h1 className={styles.title}>Select a Quiz</h1>
         <GeneratingQuizView topic={searchTerm} />
       </div>
     );
@@ -66,63 +96,31 @@ const QuizSelection = ({ onSelectQuiz }) => {
 
   if (error) {
     return (
-      <div className="quiz-selection">
-        <h1>Error</h1>
-        <p className="error-message">{error}</p>
+      <div className={styles.container}>
+        <h1 className={styles.title}>Error</h1>
+        <p className={styles.error}>{error}</p>
       </div>
     );
   }
 
-  const filteredQuizzes = quizzes.filter(quiz =>
-    quiz.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   return (
-    <div className="quiz-selection">
-      <h1>Select a Quiz</h1>
-      <div className="search-container">
-        <input
-          type="text"
-          placeholder="Search or enter a topic for a new quiz..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-          className="search-input"
-          disabled={generating}
-        />
-        <button 
-          onClick={handleSearch}
-          className="search-button"
-          disabled={generating || !searchTerm.trim()}
-        >
-          {generating ? 'Generating Quiz...' : 'Search'}
-        </button>
-      </div>
-      <div className="quiz-list">
-        {filteredQuizzes.length === 0 ? (
-          <div className="no-results">
-            <p>No quizzes found.</p>
-            {!generating && searchTerm.trim() && (
-              <p className="generate-hint">
-                Press Enter or click Search to generate a new quiz about "{searchTerm}"
-              </p>
-            )}
-          </div>
-        ) : (
-          filteredQuizzes.map((quiz) => (
-            <button
-              key={quiz.id}
-              className="quiz-item"
-              onClick={() => onSelectQuiz(quiz.id)}
-            >
-              <h2>{quiz.title}</h2>
-              <span className="created-at">
-                Created: {new Date(quiz.created_at).toLocaleDateString()}
-              </span>
-            </button>
-          ))
-        )}
-      </div>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Select a Quiz</h1>
+      <SearchBar
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        handleSearch={handleSearch}
+        fileInputRef={fileInputRef}
+        handleFileUpload={handleFileUpload}
+        generating={generating}
+      />
+      <QuizList
+        quizzes={quizzes}
+        searchTerm={searchTerm}
+        onSelectQuiz={onSelectQuiz}
+        onDeleteQuiz={handleDeleteQuiz}
+        generating={generating}
+      />
     </div>
   );
 };

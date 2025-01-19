@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
-import { API_CONFIG, NETWORK_CONFIG } from './config.js';
-import { httpsAgent, sleep, calculateBackoff, resolveHostname, logNetworkInfo } from './network.js';
+import { API_CONFIG, NETWORK_CONFIG } from '../config/config.js';
+import { httpsAgent, sleep, calculateBackoff, resolveHostname, logNetworkInfo } from '../network/network.js';
 
 // Hardcoded IPs for OpenRouter API as fallback
 const FALLBACK_IPS = [
@@ -14,7 +14,7 @@ const FALLBACK_IPS = [
  * @returns {Promise<Object>} The API response data
  * @throws {Error} If all retry attempts fail
  */
-async function makeRequest(options) {
+export async function makeRequest(options) {
   let lastError;
   let responseText;
   let urls = [API_CONFIG.url];
@@ -43,11 +43,24 @@ async function makeRequest(options) {
         const response = await fetch(url, options);
         responseText = await response.text();
 
-        if (response.ok) {
-          return JSON.parse(responseText);
-        }
+        console.log('Raw API response:', responseText);
 
-        lastError = JSON.parse(responseText);
+        try {
+          const parsedResponse = JSON.parse(responseText);
+          console.log('Parsed API response:', JSON.stringify(parsedResponse, null, 2));
+
+          if (response.ok) {
+            if (!parsedResponse.choices?.[0]?.message?.content) {
+              throw new Error('Invalid response structure: missing content');
+            }
+            return parsedResponse;
+          }
+
+          lastError = parsedResponse;
+        } catch (parseError) {
+          console.error('Failed to parse API response:', parseError);
+          throw new Error(`Failed to parse API response: ${parseError.message}`);
+        }
       } catch (error) {
         lastError = error;
         console.error('Request failed:', {
@@ -73,16 +86,16 @@ async function makeRequest(options) {
 }
 
 /**
- * Makes a request to the OpenRouter API
+ * Creates request options for the OpenRouter API
  * @param {string} prompt - The prompt to send to the API
- * @returns {Promise<Object>} The API response data
+ * @returns {Object} The request options
  */
-export async function callOpenRouter(prompt) {
+export function createRequestOptions(prompt) {
   if (!process.env.OPENROUTER_API_KEY) {
     throw new Error('OPENROUTER_API_KEY environment variable is not set');
   }
 
-  const options = {
+  return {
     method: 'POST',
     agent: httpsAgent,
     headers: {
@@ -96,51 +109,4 @@ export async function callOpenRouter(prompt) {
       max_tokens: API_CONFIG.maxTokens
     })
   };
-
-  return makeRequest(options);
-}
-
-/**
- * Extracts the generated content from an OpenRouter API response
- * @param {Object} response - The API response
- * @returns {Object} The parsed content
- * @throws {Error} If the response format is invalid
- */
-export function extractContent(response) {
-  if (!response.choices?.[0]?.message?.content) {
-    throw new Error('Invalid API response format: missing content');
-  }
-
-  try {
-    const content = response.choices[0].message.content;
-    console.log('Raw API response content:', content);
-    
-    // Try to clean the content before parsing
-    const cleanedContent = content.trim();
-    
-    try {
-      return JSON.parse(cleanedContent);
-    } catch (firstError) {
-      // Log the error and content for debugging
-      console.error('JSON parse error:', firstError);
-      console.error('Content that failed to parse:', cleanedContent);
-      
-      // Try to extract JSON if there's extra text
-      const jsonMatch = cleanedContent.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const extractedJson = jsonMatch[0];
-        console.log('Attempting to parse extracted JSON:', extractedJson);
-        try {
-          return JSON.parse(extractedJson);
-        } catch (secondError) {
-          console.error('Failed to parse extracted JSON:', secondError);
-        }
-      }
-      
-      throw new Error(`Failed to parse quiz data: ${firstError.message}`);
-    }
-  } catch (error) {
-    console.error('Content extraction failed:', error);
-    throw new Error(`Failed to parse quiz data: ${error.message}`);
-  }
 }

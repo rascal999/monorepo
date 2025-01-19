@@ -23,8 +23,14 @@ html, body, #root {
   padding: 30px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin: 20px auto;
-  overflow-y: auto;
   max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 11 */
+}
+
+.quiz-container::-webkit-scrollbar { /* WebKit */
+  display: none;
 }
 
 .quiz-container h1 {

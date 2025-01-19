@@ -13,7 +13,8 @@ function QuizQuestion({
   currentQuestion, 
   onAnswer,
   isMarked,
-  onToggleMark
+  onToggleMark,
+  quizTitle
 }) {
   console.log('QuizQuestion rendered:', {
     questionId: question.id,
@@ -45,7 +46,15 @@ function QuizQuestion({
   return (
     <div className="question-container">
       <div className="question-header">
-        <p className="question">{question.question_text}</p>
+        <a 
+          href={`https://www.google.com/search?q=${encodeURIComponent(`${quizTitle} ${question.question_text}`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="question"
+        >
+          {question.question_text}
+          <span className="search-icon">🔍</span>
+        </a>
         <button 
           className={`control-button ${isMarked ? 'marked' : ''}`}
           onClick={onToggleMark}
