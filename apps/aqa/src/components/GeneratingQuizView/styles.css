@@ -1,0 +1,67 @@
+.generating-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 30px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+}
+
+.generating-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.generating-content {
+  text-align: center;
+}
+
+.generating-content h2 {
+  color: #333;
+  font-size: 1.5rem;
+  margin: 0 0 16px 0;
+}
+
+.generating-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0;
+  text-align: left;
+}
+
+.step {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.step-label {
+  color: #666;
+  font-weight: 500;
+  min-width: 60px;
+}
+
+.step-value {
+  color: #333;
+}
+
+.generating-note {
+  color: #666;
+  font-size: 0.9rem;
+  font-style: italic;
+  margin: 0;
+}
