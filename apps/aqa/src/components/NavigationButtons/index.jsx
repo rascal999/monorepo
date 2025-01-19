@@ -6,11 +6,19 @@ function NavigationButtons({
   onNext, 
   isFirstQuestion, 
   isLastQuestion,
-  onFinish
+  onFinish,
+  answers,
+  totalQuestions
 }) {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
+  const allQuestionsAnswered = answers && answers.every(answer => answer !== null);
+
   const handleFinishClick = () => {
+    if (!allQuestionsAnswered) {
+      alert('Please answer all questions before finishing the quiz.');
+      return;
+    }
     setShowConfirmModal(true);
   };
 
@@ -32,6 +40,7 @@ function NavigationButtons({
         <button 
           onClick={handleFinishClick}
           className="finish-button"
+          disabled={!allQuestionsAnswered}
         >
           Finish Quiz
         </button>

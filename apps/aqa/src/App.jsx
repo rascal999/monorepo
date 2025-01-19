@@ -9,7 +9,6 @@ import QuizSelection from './components/QuizSelection';
 
 function App() {
   const [selectedQuizId, setSelectedQuizId] = useState(null);
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
   
   const {
     currentQuestion,
@@ -60,8 +59,6 @@ function App() {
   if (completed) {
     return (
       <CompletedView
-        isPanelOpen={isPanelOpen}
-        setIsPanelOpen={setIsPanelOpen}
         currentQuestion={currentQuestion}
         totalQuestions={totalQuestions}
         markedQuestions={markedQuestions}
@@ -78,8 +75,6 @@ function App() {
 
   return (
     <QuizView
-      isPanelOpen={isPanelOpen}
-      setIsPanelOpen={setIsPanelOpen}
       currentQuestion={currentQuestion}
       totalQuestions={totalQuestions}
       markedQuestions={markedQuestions}
