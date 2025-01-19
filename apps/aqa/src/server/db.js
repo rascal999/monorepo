@@ -15,15 +15,24 @@ export const initDb = async () => {
     driver: sqlite3.Database
   });
 
-  // Create tables if they don't exist
+  // Drop existing tables
   await db.exec(`
-    CREATE TABLE IF NOT EXISTS quizzes (
+    DROP TABLE IF EXISTS user_answers;
+    DROP TABLE IF EXISTS answers;
+    DROP TABLE IF EXISTS questions;
+    DROP TABLE IF EXISTS quizzes;
+  `);
+
+  // Create tables with new schema
+  await db.exec(`
+    CREATE TABLE quizzes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
+      keywords TEXT DEFAULT '[]',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
-    CREATE TABLE IF NOT EXISTS questions (
+    CREATE TABLE questions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       quiz_id INTEGER NOT NULL,
       question_text TEXT NOT NULL,
@@ -32,7 +41,7 @@ export const initDb = async () => {
       FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
     );
 
-    CREATE TABLE IF NOT EXISTS answers (
+    CREATE TABLE answers (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       question_id INTEGER NOT NULL,
       answer_text TEXT NOT NULL,
@@ -41,7 +50,7 @@ export const initDb = async () => {
       FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE
     );
 
-    CREATE TABLE IF NOT EXISTS user_answers (
+    CREATE TABLE user_answers (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       question_id INTEGER NOT NULL,
       answer_text TEXT NOT NULL,
@@ -55,7 +64,11 @@ export const initDb = async () => {
 };
 
 export const getQuizzes = async () => {
-  return db.all('SELECT * FROM quizzes ORDER BY created_at DESC');
+  const quizzes = await db.all('SELECT * FROM quizzes ORDER BY created_at DESC');
+  return quizzes.map(quiz => ({
+    ...quiz,
+    keywords: quiz.keywords ? JSON.parse(quiz.keywords) : []
+  }));
 };
 
 export const getQuizById = async (quizId) => {
@@ -64,6 +77,9 @@ export const getQuizById = async (quizId) => {
   if (!quiz) {
     return null;
   }
+
+  // Parse keywords with fallback to empty array
+  quiz.keywords = quiz.keywords ? JSON.parse(quiz.keywords) : [];
 
   // Get questions with answers
   const questions = await db.all(
@@ -85,14 +101,26 @@ export const getQuizById = async (quizId) => {
   };
 };
 
-export const createQuiz = async (title, questions) => {
+export const deleteQuiz = async (quizId) => {
+  await db.run('BEGIN TRANSACTION');
+  try {
+    await db.run('DELETE FROM quizzes WHERE id = ?', [quizId]);
+    await db.run('COMMIT');
+    return true;
+  } catch (error) {
+    await db.run('ROLLBACK');
+    throw error;
+  }
+};
+
+export const createQuiz = async (title, questions, keywords = []) => {
   await db.run('BEGIN TRANSACTION');
 
   try {
     // Create quiz
     const quizResult = await db.run(
-      'INSERT INTO quizzes (title) VALUES (?)',
-      [title]
+      'INSERT INTO quizzes (title, keywords) VALUES (?, ?)',
+      [title, JSON.stringify(keywords)]
     );
     const quizId = quizResult.lastID;
 

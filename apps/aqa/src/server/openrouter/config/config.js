@@ -2,8 +2,8 @@
 export const API_CONFIG = {
   url: 'https://api.openrouter.ai/api/v1/chat/completions',
   model: 'openai/gpt-4',
-  temperature: 0.3,
-  maxTokens: 4000,
+  temperature: 0.7, // Increased for more creative and diverse questions
+  maxTokens: 2000, // Reduced to stay within context length limit
   headers: {
     'Content-Type': 'application/json',
     'HTTP-Referer': 'http://localhost:3001',

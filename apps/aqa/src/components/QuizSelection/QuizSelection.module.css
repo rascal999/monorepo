@@ -1,0 +1,31 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+.container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 8px 12px 0 12px;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allow flex children to shrink */
+}
+
+.title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.error {
+  color: #dc3545;
+  text-align: center;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
