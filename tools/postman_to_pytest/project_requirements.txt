@@ -1,131 +1,107 @@
-# Postman to Pytest Generator
+Project: Postman to Pytest Converter
 
-## Project Purpose
-Create a tool that generates pytest files for Postman collection endpoints, maintaining proper test ordering based on variable dependencies.
+Description:
+A tool to convert Postman collections to Pytest test cases.
 
-## Core Requirements
+Requirements:
+1. Input:
+   - Read and parse Postman collection files (JSON format)
+   - Read and parse YAML dependency graph files
+   - Input files: 
+     * mgp-sample.json (Postman collection)
+     * mgp-sample.yml (Dependency graph configuration)
 
-1. Input Processing
-   - Parse dependency YAML files (output from postman_dependency_graph)
-   - Handle endpoint selection via CLI
-   - Support folder exclusion options
-   - Process variable dependencies
+2. Dependency Graph:
+   - Parse dependency relationships between tests from YAML
+   - Use dependency information to order test generation
+   - Support test dependencies and execution flow
+   - Handle circular dependencies:
+     * Detect circular dependencies between tests
+     * Skip generating tests involved in circular dependencies
+     * Log warning messages about skipped tests
 
-2. Test Generation
-   - Create pytest files with proper test ordering
-   - Generate fixtures for shared variables
-   - Handle environment variables
-   - Support dynamic data dependencies
-   - Maintain proper test isolation
+3. Output:
+   - Generate Pytest test files
+   - Output directory: example/generated_tests
+   - Tests should maintain Postman collection structure and behavior
 
-3. Variable Management
-   - Generate fixtures for variables set by dependencies
-   - Handle different variable types:
-     * Dynamic variables from other endpoints
-     * Environment variables
-     * Static variables
-   - Support variable scoping
-   - Clean up variables after tests
+4. Core Features:
+   - Convert Postman requests to Pytest test functions
+   - Handle request methods (GET, POST, PUT, DELETE, etc.)
+   - Process request headers, body, and parameters
+   - Support environment variables and test scripts
+   - Generate assertions based on Postman tests
+   - Handle test dependencies:
+     * Skip tests when dependencies are not available
+     * Enforce dependency order when running test suites
+     * Properly handle dynamic variables between dependent tests
 
-4. Test Structure
-   - Generate setup fixtures
-   - Create test functions
-   - Handle dependencies through fixture dependencies
-   - Support test parameterization
-   - Include proper assertions
-   - Add docstrings and comments
+5. Project Structure:
+   /tools/postman_to_pytest/
+   ├── project_requirements.txt
+   ├── mgp-sample.json         (Input Postman collection)
+   ├── mgp-sample.yml         (Input configuration)
+   └── example/
+       └── generated_tests/   (Output directory for generated tests)
 
-## Technical Requirements
+6. Technical Requirements:
+   - Python-based implementation
+   - Use pytest framework
+   - Handle JSON and YAML parsing
+   - Generate valid Python test files
+   - Maintain code quality and testing standards
 
-1. Input Requirements
-   - YAML dependency file path
-   - Target endpoint
-   - Optional folder exclusions
-   - Output directory specification
-
-2. Output Structure
-   - Generated test file per endpoint
-   - Shared fixtures file
-   - Common utilities
-   - Configuration files
-
-3. Code Organization
-   - Modular design
-   - Clear separation of concerns:
-     * CLI handling
-     * Dependency analysis
-     * Test generation
-## Technical Requirements
-1. Python Dependencies
-   - Python 3.8+
+7. Dependencies:
    - pytest
-   - requests (for HTTP calls)
-   - json (for parsing Postman collections)
-   - typing (for type hints)
-   - pydantic (for JSON validation)
+   - pyyaml (for YAML parsing)
+   - json (built-in, for JSON parsing)
 
-2. Code Structure
-   - Modular design with separate concerns
-   - Clear class/function documentation
-   - Type hints for better code clarity
-   - Error handling for invalid inputs
-   - Logging for operation tracking
-   - Proxy configuration management
+Status: Implemented
 
-3. Output Format
-   - Generate valid pytest files
-   - Create one test file per Postman collection
-   - Directory structure should mirror API URL paths (e.g., /api/v1/users -> tests/api/v1/users/test_users.py)
-   - Include necessary pytest fixtures
-   - Generate requirements.txt for dependencies
+Implementation Details:
+1. Input Handling:
+   - Successfully parses Postman collection JSON files
+   - Processes YAML dependency configuration files
+   - Supports mgp-sample.json and mgp-sample.yml formats
 
-## Testing Requirements
-1. Unit Tests
-   - Test JSON parsing functionality
-   - Test conversion logic
-   - Test fixture generation
-   - Test error handling
+2. Dependency Graph:
+   - Implemented dependency resolution between tests
+   - Handles variable dependencies (environment and dynamic)
+   - Maintains correct test execution order
+   - Handles circular dependencies:
+     * Successfully detects circular dependencies
+     * Skips test generation for endpoints in cycles
+     * Provides clear warning messages about skipped tests
 
-2. Integration Tests
-   - End-to-end conversion tests
-   - Generated test execution validation
-   - Different Postman collection versions testing
+3. Output Generation:
+   - Generates separate test files for each request
+   - Maintains Postman collection directory structure
+   - Creates proper __init__.py files for package structure
+   - Tests follow pytest conventions and best practices
 
-## Usage Requirements
-1. Command Line Interface
-   - Accept input file path argument
-   - Accept output directory argument
-   - Support optional configuration file
-   - Provide help and version information
+4. Core Features:
+   - Converts all HTTP methods (GET, POST, PUT, DELETE)
+   - Handles request headers, body, and parameters
+   - Processes environment variables
+   - Generates assertions from Postman tests
+   - Supports test dependencies via pytest.mark.dependency
 
-2. Error Handling
-   - Clear error messages for invalid JSON
-   - Validation errors for unsupported features
-   - Path and permission error handling
+5. Project Structure:
+   - Organized modular code structure
+   - Clear separation of concerns:
+     * parser.py: Handles input file parsing
+     * resolver.py: Manages dependencies
+     * generator.py: Generates test files
+     * __main__.py: CLI interface
 
-## Documentation Requirements
-1. README.md
-   - Installation instructions
-   - Usage examples
-   - Configuration options
-   - Common troubleshooting
+6. Technical Implementation:
+   - Python-based solution
+   - Uses pytest framework
+   - Handles JSON and YAML parsing
+   - Generates valid Python test files
+   - Maintains code quality standards
 
-2. Code Documentation
-   - Function/class docstrings
-   - Type hints
-   - Inline comments for complex logic
-
-## Environment Configuration
-1. Environment Variables (.env)
-   - Authentication credentials (Basic, Bearer/API Key)
-   - Proxy configuration and authentication
-   - SSL/Certificate settings
-   - Environment selection and base URLs
-   - Test data configuration (path, format, timeout)
-   - Logging settings (level, file, format)
-
-## Future Considerations
-1. Support for Postman scripts (pre-request and tests)
-2. GUI interface for file selection
-3. Batch processing of multiple collections
-4. Custom template support for generated tests
+7. Dependencies:
+   - pytest
+   - pyyaml
+   - pytest-dependency

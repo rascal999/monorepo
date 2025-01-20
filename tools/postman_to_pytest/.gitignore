@@ -1,31 +1,44 @@
-# Generated test files
-generated_tests/
-
-# Postman collection files
-collections/
-
-# Python virtual environment
-venv/
-.venv/
-
-# Python cache files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# Distribution / packaging
-dist/
+*.so
+.Python
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
 *.egg-info/
+.installed.cfg
+*.egg
 
-# IDE settings
-.vscode/
-.idea/
-
-# Environment variables and configuration
+# Virtual Environment
 .env
-variable_registry.json
+.venv
+env/
+venv/
+ENV/
 
-# Log files
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project specific
+/generated_tests/
+collections/*.json
+collections/*.yml
+example/mgp-sample.json
+example/mgp-sample.yml
+
+# Logs
 *.log
-.oauth_token

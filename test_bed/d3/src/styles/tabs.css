@@ -1,0 +1,52 @@
+/* Panel layout */
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Tab navigation */
+.tabs {
+  flex: 0 0 auto;
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tab-button {
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 14px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s;
+}
+
+.tab-button:hover {
+  color: var(--text-secondary);
+}
+
+.tab-button.active {
+  color: var(--text-secondary);
+  border-bottom-color: var(--text-secondary);
+}
+
+/* Tab panels */
+.tab-panel {
+  display: none;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.tab-panel.active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Node details */
+#node-details {
+  padding: 10px;
+  overflow-y: auto;
+}
