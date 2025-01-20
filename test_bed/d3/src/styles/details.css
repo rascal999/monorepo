@@ -1,0 +1,13 @@
+.detail-item {
+  padding: 10px;
+  margin: 5px 0;
+  background: var(--detail-item-bg);
+  border-radius: 4px;
+  box-shadow: 0 1px 3px var(--detail-item-shadow);
+}
+
+.detail-item strong {
+  color: var(--text-secondary);
+  display: inline-block;
+  width: 80px;
+}

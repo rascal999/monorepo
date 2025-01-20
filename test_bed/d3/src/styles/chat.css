@@ -1,0 +1,145 @@
+/* Chat tab */
+#chat-tab {
+  position: relative;
+  height: 100%;
+}
+
+/* Chat history */
+#chat-history {
+  height: calc(100% - 60px); /* Subtract input height */
+  overflow-y: auto;
+  padding: 10px;
+}
+
+/* Chat messages */
+.chat-message {
+  padding: 8px 12px;
+  margin: 5px 0;
+  background: var(--detail-item-bg);
+  border-radius: 4px;
+  box-shadow: 0 1px 3px var(--detail-item-shadow);
+  max-width: 85%;
+}
+
+/* User messages */
+.chat-message.user {
+  margin-left: auto;
+  background: var(--node-color);
+  color: white;
+}
+
+/* Assistant messages */
+.chat-message.assistant {
+  margin-right: auto;
+  background: var(--detail-item-bg);
+  color: var(--text-primary);
+}
+
+/* Error messages */
+.chat-message.error {
+  margin-right: auto;
+  background: #ff4444;
+  color: white;
+}
+
+/* Streaming message */
+.chat-message.streaming {
+  position: relative;
+  margin-right: auto;
+  background: var(--detail-item-bg);
+  color: var(--text-primary);
+}
+
+.chat-message.streaming::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 12px;
+  width: 8px;
+  height: 8px;
+  background: var(--node-color);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+}
+
+/* Clickable words in chat messages */
+.clickable-word {
+  cursor: pointer;
+  padding: 2px 4px;
+  margin: 0 -4px;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.clickable-word:hover {
+  background: var(--node-color);
+  color: white;
+}
+
+.clickable-word.selected {
+  background: var(--node-color);
+  color: white;
+  border-color: white;
+}
+
+.chat-message.user .clickable-word:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Chat input area */
+.chat-input {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+  min-width: 200px; /* Minimum width to prevent button disappearing */
+  box-sizing: border-box;
+}
+
+.chat-input input {
+  flex: 1;
+  min-width: 60px; /* Minimum width for input */
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.chat-input button {
+  flex: 0 0 auto; /* Don't grow or shrink, use content size */
+  padding: 8px 16px;
+  background: var(--node-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.3s;
+  white-space: nowrap; /* Keep text on one line */
+}
+
+.chat-input button:hover {
+  opacity: 0.9;
+}

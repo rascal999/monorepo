@@ -1,89 +1,135 @@
 # Postman to Pytest Converter
 
-Convert Postman collection JSON files into pytest test files.
+A tool to convert Postman collections to Pytest test cases, with support for dependency-based test ordering.
 
-## Features (Phase 1 - MVP)
+## Features
 
-- Basic conversion of Postman collections to pytest files
-- Support for essential HTTP methods (GET, POST, PUT, DELETE)
-- Basic authentication support (Bearer token)
-- Basic proxy support (HTTP/HTTPS)
-- Directory structure that mirrors API paths
-- Tests organized by HTTP verb per endpoint
+- Converts Postman collections (JSON) to Pytest test cases
+- Supports dependency graph configuration (YAML)
+- Handles environment variables and dynamic variables
+- Maintains test order based on dependencies
+- Converts Postman test scripts to Pytest assertions
 
 ## Installation
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd postman-to-pytest
-
-# Install the package
-pip install .
+pip install -r requirements.txt
 ```
 
 ## Usage
 
-Basic usage:
+1. Place your Postman collection JSON file in the project directory
+2. Create a YAML file defining the dependencies between endpoints
+3. Run the converter:
 
 ```bash
-postman2pytest input.json --output ./tests
+python -m postman2pytest <collection_file.json> <dependencies.yml>
 ```
 
-Options:
-- `input.json`: Path to Postman collection JSON file
-- `--output`: Directory where test files will be generated (default: ./tests)
-- `--help`: Show help message and exit
+The generated test files will be created in the `generated_tests` directory.
 
-## Project Structure
+## Input Files
+
+### Postman Collection (JSON)
+- API endpoint definitions
+- Request methods, headers, and bodies
+- Test scripts and environment variables
+- Authentication configuration
+
+### Dependency Graph (YAML)
+- Endpoint dependencies
+- Variable usage and relationships
+- Test execution order requirements
+
+## Generated Tests
+
+The converter creates a directory structure that mirrors your Postman collection:
 
 ```
-postman2pytest/
-├── src/              # Source code
-├── tests/            # Test files
-├── collections/      # Sample Postman collections
-└── auth/             # Authentication handling
+generated_tests/
+├── __init__.py
+├── conftest.py
+├── .env
+└── all_mangopay_endpoints/
+    ├── __init__.py
+    └── users/
+        ├── __init__.py
+        ├── test_create_natural_user_owner.py
+        ├── test_create_natural_user_payer.py
+        ├── test_create_legal_user_owner.py
+        ├── test_create_legal_user_payer.py
+        ├── test_update_natural_user_owner.py
+        ├── test_update_legal_user.py
+        ├── test_view_user.py
+        ├── test_view_user_emoney.py
+        └── test_list_users.py
 ```
 
-## Dependencies
+Each test file contains:
+- Clear docstrings describing the test purpose
+- Proper pytest fixtures for session management
+- Environment variable handling
+- Dynamic variable management
+- Dependency markers for test ordering
 
-- Python 3.8+
-- pytest
-- requests[socks]
-- requests-oauthlib
-- pydantic
-- click
-- urllib3
-- python-dotenv
+## Test Dependencies
 
-## Development
+Tests use `pytest-dependency` to maintain proper execution order:
 
-1. Create virtual environment:
+```python
+@pytest.mark.dependency(name="test_create_natural_user_owner")
+def test_create_natural_user_owner(api_session, env_vars, faker_vars, dynamic_vars):
+    """Test creating a natural user with owner category."""
+    ...
+```
+
+Dependencies are automatically handled based on:
+- Variable usage (tests that set variables other tests need)
+- Explicit dependencies defined in the YAML configuration
+- API endpoint relationships
+
+## Environment Setup
+
+1. Copy the `.env.sample` template to create your `.env` file:
 ```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or
-.\venv\Scripts\activate  # Windows
+cp .env.sample .env
 ```
 
-2. Install development dependencies:
+2. Update the `.env` file with your values. The file includes configuration for:
+   - Custom variables (e.g., CLIENT_ID)
+   - OAuth authentication flow
+   - Proxy configuration
+   - SSL/TLS settings
+   - Environment selection
+   - Logging preferences
+
+See `.env.sample` for the complete list of available configuration options and their descriptions.
+
+3. Install dependencies:
 ```bash
-pip install -e ".[dev]"
+pip install -r requirements.txt
+```
+
+## Example
+
+Using the example Mangopay API collection:
+
+1. Input files:
+   - `example/mgp-sample.json`: Mangopay API collection with user endpoints
+   - `example/mgp-sample.yml`: Dependencies between user operations
+
+2. Generate tests:
+```bash
+python -m postman2pytest example/mgp-sample.json example/mgp-sample.yml --output-dir example/generated_tests
 ```
 
 3. Run tests:
 ```bash
-pytest
+pytest example/generated_tests -v
 ```
 
-## License
-
-MIT
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
+The generated tests will:
+- Follow the same structure as the Postman collection
+- Maintain dependencies between operations (e.g., create user before update)
+- Handle environment variables and dynamic data
+- Include proper assertions from Postman tests
