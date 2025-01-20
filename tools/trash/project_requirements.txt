@@ -1,0 +1,209 @@
+# Postman to Pytest Generator with Dependency Management
+
+## Project Purpose
+Create a tool that generates pytest files from Postman collections using dependency information. The tool combines Postman collection JSON (for request details) with dependency graph YML output (for test ordering and variable relationships) to create properly ordered pytest files with appropriate fixtures for variable sharing.
+
+## Core Requirements
+
+1. Input Processing
+   - Parse Postman collection JSON for request details:
+     * URLs, methods, headers
+     * Request bodies and parameters
+     * Response handling
+   - Parse dependency graph YAML for relationships:
+     * Variable dependencies
+     * Test ordering
+     * Folder structure
+   - Support target endpoint selection via CLI
+   - Handle folder exclusions for filtering endpoints
+
+2. Test Generation
+   - Create pytest files with dependency-based ordering:
+     * For specific target endpoint if specified
+     * For all endpoints if no target specified
+   - Generate fixtures for variable sharing between tests
+   - Support both static and dynamic variables
+   - Maintain proper test isolation and cleanup
+   - Handle variable scoping appropriately
+   - Include request details from collection:
+     * HTTP method implementation
+     * URL construction
+     * Headers and auth
+     * Request body formatting
+
+3. Variable Management
+   - Generate fixtures based on dependency graph
+   - Support variable types from dependency analysis:
+     * Dynamic variables (set by other endpoints)
+     * Static variables (constant values)
+   - Implement proper variable scoping
+   - Ensure proper cleanup after test execution
+
+4. Test Structure
+   - Generate test files based on endpoint chains
+   - Create test functions with proper dependency markers
+   - Handle dependencies through pytest-dependency
+   - Include clear docstrings and comments
+   - Support basic assertions
+
+## Technical Requirements
+
+1. Input Requirements
+   - Postman collection JSON file path
+   - Dependency graph YAML file path
+   - Target endpoint specification (optional, two options):
+     * Option 1 (--target): Technical format
+       - Format: "{HTTP_METHOD} {PATH}" (e.g., "GET /api/users")
+       - Matches dependency graph format
+     * Option 2 (--name): Friendly format
+       - Format: "Folder Name/Test Name" or "Test Name"
+       - Matches Postman UI structure
+       - Example: "User Management/Get User Details"
+     * If neither specified: processes all endpoints in collection
+     * Dependencies determined by variable usage (from YML)
+   - Optional folder exclusions:
+     * Collection folders to exclude
+     * Dependency graph folders to exclude
+   - Output directory path (generated_tests/)
+
+2. Output Structure
+   - Generated test files in generated_tests/
+     * Directory structure mirrors Postman collection folders
+     * Test files organized by collection structure
+     * Support for folder exclusions
+   - Shared fixture modules
+   - Variable management utilities
+   - Basic configuration files
+
+3. Code Organization
+   - Modular architecture with clear separation:
+     * CLI interface
+     * Collection JSON parsing
+     * YAML parsing and validation
+     * Dependency chain analysis
+     * Test file generation
+
+## Technical Requirements
+1. Python Dependencies
+   - Python 3.8+
+   - pytest
+   - pytest-dependency
+   - pyyaml
+   - click (for CLI)
+   - typing (for type hints)
+   - requests (for test execution)
+   - json (for collection parsing)
+   - python-dotenv (for environment configuration)
+   - requests-oauthlib (for OAuth authentication)
+
+2. Authentication Support
+   - OAuth 2.0 authentication flow:
+     * Basic auth to OAuth token exchange
+     * Token caching and refresh
+     * Custom auth header support
+   - Proxy configuration:
+     * HTTP/HTTPS proxy support
+     * Proxy authentication
+     * SSL verification options
+     * Custom certificate paths
+
+2. Code Structure
+   - Modular design patterns
+   - Comprehensive documentation
+   - Type hints throughout
+   - Robust error handling
+   - Operation logging
+
+3. Output Format
+   - Generate valid pytest files
+   - One test file per endpoint chain
+   - Clear test function naming
+   - Include necessary fixtures
+   - Generate requirements.txt
+
+## Testing Requirements
+1. Unit Tests
+   - Test JSON and YAML parsing
+   - Test dependency analysis
+   - Test fixture generation
+   - Test error handling
+   - Test full collection processing
+
+2. Integration Tests
+   - End-to-end conversion tests:
+     * Single target endpoint
+     * Full collection processing
+   - Test execution validation
+   - Dependency chain verification
+
+## Usage Requirements
+1. Command Line Interface
+   - Input collection JSON argument
+   - Input YAML file argument
+   - Output directory argument (generated_tests/)
+   - Target specification (one of):
+     * --target: Technical endpoint format
+     * --name: Postman UI friendly format
+   - Collection folder exclusion option
+   - Dependency folder exclusion option
+   - Help and version information
+   - Dry run option (--dry-run):
+     * Shows dependency chain for specified target
+     * Displays fixture and test method names
+     * Format:
+       ```
+       Dependency chain for: test_view_user
+       ==================================================
+       test_create_legal_user_owner -> uses:
+         - client_id (environment)
+         - env_url (environment)
+         - random_company_name (fixture)
+         - random_email (fixture)
+         - random_first_name (fixture)
+         - random_last_name (fixture)
+         - random_street_address (fixture)
+         - random_street_name (fixture)
+       test_create_legal_user_owner -> provides:
+         - legal_user_owner (fixture)
+         test_view_user -> uses:
+           - client_id (environment)
+           - env_url (environment)
+           - legal_user_owner (fixture)
+       ```
+
+2. Error Handling
+   - Clear messages for JSON and YAML parsing errors
+   - Validation for collection format and dependency chains
+   - Path and permission handling
+   - Request format validation
+   - Folder structure validation
+   - Exclusion pattern validation
+   - Name resolution errors (for --name option)
+
+## Documentation Requirements
+1. README.md
+   - Installation guide
+   - Usage examples:
+     * Processing specific endpoint
+     * Processing entire collection
+   - CLI options
+   - Troubleshooting guide
+
+2. Code Documentation
+   - Comprehensive docstrings
+   - Type hints
+   - Implementation notes
+
+## Configuration
+1. Basic Settings
+   - Logging configuration
+   - Output formatting options
+   - Test naming patterns
+   - Variable scope settings
+
+## Future Considerations
+1. Multiple target endpoint support
+2. Enhanced variable transformations
+3. Automatic assertion generation
+4. Test parameterization support
+5. Custom template system
