@@ -1,0 +1,2 @@
+boto3>=1.26.0  # For AWS credentials testing
+requests>=2.31.0  # For HTTP requests (OpenRouter, etc.)
