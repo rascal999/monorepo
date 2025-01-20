@@ -18,6 +18,63 @@
   background: var(--detail-item-bg);
   border-radius: 4px;
   box-shadow: 0 1px 3px var(--detail-item-shadow);
+  max-width: 85%;
+}
+
+/* User messages */
+.chat-message.user {
+  margin-left: auto;
+  background: var(--node-color);
+  color: white;
+}
+
+/* Assistant messages */
+.chat-message.assistant {
+  margin-right: auto;
+  background: var(--detail-item-bg);
+  color: var(--text-primary);
+}
+
+/* Error messages */
+.chat-message.error {
+  margin-right: auto;
+  background: #ff4444;
+  color: white;
+}
+
+/* Streaming message */
+.chat-message.streaming {
+  position: relative;
+  margin-right: auto;
+  background: var(--detail-item-bg);
+  color: var(--text-primary);
+}
+
+.chat-message.streaming::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 12px;
+  width: 8px;
+  height: 8px;
+  background: var(--node-color);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
 }
 
 /* Clickable words in chat messages */
@@ -27,11 +84,22 @@
   margin: 0 -4px;
   border-radius: 3px;
   transition: all 0.2s ease;
+  border: 1px solid transparent;
 }
 
 .clickable-word:hover {
   background: var(--node-color);
   color: white;
+}
+
+.clickable-word.selected {
+  background: var(--node-color);
+  color: white;
+  border-color: white;
+}
+
+.chat-message.user .clickable-word:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* Chat input area */
