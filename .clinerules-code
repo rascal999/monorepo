@@ -1,0 +1,12 @@
+Test
+1. Stick to YAGNI + SOLID + KISS + DRY principles when coding.
+2. "gb" means you must create and checkout a git branch for feature being developed.
+3. "gg" means you must (only if not in main branch):
+a) git add
+b) git commit (with message summarising all changes to branch)
+c) git push --set-upstream origin
+d) git merge to main
+e) git checkout main
+f) delete the branch worked on using git branch -d (or git branch -D if not merged)
+g) push the branch deletion to the remote using git push origin --delete <branch-name>.
+4. "gp" means you must git status to understand changes, and then git add all files, git commit (with message), git push.
