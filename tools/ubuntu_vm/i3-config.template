@@ -1,0 +1,131 @@
+# i3 config file
+
+# Use Alt as modifier
+set $mod Mod1
+
+# Font for window titles
+font pango:JetBrainsMono Nerd Font 11
+
+# Basic keybindings
+bindsym $mod+t exec alacritty -e tmux
+bindsym $mod+h exec alacritty -e tmux new-session work-dir-tmux
+bindsym $mod+d exec dmenu_run
+
+# Window management
+bindsym $mod+u fullscreen toggle
+bindsym $mod+f fullscreen toggle
+bindsym $mod+Shift+space floating toggle
+
+# Layout management
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+bindsym $mod+Shift+h split h
+bindsym $mod+v split v
+
+# Focus
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# Moving windows
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+# Restart/reload i3
+bindsym $mod+Shift+c kill
+bindsym $mod+Shift+r restart
+
+# Screenshot binding
+bindsym --release Print exec screenshot
+
+# Media controls
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle
+
+# Brightness controls
+bindsym XF86MonBrightnessUp exec redshift-brightness up
+bindsym XF86MonBrightnessDown exec redshift-brightness down
+bindsym F8 exec redshift-brightness up
+bindsym F7 exec redshift-brightness down
+bindsym $mod+Shift+b exec redshift -x
+
+# Workspace switching
+bindsym $mod+0 workspace number "0: slack"
+bindsym $mod+1 workspace number "1: web"
+bindsym $mod+2 workspace number "2: code"
+bindsym $mod+3 workspace number "3: term"
+bindsym $mod+4 workspace number "4: burp"
+bindsym $mod+5 workspace number "5: term"
+bindsym $mod+8 workspace number "8: logseq"
+bindsym $mod+9 workspace number "9: pw"
+
+# Move container to workspace
+bindsym $mod+Shift+0 move container to workspace "0: slack"
+bindsym $mod+Shift+1 move container to workspace "1: web"
+bindsym $mod+Shift+2 move container to workspace "2: code"
+bindsym $mod+Shift+3 move container to workspace "3: term"
+bindsym $mod+Shift+4 move container to workspace "4: burp"
+bindsym $mod+Shift+5 move container to workspace "5: term"
+bindsym $mod+Shift+8 move container to workspace "8: logseq"
+bindsym $mod+Shift+9 move container to workspace "9: pw"
+
+# Quick launch
+bindsym $mod+b exec firefox
+bindsym $mod+n exec pcmanfm
+bindsym $mod+l exec i3lock -c 000000
+bindsym $mod+k workspace "9: pw"; exec keepassxc
+bindsym $mod+Return exec rofi-launcher
+bindsym $mod+Shift+l exec systemctl poweroff
+bindsym $mod+c exec chromium
+
+# Screenshot selection
+bindsym --release $mod+s exec screenshot --select
+bindsym --release $mod+Shift+s exec screenshot
+
+# Window assignments
+assign [class="^Firefox$"] "1: web"
+assign [class="^Code$"] "2: code"
+assign [class="^Slack$"] "0: slack"
+assign [class="^Logseq$"] "8: logseq"
+assign [class="^KeePassXC$"] "9: pw"
+
+# Startup applications
+exec --no-startup-id gnome-keyring-daemon --start --components=pkcs11,secrets,ssh
+exec --no-startup-id redshift -O 3500 -b 0.6
+exec --no-startup-id sleep 2 && pasystray
+exec --no-startup-id i3-msg 'workspace 1: web; exec firefox'
+exec --no-startup-id sleep 2 && i3-msg 'workspace 1: web'
+exec --no-startup-id sleep 3 && i3-msg 'workspace 2: code; exec code'
+exec --no-startup-id sleep 4 && i3-msg 'workspace 3: term; exec alacritty -e tmux'
+exec --no-startup-id sleep 7 && i3-msg 'workspace 1: web'
+exec --no-startup-id sleep 12 && clear-urgent
+
+# Appearance
+bar {
+    position bottom
+    status_command i3status-rs ~/.config/i3status-rust/config-default.toml
+    colors {
+        background #000000
+        statusline #eceff4
+        separator #000000
+        focused_workspace #002b36 #002b36 #ffffff
+        active_workspace #002b36 #002b36 #ffffff
+        inactive_workspace #000000 #000000 #666666
+        urgent_workspace #2b0000 #2b0000 #DC322F
+    }
+    font pango:JetBrainsMono Nerd Font 11
+}
+
+# Window appearance
+gaps inner 0
+gaps outer 0
+smart_gaps on
+
+# Window decorations
+default_border pixel 0
+default_floating_border pixel 0
+for_window [class="^.*"] border pixel 0

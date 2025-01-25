@@ -1,0 +1,75 @@
+#cloud-config
+autoinstall:
+  version: 1
+  locale: en_US
+  keyboard:
+    layout: us
+  identity:
+    hostname: ubuntu-desktop
+    username: user
+    # Password is "password"
+    password: "$6$rounds=4096$8dkK1P/oE$2DGKKt0wLlTVJ7USY.0jN9du8FetmEr51yjPyeiR.B1ZcXBfIwxHEf3kBwWs0/hm2JOqWYHkJ7E.9EmFWF95M1"
+  storage:
+    layout:
+      name: direct
+  packages:
+    - i3
+    - i3status
+    - i3lock
+    - dmenu
+    - lightdm
+    - rofi
+    - alacritty
+    - tmux
+    - firefox
+    - pcmanfm
+    - pulseaudio-utils
+    - network-manager-gnome
+    - pavucontrol
+    - redshift
+    - fonts-jetbrains-mono
+    - qemu-guest-agent
+    - git
+    - curl
+    - xz-utils
+    - build-essential
+    - pkg-config
+    - eject
+  late-commands:
+    - eject /dev/cdrom || true
+    - eject /dev/sr0 || true
+    - eject /dev/sr1 || true
+  user-data:
+    disable_root: true
+    runcmd:
+      # Install Rust for i3status-rust
+      - sudo -u user curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      - sudo -u user . "$HOME/.cargo/env"
+      
+      # Clone maxos repo
+      - sudo -u user git clone https://github.com/yourusername/maxos.git /home/user/maxos
+      
+      # Set up i3 config directory
+      - sudo -u user mkdir -p /home/user/.config/i3
+      - sudo -u user cp /home/user/maxos/tools/ubuntu_vm/i3-config.template /home/user/.config/i3/config
+      
+      # Set up i3status-rust
+      - sudo -u user mkdir -p /home/user/.config/i3status-rust
+      - sudo -u user cp /home/user/maxos/modules/tools/i3/config-default.toml /home/user/.config/i3status-rust/
+      
+      # Copy scripts
+      - sudo -u user mkdir -p /home/user/.local/bin
+      - sudo cp /home/user/maxos/scripts/redshift-brightness /home/user/.local/bin/
+      - sudo cp /home/user/maxos/scripts/screenshot /home/user/.local/bin/
+      - sudo cp /home/user/maxos/scripts/clear-urgent /home/user/.local/bin/
+      - sudo chmod +x /home/user/.local/bin/*
+      
+      # Build and install i3status-rust
+      - sudo -u user git clone https://github.com/greshake/i3status-rust.git /home/user/i3status-rust
+      - cd /home/user/i3status-rust && sudo -u user cargo build --release
+      - sudo cp /home/user/i3status-rust/target/release/i3status-rs /usr/local/bin/
+      
+      # Set i3 as default session
+      - echo '[Desktop]' > /usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf
+      - echo 'session-wrapper=/etc/X11/Xsession' >> /usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf
+      - echo 'user-session=i3' >> /usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf
