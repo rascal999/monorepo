@@ -1,8 +1,0 @@
-Requirements for Hello World Python Program:
-
-1. Create a simple Python script that prints "Hello, World!" to the console three times
-2. Place it in the tools/hello_world/ directory
-3. Follow Python best practices:
-   - Clear, readable code
-   - Appropriate comments
-   - Proper file naming

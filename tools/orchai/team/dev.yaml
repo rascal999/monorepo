@@ -1,0 +1,14 @@
+name: dev
+username: dev
+role: dev
+model: google/gemini-flash-1.5-8b
+rocketchat:
+  user_id: hLKj3wooFfeWf3k2e
+  token: XS0Guq7Ma8EoJyqlF2mRKNGrQoYO_jvg-g_QYmuy0Hp
+git:
+  user_name: dev_bot
+  user_email: dev_bot@example.com
+permissions:
+  - repo_access
+  - docker_access
+  - command_execution
