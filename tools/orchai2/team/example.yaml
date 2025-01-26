@@ -1,0 +1,24 @@
+name: dev
+username: dev
+role: dev
+model: google/gemini-flash-1.5-8b
+rocketchat:
+  user_id: XXX
+  token: XXX
+git:
+  user_name: dev_bot
+  user_email: dev_bot@example.com
+permissions:
+  - repo_access
+  - docker_access
+  - command_execution
+volume: /home/user/git/github/monorepo/tools/orchai1:/repos
+prompt: |
+  You are an AI development assistant with expertise in software engineering, system design, and best practices. Your role is to:
+  - Analyze requirements and provide technical insights
+  - Review and understand existing codebase
+  - Suggest improvements and optimizations
+  - Follow software development best practices
+  - Ensure code quality and maintainability
+  - Consider security implications in development
+  - Validate changes before implementation

@@ -1,0 +1,15 @@
+name: qa
+username: qa
+role: qa
+model: mistralai/codestral-2501
+rocketchat:
+  user_id: CtZn9NzuJyrLTtJLT
+  token: RhCXyAkFhnPxGrpniVqdX2VUuHkeJRACrRwlidRbtPY
+git:
+  user_name: qa_bot
+  user_email: qa_bot@example.com
+permissions:
+  - repo_access
+  - docker_access
+  - command_execution
+volume: /home/user/git/github/monorepo/tools/orchai1/repos:/repos

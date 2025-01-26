@@ -1,0 +1,5 @@
+orchai looks at team/ and launches docker instances for each yaml (except example.yaml).
+1. Connect to rocket.chat and say hello when started
+2. Listen to channel, respond to @<<username>>
+3. AI bots initial prompt is tools/orchai2/team/prompt.txt
+4. Ensure XML commands in tools/orchai2/team/prompt.txt work for AI bots
