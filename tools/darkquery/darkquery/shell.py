@@ -7,7 +7,7 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from rich.console import Console
 
-from .commands import CommandHandler
+from .commands import CompleteCommandHandler
 from .display import console
 from .ollama import OllamaClient
 
@@ -34,7 +34,7 @@ class DarkQueryShell:
         ollama = OllamaClient(ollama_url, ollama_model, verbose)
         
         # Initialize command handler
-        self.handler = CommandHandler(data_sources, ollama, verbose)
+        self.handler = CompleteCommandHandler(data_sources, ollama, verbose)
         
         # Set up command history
         history_file = Path.home() / ".darkquery_history"
@@ -53,12 +53,26 @@ class DarkQueryShell:
         
         while True:
             try:
-                # Get input with prompt and history support
-                query = self.session.prompt("> ")
+                # Build prompt with context
+                prompt = "> "
+                if self.handler.context:
+                    # Show ticket ID and summary for JIRA
+                    if self.handler.context.get('type') == 'jira':
+                        ticket = self.handler.context.get('ticket', '')
+                        summary = self.handler.context.get('summary', '')
+                        if summary:
+                            prompt = f"[{ticket}: {summary}] > "
+                        else:
+                            prompt = f"[{ticket}] > "
+                    # Show project path for GitLab
+                    elif self.handler.context.get('type') == 'gitlab':
+                        project = self.handler.context.get('project', '')
+                        if project:
+                            prompt = f"[{project}] > "
                 
-                if not query:
-                    continue
-                    
+                # Get input with prompt and history support
+                query = self.session.prompt(prompt)
+                
                 if query.lower() in ("exit", "quit"):
                     break
                     
@@ -68,7 +82,9 @@ class DarkQueryShell:
                     continue
                     
                 # Process query through command handler
-                self.handler.process_query(query)
+                result = self.handler.process_query(query)
+                if result is None:  # Command was handled and completed
+                    continue
                 
             except KeyboardInterrupt:
                 continue

@@ -6,17 +6,18 @@ from history_manager import HistoryManager
 from command_executor import CommandExecutor
 
 class InteractiveSession:
-    def __init__(self, jira_manager, ollama_client):
+    def __init__(self, jira_manager, ollama_client, debug=False):
         self.jira = jira_manager
         self.ollama = ollama_client
         self.last_ticket = None
         self.last_summary = None
         self.chat_history = []
         self.ticket_data = None
+        self.debug = debug
         
         # Initialize managers
         self.history = HistoryManager()
-        self.executor = CommandExecutor(self.jira.client, self.history)
+        self.executor = CommandExecutor(self.jira.client, self.history, debug=debug)
 
     def is_ticket_id(self, text):
         """Check if input matches ticket ID pattern"""
@@ -66,17 +67,13 @@ class InteractiveSession:
         except:
             pass
 
-        # If not a command and we have ticket context, treat as normal response
-        if self.last_ticket and self.ticket_data:
-            self.chat_history.append(("user", query))
-            self.chat_history.append(("assistant", response))
-            # Add to command history
-            self.history.add_entry(query, response, self.last_ticket, self.ticket_data)
-            print("\n" + response)
-            return True
-        else:
-            print("No ticket context available. Please analyze a ticket first.")
-            return False
+        # If not a command, treat as normal response
+        self.chat_history.append(("user", query))
+        self.chat_history.append(("assistant", response))
+        # Add to command history
+        self.history.add_entry(query, response, self.last_ticket, self.ticket_data)
+        print("\n" + response)
+        return True
 
     def _format_chat_history(self):
         """Format chat history for context"""

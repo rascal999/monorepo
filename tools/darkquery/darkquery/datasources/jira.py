@@ -46,15 +46,18 @@ class JIRADataSource(DataSource):
         try:
             # Extract JQL and limit from query
             jql = query.get('query')
-            limit = query.get('limit', self.DEFAULT_LIMIT)
+            limit = query.get('limit')  # No default limit
             
             # Validate JQL from Ollama
             jql = self.jql_generator.generate(jql, context)
             
-            self.logger.debug(f"Executing JQL: {jql} with limit {limit}")
-            
-            # Execute JQL query with maxResults
-            issues = self.client.search_issues(jql, maxResults=limit)
+            # Execute JQL query
+            if limit:
+                self.logger.debug(f"Executing JQL: {jql} with limit {limit}")
+                issues = self.client.search_issues(jql, maxResults=limit)
+            else:
+                self.logger.debug(f"Executing JQL: {jql} without limit")
+                issues = self.client.search_issues(jql)
             
             # Format results
             results = []
@@ -67,7 +70,7 @@ class JIRADataSource(DataSource):
                 }
                 
                 # Add more fields for single ticket view
-                if limit == 1:
+                if limit == 1 or len(issues) == 1:
                     # Get full ticket with comments
                     full_issue = self.client.issue(issue.key, expand='comments')
                     
@@ -141,6 +144,83 @@ class JIRADataSource(DataSource):
             "ticket_status",
             "ticket_assignment"
         ]
+    
+    def delete_ticket(self, ticket_ids: List[str]) -> QueryResult:
+        """Delete one or more JIRA tickets.
+        
+        Args:
+            ticket_ids: List of JIRA ticket IDs to delete
+            
+        Returns:
+            QueryResult containing the result of the operation
+        """
+        try:
+            # Delete each ticket
+            for ticket_id in ticket_ids:
+                # Get issue first to validate it exists
+                issue = self.client.issue(ticket_id)
+                
+                # Delete the issue
+                issue.delete()
+            
+            return QueryResult(
+                success=True,
+                data={"tickets": ticket_ids},
+                message=f"Successfully deleted {len(ticket_ids)} ticket(s)"
+            )
+            
+        except Exception as e:
+            error_msg = str(e)
+            if hasattr(e, 'response') and hasattr(e.response, 'json'):
+                try:
+                    error_data = e.response.json()
+                    if 'errorMessages' in error_data and error_data['errorMessages']:
+                        error_msg = error_data['errorMessages'][0]
+                except:
+                    pass
+                    
+            # Log full trace if verbose
+            if self.verbose:
+                self.logger.exception(f"Error deleting tickets: {ticket_ids}")
+            else:
+                self.logger.error(f"Error deleting tickets: {error_msg}")
+                
+            return QueryResult(
+                success=False,
+                data=None,
+                message=error_msg
+            )
+            
+    def add_comment(self, ticket_id: str, comment: str) -> QueryResult:
+        """Add a comment to a JIRA ticket.
+        
+        Args:
+            ticket_id: The JIRA ticket ID/key
+            comment: The comment text to add
+            
+        Returns:
+            QueryResult containing the result of the operation
+        """
+        try:
+            # Get issue first to validate it exists
+            issue = self.client.issue(ticket_id)
+            
+            # Add the comment
+            self.client.add_comment(issue, comment)
+            
+            return QueryResult(
+                success=True,
+                data={"ticket": ticket_id, "comment": comment},
+                message=f"Comment added successfully to {ticket_id}"
+            )
+            
+        except Exception as e:
+            self.logger.exception(f"Error adding comment to ticket {ticket_id}")
+            return QueryResult(
+                success=False,
+                data=None,
+                message=f"Error adding comment: {str(e)}"
+            )
     
     def get_schema(self) -> Dict[str, Any]:
         """Get JIRA schema information.

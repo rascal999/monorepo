@@ -120,3 +120,21 @@ class CommandProcessor:
             return 'files'
         # Default to jira if unclear
         return 'jira'
+            
+        # Check for JIRA keywords
+        if any(word in text_lower for word in ['ticket', 'bug', 'jira']):
+            return 'jira'
+            
+        # Check for file operations
+        if any(word in text_lower for word in ['file', 'code', 'read', 'implementation']):
+            return 'files'
+            
+        # Check if it's an issue (could be either JIRA or GitLab)
+        if 'issue' in text_lower:
+            # If mentions GitLab group/project, use GitLab
+            if 'group' in text_lower or 'project' in text_lower:
+                return 'gitlab'
+            return 'jira'  # Default to JIRA for general issues
+            
+        # Default to JIRA if unclear
+        return 'jira'

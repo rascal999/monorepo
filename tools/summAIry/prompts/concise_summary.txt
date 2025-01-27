@@ -1,0 +1,17 @@
+Analyze these Jira tickets and provide a concise overview with the following format:
+
+TL;DR: (One sentence overview)
+
+Key Points:
+• (3-4 bullet points covering the main purpose, status, and key updates)
+
+Stakeholders:
+• [Name] ([Role]) - (One sentence describing their specific contribution, input, or position on the ticket)
+
+Possible Next Steps:
+• (2-3 concrete actions that could help move the ticket forward)
+
+Tickets analyzed:
+{ticket_data}
+
+Do not include any thinking or analysis process in the output.

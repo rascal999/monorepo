@@ -2,11 +2,19 @@ import sys
 import json
 import requests
 import re
+from prompts import DETAILED_SUMMARY, CONCISE_SUMMARY, QUERY_RESPONSE
 
 class OllamaClient:
-    def __init__(self, url, model):
+    def __init__(self, url, model, verbose=False, debug=False):
         self.url = url.rstrip('/')
         self.model = model
+        self.verbose = verbose
+        self.debug = debug
+        
+    def debug_log(self, message):
+        """Print debug message if debug mode is enabled"""
+        if self.debug:
+            print(Colors.colorize(f"[DEBUG] {message}", Colors.MAGENTA), file=sys.stderr)
 
     def check_model_availability(self):
         """Check if the specified model is available"""
@@ -21,92 +29,49 @@ class OllamaClient:
 
     def clean_response(self, text):
         """Remove thinking blocks and clean up the response"""
+        self.debug_log(f"Original response: {text}")
+        
         # Remove entire <think>...</think> blocks
         cleaned = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+        self.debug_log(f"After removing thinking blocks: {cleaned}")
+        
         # Remove any extra newlines that might have been created
         cleaned = re.sub(r'\n{3,}', '\n\n', cleaned)
+        self.debug_log(f"After cleaning newlines: {cleaned}")
+        
         # Remove markdown code blocks and explanatory text around JSON
         cleaned = re.sub(r'```(?:json)?\s*(\{.*?\})\s*```', r'\1', cleaned, flags=re.DOTALL)
-        cleaned = re.sub(r'.*?(\{.*?\})', r'\1', cleaned, flags=re.DOTALL)
-        return cleaned.strip()
+        self.debug_log(f"After removing markdown: {cleaned}")
+        
+        # Only try to extract JSON if response looks like a command
+        if cleaned.strip().startswith('{') and '"type"' in cleaned:
+            match = re.search(r'\{[^{]*"type":[^}]*\}', cleaned)
+            if match:
+                self.debug_log(f"Found JSON command: {match.group(0)}")
+                return match.group(0)
+        
+        # For non-command responses, just clean and return
+        cleaned = cleaned.strip()
+        self.debug_log(f"Final cleaned response: {cleaned}")
+        return cleaned
 
     def generate_summary(self, ticket_data, detailed=False):
         """Generate a summary using Ollama"""
-        if detailed:
-            prompt = f"""Analyze these Jira tickets and provide a detailed summary with the following format:
-
-TL;DR: (One sentence overview)
-
-Key Points:
-• (3-4 bullet points of the most important aspects)
-
-Stakeholders:
-• [Name] ([Role]) - (One sentence describing their specific contribution, input, or position on the ticket)
-
-Possible Next Steps:
-• (2-3 concrete actions that could help move the ticket forward)
-• (Focus on unblocking issues or advancing the current state)
-
-Summary: (2-3 paragraphs covering:
-- Main purpose and scope
-- Dependencies and related work
-- Current status and progress
-- Key discussion points from comments)
-
-Tickets analyzed:
-{json.dumps(ticket_data, indent=2)}
-
-Please include relevant insights from ticket comments in your summary, especially any important decisions, blockers, or updates discussed.
-Do not include any thinking or analysis process in the output.
-"""
-        else:
-            prompt = f"""Analyze these Jira tickets and provide a concise overview with the following format:
-
-TL;DR: (One sentence overview)
-
-Key Points:
-• (3-4 bullet points covering the main purpose, status, and key updates)
-
-Stakeholders:
-• [Name] ([Role]) - (One sentence describing their specific contribution, input, or position on the ticket)
-
-Possible Next Steps:
-• (2-3 concrete actions that could help move the ticket forward)
-
-Tickets analyzed:
-{json.dumps(ticket_data, indent=2)}
-
-Do not include any thinking or analysis process in the output.
-"""
-        return self._send_request(prompt)
+        prompt = DETAILED_SUMMARY if detailed else CONCISE_SUMMARY
+        return self._send_request(prompt.format(ticket_data=json.dumps(ticket_data, indent=2)))
 
     def generate_response(self, context, query):
         """Generate a response to a user query about a ticket"""
-        prompt = f"""Based on the following context and chat history, answer the user's question.
-If the question cannot be answered using only the provided context, say so.
-
-{context}
-
-Please provide a clear and concise response focusing specifically on answering the user's question.
-If your response is a command, provide ONLY the JSON command without any explanation or markdown formatting.
-
-Important: When generating JQL queries:
-1. Always include LIMIT 1 when looking for a single/latest ticket
-2. Always include LIMIT 5 when looking for multiple tickets unless specifically asked for more
-3. Never include explanatory text, only the JSON command
-
-Example responses:
-For latest ticket: {{"type": "jql", "query": "creator = 'Bob' ORDER BY created DESC LIMIT 1"}}
-For recent tickets: {{"type": "jql", "query": "assignee = 'Alice' ORDER BY updated DESC LIMIT 5"}}
-
-User query: {query}
-"""
-        return self._send_request(prompt)
-
+        return self._send_request(QUERY_RESPONSE.format(context=context, query=query))
     def _send_request(self, prompt):
         """Send request to Ollama API"""
         try:
             print(f"Generating response using {self.model}...", file=sys.stderr)
+            
+            if self.verbose:
+                print("\n=== Model Request ===", file=sys.stderr)
+                print(prompt, file=sys.stderr)
+                print("==================\n", file=sys.stderr)
             
             # Check if model exists
             if not self.check_model_availability():
@@ -131,7 +96,12 @@ User query: {query}
                 result = response.json()
                 
                 if 'response' in result:
-                    return self.clean_response(result['response'])
+                    response_text = self.clean_response(result['response'])
+                    if self.verbose:
+                        print("\n=== Model Response ===", file=sys.stderr)
+                        print(response_text, file=sys.stderr)
+                        print("===================\n", file=sys.stderr)
+                    return response_text
                     
             except requests.exceptions.RequestException:
                 print("Trying alternative endpoint...", file=sys.stderr)
@@ -149,7 +119,12 @@ User query: {query}
                 result = response.json()
                 
                 if 'message' in result:
-                    return self.clean_response(result['message']['content'])
+                    response_text = self.clean_response(result['message']['content'])
+                    if self.verbose:
+                        print("\n=== Model Response ===", file=sys.stderr)
+                        print(response_text, file=sys.stderr)
+                        print("===================\n", file=sys.stderr)
+                    return response_text
             
             print("Warning: Unexpected response format", file=sys.stderr)
             return self.clean_response(str(result))

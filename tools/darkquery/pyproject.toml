@@ -11,7 +11,8 @@ dependencies = [
     "jira>=3.5.0",
     "pygments>=2.16.0",
     "python-dotenv>=1.0.0",
-    "requests>=2.31.0"
+    "requests>=2.31.0",
+    "python-gitlab>=4.0.0"
 ]
 
 [project.scripts]

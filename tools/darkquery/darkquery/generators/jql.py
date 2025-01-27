@@ -1,8 +1,14 @@
 """JQL query handling for model-generated queries."""
 from typing import Any, Dict, Optional
 
+import logging
 
 class JQLGenerator:
+    """Handles JQL queries from model responses."""
+    
+    def __init__(self):
+        """Initialize JQL generator."""
+        self.logger = logging.getLogger("darkquery.jql")
     """Handles JQL queries from model responses."""
     
     def validate_jql(self, jql: str) -> bool:
@@ -14,13 +20,18 @@ class JQLGenerator:
         Returns:
             bool indicating if query is valid
         """
-        # Key lookups don't need ORDER BY
-        if jql.strip().startswith('key ='):
+        # Basic validation - ensure query is not empty
+        jql = jql.strip()
+        if not jql:
+            return False
+            
+        # Key lookups and simple queries are valid
+        if jql.startswith('key =') or jql.startswith('issue ='):
             return True
             
-        # Other queries should have ORDER BY
+        # For complex queries, suggest ORDER BY but don't require it
         if 'ORDER BY' not in jql:
-            return False
+            self.logger.warning("Query missing ORDER BY clause - results may be inconsistent")
             
         return True
     
@@ -35,8 +46,14 @@ class JQLGenerator:
             JQL query string
         """
         # The query should already be a JQL string from Ollama
-        # Just validate and return it
-        if not self.validate_jql(query):
-            raise ValueError("Invalid JQL query - missing ORDER BY clause")
+        if not query.strip():
+            raise ValueError("Empty JQL query")
+            
+        # Replace double quotes with single quotes to avoid JSON parsing issues
+        query = query.replace('"', "'")
+            
+        # Add warning for missing ORDER BY but don't require it
+        if 'ORDER BY' not in query:
+            self.logger.warning("Query missing ORDER BY clause - results may be inconsistent")
         
         return query

@@ -20,8 +20,8 @@ Available model commands:
    Use to get details of a specific ticket
 
 3. Add Comment:
-   Format: {"type": "add_comment", "ticket_id": "TICKET-123", "comment": "Your comment text"}
-   Use to add a comment to a specific ticket
+    Format: {"type": "add_comment", "ticket": "TICKET-123", "comment": "Your comment text"}
+    Use to add a comment to a specific ticket. The ticket must be in the current context.
 
 Important:
 - For ticket queries (created by, assigned to, etc), ALWAYS generate a JQL query

@@ -27,6 +27,31 @@ class OllamaClient:
         # Load prompt template
         self.prompts_dir = Path(__file__).parent.parent / "prompts"
         self.prompt_template = (self.prompts_dir / "prompt.txt").read_text()
+
+    def _format_context(self, context: Dict) -> Dict:
+        """Format context for logging by keeping only essential fields.
+        
+        Args:
+            context: Full context dictionary
+            
+        Returns:
+            Simplified context dictionary
+        """
+        # Copy to avoid modifying original
+        ctx = dict(context)
+        
+        # Keep only essential fields
+        essential_fields = {
+            'type', 'ticket', 'last_viewed', 'scope', 'path', 'ref',
+            'project', 'data_sources'
+        }
+        
+        # Remove non-essential fields
+        for key in list(ctx.keys()):
+            if key not in essential_fields:
+                del ctx[key]
+        
+        return ctx
     
     def query(self, query: str, context: Optional[Dict] = None) -> str:
         """Send query to Ollama.
@@ -46,7 +71,13 @@ class OllamaClient:
         prompt = prompt.replace("%QUERY%", query)
         
         if self.verbose:
-            self.logger.info(f"Sending prompt to Ollama:\n{prompt}")
+            # Only log essential context fields
+            simple_context = self._format_context(context or {})
+            self.logger.info(
+                f"Sending query to Ollama:\n"
+                f"Context: {json.dumps(simple_context, indent=2)}\n"
+                f"Query: {query}"
+            )
         
         response = requests.post(
             f"{self.url}/api/generate",

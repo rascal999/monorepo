@@ -1,0 +1,25 @@
+Analyze these Jira tickets and provide a detailed summary with the following format:
+
+TL;DR: (One sentence overview)
+
+Key Points:
+• (3-4 bullet points of the most important aspects)
+
+Stakeholders:
+• [Name] ([Role]) - (One sentence describing their specific contribution, input, or position on the ticket)
+
+Possible Next Steps:
+• (2-3 concrete actions that could help move the ticket forward)
+• (Focus on unblocking issues or advancing the current state)
+
+Summary: (2-3 paragraphs covering:
+- Main purpose and scope
+- Dependencies and related work
+- Current status and progress
+- Key discussion points from comments)
+
+Tickets analyzed:
+{ticket_data}
+
+Please include relevant insights from ticket comments in your summary, especially any important decisions, blockers, or updates discussed.
+Do not include any thinking or analysis process in the output.

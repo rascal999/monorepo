@@ -12,6 +12,8 @@ from .shell import DarkQueryShell
 from .datasources.base import DataSource
 from .datasources.jira import JIRADataSource
 from .datasources.files import FileDataSource
+from .datasources.gitlab import CompleteGitLabDataSource
+from .datasources.gitlab import GitLabDataSource
 
 
 def load_config() -> Dict[str, Dict[str, str]]:
@@ -23,12 +25,16 @@ def load_config() -> Dict[str, Dict[str, str]]:
     # Load .env file from the project root
     env_path = Path(__file__).parent.parent / ".env"
     load_dotenv(env_path)
-    
     config = {
         'jira': {
             'url': os.getenv('JIRA_URL'),
             'email': os.getenv('JIRA_EMAIL'),
             'token': os.getenv('JIRA_TOKEN')
+        },
+        'gitlab': {
+            'url': os.getenv('GITLAB_URL'),
+            'token': os.getenv('GITLAB_TOKEN'),
+            'group': os.getenv('GITLAB_GROUP')
         },
         'ollama': {
             'url': os.getenv('OLLAMA_URL', 'http://localhost:11434'),
@@ -54,6 +60,11 @@ def setup_data_sources(config: Dict[str, Dict[str, str]]) -> Dict[str, DataSourc
     jira_config = config.get('jira', {})
     if all(jira_config.values()):
         sources['jira'] = JIRADataSource(jira_config)
+    
+    # Initialize GitLab data source if configured
+    gitlab_config = config.get('gitlab', {})
+    if gitlab_config.get('url') and gitlab_config.get('token'):  # Group is optional
+        sources['gitlab'] = CompleteGitLabDataSource(gitlab_config)
     
     # Initialize file data source (always available)
     sources['files'] = FileDataSource()

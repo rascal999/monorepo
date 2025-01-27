@@ -1,12 +1,19 @@
 import json
+import sys
 from datetime import datetime
 from color_utils import Colors
 
 class BaseCommandHandler:
-    def __init__(self, jira_client, history_manager):
+    def __init__(self, jira_client, history_manager, debug=False):
         self.jira = jira_client
         self.history = history_manager
         self.last_issue = None
+        self.debug = debug
+        
+    def debug_log(self, message):
+        """Print debug message if debug mode is enabled"""
+        if self.debug:
+            print(Colors.colorize(f"[DEBUG] {message}", Colors.MAGENTA), file=sys.stderr)
 
     def format_datetime(self, dt_str, include_time=False):
         """Format datetime string from Jira"""
@@ -25,7 +32,8 @@ class BaseCommandHandler:
     def add_to_history(self, command, result, current_ticket=None, ticket_data=None):
         """Add command and result to history"""
         if result:
-            self.history.add_entry(command, result, current_ticket, ticket_data)
+            jira_url = self.jira.client.url if hasattr(self.jira, 'client') else None
+            self.history.add_entry(command, result, current_ticket, ticket_data, jira_url)
 
     def error(self, message):
         """Print error message"""
@@ -54,18 +62,35 @@ class BaseCommandHandler:
     def execute(self, command, current_ticket=None, ticket_data=None):
         """Base execute method"""
         try:
-            cmd = json.loads(command)
-            handler_name = f"handle_{cmd['type']}"
-            handler = getattr(self, handler_name, None)
+            self.debug_log(f"Executing command: {command}")
             
-            if handler:
-                return handler(cmd, current_ticket, ticket_data)
+            # Check if response looks like a JSON command
+            if command.strip().startswith('{') and '"type"' in command:
+                self.debug_log("Detected JSON command format")
+                try:
+                    cmd = json.loads(command)
+                    self.debug_log(f"Parsed JSON: {cmd}")
+                    
+                    handler_name = f"handle_{cmd['type']}"
+                    handler = getattr(self, handler_name, None)
+                    
+                    if handler:
+                        self.debug_log(f"Found handler: {handler_name}")
+                        return handler(cmd, current_ticket, ticket_data)
+                    else:
+                        self.debug_log(f"No handler found for type: {cmd['type']}")
+                        return self.error(f"Unknown command type: {cmd['type']}")
+                except json.JSONDecodeError as e:
+                    self.debug_log(f"JSON parse error: {e}")
+                    return self.error("Invalid command format")
             else:
-                return self.error(f"Unknown command type: {cmd['type']}")
+                # For non-command responses, just display the text
+                self.debug_log("Non-command response, displaying as text")
+                self.info(command)
+                return True
                 
-        except json.JSONDecodeError:
-            return self.error("Invalid command format")
         except Exception as e:
+            self.debug_log(f"Execution error: {str(e)}")
             return self.error(f"Error executing command: {e}")
 
     def get_command_context(self, query):

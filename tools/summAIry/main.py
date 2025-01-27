@@ -21,6 +21,8 @@ def main():
     parser.add_argument('--ollama-model', help='Ollama model to use (or set OLLAMA_MODEL env var)')
     parser.add_argument('--summary', action='store_true', help='Generate detailed summary instead of key points')
     parser.add_argument('--interactive', '-i', action='store_true', help='Run in interactive mode')
+    parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose logging of model messages')
+    parser.add_argument('--debug', '-d', action='store_true', help='Enable debug logging')
     args = parser.parse_args()
     
     # Get credentials and configuration from args or environment variables
@@ -43,11 +45,11 @@ def main():
         sys.exit(1)
         
     # Initialize Ollama client
-    ollama = OllamaClient(ollama_url, ollama_model)
+    ollama = OllamaClient(ollama_url, ollama_model, verbose=args.verbose, debug=args.debug)
     
     if args.interactive:
         # Run interactive session
-        session = InteractiveSession(jira, ollama)
+        session = InteractiveSession(jira, ollama, debug=args.debug)
         if args.ticket_id and validate_ticket_id(args.ticket_id):
             session.process_ticket(args.ticket_id)
         session.run()

@@ -1,0 +1,116 @@
+# JQL (Jira Query Language) Cheat Sheet
+JQL is a powerful tool in Jira for searching and filtering issues based on various criteria.
+## Basic Syntax
+- **Field**: Represents an issue field (e.g., `status`, `assignee`).
+- **Operator**: Defines the relationship between the field and the value (e.g., `=`, `!=`, `~`).
+- **Value**: The value to match against the field.
+## Common Fields
+- **Project**: `project`
+- **Issue Type**: `issuetype`
+- **Status**: `status`
+- **Assignee**: `assignee`
+- **Reporter**: `reporter`
+- **Priority**: `priority`
+- **Labels**: `labels`
+- **Components**: `component`
+- **Resolution**: `resolution`
+- **Created Date**: `created`
+- **Updated Date**: `updated`
+- **Due Date**: `duedate`
+- **Custom Fields**: Use custom field name or ID (e.g., `cf[12345]`)
+## Basic Operators
+- **Equals**: `=`
+- **Not Equals**: `!=`
+- **Greater Than**: `>`
+- **Greater Than or Equal To**: `>=`
+- **Less Than**: `<`
+- **Less Than or Equal To**: `<=`
+- **In**: `IN`
+- **Not In**: `NOT IN`
+- **Contains**: `~`
+- **Does Not Contain**: `!~`
+- **Is**: `IS`
+- **Is Not**: `IS NOT`
+- **Was**: `WAS`
+- **Was In**: `WAS IN`
+- **Was Not In**: `WAS NOT IN`
+- **Changed**: `CHANGED`
+## Combining Conditions
+- **AND**: Combines multiple conditions (both must be true).
+- **OR**: Combines multiple conditions (either can be true).
+- **NOT**: Negates a condition.
+- **()**: Groups conditions to form complex queries.
+## Examples
+- **Find issues in a project**:
+  ```jql
+  project = "MyProject"
+  ```
+- **Find issues assigned to a user**:
+  ```jql
+  assignee = "john.doe"
+  ```
+- **Find issues with specific status**:
+  ```jql
+  status = "In Progress"
+  ```
+- **Find issues created by a user**:
+  ```jql
+  reporter = "jane.doe"
+  ```
+- **Find issues created in the last 7 days**:
+  ```jql
+  created >= -7d
+  ```
+- **Find issues updated in the last 24 hours**:
+  ```jql
+  updated >= -24h
+  ```
+- **Find issues with priority "High" or "Critical"**:
+  ```jql
+  priority IN ("High", "Critical")
+  ```
+- **Find issues that do not have a resolution**:
+  ```jql
+  resolution IS EMPTY
+  ```
+- **Find issues with a specific label**:
+  ```jql
+  labels = "bug"
+  ```
+- **Find issues in a specific component**:
+  ```jql
+  component = "UI"
+  ```
+- **Find issues due in the next 5 days**:
+  ```jql
+  duedate <= 5d
+  ```
+- **Find issues where summary contains a keyword**:
+  ```jql
+  summary ~ "performance"
+  ```
+- **Find issues where description does not contain a keyword**:
+  ```jql
+  description !~ "outdated"
+  ```
+- **Find issues with a custom field value**:
+  ```jql
+  "Custom Field Name" = "Value"
+  ```
+- **Find issues that changed status in the last 2 days**:
+  ```jql
+  status CHANGED TO "Done" AFTER -2d
+  ```
+- **Combine conditions**:
+  ```jql
+  project = "MyProject" AND status = "Open" AND assignee = "john.doe"
+  ```
+## Advanced Examples
+- **Find issues resolved by a specific user in the last month**:
+  ```jql
+  resolution = "Done" AND resolved >= startOfMonth(-1) AND resolved < startOfMonth() AND assignee = "john.doe"
+  ```
+- **Find issues that were reopened**:
+  ```jql
+  status WAS "Reopened"
+  ```

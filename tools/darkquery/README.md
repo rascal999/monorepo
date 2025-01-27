@@ -40,6 +40,10 @@ A natural language interface for querying tickets and analyzing code, powered by
    JIRA_EMAIL=your_email@company.com
    JIRA_TOKEN=your_api_token
 
+   # Required for GitLab integration
+   GITLAB_URL=https://gitlab.com
+   GITLAB_TOKEN=your_personal_access_token
+
    # Ollama settings (optional)
    OLLAMA_URL=http://localhost:11434
    OLLAMA_MODEL=deepseek-r1-14b-32k:latest

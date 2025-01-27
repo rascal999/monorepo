@@ -2,6 +2,7 @@ import re
 from .base import BaseCommandHandler
 from jql_validator import JQLValidator
 from color_utils import Colors
+from prompts import JQL_QUERY
 
 class JQLCommandHandler(BaseCommandHandler):
     def handle_jql(self, cmd, current_ticket=None, ticket_data=None):
@@ -49,17 +50,9 @@ class JQLCommandHandler(BaseCommandHandler):
         # Add to history
         self.add_to_history(cmd, result, current_ticket, ticket_data)
         return True
-
-    def get_command_context(self, query, history_context=""):
-        """Get context for JQL commands"""
-        return f"""Available commands:
-1. jql - Execute JQL query
-   Format: {{"type": "jql", "query": "your JQL query"}}
-   Example: {{"type": "jql", "query": "creator = 'Bob' AND created >= -30d ORDER BY created DESC"}}
-   Note: You can use LIMIT in queries, e.g., "ORDER BY updated DESC LIMIT 1"
-{history_context}
-
-User query: {query}
-
-Generate a JQL command to search for the requested tickets.
-"""
+def get_command_context(self, query, history_context=""):
+    """Get context for JQL commands"""
+    return JQL_QUERY.format(
+        history_context=history_context,
+        query=query
+    )
