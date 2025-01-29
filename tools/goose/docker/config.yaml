@@ -8,7 +8,7 @@ inspector:
 
 extensions:
   computercontroller:
-    enabled: true
+    enabled: false
     name: computercontroller
     type: builtin
   developer:
@@ -34,3 +34,18 @@ extensions:
       JIRA_URL: ${JIRA_URL}
       JIRA_USERNAME: ${JIRA_USERNAME}
       JIRA_API_TOKEN: ${JIRA_API_TOKEN}
+  mcp-server-fetch:
+    cmd: /opt/mcp-servers/.venv/bin/python
+    args:
+    - -m
+    - mcp_server_fetch
+    enabled: true
+    name: mcp-server-fetch
+    type: stdio
+  server-memory:
+    cmd: npx
+    args:
+    - "@modelcontextprotocol/server-memory"
+    enabled: false
+    name: server-memory
+    type: stdio

@@ -24,11 +24,18 @@ if [ ! -d "$WORKSPACE_DIR" ]; then
     mkdir -p "$WORKSPACE_DIR"
 fi
 
+# Ensure memory directory exists and get absolute path
+MEMORY_DIR="$(cd "$(dirname "$0")/memory" 2>/dev/null && pwd -P)"
+if [ ! -d "$MEMORY_DIR" ]; then
+    mkdir -p "$MEMORY_DIR"
+fi
+
 # Run bash which launches goose, keeping goose in command history
 docker run --rm -it \
   -p 5173:5173 \
   $MCP_MOUNTS \
   -v "${WORKSPACE_DIR}:/workspace" \
+  -v "${MEMORY_DIR}:/root/.config/goose/memory" \
   -e GOOSE_PROVIDER="${GOOSE_PROVIDER:-openrouter}" \
   -e OPENROUTER_API_KEY="${OPENROUTER_API_KEY:-}" \
   -e ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}" \

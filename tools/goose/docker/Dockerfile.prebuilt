@@ -47,6 +47,7 @@ WORKDIR /opt/mcp-servers
 RUN python3 -m venv .venv && \
     . .venv/bin/activate && \
     pip install --upgrade pip && \
+    pip install mcp-server-fetch && \
     for d in *; do \
         if [ -d "$d" ] && [ -f "$d/pyproject.toml" ]; then \
             echo "Installing MCP server: $d" && \
@@ -55,6 +56,9 @@ RUN python3 -m venv .venv && \
             cd ..; \
         fi \
     done
+
+# Install npm packages
+RUN npm install -g @modelcontextprotocol/server-memory
 
 # Copy start script
 COPY docker/start.sh /usr/local/bin/start.sh

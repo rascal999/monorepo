@@ -45,6 +45,8 @@ error.log
 
 # Docker
 .docker/
+docker/memory/*
+!docker/memory/.gitkeep
 
 # Test artifacts
 .coverage
