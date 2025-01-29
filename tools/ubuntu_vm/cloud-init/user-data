@@ -39,6 +39,14 @@ autoinstall:
     - eject /dev/cdrom || true
     - eject /dev/sr0 || true
     - eject /dev/sr1 || true
+    - mkdir -p /target/etc/systemd/system/getty@tty1.service.d
+    - echo '[Service]' > /target/etc/systemd/system/getty@tty1.service.d/override.conf
+    - echo 'ExecStart=' >> /target/etc/systemd/system/getty@tty1.service.d/override.conf
+    - echo 'ExecStart=-/sbin/agetty --autologin user --noclear %I $TERM' >> /target/etc/systemd/system/getty@tty1.service.d/override.conf
+    - mkdir -p /target/etc/lightdm/lightdm.conf.d
+    - echo '[Seat:*]' > /target/etc/lightdm/lightdm.conf.d/50-autologin.conf
+    - echo 'autologin-user=user' >> /target/etc/lightdm/lightdm.conf.d/50-autologin.conf
+    - echo 'autologin-session=i3' >> /target/etc/lightdm/lightdm.conf.d/50-autologin.conf
   user-data:
     disable_root: true
     runcmd:
@@ -68,8 +76,3 @@ autoinstall:
       - sudo -u user git clone https://github.com/greshake/i3status-rust.git /home/user/i3status-rust
       - cd /home/user/i3status-rust && sudo -u user cargo build --release
       - sudo cp /home/user/i3status-rust/target/release/i3status-rs /usr/local/bin/
-      
-      # Set i3 as default session
-      - echo '[Desktop]' > /usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf
-      - echo 'session-wrapper=/etc/X11/Xsession' >> /usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf
-      - echo 'user-session=i3' >> /usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf

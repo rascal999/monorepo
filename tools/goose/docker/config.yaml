@@ -1,0 +1,36 @@
+GOOSE_PROVIDER: openrouter
+GOOSE_MODEL: anthropic/claude-3.5-sonnet
+
+inspector:
+  enabled: true
+  port: 7999
+  host: 0.0.0.0
+
+extensions:
+  computercontroller:
+    enabled: true
+    name: computercontroller
+    type: builtin
+  developer:
+    enabled: true
+    name: developer
+    type: builtin
+  memory:
+    enabled: true
+    name: memory
+    type: builtin
+  mcp-atlassian:
+    cmd: /opt/mcp-servers/.venv/bin/python
+    args:
+    - -m
+    - mcp_atlassian
+    enabled: true
+    name: mcp-atlassian
+    type: stdio
+    cwd: /opt/mcp-servers/mcp-atlassian
+    env:
+      PYTHONPATH: /opt/mcp-servers/mcp-atlassian
+      # Environment variables will be loaded from .env file
+      JIRA_URL: ${JIRA_URL}
+      JIRA_USERNAME: ${JIRA_USERNAME}
+      JIRA_API_TOKEN: ${JIRA_API_TOKEN}
