@@ -74,3 +74,7 @@ coverage.xml
 *.i*86
 *.x86_64
 *.hex
+
+# Workspace
+workspace/*
+!workspace/.gitkeep

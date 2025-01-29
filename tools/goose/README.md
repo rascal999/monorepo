@@ -37,6 +37,16 @@ GOOSE_PROVIDER=anthropic ANTHROPIC_API_KEY=your_key ./docker/run-goose.sh sessio
 GOOSE_PROVIDER=openai OPENAI_API_KEY=your_key ./docker/run-goose.sh session
 ```
 
+### Jira Integration
+
+Configure Jira access:
+```bash
+JIRA_URL=https://your-instance.atlassian.net \
+JIRA_USERNAME=your_username \
+JIRA_API_TOKEN=your_token \
+./docker/run-goose.sh session
+```
+
 ## Extensions
 
 Run Goose with extensions:

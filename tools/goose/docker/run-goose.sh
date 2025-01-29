@@ -18,16 +18,23 @@ if [ -d "mcp" ]; then
     done
 fi
 
+# Ensure workspace directory exists and get absolute path
+WORKSPACE_DIR="$(cd "$(dirname "$0")/../workspace" 2>/dev/null && pwd -P)"
+if [ ! -d "$WORKSPACE_DIR" ]; then
+    mkdir -p "$WORKSPACE_DIR"
+fi
+
 # Run bash which launches goose, keeping goose in command history
 docker run --rm -it \
   -p 5173:5173 \
   $MCP_MOUNTS \
+  -v "${WORKSPACE_DIR}:/workspace" \
   -e GOOSE_PROVIDER="${GOOSE_PROVIDER:-openrouter}" \
   -e OPENROUTER_API_KEY="${OPENROUTER_API_KEY:-}" \
   -e ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}" \
   -e OPENAI_API_KEY="${OPENAI_API_KEY:-}" \
   -e DATABRICKS_HOST="${DATABRICKS_HOST:-}" \
-  -e JIRA_URL="${JIRA_URL:-https://mangopay.atlassian.net}" \
+  -e JIRA_URL="${JIRA_URL}" \
   -e JIRA_USERNAME="${JIRA_USERNAME}" \
   -e JIRA_API_TOKEN="${JIRA_API_TOKEN}" \
   --entrypoint bash \
