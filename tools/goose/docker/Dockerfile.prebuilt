@@ -22,6 +22,7 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
 
 # Install goose CLI
 ENV GOOSE_BIN_DIR=/usr/local/bin
+# Known good: https://github.com/block/goose/releases/download/v1.0.2/download_cli.sh
 RUN curl -fsSL https://github.com/block/goose/releases/download/stable/download_cli.sh | bash
 
 # Create directories for MCP servers and goose config
