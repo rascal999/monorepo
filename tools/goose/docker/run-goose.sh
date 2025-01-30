@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Build image if it doesn't exist
+if ! docker image inspect goose >/dev/null 2>&1; then
+    echo "Building goose image..."
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+    docker build -t goose -f "$SCRIPT_DIR/Dockerfile.prebuilt" "$SCRIPT_DIR/.."
+fi
+
 # Load environment variables from .env file
 if [ -f "$(dirname "$0")/../.env" ]; then
     set -a
