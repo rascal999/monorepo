@@ -49,3 +49,25 @@ extensions:
     enabled: false
     name: server-memory
     type: stdio
+  server-gitlab:
+    cmd: npx
+    args:
+    - -y
+    - "@modelcontextprotocol/server-gitlab"
+    enabled: true
+    name: server-gitlab
+    type: stdio
+    env:
+      GITLAB_PERSONAL_ACCESS_TOKEN: ${GITLAB_PERSONAL_ACCESS_TOKEN}
+      GITLAB_API_URL: ${GITLAB_API_URL}
+  server-slack:
+    cmd: npx
+    args:
+    - -y
+    - "@modelcontextprotocol/server-slack"
+    enabled: true
+    name: server-slack
+    type: stdio
+    env:
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
+      SLACK_TEAM_ID: ${SLACK_TEAM_ID}

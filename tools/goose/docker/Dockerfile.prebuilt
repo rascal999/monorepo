@@ -58,7 +58,7 @@ RUN python3 -m venv .venv && \
     done
 
 # Install npm packages
-RUN npm install -g @modelcontextprotocol/server-memory
+RUN npm install -g @modelcontextprotocol/server-memory @modelcontextprotocol/server-gitlab @modelcontextprotocol/server-slack
 
 # Copy start script
 COPY docker/start.sh /usr/local/bin/start.sh
@@ -66,5 +66,8 @@ RUN chmod +x /usr/local/bin/start.sh
 
 # Set default working directory to workspace
 WORKDIR /workspace
+
+# Expose ports
+EXPOSE 5173 3000
 
 ENTRYPOINT ["/usr/local/bin/start.sh"]
