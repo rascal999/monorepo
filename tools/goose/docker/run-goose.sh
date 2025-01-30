@@ -34,9 +34,10 @@ fi
 docker run --rm -it \
   -p 5173:5173 \
   -p 3000:3000 \
+  --user goose \
   $MCP_MOUNTS \
   -v "${WORKSPACE_DIR}:/workspace" \
-  -v "${MEMORY_DIR}:/root/.config/goose/memory" \
+  -v "${MEMORY_DIR}:/home/goose/.config/goose/memory" \
   -e GOOSE_PROVIDER="${GOOSE_PROVIDER:-openrouter}" \
   -e GOOSE_MODEL="${GOOSE_MODEL:-anthropic/claude-3.5-sonnet}" \
   -e OPENROUTER_API_KEY="${OPENROUTER_API_KEY:-}" \
@@ -51,4 +52,4 @@ docker run --rm -it \
   -e SLACK_BOT_TOKEN="${SLACK_BOT_TOKEN}" \
   -e SLACK_TEAM_ID="${SLACK_TEAM_ID}" \
   --entrypoint bash \
-  goose -c 'cmd="goose $*"; echo "$cmd" >> ~/.bash_history; HISTFILE=~/.bash_history; history -r; eval "$cmd"; exec bash --init-file <(echo "history -r")' _ "$@"
+  goose -c 'cmd="goose $*"; mkdir -p ~/.bash; echo "$cmd" >> ~/.bash/history; HISTFILE=~/.bash/history; history -r; eval "$cmd"; exec bash --init-file <(echo "history -r")' _ "$@"

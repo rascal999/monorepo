@@ -25,13 +25,16 @@ ENV GOOSE_BIN_DIR=/usr/local/bin
 # Known good: https://github.com/block/goose/releases/download/v1.0.2/download_cli.sh
 RUN curl -fsSL https://github.com/block/goose/releases/download/stable/download_cli.sh | bash
 
-# Create directories for MCP servers, goose config, and workspace
-RUN mkdir -p /opt/mcp-servers /root/.config/goose /workspace && \
-    chmod 777 /workspace
+# Create user with UID 1000
+RUN useradd -m -u 1000 goose && \
+    mkdir -p /opt/mcp-servers /home/goose/.config/goose /workspace && \
+    chown -R goose:goose /home/goose /workspace && \
+    chmod 755 /workspace
 
 # Copy goose config and hints
-COPY docker/config.yaml /root/.config/goose/config.yaml
-COPY docker/.goosehints /root/.config/goose/.goosehints
+COPY docker/config.yaml /home/goose/.config/goose/config.yaml
+COPY docker/.goosehints /home/goose/.config/goose/.goosehints
+RUN chown -R goose:goose /home/goose/.config/goose
 
 # Copy MCP servers
 COPY mcp /opt/mcp-servers
@@ -55,7 +58,8 @@ RUN python3 -m venv .venv && \
             pip install -e . && \
             cd ..; \
         fi \
-    done
+    done && \
+    chown -R goose:goose /opt/mcp-servers
 
 # Install npm packages
 RUN npm install -g @modelcontextprotocol/server-memory @modelcontextprotocol/server-gitlab @modelcontextprotocol/server-slack
@@ -64,8 +68,9 @@ RUN npm install -g @modelcontextprotocol/server-memory @modelcontextprotocol/ser
 COPY docker/start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
-# Set default working directory to workspace
+# Set default working directory to workspace and ensure proper ownership
 WORKDIR /workspace
+RUN chown goose:goose /workspace
 
 # Expose ports
 EXPOSE 5173 3000
