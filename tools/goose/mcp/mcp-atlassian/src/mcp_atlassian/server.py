@@ -128,6 +128,66 @@ async def list_tools() -> list[Tool]:
                 "required": ["project_key"],
             },
         ),
+        Tool(
+            name="jira_create_issue",
+            description="Create a new Jira issue",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "project_key": {"type": "string", "description": "The project key where the issue will be created"},
+                    "summary": {"type": "string", "description": "Issue title/summary"},
+                    "description": {"type": "string", "description": "Detailed description of the issue"},
+                    "issue_type": {"type": "string", "description": "Type of issue (e.g., 'Task', 'Bug', 'Story')", "default": "Task"},
+                    "priority": {"type": "string", "description": "Priority level (e.g., 'High', 'Medium', 'Low')", "default": None},
+                    "assignee": {"type": "string", "description": "Username of the assignee", "default": None},
+                    "labels": {"type": "array", "items": {"type": "string"}, "description": "List of labels", "default": None},
+                },
+                "required": ["project_key", "summary", "description"],
+            },
+        ),
+        Tool(
+            name="jira_update_issue",
+            description="Update an existing Jira issue",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "issue_key": {"type": "string", "description": "The issue key to update (e.g., 'PROJ-123')"},
+                    "summary": {"type": "string", "description": "New summary/title"},
+                    "description": {"type": "string", "description": "New description"},
+                    "status": {"type": "string", "description": "New status"},
+                    "priority": {"type": "string", "description": "New priority level"},
+                    "assignee": {"type": "string", "description": "New assignee username"},
+                    "labels": {"type": "array", "items": {"type": "string"}, "description": "New list of labels"},
+                },
+                "required": ["issue_key"],
+            },
+        ),
+        Tool(
+            name="jira_add_comment",
+            description="Add a comment to a Jira issue",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "issue_key": {"type": "string", "description": "The issue key to comment on (e.g., 'PROJ-123')"},
+                    "comment": {"type": "string", "description": "The comment text to add"},
+                },
+                "required": ["issue_key", "comment"],
+            },
+        ),
+        Tool(
+            name="jira_link_issues",
+            description="Create a link between two Jira issues",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "inward_issue": {"type": "string", "description": "Key of the source issue (e.g., 'PROJ-123')"},
+                    "outward_issue": {"type": "string", "description": "Key of the target issue (e.g., 'PROJ-124')"},
+                    "link_type": {"type": "string", "description": "Type of link (e.g., 'Relates', 'Blocks', 'Depends')", "default": "Relates"},
+                    "comment": {"type": "string", "description": "Optional comment to add to the link", "default": None},
+                },
+                "required": ["inward_issue", "outward_issue"],
+            },
+        ),
     ]
 
 
@@ -175,6 +235,50 @@ async def call_tool(name: str, arguments: Any) -> Sequence[TextContent]:
                 for doc in documents
             ]
             return [TextContent(type="text", text=json.dumps(project_issues, indent=2))]
+
+        elif name == "jira_create_issue":
+            doc = jira_fetcher.create_issue(
+                project_key=arguments["project_key"],
+                summary=arguments["summary"],
+                description=arguments["description"],
+                issue_type=arguments.get("issue_type", "Task"),
+                priority=arguments.get("priority"),
+                assignee=arguments.get("assignee"),
+                labels=arguments.get("labels"),
+            )
+            result = {"content": doc.page_content, "metadata": doc.metadata}
+            return [TextContent(type="text", text=json.dumps(result, indent=2))]
+
+        elif name == "jira_update_issue":
+            doc = jira_fetcher.update_issue(
+                issue_key=arguments["issue_key"],
+                summary=arguments.get("summary"),
+                description=arguments.get("description"),
+                status=arguments.get("status"),
+                priority=arguments.get("priority"),
+                assignee=arguments.get("assignee"),
+                labels=arguments.get("labels"),
+            )
+            result = {"content": doc.page_content, "metadata": doc.metadata}
+            return [TextContent(type="text", text=json.dumps(result, indent=2))]
+
+        elif name == "jira_add_comment":
+            doc = jira_fetcher.add_comment(
+                issue_key=arguments["issue_key"],
+                comment=arguments["comment"],
+            )
+            result = {"content": doc.page_content, "metadata": doc.metadata}
+            return [TextContent(type="text", text=json.dumps(result, indent=2))]
+
+        elif name == "jira_link_issues":
+            doc = jira_fetcher.link_issues(
+                inward_issue=arguments["inward_issue"],
+                outward_issue=arguments["outward_issue"],
+                link_type=arguments.get("link_type", "Relates"),
+                comment=arguments.get("comment"),
+            )
+            result = {"content": doc.page_content, "metadata": doc.metadata}
+            return [TextContent(type="text", text=json.dumps(result, indent=2))]
 
         raise ValueError(f"Unknown tool: {name}")
 

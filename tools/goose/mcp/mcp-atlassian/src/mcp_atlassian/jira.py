@@ -18,7 +18,7 @@ logger = logging.getLogger("mcp-jira")
 
 
 class JiraFetcher:
-    """Handles fetching and parsing content from Jira."""
+    """Handles fetching, creating, and editing content in Jira."""
 
     def __init__(self):
         url = os.getenv("JIRA_URL")
@@ -162,6 +162,188 @@ Comments:
 
         except Exception as e:
             logger.error(f"Error searching issues with JQL {jql}: {str(e)}")
+            raise
+
+    def create_issue(
+        self,
+        project_key: str,
+        summary: str,
+        description: str,
+        issue_type: str = "Task",
+        priority: Optional[str] = None,
+        assignee: Optional[str] = None,
+        labels: Optional[List[str]] = None,
+    ) -> Document:
+        """
+        Create a new Jira issue.
+
+        Args:
+            project_key: The project key where the issue will be created
+            summary: Issue title/summary
+            description: Detailed description of the issue
+            issue_type: Type of issue (e.g., 'Task', 'Bug', 'Story')
+            priority: Priority level (e.g., 'High', 'Medium', 'Low')
+            assignee: Username of the assignee
+            labels: List of labels to add to the issue
+
+        Returns:
+            Document containing the created issue
+        """
+        try:
+            fields = {
+                "project": {"key": project_key},
+                "summary": summary,
+                "description": description,
+                "issuetype": {"name": issue_type},
+            }
+
+            if priority:
+                fields["priority"] = {"name": priority}
+            if assignee:
+                fields["assignee"] = {"name": assignee}
+            if labels:
+                fields["labels"] = labels
+
+            new_issue = self.jira.create_issue(fields=fields)
+            
+            # Return the newly created issue as a Document
+            return self.get_issue(new_issue["key"])
+
+        except Exception as e:
+            logger.error(f"Error creating issue in project {project_key}: {str(e)}")
+            raise
+
+    def update_issue(
+        self,
+        issue_key: str,
+        summary: Optional[str] = None,
+        description: Optional[str] = None,
+        status: Optional[str] = None,
+        priority: Optional[str] = None,
+        assignee: Optional[str] = None,
+        labels: Optional[List[str]] = None,
+    ) -> Document:
+        """
+        Update an existing Jira issue.
+
+        Args:
+            issue_key: The issue key to update (e.g., 'PROJ-123')
+            summary: New summary/title
+            description: New description
+            status: New status
+            priority: New priority level
+            assignee: New assignee username
+            labels: New list of labels (replaces existing labels)
+
+        Returns:
+            Document containing the updated issue
+        """
+        try:
+            fields = {}
+            
+            if summary is not None:
+                fields["summary"] = summary
+            if description is not None:
+                fields["description"] = description
+            if priority is not None:
+                fields["priority"] = {"name": priority}
+            if assignee is not None:
+                fields["assignee"] = {"name": assignee}
+            if labels is not None:
+                fields["labels"] = labels
+
+            # Update the issue fields
+            if fields:
+                self.jira.update_issue_field(issue_key, fields)
+
+            # Handle status transition if requested
+            if status is not None:
+                transitions = self.jira.get_issue_transitions(issue_key)
+                transition_id = None
+                for t in transitions:
+                    if t["name"].lower() == status.lower():
+                        transition_id = t["id"]
+                        break
+                
+                if transition_id:
+                    self.jira.transition_issue(issue_key, transition_id)
+                else:
+                    logger.warning(f"Could not find transition to status '{status}' for issue {issue_key}")
+
+            # Return the updated issue
+            return self.get_issue(issue_key)
+
+        except Exception as e:
+            logger.error(f"Error updating issue {issue_key}: {str(e)}")
+            raise
+
+    def add_comment(self, issue_key: str, comment: str) -> Document:
+        """
+        Add a comment to an existing Jira issue.
+
+        Args:
+            issue_key: The issue key to comment on (e.g., 'PROJ-123')
+            comment: The comment text to add
+
+        Returns:
+            Document containing the updated issue with the new comment
+        """
+        try:
+            self.jira.issue_add_comment(issue_key, comment)
+            return self.get_issue(issue_key)
+
+        except Exception as e:
+            logger.error(f"Error adding comment to issue {issue_key}: {str(e)}")
+            raise
+
+    def link_issues(
+        self,
+        inward_issue: str,
+        outward_issue: str,
+        link_type: str = "Relates",
+        comment: Optional[str] = None
+    ) -> Document:
+        """
+        Create a link between two Jira issues.
+
+        Args:
+            inward_issue: Key of the issue that is the source of the link
+            outward_issue: Key of the issue that is the target of the link
+            link_type: Type of link (e.g., 'Relates', 'Blocks', 'Depends')
+            comment: Optional comment to add to the link
+
+        Returns:
+            Document containing the updated source issue
+        """
+        try:
+            # Get available link types
+            link_types = self.jira.get_issue_link_types()
+            link_type_id = None
+            for lt in link_types:
+                if lt['name'].lower() == link_type.lower():
+                    link_type_id = lt['id']
+                    break
+            
+            if not link_type_id:
+                raise ValueError(f"Link type '{link_type}' not found. Available types: {', '.join(lt['name'] for lt in link_types)}")
+
+            # Create the link data
+            link_data = {
+                "type": {"name": link_type},
+                "inwardIssue": {"key": inward_issue},
+                "outwardIssue": {"key": outward_issue}
+            }
+            if comment:
+                link_data["comment"] = {"body": comment}
+
+            # Create the link
+            self.jira.create_issue_link(link_data)
+            
+            # Return the updated inward issue
+            return self.get_issue(inward_issue)
+
+        except Exception as e:
+            logger.error(f"Error linking issues {inward_issue} and {outward_issue}: {str(e)}")
             raise
 
     def get_project_issues(self, project_key: str, start: int = 0, limit: int = 50) -> List[Document]:
