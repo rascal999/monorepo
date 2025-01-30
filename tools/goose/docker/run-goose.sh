@@ -38,6 +38,7 @@ docker run --rm -it \
   -v "${WORKSPACE_DIR}:/workspace" \
   -v "${MEMORY_DIR}:/root/.config/goose/memory" \
   -e GOOSE_PROVIDER="${GOOSE_PROVIDER:-openrouter}" \
+  -e GOOSE_MODEL="${GOOSE_MODEL:-anthropic/claude-3.5-sonnet}" \
   -e OPENROUTER_API_KEY="${OPENROUTER_API_KEY:-}" \
   -e ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}" \
   -e OPENAI_API_KEY="${OPENAI_API_KEY:-}" \

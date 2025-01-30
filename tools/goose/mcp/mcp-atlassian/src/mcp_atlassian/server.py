@@ -188,6 +188,29 @@ async def list_tools() -> list[Tool]:
                 "required": ["inward_issue", "outward_issue"],
             },
         ),
+        Tool(
+            name="jira_get_links",
+            description="Get all links for a Jira issue",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "issue_key": {"type": "string", "description": "The issue key to get links for (e.g., 'PROJ-123')"},
+                },
+                "required": ["issue_key"],
+            },
+        ),
+        Tool(
+            name="jira_remove_link",
+            description="Remove a link between Jira issues",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "issue_key": {"type": "string", "description": "The issue key to return after removing the link (e.g., 'PROJ-123')"},
+                    "link_id": {"type": "string", "description": "ID of the link to remove (get this from jira_get_links)"},
+                },
+                "required": ["issue_key", "link_id"],
+            },
+        ),
     ]
 
 
@@ -276,6 +299,18 @@ async def call_tool(name: str, arguments: Any) -> Sequence[TextContent]:
                 outward_issue=arguments["outward_issue"],
                 link_type=arguments.get("link_type", "Relates"),
                 comment=arguments.get("comment"),
+            )
+            result = {"content": doc.page_content, "metadata": doc.metadata}
+            return [TextContent(type="text", text=json.dumps(result, indent=2))]
+
+        elif name == "jira_get_links":
+            links = jira_fetcher.get_issue_links(arguments["issue_key"])
+            return [TextContent(type="text", text=json.dumps(links, indent=2))]
+
+        elif name == "jira_remove_link":
+            doc = jira_fetcher.remove_link(
+                issue_key=arguments["issue_key"],
+                link_id=arguments["link_id"],
             )
             result = {"content": doc.page_content, "metadata": doc.metadata}
             return [TextContent(type="text", text=json.dumps(result, indent=2))]

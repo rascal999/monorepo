@@ -1,5 +1,5 @@
-GOOSE_PROVIDER: openrouter
-GOOSE_MODEL: anthropic/claude-3.5-sonnet
+GOOSE_PROVIDER: ${GOOSE_PROVIDER}
+GOOSE_MODEL: ${GOOSE_MODEL}
 
 inspector:
   enabled: true
