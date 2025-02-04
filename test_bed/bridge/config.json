@@ -1,0 +1,27 @@
+{
+    "model": "mistral-small:latest",
+    "mcpServer": {
+        "command": "docker",
+        "args": [
+            "run",
+            "--rm",
+            "-i",
+            "--network", "host",
+            "-v", "/home/user/tmp:/workspace",
+            "-w", "/workspace",
+            "-e", "MCP_ALLOWED_PATHS=/workspace",
+            "-e", "NODE_ENV=production",
+            "-e", "PORT=4000",
+            "node:20",
+            "sh",
+            "-c",
+            "cd /workspace && npx -y @modelcontextprotocol/server-filesystem@latest /workspace"
+        ],
+        "allowed_directory": "/home/user/tmp",
+        "env": {
+            "NODE_ENV": "production",
+            "MCP_ALLOWED_PATHS": "/home/user/tmp"
+        }
+    },
+    "mcpServerName": "primary"
+}
