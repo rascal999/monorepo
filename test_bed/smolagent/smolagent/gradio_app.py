@@ -22,11 +22,17 @@ from .tools import (
 # Load environment variables
 load_dotenv()
 
-# Initialize the model using Ollama
-model = LiteLLMModel(
-    model_id=f"ollama/{os.getenv('OLLAMA_MODEL', 'qwen2.5-7b-128k-instruct')}",
-    api_base=os.getenv("OLLAMA_BASE_URL", "http://192.168.0.100:11434")
-)
+# Initialize the model using OpenRouter if configured, otherwise fallback to Ollama
+if os.getenv("OPENROUTER_API_KEY"):
+    model = LiteLLMModel(
+        model_id=os.getenv("OPENROUTER_MODEL", "deepseek-ai/deepseek-coder-33b-instruct"),
+        api_key=os.getenv("OPENROUTER_API_KEY")
+    )
+else:
+    model = LiteLLMModel(
+        model_id=f"ollama/{os.getenv('OLLAMA_MODEL', 'qwen2.5-7b-128k-instruct')}",
+        api_base=os.getenv("OLLAMA_BASE_URL", "http://192.168.0.100:11434")
+    )
 
 # Create agent with all available tools
 agent = CodeAgent(

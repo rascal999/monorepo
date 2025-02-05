@@ -1,6 +1,6 @@
 # Multi-Tool Agent
 
-A versatile agent that can handle various tasks using multiple tools, powered by smolagents and Ollama.
+A versatile agent that can handle various tasks using multiple tools, powered by smolagents and either Ollama or OpenRouter.
 
 ## Features
 
@@ -64,9 +64,13 @@ Type 'quit' to exit the application.
 
 See `.env.example` for a complete list of required environment variables:
 
-- Non-sensitive variables (built into image):
-  - `OLLAMA_BASE_URL`: URL of your Ollama instance
-  - `OLLAMA_MODEL`: Name of the Ollama model to use
+- LLM Configuration (choose one):
+  - Ollama:
+    - `OLLAMA_BASE_URL`: URL of your Ollama instance
+    - `OLLAMA_MODEL`: Name of the Ollama model to use
+  - OpenRouter:
+    - `OPENROUTER_API_KEY`: Your OpenRouter API key
+    - `OPENROUTER_MODEL`: Model to use (e.g., "openai/gpt-3.5-turbo")
 
 - Sensitive variables (provided at runtime):
   - `JIRA_URL`: Your Jira instance URL
@@ -102,5 +106,7 @@ If you prefer to run Docker commands manually:
 ## Requirements
 
 - Docker
-- Ollama running locally or accessible via network
+- Either:
+  - Ollama running locally or accessible via network, or
+  - OpenRouter API key
 - Access to the required services (Jira, GitLab, Slack)
