@@ -1,0 +1,8 @@
+smolagents[litellm]
+duckduckgo-search
+requests
+beautifulsoup4
+slack-sdk
+python-dotenv
+prompt_toolkit
+gradio>=4.0.0
