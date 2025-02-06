@@ -43,8 +43,17 @@ const logPath = path.join(logDir, `${timestamp}-${containerId}.log`);
 // Create directory if it doesn't exist
 fs.mkdirSync(path.dirname(logPath), { recursive: true });
 
-// Write masked environment variables to log file
-fs.writeFileSync(logPath, JSON.stringify(maskedVars, null, 2));
+// Get command line arguments (excluding node and script path)
+const args = process.argv.slice(2);
+
+// Prepare log content
+const logContent = {
+    environment: maskedVars,
+    ...(args.length > 0 && { arguments: args })
+};
+
+// Write to log file
+fs.writeFileSync(logPath, JSON.stringify(logContent, null, 2));
 
 // Also print to stdout
-console.log(JSON.stringify(maskedVars, null, 2));
+console.log(JSON.stringify(logContent, null, 2));

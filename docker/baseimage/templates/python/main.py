@@ -2,6 +2,7 @@ import os
 import json
 import socket
 import logging
+import argparse
 from datetime import datetime
 from pathlib import Path
 
@@ -62,7 +63,15 @@ def setup_logging():
     
     return logger
 
+def parse_args():
+    parser = argparse.ArgumentParser(description='APP_NAME application')  # Will be replaced by create_project.sh
+    parser.add_argument('args', nargs='*', help='Additional arguments passed to the application')
+    return parser.parse_args()
+
 def main():
+    # Parse command line arguments
+    args = parse_args()
+    
     # Set up logging
     logger = setup_logging()
     
@@ -72,6 +81,10 @@ def main():
     
     # Log environment variables
     logger.info("Environment variables:\n%s", json.dumps(masked_vars, indent=2, sort_keys=True))
+    
+    # Log command line arguments if any were provided
+    if args.args:
+        logger.info("Command line arguments: %s", args.args)
 
 if __name__ == '__main__':
     main()

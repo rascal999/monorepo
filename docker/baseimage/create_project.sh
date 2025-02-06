@@ -43,11 +43,11 @@ show_structure() {
 
 # Check if project name is provided
 if [ -z "$1" ]; then
-    error "Usage: $0 <language> <project-name>\nLanguage can be python or node"
+    error "Usage: $0 <language> <project-name> - Language can be python or node"
 fi
 
 if [ -z "$2" ]; then
-    error "Usage: $0 <language> <project-name>\nLanguage can be python or node"
+    error "Usage: $0 <language> <project-name> - Language can be python or node"
 fi
 
 LANGUAGE=$1
@@ -66,13 +66,13 @@ fi
 # Check if required base image exists
 BASE_IMAGE="baseimage-$LANGUAGE:latest"
 if ! docker image inspect "$BASE_IMAGE" >/dev/null 2>&1; then
-    error "Base image '$BASE_IMAGE' not found.\nPlease run './build.sh' first to build the base images."
+    error "Base image '$BASE_IMAGE' not found. Please run './build.sh' first to build the base images."
 fi
 
 # Verify the centralized .env exists
 if [ ! -f "$ENV_FILE" ]; then
     if [ -f "$ENV_EXAMPLE_FILE" ]; then
-        error "Centralized .env file not found in $SCRIPT_DIR\nPlease copy .env.example to .env and configure it:\n\ncp $ENV_EXAMPLE_FILE $ENV_FILE\n"
+        error "Centralized .env file not found in $SCRIPT_DIR. Please copy .env.example to .env and configure it: cp $ENV_EXAMPLE_FILE $ENV_FILE"
     else
         error "Neither .env nor .env.example found in $SCRIPT_DIR"
     fi
@@ -118,6 +118,12 @@ if [ "$LANGUAGE" == "python" ]; then
     # Create empty requirements.txt
     echo "# $PROJECT_NAME Requirements" > "$TARGET_DIR/$PROJECT_NAME/requirements.txt"
     
+    # Create run script for Python
+    cat <<EOF > "$TARGET_DIR/$PROJECT_NAME/run.sh"
+#!/usr/bin/env bash
+docker-compose run --rm --build app python main.py "\${@:1}"
+EOF
+
 elif [ "$LANGUAGE" == "node" ]; then
     # Copy Node.js files
     cp "$TEMPLATES_DIR/node/Dockerfile" "$TARGET_DIR/$PROJECT_NAME/Dockerfile" || error "Failed to copy Node.js Dockerfile"
@@ -136,13 +142,14 @@ elif [ "$LANGUAGE" == "node" ]; then
   }
 }
 EOF
+
+    # Create run script for Node.js
+    cat <<EOF > "$TARGET_DIR/$PROJECT_NAME/run.sh"
+#!/usr/bin/env bash
+docker-compose run --rm --build app node index.js "\${@:1}"
+EOF
 fi
 
-# Create run script with portable shebang
-cat <<EOF > "$TARGET_DIR/$PROJECT_NAME/run.sh"
-#!/usr/bin/env bash
-docker-compose run --rm $PROJECT_NAME
-EOF
 chmod +x "$TARGET_DIR/$PROJECT_NAME/run.sh"
 
 # Create README.md
@@ -152,6 +159,8 @@ cat <<EOF > "$TARGET_DIR/$PROJECT_NAME/README.md"
 ## Setup
 1. Ensure Docker is installed and running
 2. Run \`./run.sh\` to start the application
+   * You can pass arguments to the application: \`./run.sh arg1 arg2\`
+   * Use \`./run.sh --help\` to see available options
 
 ## Development
 - Source code in \`app/\` directory

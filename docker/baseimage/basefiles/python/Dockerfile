@@ -15,5 +15,12 @@ RUN pip install --no-cache-dir hatchling
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Create non-root user with UID 1000
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
 # Set Python to run unbuffered
 ENV PYTHONUNBUFFERED=1
