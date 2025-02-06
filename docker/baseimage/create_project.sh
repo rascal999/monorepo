@@ -16,6 +16,31 @@ info() {
     echo "i️  $1"
 }
 
+# Function to replace placeholders in a file
+replace_placeholders() {
+    local file="$1"
+    local project_name="$2"
+    local env_file="$3"
+    local random_port="$4"
+
+    # Create temp file
+    local temp_file="$file.tmp"
+    
+    # Replace placeholders
+    sed -e "s/APP_NAME/$project_name/g" \
+        -e "s|ENV_FILE_PATH|$env_file|g" \
+        -e "s/PORT/$random_port/g" \
+        "$file" > "$temp_file"
+    
+    # Move temp file to original
+    mv "$temp_file" "$file"
+}
+
+# Function to show project structure
+show_structure() {
+    eza --long --all --header --icons --git || ls -la
+}
+
 # Check if project name is provided
 if [ -z "$1" ]; then
     error "Usage: $0 <language> <project-name>\nLanguage can be python or node"
@@ -67,46 +92,41 @@ info "Creating project structure..."
 
 # Create project structure
 mkdir -p "$TARGET_DIR/$PROJECT_NAME/app" || error "Failed to create project directories"
+mkdir -p "$TARGET_DIR/$PROJECT_NAME/workspace/logs" || error "Failed to create workspace/logs directory"
 
-# Copy template files
+# Copy .env.example for reference
+cp "$ENV_EXAMPLE_FILE" "$TARGET_DIR/$PROJECT_NAME/.env.example" || error "Failed to copy .env.example"
+
+# Generate random port
+RANDOM_PORT=$(( ( RANDOM % 201 ) + 4000 ))
+
+# Copy and configure docker-compose.yml
+cp "$TEMPLATES_DIR/docker-compose.yml" "$TARGET_DIR/$PROJECT_NAME/" || error "Failed to copy docker-compose.yml"
+replace_placeholders "$TARGET_DIR/$PROJECT_NAME/docker-compose.yml" "$PROJECT_NAME" "$ENV_FILE" "$RANDOM_PORT"
+
+# Copy template files based on language
 if [ "$LANGUAGE" == "python" ]; then
     # Copy Python files
-    cp "$TEMPLATES_DIR/python/Dockerfile" "$TARGET_DIR/$PROJECT_NAME/Dockerfile" || error "Failed to copy Python Dockerfile to project"
-    cp "$TEMPLATES_DIR/python/.gitignore" "$TARGET_DIR/$PROJECT_NAME/.gitignore" || error "Failed to copy Python .gitignore"
-    cp "$TEMPLATES_DIR/python/.dockerignore" "$TARGET_DIR/$PROJECT_NAME/.dockerignore" || error "Failed to copy Python .dockerignore"
+    cp "$TEMPLATES_DIR/python/Dockerfile" "$TARGET_DIR/$PROJECT_NAME/Dockerfile" || error "Failed to copy Python Dockerfile"
+    cp "$TEMPLATES_DIR/python/.gitignore" "$TARGET_DIR/$PROJECT_NAME/.gitignore" || error "Failed to copy .gitignore"
+    cp "$TEMPLATES_DIR/python/.dockerignore" "$TARGET_DIR/$PROJECT_NAME/.dockerignore" || error "Failed to copy .dockerignore"
+    cp "$TEMPLATES_DIR/python/main.py" "$TARGET_DIR/$PROJECT_NAME/app/main.py" || error "Failed to copy main.py"
     
-    # Create Python test file that returns environment
-    cat <<EOF > "$TARGET_DIR/$PROJECT_NAME/app/main.py" || error "Failed to create main.py"
-import os
-import json
-
-def main():
-    # Get all environment variables
-    env_vars = dict(os.environ)
+    # Replace APP_NAME in main.py
+    replace_placeholders "$TARGET_DIR/$PROJECT_NAME/app/main.py" "$PROJECT_NAME" "" ""
     
-    # Convert to JSON for pretty printing
-    print(json.dumps(env_vars, indent=2, sort_keys=True))
-
-if __name__ == '__main__':
-    main()
-EOF
-    
-    echo "# $PROJECT_NAME Requirements" > "$TARGET_DIR/$PROJECT_NAME/requirements.txt" || error "Failed to create requirements.txt"
+    # Create empty requirements.txt
+    echo "# $PROJECT_NAME Requirements" > "$TARGET_DIR/$PROJECT_NAME/requirements.txt"
     
 elif [ "$LANGUAGE" == "node" ]; then
     # Copy Node.js files
-    cp "$TEMPLATES_DIR/node/Dockerfile" "$TARGET_DIR/$PROJECT_NAME/Dockerfile" || error "Failed to copy Node.js Dockerfile to project"
-    cp "$TEMPLATES_DIR/node/.gitignore" "$TARGET_DIR/$PROJECT_NAME/.gitignore" || error "Failed to copy Node.js .gitignore"
-    cp "$TEMPLATES_DIR/node/.dockerignore" "$TARGET_DIR/$PROJECT_NAME/.dockerignore" || error "Failed to copy Node.js .dockerignore"
-    
-    # Create Node.js test file that returns environment
-    cat <<EOF > "$TARGET_DIR/$PROJECT_NAME/app/index.js" || error "Failed to create index.js"
-// Get all environment variables and print them
-console.log(JSON.stringify(process.env, null, 2));
-EOF
+    cp "$TEMPLATES_DIR/node/Dockerfile" "$TARGET_DIR/$PROJECT_NAME/Dockerfile" || error "Failed to copy Node.js Dockerfile"
+    cp "$TEMPLATES_DIR/node/.gitignore" "$TARGET_DIR/$PROJECT_NAME/.gitignore" || error "Failed to copy .gitignore"
+    cp "$TEMPLATES_DIR/node/.dockerignore" "$TARGET_DIR/$PROJECT_NAME/.dockerignore" || error "Failed to copy .dockerignore"
+    cp "$TEMPLATES_DIR/node/index.js" "$TARGET_DIR/$PROJECT_NAME/app/index.js" || error "Failed to copy index.js"
     
     # Create package.json
-    cat <<EOF > "$TARGET_DIR/$PROJECT_NAME/package.json" || error "Failed to create package.json"
+    cat <<EOF > "$TARGET_DIR/$PROJECT_NAME/package.json"
 {
   "name": "$PROJECT_NAME",
   "version": "1.0.0",
@@ -118,41 +138,15 @@ EOF
 EOF
 fi
 
-# Generate docker-compose.yml with resource limits
-RANDOM_PORT=$(( ( RANDOM % 201 ) + 4000 ))
-cat <<EOF > "$TARGET_DIR/$PROJECT_NAME/docker-compose.yml" || error "Failed to create docker-compose.yml"
-version: '3.8'
-
-services:
-  $PROJECT_NAME:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    env_file:
-      - $ENV_FILE    # Reference centralized .env with absolute path
-    volumes:
-      - ./app:/app
-    ports:
-      - "\${RANDOM_PORT:-$RANDOM_PORT}:8000"
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
-EOF
-
 # Create run script with portable shebang
-cat <<EOF > "$TARGET_DIR/$PROJECT_NAME/run.sh" || error "Failed to create run.sh"
+cat <<EOF > "$TARGET_DIR/$PROJECT_NAME/run.sh"
 #!/usr/bin/env bash
-docker-compose up
+docker-compose run --rm $PROJECT_NAME
 EOF
-chmod +x "$TARGET_DIR/$PROJECT_NAME/run.sh" || error "Failed to make run.sh executable"
+chmod +x "$TARGET_DIR/$PROJECT_NAME/run.sh"
 
 # Create README.md
-cat <<EOF > "$TARGET_DIR/$PROJECT_NAME/README.md" || error "Failed to create README.md"
+cat <<EOF > "$TARGET_DIR/$PROJECT_NAME/README.md"
 # $PROJECT_NAME
 
 ## Setup
@@ -160,10 +154,24 @@ cat <<EOF > "$TARGET_DIR/$PROJECT_NAME/README.md" || error "Failed to create REA
 2. Run \`./run.sh\` to start the application
 
 ## Development
-- Source code is in the \`app/\` directory
+- Source code in \`app/\` directory
+- Workspace files in \`workspace/\` directory
 - Environment variables are managed in the central .env file at $ENV_FILE
+- See .env.example for available environment variables
 - The application runs on port $RANDOM_PORT
-- The application will output all environment variables when run
+- The application will:
+  * Output environment variables to stdout (sensitive values masked)
+  * Save logs to workspace/logs/[timestamp]-[container-id].log
+
+## Logging
+- Uses Python's built-in logging module (Python) or file system (Node.js)
+- Log level controlled by LOG_LEVEL environment variable
+- Log directory controlled by LOG_DIRECTORY environment variable
+- Logs include timestamp and container ID
+- Sensitive values (containing 'KEY' or 'TOKEN') are masked:
+  * Long values: First 12 and last 3 visible
+  * Medium values: All but last 3 visible
+  * Short values: Shown as is
 
 ## Troubleshooting
 - Check Docker logs: \`docker-compose logs\`
@@ -173,4 +181,12 @@ EOF
 success "Project '$PROJECT_NAME' initialized successfully!"
 info "Project created at: $TARGET_DIR/$PROJECT_NAME"
 info "Random port assigned: $RANDOM_PORT"
-info "Run './run.sh' to start the application and see environment variables"
+
+# Change to project directory
+cd "$TARGET_DIR/$PROJECT_NAME" || error "Failed to change to project directory"
+
+info "Starting application..."
+./run.sh && show_structure
+
+# Stay in the project directory
+exec $SHELL

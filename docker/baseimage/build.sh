@@ -26,12 +26,12 @@ fi
 
 # Build Python base image
 info "Building Python base image..."
-docker build -t baseimage-python:latest -f "$BASEFILES_DIR/Dockerfile.python" "$BASEFILES_DIR" || error "Failed to build Python base image"
+docker build -t baseimage-python:latest -f "$BASEFILES_DIR/python/Dockerfile" "$BASEFILES_DIR/python" || error "Failed to build Python base image"
 success "Python base image built successfully"
 
 # Build Node.js base image
 info "Building Node.js base image..."
-docker build -t baseimage-node:latest -f "$BASEFILES_DIR/Dockerfile.node" "$BASEFILES_DIR" || error "Failed to build Node.js base image"
+docker build -t baseimage-node:latest -f "$BASEFILES_DIR/node/Dockerfile" "$BASEFILES_DIR/node" || error "Failed to build Node.js base image"
 success "Node.js base image built successfully"
 
 info "Base images are ready to use"
