@@ -8,6 +8,7 @@ services:
     volumes:
       - ./app:/app
       - ./workspace:/workspace
+      - /home/user/git/gitlab/mgp:/git
     ports:
       - "${RANDOM_PORT:-PORT}:8000"
     deploy:
