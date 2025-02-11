@@ -63,10 +63,14 @@ if [[ ! "$LANGUAGE" =~ ^(python|node)$ ]]; then
     error "Invalid language. Must be 'python' or 'node'"
 fi
 
-# Check if required base image exists
+# Build base images to ensure we have the latest versions
 BASE_IMAGE="baseimage-$LANGUAGE:latest"
-if ! docker image inspect "$BASE_IMAGE" >/dev/null 2>&1; then
-    error "Base image '$BASE_IMAGE' not found. Please run './build.sh' first to build the base images."
+info "Building base images..."
+if [ -f "$SCRIPT_DIR/build.sh" ]; then
+    (cd "$SCRIPT_DIR" && ./build.sh) || error "Failed to build base images"
+    success "Base images built successfully"
+else
+    error "build.sh script not found in $SCRIPT_DIR"
 fi
 
 # Verify the centralized .env exists
