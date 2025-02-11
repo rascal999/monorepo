@@ -7,11 +7,32 @@ from datetime import datetime
 from pathlib import Path
 
 def mask_sensitive_values(env_vars):
-    """Mask values of environment variables containing 'KEY' or 'TOKEN',
-    showing first 12 and last 3 characters."""
+    """Mask values of sensitive environment variables.
+    For variables containing sensitive keywords, shows first 12 and last 3 characters
+    if long enough, otherwise masks appropriately. Excludes URLs and other non-sensitive patterns."""
+    SENSITIVE_KEYWORDS = {'KEY', 'TOKEN', 'PASSWORD', 'SECRET', 'CREDENTIAL', 'CERT', 'PRIVATE'}
+    # Keywords that indicate the value should not be masked even if the key contains sensitive words
+    EXCLUDE_PATTERNS = [
+        'http://', 'https://',
+        '.com', '.org', '.net', '.io',  # Common URL TLDs
+        '_URL', '_ENDPOINT', '_URI',     # URL-related suffixes
+        'OAUTH_TOKEN_EXPIRY'  # Non-sensitive OAuth config
+    ]
+    
     masked_vars = {}
     for key, value in env_vars.items():
-        if 'KEY' in key.upper() or 'TOKEN' in key.upper():
+        # Skip masking if value is None or empty
+        if not value:
+            masked_vars[key] = value
+            continue
+            
+        # Check if key contains sensitive keywords
+        if any(keyword in key.upper() for keyword in SENSITIVE_KEYWORDS):
+            # Don't mask if value matches exclusion patterns
+            if any(pattern.lower() in str(value).lower() for pattern in EXCLUDE_PATTERNS) or \
+               any(suffix in key.upper() for suffix in ['_URL', '_ENDPOINT', '_URI']):
+                masked_vars[key] = value
+                continue
             if value and len(value) > 16:
                 # Show first 12 and last 3 chars, mask middle with asterisks
                 masked_vars[key] = f"{value[:12]}{'*' * (len(value)-15)}{value[-3:]}"

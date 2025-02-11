@@ -195,11 +195,8 @@ success "Project '$PROJECT_NAME' initialized successfully!"
 info "Project created at: $TARGET_DIR/$PROJECT_NAME"
 info "Random port assigned: $RANDOM_PORT"
 
-# Change to project directory
 cd "$TARGET_DIR/$PROJECT_NAME" || error "Failed to change to project directory"
-
-info "Starting application..."
 ./run.sh && show_structure
 
-# Stay in the project directory
-exec $SHELL
+# Write path to temp file for cum to use
+echo "$TARGET_DIR/$PROJECT_NAME" > /tmp/cum_last_project
