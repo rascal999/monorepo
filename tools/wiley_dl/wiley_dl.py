@@ -4,7 +4,11 @@ import os
 import re
 import requests
 import sys
+import urllib3
 from typing import Optional
+
+# Disable insecure request warnings when using proxy without verification
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def parse_request_file(filepath: str) -> tuple[dict, dict]:
     """
@@ -54,7 +58,7 @@ def load_request_data(request_file: str = 'example_reqs.txt') -> tuple[dict, dic
     request_path = os.path.join(script_dir, request_file)
     return parse_request_file(request_path)
 
-def download_pdf(prefix: str, number: int, output_dir: str = '.', headers: dict = None, cookies: dict = None) -> Optional[str]:
+def download_pdf(prefix: str, number: int, output_dir: str = '.', headers: dict = None, cookies: dict = None, proxies: dict = None) -> Optional[str]:
     """
     Download PDF for a specific DOI number.
     
@@ -62,6 +66,9 @@ def download_pdf(prefix: str, number: int, output_dir: str = '.', headers: dict 
         prefix: DOI prefix (e.g., 'jvim')
         number: DOI number (e.g., 15531)
         output_dir: Directory to save the PDF
+        headers: Request headers
+        cookies: Request cookies
+        proxies: Proxy configuration dictionary
     
     Returns:
         Path to downloaded file or None if download failed
@@ -74,11 +81,15 @@ def download_pdf(prefix: str, number: int, output_dir: str = '.', headers: dict 
         if headers is None or cookies is None:
             headers, cookies = load_request_data()
             
+        # Disable TLS verification if using proxy
+        verify = True if not proxies else False
         response = requests.get(
             url,
             headers=headers,
             cookies=cookies,
-            stream=True
+            stream=True,
+            proxies=proxies,
+            verify=verify
         )
         response.raise_for_status()
         
@@ -115,8 +126,17 @@ def main():
     parser.add_argument('start', type=int, help='Starting DOI number')
     parser.add_argument('end', type=int, nargs='?', help='Ending DOI number (optional)')
     parser.add_argument('-o', '--output-dir', default='.', help='Output directory (default: current directory)')
+    parser.add_argument('--http-proxy', help='HTTP proxy URL (e.g., http://proxy:8080)')
+    parser.add_argument('--https-proxy', help='HTTPS proxy URL (e.g., http://proxy:8080)')
     
     args = parser.parse_args()
+    
+    # Configure proxies if provided
+    proxies = {}
+    if args.http_proxy:
+        proxies['http'] = args.http_proxy
+    if args.https_proxy:
+        proxies['https'] = args.https_proxy
     
     # Load request data once
     try:
@@ -127,7 +147,7 @@ def main():
 
     # Handle single number case
     if args.end is None:
-        download_pdf(args.prefix, args.start, args.output_dir, headers, cookies)
+        download_pdf(args.prefix, args.start, args.output_dir, headers, cookies, proxies)
         return
     
     # Handle range case
@@ -136,7 +156,7 @@ def main():
         sys.exit(1)
     
     for number in range(args.start, args.end + 1):
-        download_pdf(args.prefix, number, args.output_dir, headers, cookies)
+        download_pdf(args.prefix, number, args.output_dir, headers, cookies, proxies)
 
 if __name__ == '__main__':
     main()

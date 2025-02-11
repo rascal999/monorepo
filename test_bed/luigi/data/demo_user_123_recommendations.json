@@ -1,0 +1,32 @@
+{
+  "user_id": "demo_user_123",
+  "based_on_artist": "Artist 1",
+  "recommended_songs": [
+    {
+      "id": "rec_track_0",
+      "title": "Recommended Song 0",
+      "artist": "Artist 6"
+    },
+    {
+      "id": "rec_track_1",
+      "title": "Recommended Song 1",
+      "artist": "Artist 2"
+    },
+    {
+      "id": "rec_track_2",
+      "title": "Recommended Song 2",
+      "artist": "Artist 1"
+    },
+    {
+      "id": "rec_track_3",
+      "title": "Recommended Song 3",
+      "artist": "Artist 6"
+    },
+    {
+      "id": "rec_track_4",
+      "title": "Recommended Song 4",
+      "artist": "Artist 5"
+    }
+  ],
+  "generated_at": "2025-02-09T09:18:49.421598"
+}

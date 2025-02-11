@@ -28,6 +28,7 @@ ipython>=8.31.0
 ruff>=0.9.0
 
 # Data processing
+luigi>=3.5.0  # For workflow management
 numpy>=1.26.0
 pandas>=2.2.3
 jinja2>=3.1.4

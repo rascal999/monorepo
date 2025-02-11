@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  traefik:
+    image: traefik:v2.9
+    container_name: traefik
+    network_mode: "host"  # Use host networking to work with .host DNS
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=traefik-public"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.traefik.address=:9090"
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--entryPoints.traefik.forwardedHeaders.insecure"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.host`)"
+      - "traefik.http.routers.traefik.entrypoints=traefik"
+      - "traefik.http.services.traefik.loadbalancer.server.port=9090"
+
+networks:
+  traefik-public:
+    name: traefik-public
