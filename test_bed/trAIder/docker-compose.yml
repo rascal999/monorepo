@@ -3,15 +3,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - PYTHONUNBUFFERED=1
+      - OPENAI_API_BASE=https://openrouter.ai/api/v1
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+      - NO_PROXY=
     env_file:
-      - ENV_FILE_PATH    # Will be replaced with absolute path
+      - /home/user/git/github/monorepo/docker/baseimage/.env
     volumes:
-      - ./app:/app/app
-      - ./tests:/app/tests
       - ./workspace:/workspace
       - /home/user/git/gitlab/mgp:/git
     ports:
-      - "${RANDOM_PORT:-PORT}:8000"
+      - "${RANDOM_4007:-4007}:8000"
     deploy:
       resources:
         limits:

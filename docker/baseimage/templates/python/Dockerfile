@@ -2,10 +2,12 @@ FROM baseimage-python:latest
 
 WORKDIR /app
 
-# Copy application code
-COPY app/ /app/
+# Copy application code and tests
+COPY app/ ./app/
+COPY tests/ ./tests/
 
-# Set Python to run unbuffered
+# Add app directory to Python path for test imports
+ENV PYTHONPATH=/app/app
 ENV PYTHONUNBUFFERED=1
 
-CMD ["python", "main.py"]
+CMD ["python", "app/main.py"]

@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./docker/nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./docker/nginx/lua:/usr/local/openresty/nginx/lua:ro
+      - blocked_ips:/etc/nginx
+    depends_on:
+      - juice-shop
+    networks:
+      - aeye_net
+    extra_hosts:
+      - "host.docker.internal:192.168.0.100"
+
+  juice-shop:
+    image: bkimminich/juice-shop
+    expose:
+      - "3000"
+    networks:
+      - aeye_net
+
+networks:
+  aeye_net:
+    driver: bridge
+
+volumes:
+  blocked_ips:
+    driver: local

@@ -116,16 +116,23 @@ if [ "$LANGUAGE" == "python" ]; then
     cp "$TEMPLATES_DIR/python/.dockerignore" "$TARGET_DIR/$PROJECT_NAME/.dockerignore" || error "Failed to copy .dockerignore"
     cp "$TEMPLATES_DIR/python/main.py" "$TARGET_DIR/$PROJECT_NAME/app/main.py" || error "Failed to copy main.py"
     
-    # Replace APP_NAME in main.py
+    # Copy tests directory
+    cp -r "$TEMPLATES_DIR/python/tests" "$TARGET_DIR/$PROJECT_NAME/" || error "Failed to copy test files"
+    
+    # Replace APP_NAME in main.py and test files
     replace_placeholders "$TARGET_DIR/$PROJECT_NAME/app/main.py" "$PROJECT_NAME" "" ""
+    replace_placeholders "$TARGET_DIR/$PROJECT_NAME/tests/test_main.py" "$PROJECT_NAME" "" ""
     
     # Create empty requirements.txt
     echo "# $PROJECT_NAME Requirements" > "$TARGET_DIR/$PROJECT_NAME/requirements.txt"
     
-    # Create run script for Python
+    # Create run script for Python that runs tests first
     cat <<EOF > "$TARGET_DIR/$PROJECT_NAME/run.sh"
 #!/usr/bin/env bash
-docker-compose run --rm --build app python main.py "\${@:1}"
+# Run tests first
+docker-compose run --rm --build app pytest /app/tests/ || exit 1
+# If tests pass, run the main application
+docker-compose run --rm app python /app/app/main.py "\${@:1}"
 EOF
 
 elif [ "$LANGUAGE" == "node" ]; then
