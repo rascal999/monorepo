@@ -30,7 +30,11 @@ module.exports.runtime = {
       // Search issues using JQL
       const searchResults = await jira.searchJira(jql, {
         maxResults: 100,  // Limit results to prevent overwhelming responses
-        fields: ['key', 'summary', 'status', 'priority', 'assignee']
+        fields: [
+          'key', 'summary', 'status', 'priority', 'assignee',
+          'issuetype', 'labels', 'created', 'updated',
+          'resolution', 'parent', 'subtasks', 'issuelinks'
+        ]
       });
 
       if (!searchResults.issues || searchResults.issues.length === 0) {
@@ -43,14 +47,31 @@ module.exports.runtime = {
         summary: issue.fields.summary,
         status: issue.fields.status?.name || 'Unknown',
         priority: issue.fields.priority?.name || 'Unknown',
-        assignee: issue.fields.assignee?.displayName || 'Unassigned'
+        assignee: issue.fields.assignee?.displayName || 'Unassigned',
+        type: issue.fields.issuetype?.name || 'Unknown',
+        labels: issue.fields.labels?.join(', ') || 'None',
+        created: new Date(issue.fields.created).toLocaleString(),
+        updated: new Date(issue.fields.updated).toLocaleString(),
+        resolution: issue.fields.resolution?.name || 'Unresolved',
+        parent: issue.fields.parent?.key || 'None',
+        subtasks: (issue.fields.subtasks || []).map(st => st.key).join(', ') || 'None',
+        links: (issue.fields.issuelinks || [])
+          .map(link => link.outwardIssue?.key || link.inwardIssue?.key)
+          .filter(Boolean)
+          .join(', ') || 'None'
       }));
 
       // Build response message
       const message = [
         `Found ${formattedIssues.length} issues:`,
-        ...formattedIssues.map(issue => 
-          `\n- ${issue.key}: ${issue.summary}\n  Status: ${issue.status} | Priority: ${issue.priority} | Assignee: ${issue.assignee}`
+        ...formattedIssues.map(issue =>
+          `\n- ${issue.key}: ${issue.summary}` +
+          `\n  Type: ${issue.type} | Status: ${issue.status} | Priority: ${issue.priority}` +
+          `\n  Assignee: ${issue.assignee} | Labels: ${issue.labels}` +
+          `\n  Created: ${issue.created} | Updated: ${issue.updated}` +
+          `\n  Resolution: ${issue.resolution}` +
+          `\n  Parent: ${issue.parent} | Subtasks: ${issue.subtasks}` +
+          `\n  Links: ${issue.links}`
         )
       ].join('\n');
 
