@@ -1,0 +1,46 @@
+{
+  "active": true,
+  "hubId": "slack-channel-reader",
+  "name": "Slack Channel Reader",
+  "schema": "skill-1.0.0",
+  "version": "1.0.0",
+  "description": "Read messages from Slack channels",
+  "author": "Roo",
+  "license": "MIT",
+  "setup_args": {
+    "SLACK_TOKEN": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "xoxp-your-token",
+        "hint": "Your Slack User OAuth Token (starts with xoxp-). Get it from https://api.slack.com/apps > Your App > OAuth & Permissions"
+      }
+    }
+  },
+  "examples": [
+    {
+      "prompt": "Show me messages from #security channel",
+      "call": "{\"channel\":\"security\"}"
+    },
+    {
+      "prompt": "Get last 20 messages from #general",
+      "call": "{\"channel\":\"general\",\"limit\":20}"
+    },
+    {
+      "prompt": "Read messages from #team-updates",
+      "call": "{\"channel\":\"team-updates\"}"
+    }
+  ],
+  "entrypoint": {
+    "file": "handler.js",
+    "params": {
+      "channel": {
+        "description": "Slack channel name without # prefix",
+        "type": "string"
+      }
+    }
+  },
+  "imported": true
+}

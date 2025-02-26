@@ -1,0 +1,10 @@
+{
+  "name": "anythingllm-agent-skills-utils",
+  "version": "1.0.0",
+  "description": "Utilities for AnythingLLM agent skills",
+  "private": true,
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "path": "0.12.7"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "git-log-skill",
+  "version": "1.0.0",
+  "description": "Git commit history skill for AnythingLLM",
+  "main": "handler.js",
+  "author": "Roo",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}

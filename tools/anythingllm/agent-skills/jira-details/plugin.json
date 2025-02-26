@@ -1,0 +1,70 @@
+{
+  "active": true,
+  "hubId": "jira-details",
+  "name": "Jira Get Details",
+  "schema": "skill-1.0.0",
+  "version": "1.0.0",
+  "description": "Get details and comments from Jira tickets",
+  "author": "Roo",
+  "license": "MIT",
+  "setup_args": {
+    "JIRA_HOST": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "https://your-domain.atlassian.net",
+        "hint": "Your Jira instance URL"
+      },
+    },
+    "JIRA_EMAIL": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "your-email@company.com",
+        "hint": "Your Jira account email"
+      },
+    },
+    "JIRA_API_TOKEN": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "your-api-token",
+        "hint": "Your Jira API token"
+      },
+    }
+  },
+  "examples": [
+    {
+      "prompt": "Get details of SECOPS-1234",
+      "call": "{\"ticket\":\"SECOPS-1234\"}"
+    },
+    {
+      "prompt": "Show me SECOPS-1234 with comments",
+      "call": "{\"ticket\":\"SECOPS-1234\",\"includeComments\":true}"
+    },
+    {
+      "prompt": "What's the status of SECOPS-1234",
+      "call": "{\"ticket\":\"SECOPS-1234\"}"
+    }
+  ],
+  "entrypoint": {
+    "file": "handler.js",
+    "params": {
+      "ticket": {
+        "description": "Jira ticket key (e.g., SECOPS-1234)",
+        "type": "string"
+      },
+      "includeComments": {
+        "description": "Whether to include ticket comments (default: false)",
+        "type": "boolean"
+      }
+    }
+  },
+  "imported": true
+}

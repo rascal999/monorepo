@@ -1,0 +1,16 @@
+{
+  "hubId": "calculator",
+  "name": "Calculator",
+  "version": "1.0.0",
+  "description": "Perform basic arithmetic calculations",
+  "author": "Roo",
+  "active": true,
+  "entrypoint": {
+    "params": {
+      "expression": {
+        "type": "string",
+        "description": "The arithmetic expression to evaluate (e.g., '2 + 2', '10 * 5')"
+      }
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "active": true,
+  "hubId": "jira-create",
+  "name": "Jira Create Ticket",
+  "schema": "skill-1.0.0",
+  "version": "1.0.0",
+  "description": "Create a single Jira ticket using natural language commands. Multiple facts or points should be combined into one ticket using bullet points.",
+  "author": "Roo",
+  "license": "MIT",
+  "setup_args": {
+    "JIRA_HOST": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "https://your-domain.atlassian.net",
+        "hint": "Your Jira instance URL"
+      }
+    },
+    "JIRA_EMAIL": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "your-email@company.com",
+        "hint": "Your Jira account email"
+      }
+    },
+    "JIRA_API_TOKEN": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "your-api-token",
+        "hint": "Your Jira API token (create at https://id.atlassian.com/manage-profile/security/api-tokens)"
+      }
+    }
+  },
+  "examples": [
+    {
+      "prompt": "Create a SECOPS ticket with 5 facts about goldfish",
+      "call": "{\"project\":\"SECOPS\",\"summary\":\"Goldfish Facts Collection\",\"description\":\"1. Goldfish can live up to 30 years\\n2. They have a memory span of at least 3 months\\n3. Goldfish can grow to over 12 inches in length\\n4. They can see more colors than humans\\n5. Goldfish don't have stomachs\"}"
+    },
+    {
+      "prompt": "Create a SECOPS ticket listing 3 system issues",
+      "call": "{\"project\":\"SECOPS\",\"summary\":\"Multiple System Issues Report\",\"description\":\"1. Login system is broken\\n2. API performance is degraded\\n3. Documentation needs updating\"}"
+    },
+    {
+      "prompt": "Create a bug ticket in SECOPS with multiple findings",
+      "call": "{\"project\":\"SECOPS\",\"type\":\"Bug\",\"summary\":\"Security Vulnerabilities Found\",\"description\":\"Multiple security issues discovered:\\n\\n1. SQL injection in login form\\n2. Weak password requirements\\n3. Missing rate limiting\\n4. Outdated dependencies\"}"
+    }
+  ],
+  "entrypoint": {
+    "file": "handler.js",
+    "params": {
+      "project": {
+        "description": "Jira project key",
+        "type": "string"
+      },
+      "type": {
+        "description": "Issue type (Bug, Task, Story, etc.). Defaults to Task if not specified.",
+        "type": "string"
+      },
+      "summary": {
+        "description": "Issue summary/title - use a descriptive title that covers all points",
+        "type": "string"
+      },
+      "description": {
+        "description": "Detailed description - use numbered points (1., 2., etc.) for multiple items",
+        "type": "string"
+      }
+    }
+  },
+  "imported": true
+}

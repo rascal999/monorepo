@@ -1,0 +1,66 @@
+{
+  "active": true,
+  "hubId": "jira-update-description",
+  "name": "Jira Update Description",
+  "schema": "skill-1.0.0",
+  "version": "1.0.0",
+  "description": "Update Jira ticket descriptions",
+  "author": "Roo",
+  "license": "MIT",
+  "setup_args": {
+    "JIRA_HOST": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "https://your-domain.atlassian.net",
+        "hint": "Your Jira instance URL"
+      },
+    },
+    "JIRA_EMAIL": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "your-email@company.com",
+        "hint": "Your Jira account email"
+      },
+    },
+    "JIRA_API_TOKEN": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "your-api-token",
+        "hint": "Your Jira API token"
+      },
+    }
+  },
+  "examples": [
+    {
+      "prompt": "Update description of SECOPS-1234 to: Users cannot access the login page after recent deployment",
+      "call": "{\"ticket\":\"SECOPS-1234\",\"description\":\"Users cannot access the login page after recent deployment\"}"
+    },
+    {
+      "prompt": "Set SECOPS-1234 description to: Need to implement two-factor authentication for admin users",
+      "call": "{\"ticket\":\"SECOPS-1234\",\"description\":\"Need to implement two-factor authentication for admin users\"}"
+    }
+  ],
+  "entrypoint": {
+    "file": "handler.js",
+    "params": {
+      "ticket": {
+        "description": "Jira ticket key (e.g., SECOPS-1234)",
+        "type": "string"
+      },
+      "description": {
+        "description": "New description for the ticket",
+        "type": "string"
+      }
+    }
+  },
+  "imported": true
+}

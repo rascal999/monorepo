@@ -1,0 +1,9 @@
+{
+  "name": "jira-details",
+  "version": "1.0.0",
+  "description": "AnythingLLM agent skill for getting Jira ticket details",
+  "main": "handler.js",
+  "dependencies": {
+    "jira-client": "^8.2.2"
+  }
+}

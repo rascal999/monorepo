@@ -1,0 +1,56 @@
+{
+  "active": true,
+  "hubId": "git-log",
+  "name": "Git Log",
+  "schema": "skill-1.0.0",
+  "version": "1.0.0",
+  "description": "Fetch git commit history from repositories",
+  "author": "Roo",
+  "license": "MIT",
+  "setup_args": {
+    "GITLAB_HOST": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "https://gitlab.com",
+        "placeholder": "https://gitlab.com",
+        "hint": "Your GitLab instance URL"
+      },
+    },
+    "GITLAB_TOKEN": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "your-private-token",
+        "hint": "Your GitLab private token (create at GitLab > Settings > Access Tokens)"
+      },
+    }
+  },
+  "examples": [
+    {
+      "prompt": "Show git log for mangopay/appsec/security-tools",
+      "call": "{\"path\":\"mangopay/appsec/security-tools\",\"limit\":10}"
+    },
+    {
+      "prompt": "Get last 5 commits from mangopay/appsec/security-tools",
+      "call": "{\"path\":\"mangopay/appsec/security-tools\",\"limit\":5}"
+    }
+  ],
+  "entrypoint": {
+    "file": "handler.js",
+    "params": {
+      "path": {
+        "description": "GitLab repository path (e.g., mangopay/appsec/security-tools)",
+        "type": "string"
+      },
+      "limit": {
+        "description": "Number of commits to fetch (default: 10)",
+        "type": "number",
+        "required": false
+      }
+    }
+  }
+}

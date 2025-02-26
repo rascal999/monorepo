@@ -1,0 +1,55 @@
+{
+  "active": true,
+  "hubId": "gitlab-diff",
+  "name": "GitLab Diff",
+  "schema": "skill-1.0.0",
+  "version": "1.0.0",
+  "description": "Fetch commit diffs from GitLab repositories",
+  "author": "Roo",
+  "license": "MIT",
+  "setup_args": {
+    "GITLAB_HOST": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "https://gitlab.com",
+        "placeholder": "https://gitlab.com",
+        "hint": "Your GitLab instance URL"
+      },
+    },
+    "GITLAB_TOKEN": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "your-private-token",
+        "hint": "Your GitLab private token (create at GitLab > Settings > Access Tokens)"
+      },
+    }
+  },
+  "examples": [
+    {
+      "prompt": "Show diff for commit a1b2c3d in mangopay/appsec/security-tools",
+      "call": "{\"path\":\"mangopay/appsec/security-tools\",\"hash\":\"a1b2c3d\"}"
+    },
+    {
+      "prompt": "Get changes from commit e4f5g6h in mangopay/appsec/security-tools",
+      "call": "{\"path\":\"mangopay/appsec/security-tools\",\"hash\":\"e4f5g6h\"}"
+    }
+  ],
+  "entrypoint": {
+    "file": "handler.js",
+    "params": {
+      "path": {
+        "description": "GitLab repository path (e.g., mangopay/appsec/security-tools)",
+        "type": "string"
+      },
+      "hash": {
+        "description": "Commit hash to fetch diff for",
+        "type": "string"
+      }
+    }
+  }
+}

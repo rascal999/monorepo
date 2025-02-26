@@ -1,0 +1,66 @@
+{
+  "active": true,
+  "hubId": "jira-comment",
+  "name": "Jira Add Comment",
+  "schema": "skill-1.0.0",
+  "version": "1.0.0",
+  "description": "Add comments to Jira tickets",
+  "author": "Roo",
+  "license": "MIT",
+  "setup_args": {
+    "JIRA_HOST": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "https://your-domain.atlassian.net",
+        "hint": "Your Jira instance URL"
+      },
+    },
+    "JIRA_EMAIL": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "your-email@company.com",
+        "hint": "Your Jira account email"
+      },
+    },
+    "JIRA_API_TOKEN": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "your-api-token",
+        "hint": "Your Jira API token (create at https://id.atlassian.com/manage-profile/security/api-tokens)"
+      },
+    }
+  },
+  "examples": [
+    {
+      "prompt": "Add comment to SECOPS-1234: Fixed the login issue",
+      "call": "{\"ticket\":\"SECOPS-1234\",\"comment\":\"Fixed the login issue\"}"
+    },
+    {
+      "prompt": "Comment on SECOPS-1234: Testing completed, all tests passing",
+      "call": "{\"ticket\":\"SECOPS-1234\",\"comment\":\"Testing completed, all tests passing\"}"
+    }
+  ],
+  "entrypoint": {
+    "file": "handler.js",
+    "params": {
+      "ticket": {
+        "description": "Jira ticket key (e.g., SECOPS-1234)",
+        "type": "string"
+      },
+      "comment": {
+        "description": "Comment text to add to the ticket",
+        "type": "string"
+      }
+    }
+  },
+  "imported": true
+}

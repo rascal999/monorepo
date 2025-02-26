@@ -1,0 +1,51 @@
+{
+  "active": true,
+  "hubId": "gitlab-repos",
+  "name": "GitLab Repositories",
+  "schema": "skill-1.0.0",
+  "version": "1.0.0",
+  "description": "List GitLab repositories and projects",
+  "author": "Roo",
+  "license": "MIT",
+  "setup_args": {
+    "GITLAB_HOST": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "https://gitlab.com",
+        "placeholder": "https://gitlab.com",
+        "hint": "Your GitLab instance URL"
+      },
+    },
+    "GITLAB_TOKEN": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "your-private-token",
+        "hint": "Your GitLab private token (create at GitLab > Settings > Access Tokens)"
+      },
+    }
+  },
+  "examples": [
+    {
+      "prompt": "List GitLab mangopay/appsec repos",
+      "call": "{\"path\":\"mangopay/appsec\"}"
+    },
+    {
+      "prompt": "Show GitLab repos in mangopay/appsec",
+      "call": "{\"path\":\"mangopay/appsec\"}"
+    }
+  ],
+  "entrypoint": {
+    "file": "handler.js",
+    "params": {
+      "path": {
+        "description": "GitLab group or project path (e.g., mangopay/appsec)",
+        "type": "string"
+      }
+    }
+  }
+}

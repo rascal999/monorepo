@@ -1,0 +1,9 @@
+{
+  "name": "jira-search",
+  "version": "1.0.0",
+  "description": "AnythingLLM agent skill for searching Jira using JQL",
+  "main": "handler.js",
+  "dependencies": {
+    "jira-client": "^8.2.2"
+  }
+}

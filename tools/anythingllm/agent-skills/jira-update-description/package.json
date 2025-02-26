@@ -1,0 +1,9 @@
+{
+  "name": "jira-update-description",
+  "version": "1.0.0",
+  "description": "AnythingLLM agent skill for updating Jira ticket descriptions",
+  "main": "handler.js",
+  "dependencies": {
+    "jira-client": "^8.2.2"
+  }
+}

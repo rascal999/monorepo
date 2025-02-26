@@ -1,0 +1,66 @@
+{
+  "active": false,
+  "hubId": "google-drive-reader",
+  "name": "Google Drive Reader",
+  "schema": "skill-1.0.0",
+  "version": "1.0.0",
+  "description": "Read files from Google Drive",
+  "author": "Roo",
+  "license": "MIT",
+  "setup_args": {
+    "GOOGLE_CLIENT_ID": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "your-client-id.apps.googleusercontent.com",
+        "hint": "Google Cloud OAuth Client ID"
+      }
+    },
+    "GOOGLE_CLIENT_SECRET": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "your-client-secret",
+        "hint": "Google Cloud OAuth Client Secret"
+      }
+    },
+    "GOOGLE_REFRESH_TOKEN": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "1//your-refresh-token",
+        "hint": "OAuth Refresh Token (run get-refresh-token.js to obtain)"
+      }
+    }
+  },
+  "examples": [
+    {
+      "prompt": "Read file MyReport.pdf from Drive",
+      "call": "{\"file\":\"MyReport.pdf\"}"
+    },
+    {
+      "prompt": "Show me the contents of ProjectNotes.txt",
+      "call": "{\"file\":\"ProjectNotes.txt\"}"
+    },
+    {
+      "prompt": "Get the content of meeting-minutes.docx",
+      "call": "{\"file\":\"meeting-minutes.docx\"}"
+    }
+  ],
+  "entrypoint": {
+    "file": "handler.js",
+    "params": {
+      "file": {
+        "type": "string",
+        "description": "Name of file to read from Google Drive"
+      }
+    }
+  },
+  "imported": true
+}
