@@ -11,10 +11,10 @@ const path = require('path');
 // Path to the central secrets repository
 // When running in the AnythingLLM container, this will be set to /app/server/storage/secrets/env
 // Otherwise, it will fall back to the relative path from the repository root
-const SECRETS_PATH = process.env.SECRETS_PATH || '../../../../../secrets/environments/mgp/env';
+const SECRETS_PATH = process.env.SECRETS_PATH || '/app/server/storage/secrets/env';
 
 // For debugging
-const DEBUG = process.env.DEBUG_SECRETS === 'true';
+const DEBUG = true; // Always enable debugging for now
 
 /**
  * Parse an env file into an object
@@ -80,36 +80,50 @@ function loadAllSecrets() {
   }
 }
 
-// Mapping of skill credentials to central repository credentials
-const CREDENTIAL_MAP = {
-  'jira-create': {
-    'JIRA_HOST': 'JIRA_URL',
-    'JIRA_EMAIL': 'JIRA_EMAIL',
-    'JIRA_API_TOKEN': 'JIRA_API_TOKEN'
-  },
-  'slack-channel-reader': {
-    'SLACK_TOKEN': 'SLACK_USER_READ_API_TOKEN'
-  }
-  // Add mappings for other skills as needed
-};
-
 /**
  * Get secrets for a specific skill
  */
 function getSecretsForSkill(skillId) {
   const secrets = loadAllSecrets();
-  const mapping = CREDENTIAL_MAP[skillId] || {};
   const skillSecrets = {};
   
-  // Map secrets from central store to skill-specific names
-  Object.entries(mapping).forEach(([skillKey, secretKey]) => {
-    if (secrets[secretKey]) {
-      skillSecrets[skillKey] = secrets[secretKey];
-      if (DEBUG) console.log(`Mapped ${secretKey} to ${skillKey}`);
+  try {
+    // Dynamically load the plugin.json for this skill
+    const pluginJsonPath = path.resolve(__dirname, `../${skillId}/plugin.json`);
+    if (DEBUG) console.log(`Looking for plugin.json at: ${pluginJsonPath}`);
+    
+    if (fs.existsSync(pluginJsonPath)) {
+      if (DEBUG) console.log(`Found plugin.json for ${skillId}`);
+      const pluginJson = JSON.parse(fs.readFileSync(pluginJsonPath, 'utf8'));
+      
+      // Extract required credentials from setup_args field
+      const setupArgs = pluginJson.setup_args || {};
+      if (DEBUG) console.log(`Setup args for ${skillId}:`, Object.keys(setupArgs));
+      
+      // Get all credential keys from setup_args
+      const credentialKeys = Object.keys(setupArgs);
+      
+      // Map each credential to its value in the secrets file
+      credentialKeys.forEach(credKey => {
+        if (secrets[credKey]) {
+          skillSecrets[credKey] = secrets[credKey];
+          if (DEBUG) console.log(`Found secret ${credKey} for ${skillId}`);
+        } else if (DEBUG) {
+          console.log(`Secret ${credKey} not found for ${skillId}`);
+        }
+      });
+      
+      // Special case mappings for certain skills
+      if (skillId === 'slack-channel-reader' && credentialKeys.includes('SLACK_TOKEN') && secrets['SLACK_USER_READ_API_TOKEN']) {
+        skillSecrets['SLACK_TOKEN'] = secrets['SLACK_USER_READ_API_TOKEN'];
+        if (DEBUG) console.log(`Mapped SLACK_USER_READ_API_TOKEN to SLACK_TOKEN for slack-channel-reader`);
+      }
     } else if (DEBUG) {
-      console.log(`Secret ${secretKey} not found for ${skillKey}`);
+      console.log(`Plugin.json not found for ${skillId}`);
     }
-  });
+  } catch (error) {
+    console.error(`Error loading plugin.json for ${skillId}:`, error);
+  }
   
   return skillSecrets;
 }

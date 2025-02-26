@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  anythingllm:
+    container_name: anythingllm
+    image: mintplexlabs/anythingllm:latest
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./storage:/app/server/storage
+      - ./storage/plugins:/app/server/storage/plugins
+      - /home/user/git/github/monorepo/secrets/environments/mgp/env:/app/server/storage/secrets/env
+      - /home/user/.ssh:/app/server/.ssh
+    env_file:
+      - /home/user/git/github/monorepo/secrets/environments/mgp/env
+    environment:
+      - STORAGE_DIR=/app/server/storage
+      - SECRETS_PATH=/app/server/storage/secrets/env
+      - LLM_PROVIDER=openrouter
+      - OPENROUTER_BASE_PATH=https://openrouter.ai/api/v1
+      - OPENROUTER_MODEL_PREF=anthropic/claude-3.7-sonnet:beta
+      - OPENROUTER_MODEL_TOKEN_LIMIT=200000
+      - EMBEDDING_ENGINE=ollama
+      - EMBEDDING_BASE_PATH=http://host.docker.internal:11434
+      - EMBEDDING_MODEL_PREF=nomic-embed-text:latest
+      - EMBEDDING_MODEL_MAX_CHUNK_LENGTH=8192
+      - VECTOR_DB=lancedb
+      - WHISPER_PROVIDER=local
+      - TTS_PROVIDER=native
+      - PASSWORDMINCHAR=12
+      - AGENT_LLM_PROVIDER=openrouter
+      - OPENROUTER_MODEL_PREF=anthropic/claude-3.7-sonnet:beta
+      - GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no
+      - HOME=/app/server
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - setup
+
+  setup:
+    image: busybox
+    command: >
+      sh -c "
+        mkdir -p ./storage/plugins/agent-skills ./storage/plugins/agent-flows ./storage/comkey ./storage/models/openrouter &&
+        touch ./storage/anythingllm.db &&
+        chmod -R 777 ./storage &&
+        if [ ! -f ./storage/jwt_secret ]; then
+          head -c 32 /dev/urandom | base64 > ./storage/jwt_secret
+        fi &&
+        chmod 666 ./storage/jwt_secret &&
+        cp -r /agent-skills/* ./storage/plugins/agent-skills/ || echo 'No agent skills to copy'
+      "
+    volumes:
+      - ./storage:/storage
+      - ./agent-skills:/agent-skills
+    working_dir: /app

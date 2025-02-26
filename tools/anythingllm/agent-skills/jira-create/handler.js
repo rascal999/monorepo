@@ -1,5 +1,3 @@
-const loadSecrets = require('../utils/load-secrets');
-
 const runtime = {
   async handler(params, context = {}) {
     const { project, type = "Task", summary, description } = params;
@@ -15,25 +13,10 @@ const runtime = {
       // Initialize Jira client within function scope
       const JiraClient = require('jira-client');
 
-      // Get credentials from runtime args or from secrets
-      let credentials = this.runtimeArgs || {};
-      
-      // If credentials are not in runtimeArgs, get them from secrets
-      if (!credentials.JIRA_HOST || !credentials.JIRA_EMAIL || !credentials.JIRA_API_TOKEN) {
-        // Get the skill ID from the config
-        const skillId = this.config?.hubId || 'jira-create';
-        
-        // Get secrets for this skill
-        const skillSecrets = loadSecrets.getSecretsForSkill(skillId);
-        
-        // Merge secrets with credentials
-        credentials = {
-          ...skillSecrets,
-          ...credentials
-        };
-      }
-      
-      const { JIRA_HOST, JIRA_EMAIL, JIRA_API_TOKEN } = credentials;
+      // Get credentials from runtime args or environment variables
+      let JIRA_HOST = (this.runtimeArgs || {}).JIRA_HOST || process.env.JIRA_HOST;
+      let JIRA_EMAIL = (this.runtimeArgs || {}).JIRA_EMAIL || process.env.JIRA_EMAIL;
+      let JIRA_API_TOKEN = (this.runtimeArgs || {}).JIRA_API_TOKEN || process.env.JIRA_API_TOKEN;
       
       if (!JIRA_HOST || !JIRA_EMAIL || !JIRA_API_TOKEN) {
         return "[JIRA CREATE RESPONSE] Missing required Jira credentials. Please configure them in the agent skills settings.";

@@ -1,5 +1,4 @@
 const channelCache = require('./channel-cache');
-const loadSecrets = require('../utils/load-secrets');
 
 const runtime = {
   async handler(params, context = {}) {
@@ -21,29 +20,12 @@ const runtime = {
       // Initialize Slack client within function scope
       const { WebClient } = require('@slack/web-api');
 
-      // Get credentials from runtime args or from secrets
-      let credentials = this.runtimeArgs || {};
-      
-      // If credentials are not in runtimeArgs, get them from secrets
-      if (!credentials.SLACK_TOKEN) {
-        // Get the skill ID from the config
-        const skillId = this.config?.hubId || 'slack-channel-reader';
-        
-        // Get secrets for this skill
-        const skillSecrets = loadSecrets.getSecretsForSkill(skillId);
-        
-        // Merge secrets with credentials
-        credentials = {
-          ...skillSecrets,
-          ...credentials
-        };
-      }
-      
-      const { SLACK_TOKEN } = credentials;
+      // Get credentials from runtime args or environment variables
+      let SLACK_TOKEN = (this.runtimeArgs || {}).SLACK_TOKEN || process.env.SLACK_TOKEN || process.env.SLACK_USER_READ_API_TOKEN;
       
       if (!SLACK_TOKEN) {
         introspect('Error: Missing Slack token');
-        return "Missing required Slack token. Please configure it in the agent skills settings.";
+        return "Missing required Slack token. Please configure it in the agent skills settings or environment variables.";
       }
 
       // Log thought process

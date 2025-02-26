@@ -20,10 +20,13 @@ const runtime = {
         return "Missing required field: file (e.g., 'document.pdf')";
       }
 
-      // Get credentials from runtime args
-      const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN } = this.runtimeArgs || {};
+      // Get credentials from runtime args or environment variables
+      let GOOGLE_CLIENT_ID = (this.runtimeArgs || {}).GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
+      let GOOGLE_CLIENT_SECRET = (this.runtimeArgs || {}).GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET;
+      let GOOGLE_REFRESH_TOKEN = (this.runtimeArgs || {}).GOOGLE_REFRESH_TOKEN || process.env.GOOGLE_REFRESH_TOKEN;
+      
       if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REFRESH_TOKEN) {
-        return "Missing required Google credentials. Please configure them in the agent skills settings.";
+        return "Missing required Google credentials. Please configure them in the agent skills settings or environment variables.";
       }
 
       // Create OAuth2 client

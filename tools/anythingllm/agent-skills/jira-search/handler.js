@@ -4,10 +4,13 @@ module.exports.runtime = {
     const { introspect = console.log } = context;
 
     try {
-      // Validate required credentials
-      const { JIRA_HOST, JIRA_EMAIL, JIRA_API_TOKEN } = this.runtimeArgs || {};
+      // Get credentials from runtime args or environment variables
+      let JIRA_HOST = (this.runtimeArgs || {}).JIRA_HOST || process.env.JIRA_HOST;
+      let JIRA_EMAIL = (this.runtimeArgs || {}).JIRA_EMAIL || process.env.JIRA_EMAIL;
+      let JIRA_API_TOKEN = (this.runtimeArgs || {}).JIRA_API_TOKEN || process.env.JIRA_API_TOKEN;
+      
       if (!JIRA_HOST || !JIRA_EMAIL || !JIRA_API_TOKEN) {
-        return "Missing required Jira credentials. Please configure them in the agent skills settings.";
+        return "Missing required Jira credentials. Please configure them in the agent skills settings or environment variables.";
       }
 
       // Initialize Jira client within function scope as recommended

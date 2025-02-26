@@ -12,10 +12,12 @@ const runtime = {
       // Initialize axios within function scope
       const axios = require('axios');
 
-      // Get credentials from runtime args
-      const { GITLAB_HOST, GITLAB_TOKEN } = this.runtimeArgs || {};
+      // Get credentials from runtime args or environment variables
+      let GITLAB_HOST = (this.runtimeArgs || {}).GITLAB_HOST || process.env.GITLAB_HOST;
+      let GITLAB_TOKEN = (this.runtimeArgs || {}).GITLAB_TOKEN || process.env.GITLAB_TOKEN;
+      
       if (!GITLAB_HOST || !GITLAB_TOKEN) {
-        return "Missing required GitLab credentials. Please configure them in the agent skills settings.";
+        return "Missing required GitLab credentials. Please configure them in the agent skills settings or environment variables.";
       }
 
       // Log thought process
