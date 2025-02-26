@@ -39,7 +39,7 @@ services:
       - setup
 
   setup:
-    image: busybox
+    image: node:18-alpine
     command: >
       sh -c "
         mkdir -p /storage/plugins/agent-skills /storage/plugins/agent-flows /storage/comkey /storage/models/openrouter &&
@@ -49,7 +49,13 @@ services:
           head -c 32 /dev/urandom | base64 > /storage/jwt_secret
         fi &&
         chmod 666 /storage/jwt_secret &&
-        cp -r /agent-skills/* /storage/plugins/agent-skills/ || echo 'No agent skills to copy'
+        cp -r /agent-skills/* /storage/plugins/agent-skills/ || echo 'No agent skills to copy' &&
+        for dir in /storage/plugins/agent-skills/*/; do
+          if [ -f \"$dir/package.json\" ]; then
+            echo \"Installing dependencies for $(basename $dir)\" &&
+            cd \"$dir\" && npm install
+          fi
+        done
       "
     volumes:
       - ./storage:/storage
