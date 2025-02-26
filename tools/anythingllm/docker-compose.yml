@@ -42,16 +42,15 @@ services:
     image: busybox
     command: >
       sh -c "
-        mkdir -p ./storage/plugins/agent-skills ./storage/plugins/agent-flows ./storage/comkey ./storage/models/openrouter &&
-        touch ./storage/anythingllm.db &&
-        chmod -R 777 ./storage &&
-        if [ ! -f ./storage/jwt_secret ]; then
-          head -c 32 /dev/urandom | base64 > ./storage/jwt_secret
+        mkdir -p /storage/plugins/agent-skills /storage/plugins/agent-flows /storage/comkey /storage/models/openrouter &&
+        touch /storage/anythingllm.db &&
+        chmod -R 777 /storage &&
+        if [ ! -f /storage/jwt_secret ]; then
+          head -c 32 /dev/urandom | base64 > /storage/jwt_secret
         fi &&
-        chmod 666 ./storage/jwt_secret &&
-        cp -r /agent-skills/* ./storage/plugins/agent-skills/ || echo 'No agent skills to copy'
+        chmod 666 /storage/jwt_secret &&
+        cp -r /agent-skills/* /storage/plugins/agent-skills/ || echo 'No agent skills to copy'
       "
     volumes:
       - ./storage:/storage
       - ./agent-skills:/agent-skills
-    working_dir: /app
