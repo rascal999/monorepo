@@ -1,0 +1,61 @@
+{
+  "active": true,
+  "hubId": "jira-projects",
+  "name": "Jira Projects",
+  "schema": "skill-1.0.0",
+  "version": "1.0.0",
+  "description": "List all accessible Jira projects in your instance",
+  "author": "Roo",
+  "license": "MIT",
+  "setup_args": {
+    "JIRA_HOST": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "https://your-domain.atlassian.net",
+        "hint": "Your Jira instance URL"
+      }
+    },
+    "JIRA_EMAIL": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "your-email@company.com",
+        "hint": "Your Jira account email"
+      }
+    },
+    "JIRA_API_TOKEN": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "your-api-token",
+        "hint": "Your Jira API token (create at https://id.atlassian.com/manage-profile/security/api-tokens)"
+      }
+    }
+  },
+  "examples": [
+    {
+      "prompt": "List all Jira projects",
+      "call": "{}"
+    },
+    {
+      "prompt": "Show me my Jira projects",
+      "call": "{}"
+    },
+    {
+      "prompt": "What projects are in Jira?",
+      "call": "{}"
+    }
+  ],
+  "entrypoint": {
+    "file": "handler.js",
+    "params": {}
+  },
+  "imported": true
+}

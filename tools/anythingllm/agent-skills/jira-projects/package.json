@@ -1,0 +1,9 @@
+{
+  "name": "jira-projects",
+  "version": "1.0.0",
+  "description": "AnythingLLM agent skill to list Jira projects",
+  "main": "handler.js",
+  "dependencies": {
+    "jira-client": "^8.2.2"
+  }
+}
