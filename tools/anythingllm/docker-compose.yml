@@ -48,10 +48,12 @@ services:
         fi &&
         chmod 666 /storage/jwt_secret &&
         cp -r /agent-skills/* /storage/plugins/agent-skills/ || echo 'No agent skills to copy' &&
-        find /storage/plugins/agent-skills -type f -name "package.json" | while read package_file; do
-          skill_dir=$(dirname "$package_file")
-          echo "Installing dependencies for $(basename $skill_dir)" &&
-          cd "$skill_dir" && npm install
+        for d in /storage/plugins/agent-skills/*/ ; do
+          if [ -f "$d/package.json" ]; then
+            echo "Installing dependencies for $(basename $d)" &&
+            cd "$d" && npm install
+          fi
+        done
           fi
         done
       "
