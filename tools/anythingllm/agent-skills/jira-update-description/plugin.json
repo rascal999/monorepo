@@ -16,7 +16,7 @@
         "default": "",
         "placeholder": "https://your-domain.atlassian.net",
         "hint": "Your Jira instance URL"
-      },
+      }
     },
     "JIRA_EMAIL": {
       "type": "string",
@@ -26,7 +26,7 @@
         "default": "",
         "placeholder": "your-email@company.com",
         "hint": "Your Jira account email"
-      },
+      }
     },
     "JIRA_API_TOKEN": {
       "type": "string",
@@ -36,7 +36,7 @@
         "default": "",
         "placeholder": "your-api-token",
         "hint": "Your Jira API token"
-      },
+      }
     }
   },
   "examples": [

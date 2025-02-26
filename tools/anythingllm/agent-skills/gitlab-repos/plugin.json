@@ -16,7 +16,7 @@
         "default": "https://gitlab.com",
         "placeholder": "https://gitlab.com",
         "hint": "Your GitLab instance URL"
-      },
+      }
     },
     "GITLAB_TOKEN": {
       "type": "string",
