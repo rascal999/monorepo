@@ -1,0 +1,18 @@
+[project]
+name = "mcp-slack-user"
+version = "0.1.0"
+description = "MCP server for Slack user token operations"
+dependencies = [
+    "mcp",
+    "slack-sdk",
+    "pydantic",
+    "python-dotenv",
+    "markdownify"
+]
+
+[project.scripts]
+mcp-slack-user = "mcp_slack_user:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
