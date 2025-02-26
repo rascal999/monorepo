@@ -26,7 +26,7 @@
         "default": "",
         "placeholder": "your-private-token",
         "hint": "Your GitLab private token (create at GitLab > Settings > Access Tokens)"
-      },
+      }
     }
   },
   "examples": [
