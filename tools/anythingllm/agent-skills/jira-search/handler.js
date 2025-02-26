@@ -29,7 +29,7 @@ module.exports.runtime = {
 
       // Search issues using JQL
       const searchResults = await jira.searchJira(jql, {
-        maxResults: 10,  // Limit results to prevent overwhelming responses
+        maxResults: 100,  // Limit results to prevent overwhelming responses
         fields: ['key', 'summary', 'status', 'priority', 'assignee']
       });
 
