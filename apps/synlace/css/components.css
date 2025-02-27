@@ -1,0 +1,132 @@
+/* Component Styles */
+
+/* Command Display Styles */
+.command-display {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    text-align: center;
+    height: 150px; /* Fixed height to prevent layout shifts */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.command-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier New', monospace;
+    font-size: 2rem;
+    opacity: 1;
+    transition: opacity 1s ease;
+    width: 100%;
+    min-height: 60px; /* Minimum height for the command line */
+}
+
+.command-line.fade-out {
+    opacity: 0;
+}
+
+.prompt {
+    color: var(--accent-secondary);
+    margin-right: 15px;
+    font-weight: bold;
+    font-size: 2.2rem;
+}
+
+.input {
+    color: var(--text-primary);
+}
+
+.cursor {
+    display: inline-block;
+    width: 15px;
+    height: 30px;
+    background-color: var(--accent-primary);
+    margin-left: 5px;
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 1s ease forwards;
+}
+
+.fade-out {
+    animation: fadeOut 1s ease forwards;
+}
+
+/* Integration Cards */
+.integration-card {
+    background-color: var(--bg-primary);
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.integration-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.integration-card h3 {
+    margin-bottom: 1rem;
+    color: var(--accent-primary);
+}
+
+.integration-card p {
+    color: var(--text-secondary);
+}
+
+/* Form Styles */
+.contact-form {
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: var(--bg-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.form-group textarea {
+    min-height: 150px;
+    resize: vertical;
+}
