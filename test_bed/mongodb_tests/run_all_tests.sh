@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # MongoDB Test Suite Runner
 # This script runs all MongoDB tests
 

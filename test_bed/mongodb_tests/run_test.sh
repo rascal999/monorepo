@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # MongoDB Test Runner Script
 # This script checks for pymongo, installs it if needed, and runs the MongoDB test
 

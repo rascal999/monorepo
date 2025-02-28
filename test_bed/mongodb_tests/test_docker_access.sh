@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # MongoDB Docker Access Test Script
 # This script tests MongoDB connectivity from a Docker container
 
