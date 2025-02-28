@@ -6,6 +6,7 @@
     <title>synlace - Command Line Interface</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
 </head>
 <body>
@@ -19,25 +20,55 @@
             </div>
             <nav>
                 <ul>
+                    <li><a href="#screenshots">Screenshots</a></li>
                     <li><a href="#integrations">Integrations</a></li>
                     <li><a href="#about">About</a></li>
-                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="#contact">Let's talk</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
     <section class="hero">
+        <div class="membrane-bg">
+            <div class="membrane"></div>
+        </div>
         <div class="container">
             <div class="hero-content">
                 <h2>Less work, more flow.</h2>
                 <p>Empower your team to command success naturally.</p>
             </div>
-            <div class="command-display">
+            <div class="command-display float-animation">
                 <div class="command-line">
                     <span class="prompt">></span>
                     <span class="input" id="command-input"></span>
                     <span class="cursor" id="cursor"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="screenshots" class="demo">
+        <div class="container">
+            <h2>Screenshots</h2>
+            <div class="demo-content">
+                <div class="carousel-container">
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper mySwiper">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                                <img src="images/20250227_demo_1.png" alt="synlace demo screenshot 1" class="demo-image">
+                            </div>
+                            <div class="swiper-slide">
+                                <img src="images/20250227_demo_2.png" alt="synlace demo screenshot 2" class="demo-image">
+                            </div>
+                            <div class="swiper-slide">
+                                <img src="images/20250227_demo_3.png" alt="synlace demo screenshot 3" class="demo-image">
+                            </div>
+                        </div>
+                        <div class="swiper-pagination"></div>
+                    </div>
+                    <div class="swiper-button-next"></div>
                 </div>
             </div>
         </div>
@@ -84,14 +115,13 @@
     <section id="about" class="about">
         <div class="container">
             <h2>About synlace</h2>
-            <p>synlace is a powerful command line interface that brings together all your productivity tools in one place. No more context switching between different applications - access everything you need with simple text commands.</p>
-            <p>Our mission is to streamline your workflow and boost productivity by providing a unified interface for all your tools and services.</p>
+            <p>We empower your workforce to harness the power of natural language, enabling them to effortlessly communicate with and control the tools they need every day. Our solution brings together all your essential tools under one unified platform, ensuring every team member can work smarter and more collaboratively.</p>
         </div>
     </section>
 
     <section id="contact" class="contact">
         <div class="container">
-            <h2>Contact Us</h2>
+            <h2>Let's talk</h2>
             <p>Interested in learning more about synlace? Get in touch with our team.</p>
             <form class="contact-form">
                 <div class="form-group">
@@ -119,6 +149,29 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const swiper = new Swiper(".mySwiper", {
+                slidesPerView: 1,
+                spaceBetween: 30,
+                loop: true,
+                pagination: {
+                    el: ".swiper-pagination",
+                    clickable: true,
+                },
+                navigation: {
+                    nextEl: ".swiper-button-next",
+                    prevEl: ".swiper-button-prev",
+                },
+                // No autoplay
+                effect: "fade",
+                fadeEffect: {
+                    crossFade: true
+                }
+            });
+        });
+    </script>
 </body>
 </html>
