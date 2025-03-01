@@ -1,0 +1,22 @@
+version: '3'
+services:
+  grafana:
+    image: grafana/grafana-enterprise:latest
+    container_name: grafana
+    ports:
+      - "3100:3000"
+    volumes:
+      - /home/user/git/github/monorepo/tools/grafana/data:/var/lib/grafana
+      - /home/user/git/github/monorepo/tools/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - /home/user/git/github/monorepo/tools/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    environment:
+      - GF_SERVER_DOMAIN=localhost
+      - GF_SERVER_ROOT_URL=http://localhost:3100
+      - GF_SERVER_HTTP_PORT=3000
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_NAME=Main Org.
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_PLUGINS_PREINSTALL=yesoreyeram-infinity-datasource
+    restart: unless-stopped
