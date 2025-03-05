@@ -1,2 +1,23 @@
+# Core dependencies
 boto3>=1.26.0  # For AWS credentials testing
-requests>=2.31.0  # For HTTP requests (OpenRouter, etc.)
+requests>=2.31.0  # For HTTP requests (OpenRouter, GitHub, Twilio, Auth0, Intercom, etc.)
+python-dotenv>=0.15.0  # For loading environment variables
+urllib3>=1.26.0  # HTTP client (used by requests and directly by mangopay module)
+
+# Service-specific dependencies
+stripe>=5.0.0  # For Stripe API integration
+twilio>=7.0.0  # For Twilio API integration (optional, can use requests directly)
+PyGithub>=1.55  # For enhanced GitHub API functionality (optional, can use requests directly)
+
+# Security and utility dependencies
+cryptography>=40.0.0  # For cryptographic operations
+certifi>=2023.7.22  # For SSL/TLS certificate validation
+idna>=3.4  # For internationalized domain names
+charset-normalizer>=3.1.0  # For character encoding detection
+pyjwt>=2.6.0  # For JWT token handling (useful for Auth0)
+
+# Development dependencies
+pytest>=7.3.1  # For unit testing
+pytest-cov>=4.1.0  # For test coverage reporting
+black>=23.3.0  # For code formatting
+flake8>=6.0.0  # For code linting
