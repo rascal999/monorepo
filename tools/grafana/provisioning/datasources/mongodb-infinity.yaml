@@ -1,0 +1,24 @@
+apiVersion: 1
+
+datasources:
+  - name: MongoDB
+    type: yesoreyeram-infinity-datasource
+    uid: mongodb
+    access: proxy
+    isDefault: false
+    editable: true
+    jsonData:
+      refId: "A"
+      type: "json"
+      source: "url"
+      url_options:
+        method: "GET"
+        data: ""
+        headers:
+          - name: "Content-Type"
+            value: "application/json"
+          - name: "Accept"
+            value: "application/json"
+      url: "http://localhost:8081/api/sqlmap"
+      parser: "backend"
+      root_selector: ""

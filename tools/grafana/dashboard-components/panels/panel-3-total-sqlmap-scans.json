@@ -1,0 +1,73 @@
+{
+  "datasource": {
+    "type": "yesoreyeram-infinity-datasource",
+    "uid": "mongodb"
+  },
+  "fieldConfig": {
+    "defaults": {
+      "color": {
+        "mode": "thresholds"
+      },
+      "mappings": [],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "green",
+            "value": null
+          },
+          {
+            "color": "red",
+            "value": 80
+          }
+        ]
+      }
+    },
+    "overrides": []
+  },
+  "gridPos": {
+    "h": 8,
+    "w": 12,
+    "x": 0,
+    "y": 8
+  },
+  "id": 3,
+  "options": {
+    "colorMode": "value",
+    "graphMode": "area",
+    "justifyMode": "auto",
+    "orientation": "auto",
+    "reduceOptions": {
+      "calcs": [
+        "count"
+      ],
+      "fields": "",
+      "values": false
+    },
+    "textMode": "auto"
+  },
+  "pluginVersion": "9.5.1",
+  "targets": [
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "mongodb"
+      },
+      "filterExpression": "",
+      "format": "table",
+      "global_query_id": "",
+      "hide": false,
+      "refId": "A",
+      "root_selector": "",
+      "source": "url",
+      "type": "json",
+      "url": "http://localhost:8081/api/sqlmap/count",
+      "url_options": {
+        "data": "",
+        "method": "GET"
+      }
+    }
+  ],
+  "title": "Total SQLMap Scans",
+  "type": "stat"
+}

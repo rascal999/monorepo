@@ -1,0 +1,149 @@
+{
+  "datasource": {
+    "type": "yesoreyeram-infinity-datasource",
+    "uid": "mongodb"
+  },
+  "fieldConfig": {
+    "defaults": {
+      "color": {
+        "mode": "thresholds"
+      },
+      "custom": {
+        "align": "auto",
+        "cellOptions": {
+          "type": "auto"
+        },
+        "filterable": true,
+        "inspect": false
+      },
+      "mappings": [],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "green",
+            "value": null
+          },
+          {
+            "color": "red",
+            "value": 80
+          }
+        ]
+      }
+    },
+    "overrides": [
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "request.method"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "Method"
+          },
+          {
+            "id": "custom.width",
+            "value": 100
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "request.url"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "URL"
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "response.status"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "HTTP Status"
+          },
+          {
+            "id": "custom.width",
+            "value": 120
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "response.size"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "Size"
+          },
+          {
+            "id": "custom.width",
+            "value": 100
+          },
+          {
+            "id": "unit",
+            "value": "bytes"
+          }
+        ]
+      }
+    ]
+  },
+  "gridPos": {
+    "h": 8,
+    "w": 24,
+    "x": 0,
+    "y": 16
+  },
+  "id": 5,
+  "options": {
+    "footer": {
+      "countRows": false,
+      "fields": "",
+      "reducer": [
+        "sum"
+      ],
+      "show": false
+    },
+    "showHeader": true,
+    "sortBy": [
+      {
+        "desc": true,
+        "displayName": "HTTP Status"
+      }
+    ]
+  },
+  "pluginVersion": "9.5.1",
+  "targets": [
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "mongodb"
+      },
+      "filterExpression": "",
+      "format": "table",
+      "global_query_id": "",
+      "hide": false,
+      "refId": "A",
+      "root_selector": "",
+      "source": "url",
+      "type": "json",
+      "url": "http://localhost:8081/api/sqlmap",
+      "url_options": {
+        "data": "",
+        "method": "GET"
+      }
+    }
+  ],
+  "title": "SQLMap Detailed Results",
+  "type": "table"
+}

@@ -1,0 +1,95 @@
+{
+  "datasource": {
+    "type": "yesoreyeram-infinity-datasource",
+    "uid": "mongodb"
+  },
+  "fieldConfig": {
+    "defaults": {
+      "color": {
+        "mode": "palette-classic"
+      },
+      "custom": {
+        "axisCenteredZero": false,
+        "axisColorMode": "text",
+        "axisLabel": "",
+        "axisPlacement": "auto",
+        "fillOpacity": 80,
+        "gradientMode": "none",
+        "hideFrom": {
+          "legend": false,
+          "tooltip": false,
+          "viz": false
+        },
+        "lineWidth": 1,
+        "scaleDistribution": {
+          "type": "linear"
+        }
+      },
+      "mappings": [],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "green",
+            "value": null
+          },
+          {
+            "color": "red",
+            "value": 80
+          }
+        ]
+      }
+    },
+    "overrides": []
+  },
+  "gridPos": {
+    "h": 8,
+    "w": 12,
+    "x": 0,
+    "y": 0
+  },
+  "id": 1,
+  "options": {
+    "barRadius": 0,
+    "barWidth": 0.97,
+    "groupWidth": 0.7,
+    "legend": {
+      "calcs": [],
+      "displayMode": "list",
+      "placement": "bottom",
+      "showLegend": true
+    },
+    "orientation": "auto",
+    "showValue": "auto",
+    "stacking": "none",
+    "tooltip": {
+      "mode": "single",
+      "sort": "none"
+    },
+    "xTickLabelRotation": 0,
+    "xTickLabelSpacing": 0
+  },
+  "targets": [
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "mongodb"
+      },
+      "filterExpression": "",
+      "format": "table",
+      "global_query_id": "",
+      "hide": false,
+      "refId": "A",
+      "root_selector": "",
+      "source": "url",
+      "type": "json",
+      "url": "http://localhost:8081/api/sqlmap",
+      "url_options": {
+        "data": "",
+        "method": "GET"
+      }
+    }
+  ],
+  "title": "SQLMap Scans",
+  "type": "barchart"
+}

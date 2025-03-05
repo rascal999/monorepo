@@ -1,0 +1,75 @@
+{
+  "datasource": {
+    "type": "yesoreyeram-infinity-datasource",
+    "uid": "mongodb"
+  },
+  "fieldConfig": {
+    "defaults": {
+      "color": {
+        "mode": "palette-classic"
+      },
+      "custom": {
+        "hideFrom": {
+          "legend": false,
+          "tooltip": false,
+          "viz": false
+        }
+      },
+      "mappings": []
+    },
+    "overrides": []
+  },
+  "gridPos": {
+    "h": 8,
+    "w": 12,
+    "x": 12,
+    "y": 8
+  },
+  "id": 4,
+  "options": {
+    "displayLabels": [
+      "percent"
+    ],
+    "legend": {
+      "displayMode": "list",
+      "placement": "right",
+      "showLegend": true
+    },
+    "pieType": "pie",
+    "reduceOptions": {
+      "calcs": [
+        "count"
+      ],
+      "fields": "request\\.method",
+      "values": false
+    },
+    "tooltip": {
+      "mode": "single",
+      "sort": "none"
+    }
+  },
+  "pluginVersion": "9.5.1",
+  "targets": [
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "mongodb"
+      },
+      "filterExpression": "",
+      "format": "table",
+      "global_query_id": "",
+      "hide": false,
+      "refId": "A",
+      "root_selector": "",
+      "source": "url",
+      "type": "json",
+      "url": "http://localhost:8081/api/sqlmap",
+      "url_options": {
+        "data": "",
+        "method": "GET"
+      }
+    }
+  ],
+  "title": "HTTP Methods Distribution",
+  "type": "piechart"
+}
