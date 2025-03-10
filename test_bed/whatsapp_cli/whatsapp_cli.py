@@ -6,7 +6,9 @@ from whatsapp import (
     WhatsAppClient,
     WhatsAppConfig,
     format_message,
-    format_contact
+    format_contact,
+    MessageAnalyzer,
+    print_analysis_result
 )
 
 def parse_args():
@@ -16,6 +18,10 @@ def parse_args():
     # Config
     parser.add_argument('--config', type=str, default='config.json',
                        help='Path to config file (default: config.json)')
+    parser.add_argument('--ollama-url', type=str, default='http://localhost:11434',
+                       help='Ollama API URL (default: http://localhost:11434)')
+    parser.add_argument('--ollama-model', type=str, default='llama2',
+                       help='Ollama model to use (default: llama2)')
     
     # Action group
     action = parser.add_mutually_exclusive_group(required=True)
@@ -27,6 +33,8 @@ def parse_args():
                        help='Fetch messages from a contact (name or number)')
     action.add_argument('--send', '-s', type=str, metavar='CONTACT',
                        help='Send a message to a contact (name or number)')
+    action.add_argument('--analyze', '-a', type=str, metavar='CONTACT',
+                       help='Analyze messages from a contact (name or number)')
     
     # Options
     parser.add_argument('--limit', '-l', type=int, default=50,
@@ -34,11 +42,26 @@ def parse_args():
     parser.add_argument('--message', '-m', type=str,
                        help='Message to send (required with --send)')
     
+    # Analysis options
+    analysis_group = parser.add_argument_group('Analysis Options')
+    analysis_group.add_argument('--sentiment', action='store_true',
+                              help='Perform sentiment/tone analysis')
+    analysis_group.add_argument('--relationship', action='store_true',
+                              help='Perform relationship/emotional trend analysis')
+    analysis_group.add_argument('--suggest-responses', action='store_true',
+                              help='Generate suggested responses')
+    analysis_group.add_argument('--response-count', type=int, default=3,
+                              help='Number of suggested responses to generate (default: 3)')
+    
     args = parser.parse_args()
     
     # Validate send command has message
     if args.send and not args.message:
         parser.error("--send requires --message")
+    
+    # Validate analyze command has at least one analysis type
+    if args.analyze and not (args.sentiment or args.relationship or args.suggest_responses):
+        parser.error("--analyze requires at least one analysis type (--sentiment, --relationship, or --suggest-responses)")
     
     return args
 
@@ -54,7 +77,8 @@ def load_config(config_path: str) -> WhatsAppConfig:
         {
             "base_url": "http://localhost:3000",
             "api_key": "your-api-key-here",
-            "session_id": "optional-session-id"  # Will generate UUID if not provided
+            "session_id": "optional-session-id",  # Will generate UUID if not provided
+            "ollama_url": "http://localhost:11434"  # Optional Ollama API URL
         }
         """)
         sys.exit(1)
@@ -99,20 +123,23 @@ def main():
         else:
             sys.exit(1)
 
-    # Fetch messages
-    if args.fetch:
+    # Helper function to get chat ID and name
+    def get_chat_info(identifier):
         # Try to find contact
-        contact = client.find_contact(args.fetch)
+        contact = client.find_contact(identifier)
         if contact:
-            chat_id = contact.id
-            recipient_name = contact.name
+            return contact.id, contact.name
         else:
             # Try as phone number
-            chat_id = client.find_chat_by_number(args.fetch)
+            chat_id = client.find_chat_by_number(identifier)
             if not chat_id:
-                print(f"No chat found for: {args.fetch}")
+                print(f"No chat found for: {identifier}")
                 sys.exit(1)
-            recipient_name = args.fetch
+            return chat_id, identifier
+
+    # Fetch messages
+    if args.fetch:
+        chat_id, recipient_name = get_chat_info(args.fetch)
         
         messages = client.fetch_messages(chat_id, args.limit)
         if not messages:
@@ -122,6 +149,41 @@ def main():
         print(f"\nLast {len(messages)} messages from {recipient_name}:")
         for msg in messages:
             print(format_message(msg))
+        sys.exit(0)
+    
+    # Analyze messages
+    if args.analyze:
+        chat_id, recipient_name = get_chat_info(args.analyze)
+        
+        messages = client.fetch_messages(chat_id, args.limit)
+        if not messages:
+            print("No messages found")
+            sys.exit(0)
+        
+        print(f"\nAnalyzing last {len(messages)} messages from {recipient_name}...")
+        
+        # Initialize analyzer - use config values if available, otherwise use command line args
+        ollama_url = config.ollama_url if hasattr(config, 'ollama_url') else args.ollama_url
+        ollama_model = config.ollama_model if hasattr(config, 'ollama_model') else args.ollama_model
+        
+        analyzer = MessageAnalyzer(ollama_url=ollama_url, ollama_model=ollama_model)
+        
+        # Perform requested analyses
+        if args.sentiment:
+            print("\nPerforming sentiment analysis...")
+            result = analyzer.analyze_sentiment(messages)
+            print_analysis_result(result)
+        
+        if args.relationship:
+            print("\nPerforming relationship analysis...")
+            result = analyzer.analyze_relationship(messages)
+            print_analysis_result(result)
+        
+        if args.suggest_responses:
+            print("\nGenerating suggested responses...")
+            result = analyzer.generate_responses(messages, args.response_count)
+            print_analysis_result(result)
+        
         sys.exit(0)
 
 if __name__ == '__main__':

@@ -9,6 +9,8 @@ class WhatsAppConfig:
     base_url: str
     api_key: str
     session_id: str
+    ollama_url: str = "http://localhost:11434"
+    ollama_model: str = "llama2"  # Default to llama2 which is more commonly available
 
     @classmethod
     def from_dict(cls, data: Dict[str, str]) -> 'WhatsAppConfig':
@@ -16,7 +18,9 @@ class WhatsAppConfig:
         return cls(
             base_url=data['base_url'],
             api_key=data['api_key'],
-            session_id=data.get('session_id', str(uuid.uuid4()))
+            session_id=data.get('session_id', str(uuid.uuid4())),
+            ollama_url=data.get('ollama_url', "http://localhost:11434"),
+            ollama_model=data.get('ollama_model', "llama2")
         )
 
 @dataclass

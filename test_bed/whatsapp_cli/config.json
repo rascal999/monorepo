@@ -1,0 +1,7 @@
+{
+    "base_url": "http://localhost:3000",
+    "api_key": "your-api-key-here",
+    "session_id": "ABCD",
+    "ollama_url": "http://localhost:11434",
+    "ollama_model": "qwen2.5:latest"
+}
